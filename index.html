@@ -3,205 +3,683 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b3d2e">
+  <meta name="theme-color" content="#0a2f24">
   <title>Poker Room</title>
+
+  <!-- Fontes (se não carregarem, o site usa fontes do próprio celular) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Biblioteca oficial do Supabase (carregada pela internet) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* ---------- Aparência geral ---------- */
+    /* =====================================================
+       CORES, FONTES E MEDIDAS
+       ===================================================== */
+    :root {
+      --feltro-950: #06231b;
+      --feltro-900: #0a2f24;
+      --feltro-800: #0f3f31;
+      --feltro-700: #17533f;
+      --feltro-600: #1f6850;
+      --linha: rgba(244, 236, 216, 0.16);
+
+      --marfim: #f4ecd8;
+      --marfim-suave: rgba(244, 236, 216, 0.72);
+      --ouro: #e9b93c;
+      --ouro-escuro: #b98a14;
+      --vermelho: #cf4a35;
+      --verde: #3fae82;
+
+      --raio-lg: 20px;
+      --raio-md: 14px;
+      --raio-sm: 10px;
+
+      --fonte-texto: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --fonte-numero: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+    }
+
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    html, body { margin: 0; }
+    [hidden] { display: none !important; }
+
+    html {
+      margin: 0;
+      background: var(--feltro-900);
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #0b3d2e;
-      color: #fff;
+      margin: 0;
+      min-height: 100dvh;
+      font-family: var(--fonte-texto);
+      font-size: 16px;
+      line-height: 1.4;
+      color: var(--marfim);
+      background:
+        radial-gradient(120% 60% at 50% 0%, #1d6a50 0%, rgba(29, 106, 80, 0) 62%),
+        var(--feltro-900);
+      background-repeat: no-repeat;
       touch-action: manipulation;
+      -webkit-font-smoothing: antialiased;
     }
     main {
+      max-width: 560px;
+      margin: 0 auto;
       padding: 16px;
       padding-top: calc(16px + env(safe-area-inset-top));
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
     }
-    h1, h2 { text-align: center; }
 
-    /* ---------- Telas ---------- */
+    h1, h2 { margin: 0; font-family: var(--fonte-numero); }
+    h2 { font-size: 34px; font-weight: 600; line-height: 1.1; margin-bottom: 14px; }
+
+    :focus-visible {
+      outline: 3px solid var(--ouro);
+      outline-offset: 2px;
+    }
+
+    /* =====================================================
+       TELAS
+       ===================================================== */
     .tela { display: none; }
     .tela.ativa { display: block; }
 
-    /* ---------- Botões e campos ---------- */
+    /* =====================================================
+       BOTÕES
+       ===================================================== */
     button {
+      font: inherit;
       width: 100%;
-      min-height: 52px;
-      padding: 12px;
-      margin-top: 10px;
+      min-height: 54px;
+      padding: 12px 16px;
+      margin-top: 12px;
       font-size: 17px;
-      font-weight: bold;
+      font-weight: 600;
       border: none;
-      border-radius: 12px;
-      background: #f5c542;
-      color: #222;
+      border-radius: var(--raio-md);
+      background: var(--ouro);
+      color: #241a00;
+      box-shadow: 0 3px 0 var(--ouro-escuro), 0 10px 18px -10px rgba(0, 0, 0, 0.6);
+      transition: transform 0.08s ease, opacity 0.15s ease;
+      cursor: pointer;
     }
-    button:active { transform: scale(0.97); }
-    button:disabled { opacity: 0.4; }
-    button.secundario { background: #1d6b52; color: #fff; }
-    button.perigo { background: #c0392b; color: #fff; }
+    button:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--ouro-escuro); }
+    button:disabled { opacity: 0.32; box-shadow: none; cursor: default; }
+
+    button.secundario {
+      background: var(--feltro-700);
+      color: var(--marfim);
+      box-shadow: inset 0 0 0 1.5px var(--linha);
+    }
+    button.positivo {
+      background: var(--verde);
+      color: #04231a;
+      box-shadow: 0 3px 0 #2a7d5c;
+    }
+    button.perigo {
+      background: var(--vermelho);
+      color: #fff;
+      box-shadow: 0 3px 0 #9c3322;
+    }
+    button.neutro {
+      background: rgba(244, 236, 216, 0.14);
+      color: var(--marfim);
+      box-shadow: none;
+    }
+    button.contorno-perigo {
+      background: transparent;
+      color: #ffab9c;
+      box-shadow: inset 0 0 0 1.5px rgba(207, 74, 53, 0.55);
+    }
+    button.fantasma {
+      background: transparent;
+      color: var(--marfim-suave);
+      box-shadow: none;
+    }
+    button.voltar {
+      width: auto;
+      min-height: 44px;
+      margin: 0 0 6px -6px;
+      padding: 8px 10px 8px 4px;
+      font-size: 16px;
+      font-weight: 500;
+      background: transparent;
+      color: var(--marfim-suave);
+      box-shadow: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ic {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .ic.cheio { fill: currentColor; stroke: none; }
+
+    /* =====================================================
+       CAMPOS
+       ===================================================== */
+    label {
+      display: block;
+      margin: 16px 0 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--marfim-suave);
+    }
+    label:first-child { margin-top: 0; }
 
     input {
+      font: inherit;
       width: 100%;
-      min-height: 52px;
-      padding: 12px;
-      margin-top: 6px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
+      min-height: 54px;
+      padding: 12px 14px;
+      font-size: 17px;
+      color: var(--marfim);
+      background: var(--feltro-950);
+      border: 1.5px solid var(--linha);
+      border-radius: var(--raio-md);
+      outline: none;
     }
-    label { display: block; margin-top: 14px; font-size: 15px; }
+    input::placeholder { color: rgba(244, 236, 216, 0.35); }
+    input:focus {
+      border-color: var(--ouro);
+      box-shadow: 0 0 0 3px rgba(233, 185, 60, 0.22);
+    }
+    input[type=number] { -moz-appearance: textfield; }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-    /* ---------- Mensagem de erro ---------- */
+    .dica {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: var(--marfim-suave);
+    }
+
+    /* =====================================================
+       CARTÕES E MENSAGENS
+       ===================================================== */
+    .cartao {
+      background: rgba(6, 35, 27, 0.55);
+      border: 1px solid var(--linha);
+      border-radius: var(--raio-lg);
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .cartao-titulo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
     .erro {
-      background: #c0392b;
-      border-radius: 10px;
-      padding: 10px;
-      margin-top: 12px;
-      text-align: center;
-      font-size: 14px;
       display: none;
+      margin-top: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.35;
+      color: #ffd6cd;
+      background: rgba(207, 74, 53, 0.2);
+      border: 1px solid rgba(207, 74, 53, 0.6);
+      border-radius: var(--raio-sm);
     }
     .erro.visivel { display: block; }
 
-    /* ---------- Mesa ---------- */
-    .painel {
-      background: #14573f;
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 14px;
-      text-align: center;
+    .toast {
+      position: fixed;
+      top: calc(14px + env(safe-area-inset-top));
+      left: 50%;
+      z-index: 50;
+      max-width: calc(100% - 32px);
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #241a00;
+      background: var(--marfim);
+      border-radius: 999px;
+      box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transform: translate(-50%, -12px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
-    .pote { font-size: 36px; font-weight: bold; color: #f5c542; }
+    .toast.visivel { opacity: 1; transform: translate(-50%, 0); }
+
+    /* =====================================================
+       TELA 1: INÍCIO
+       ===================================================== */
+    #tela-inicio.ativa {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: calc(100dvh - 40px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
+    .marca { text-align: center; margin-bottom: 26px; }
+    .naipes {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      font-size: 26px;
+      line-height: 1;
+      color: var(--marfim);
+    }
+    .naipes .r { color: #ff7d68; }
+    .marca h1 {
+      margin-top: 10px;
+      font-size: 76px;
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+    }
+    .marca p {
+      margin: 12px auto 0;
+      max-width: 270px;
+      color: var(--marfim-suave);
+    }
+    .separador {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0 2px;
+      font-size: 14px;
+      color: var(--marfim-suave);
+    }
+    .separador::before, .separador::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--linha);
+    }
+    input.codigo {
+      text-align: center;
+      font-family: var(--fonte-numero);
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      padding-left: calc(14px + 0.3em);
+      text-transform: uppercase;
+      min-height: 66px;
+    }
+    input.codigo::placeholder { letter-spacing: 0.3em; }
+
+    /* =====================================================
+       TELA 2: CRIAR PARTIDA
+       ===================================================== */
+    .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .duas label { margin-top: 16px; }
+    .atalhos { display: flex; gap: 8px; margin-top: 8px; }
+    button.atalho {
+      flex: 1;
+      width: auto;
+      min-height: 40px;
+      margin: 0;
+      padding: 6px 4px;
+      font-size: 15px;
+      font-family: var(--fonte-numero);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      background: rgba(244, 236, 216, 0.1);
+      color: var(--marfim);
+      box-shadow: none;
+    }
+
+    /* =====================================================
+       TELA 3: ESCOLHA
+       ===================================================== */
+    .convite { text-align: center; padding: 8px 0 4px; }
+    .convite .rotulo { font-size: 14px; color: var(--marfim-suave); }
+    .convite .grande-codigo {
+      font-family: var(--fonte-numero);
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.14em;
+      padding-left: 0.14em;
+      color: var(--ouro);
+    }
+    .convite p { margin: 8px 0 0; color: var(--marfim-suave); }
+    .convite strong { color: var(--marfim); }
+
+    /* =====================================================
+       TELA 4: MESA
+       ===================================================== */
+    #tela-mesa { padding-bottom: 40px; }
+
+    .topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    button.codigo-pill {
+      width: auto;
+      min-height: 48px;
+      margin: 0;
+      padding: 6px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.28);
+      color: var(--marfim);
+      box-shadow: inset 0 0 0 1px var(--linha);
+    }
+    .codigo-pill .rotulo { font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
+    .codigo-pill strong {
+      font-family: var(--fonte-numero);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      line-height: 1;
+    }
+    .papel {
+      font-size: 14px;
+      font-weight: 500;
+      text-align: right;
+      color: var(--marfim-suave);
+    }
+
+    /* Pote: uma ficha grande no centro da mesa */
+    .mesa-centro { text-align: center; padding: 18px 0 4px; }
+    .pote-ficha {
+      position: relative;
+      width: 172px;
+      height: 172px;
+      margin: 0 auto 16px;
+      padding: 13px;
+      border-radius: 50%;
+      background: repeating-conic-gradient(var(--marfim) 0deg 12deg, var(--vermelho) 12deg 30deg);
+      box-shadow: 0 16px 30px -12px rgba(0, 0, 0, 0.7), 0 0 0 3px rgba(0, 0, 0, 0.25);
+    }
+    .pote-ficha .miolo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 35% 28%, #1f6850, #0a2f24 72%);
+      border: 3px solid var(--marfim);
+      box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.28);
+    }
+    .pote-rotulo { font-size: 14px; font-weight: 500; color: var(--marfim-suave); }
+    .pote-valor {
+      font-family: var(--fonte-numero);
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ouro);
+    }
+    .pote-valor[data-len="6"] { font-size: 44px; }
+    .pote-valor[data-len="7"], .pote-valor[data-len="8"] { font-size: 34px; }
+    .pote-ficha.bump { animation: bump 0.4s ease; }
+    @keyframes bump {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .pilulas { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .pilula {
+      padding: 5px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--marfim);
+      background: rgba(0, 0, 0, 0.26);
+      border-radius: 999px;
+    }
+    .pilula:empty { display: none; }
+    .pilula.destaque { background: rgba(233, 185, 60, 0.2); color: var(--ouro); }
+
+    .status {
+      margin: 16px 0;
+      padding: 13px 14px;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--raio-md);
+    }
+    .status.minha-vez { background: var(--ouro); color: #241a00; }
+
+    /* Jogadores */
     .jogador {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: #14573f;
-      border-radius: 12px;
-      padding: 14px;
+      gap: 12px;
       margin-top: 8px;
-      border: 2px solid transparent;
+      padding: 12px 14px;
+      background: var(--feltro-800);
+      border: 1.5px solid var(--linha);
+      border-radius: var(--raio-md);
     }
-    .jogador.eu { background: #1a6b4d; }
-    .jogador.vez { border-color: #f5c542; }
-    .jogador.desistiu { opacity: 0.4; }
-    .nome { font-weight: bold; font-size: 17px; }
-    .detalhe { font-size: 13px; opacity: 0.8; }
-    .saldo { font-size: 20px; font-weight: bold; }
-    .aviso { font-size: 12px; opacity: 0.7; text-align: center; margin-top: 6px; }
+    .jogador.eu { background: var(--feltro-700); }
+    .jogador.vez {
+      border-color: var(--ouro);
+      box-shadow: 0 0 0 4px rgba(233, 185, 60, 0.2);
+    }
+    .jogador.desistiu { opacity: 0.45; }
 
-    /* ---------- Formulário de distribuir o pote ---------- */
+    /* Cada jogador tem uma ficha de cor própria */
+    .ficha {
+      --cor: #cf4a35;
+      --txt: #fff;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-family: var(--fonte-numero);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--txt);
+      background: var(--cor);
+      border: 4px dashed rgba(255, 255, 255, 0.85);
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.4);
+    }
+    .ficha.c1 { --cor: #cf4a35; }
+    .ficha.c2 { --cor: #2f6fd0; }
+    .ficha.c3 { --cor: #2b2b2b; }
+    .ficha.c4 { --cor: #7a4bc2; }
+    .ficha.c5 { --cor: #e08a1e; --txt: #1d1300; }
+    .ficha.c6 { --cor: #1e9c8e; }
+    .ficha.c7 { --cor: #d9cfae; --txt: #2a2410; }
+    .ficha.c8 { --cor: #c2417f; }
+
+    .info { flex: 1; min-width: 0; }
+    .nome {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .nome .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nome .coroa { color: var(--ouro); flex-shrink: 0; }
+    .nome .voce { font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+    .tags:empty { display: none; }
+    .tag {
+      padding: 2px 9px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--marfim-suave);
+      background: rgba(244, 236, 216, 0.12);
+      border-radius: 999px;
+    }
+    .tag.vez, .tag.allin { background: var(--ouro); color: #241a00; }
+    .tag.blind { color: var(--marfim); box-shadow: inset 0 0 0 1px rgba(244, 236, 216, 0.4); background: transparent; }
+    .tag.fora { background: rgba(207, 74, 53, 0.28); color: #ffbcae; }
+
+    .saldo {
+      font-family: var(--fonte-numero);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      text-align: right;
+    }
+
+    /* Histórico */
+    details.historico {
+      margin-top: 16px;
+      background: rgba(6, 35, 27, 0.45);
+      border: 1px solid var(--linha);
+      border-radius: var(--raio-lg);
+      overflow: hidden;
+    }
+    details.historico summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 54px;
+      padding: 0 18px;
+      font-size: 16px;
+      font-weight: 600;
+      list-style: none;
+      cursor: pointer;
+    }
+    details.historico summary::-webkit-details-marker { display: none; }
+    details.historico summary::after {
+      content: "";
+      width: 9px;
+      height: 9px;
+      margin-right: 4px;
+      border-right: 2px solid var(--marfim-suave);
+      border-bottom: 2px solid var(--marfim-suave);
+      transform: rotate(45deg);
+      transition: transform 0.2s ease;
+    }
+    details.historico[open] summary::after { transform: rotate(-135deg); }
+    #hist-lista {
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 0 18px 10px;
+    }
+    .hist-linha {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 15px;
+      border-top: 1px solid rgba(244, 236, 216, 0.1);
+    }
+    .hist-mao {
+      flex-shrink: 0;
+      min-width: 52px;
+      padding-top: 1px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ouro);
+    }
+    .detalhe { font-size: 14px; color: var(--marfim-suave); }
+
+    /* Painel do criador e distribuição */
+    .painel-distribuir { border-color: rgba(233, 185, 60, 0.6); }
     .linha-premio {
       display: grid;
-      grid-template-columns: 1fr 90px 70px;
+      grid-template-columns: 1fr 96px 72px;
       gap: 8px;
       align-items: center;
       margin-top: 8px;
-      text-align: left;
     }
-    .linha-premio input { margin-top: 0; }
-    .linha-premio button {
-      margin-top: 0;
-      padding: 0;
+    .linha-premio .nome { font-size: 16px; }
+    .linha-premio input { min-height: 48px; padding: 8px 12px; text-align: right; }
+    .linha-premio button { min-height: 48px; margin-top: 0; padding: 0; font-size: 15px; }
+    .soma {
+      margin-top: 14px;
+      padding: 10px;
       font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--raio-sm);
     }
+    .soma.ok { background: rgba(63, 174, 130, 0.22); color: #9ae8c6; }
 
-    /* ---------- Barra de ações fixa embaixo ---------- */
+    /* =====================================================
+       BARRA DE AÇÕES (fixa embaixo)
+       ===================================================== */
     .barra-acoes {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
-      background: #0f4d38;
-      border-top: 2px solid #f5c542;
+      z-index: 20;
+      max-width: 560px;
+      margin: 0 auto;
       padding: 10px 12px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
       display: none;
+      background: linear-gradient(var(--feltro-900), var(--feltro-950));
+      border-top: 1px solid var(--linha);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -14px 30px -12px rgba(0, 0, 0, 0.7);
     }
     .barra-acoes.visivel { display: block; }
-    .barra-acoes .grade {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .barra-acoes.minha-vez { border-top: 3px solid var(--ouro); }
+
+    .barra-acoes .erro { margin-top: 0; margin-bottom: 8px; }
+    .barra-titulo {
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--marfim-suave);
     }
-    .barra-acoes button { margin-top: 0; min-height: 48px; }
+    .barra-acoes.minha-vez .barra-titulo { color: var(--ouro); }
+    .barra-titulo:empty { display: none; }
+
+    .barra-acoes button { margin-top: 0; min-height: 52px; }
+    .barra-acoes .grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .barra-acoes .grade button { padding: 8px 4px; font-size: 16px; }
+
+    .barra-acoes .atalhos-aposta { display: flex; gap: 8px; margin-top: 10px; }
+    .barra-acoes .atalhos-aposta button {
+      flex: 1;
+      min-height: 36px;
+      padding: 4px;
+      font-size: 14px;
+      background: rgba(244, 236, 216, 0.1);
+      color: var(--marfim);
+      box-shadow: none;
+    }
     .barra-acoes .linha-aposta {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 128px;
       gap: 8px;
       margin-top: 8px;
     }
-    .barra-acoes input { margin-top: 0; min-height: 48px; }
+    .barra-acoes input { margin-top: 0; min-height: 52px; font-family: var(--fonte-numero); font-size: 22px; font-weight: 600; }
     .barra-acoes .linha-passar {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1.8fr;
       gap: 8px;
       margin-top: 8px;
     }
-    button.neutro { background: #d9d9d9; color: #222; }
-    .barra-acoes .erro { margin-top: 0; margin-bottom: 8px; }
-
-    #tela-mesa { padding-bottom: 300px; }
-
-    /* ---------- Número do jogador ---------- */
-    .esquerda { display: flex; align-items: center; gap: 12px; }
-    .numero {
-      width: 34px;
-      height: 34px;
-      flex-shrink: 0;
-      border-radius: 50%;
-      background: #0b3d2e;
-      border: 2px solid #f5c542;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    /* ---------- Botão grande de pagar blind ---------- */
+    .barra-acoes .linha-passar button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .barra-acoes button.grande {
-      min-height: 76px;
-      font-size: 24px;
-      letter-spacing: 1px;
+      min-height: 78px;
+      font-family: var(--fonte-numero);
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
 
-    /* ---------- Histórico ---------- */
-    details.historico {
-      background: #14573f;
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 14px;
-    }
-    details.historico summary {
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .hist-linha {
-      display: flex;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 14px;
-    }
-    .hist-linha:last-child { border-bottom: none; }
-    .hist-mao {
-      flex-shrink: 0;
-      min-width: 34px;
-      font-size: 12px;
-      opacity: 0.7;
-      padding-top: 2px;
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
@@ -211,133 +689,187 @@
 
   <!-- ===== TELA 1: INÍCIO ===== -->
   <section id="tela-inicio" class="tela ativa">
-    <h1>♠ Poker Room ♥</h1>
-    <p style="text-align:center">Controle de fichas para o poker com os amigos.</p>
+    <div class="marca">
+      <div class="naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
+      <h1>Poker Room</h1>
+      <p>Fichas, blinds e pote da sua mesa, direto no celular.</p>
+    </div>
 
     <button onclick="mostrar('tela-criar')">Criar partida</button>
 
-    <label>Já tem um código?</label>
-    <input id="campo-codigo" type="text" placeholder="Ex.: K7QM2" maxlength="5"
-           autocapitalize="characters" autocomplete="off">
-    <button id="botao-entrar" class="secundario" onclick="entrarPartida()">Entrar na partida</button>
+    <div class="separador">ou entre numa mesa</div>
 
-    <div id="erro-inicio" class="erro"></div>
+    <div class="cartao" style="margin-top:12px">
+      <label for="campo-codigo">Código da partida</label>
+      <input id="campo-codigo" class="codigo" type="text" placeholder="•••••" maxlength="5"
+             autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false"
+             enterkeyhint="go">
+      <button id="botao-entrar" class="secundario" onclick="entrarPartida()">Entrar na partida</button>
+      <div id="erro-inicio" class="erro" role="alert"></div>
+    </div>
   </section>
 
   <!-- ===== TELA 2: CRIAR PARTIDA ===== -->
   <section id="tela-criar" class="tela">
-    <h2>Configurar partida</h2>
+    <button class="voltar" onclick="mostrar('tela-inicio')">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+    </button>
+    <h2>Nova partida</h2>
 
-    <label>Seu nome</label>
-    <input id="campo-nome" type="text" placeholder="Ex.: Ana" maxlength="20" autocomplete="off">
+    <div class="cartao" style="margin-top:0">
+      <label for="campo-nome">Seu nome</label>
+      <input id="campo-nome" type="text" placeholder="Ex.: Ana" maxlength="20" autocomplete="off">
 
-    <label>Saldo inicial de cada jogador</label>
-    <input id="campo-saldo" type="number" inputmode="numeric" value="1000">
+      <label for="campo-saldo">Fichas de cada jogador</label>
+      <input id="campo-saldo" type="number" inputmode="numeric" value="1000">
+      <div class="atalhos">
+        <button type="button" class="atalho" onclick="definirSaldo(500)">500</button>
+        <button type="button" class="atalho" onclick="definirSaldo(1000)">1000</button>
+        <button type="button" class="atalho" onclick="definirSaldo(2000)">2000</button>
+        <button type="button" class="atalho" onclick="definirSaldo(5000)">5000</button>
+      </div>
 
-    <label>Small blind</label>
-    <input id="campo-small" type="number" inputmode="numeric" value="10">
-
-    <label>Big blind</label>
-    <input id="campo-big" type="number" inputmode="numeric" value="20">
+      <div class="duas">
+        <div>
+          <label for="campo-small">Small blind</label>
+          <input id="campo-small" type="number" inputmode="numeric" value="10">
+        </div>
+        <div>
+          <label for="campo-big">Big blind</label>
+          <input id="campo-big" type="number" inputmode="numeric" value="20">
+        </div>
+      </div>
+      <p class="dica">O big blind costuma ser o dobro do small blind.</p>
+    </div>
 
     <button id="botao-criar" onclick="criarPartida()">Criar e ir para a mesa</button>
-    <button class="secundario" onclick="mostrar('tela-inicio')">Voltar</button>
-
-    <div id="erro-criar" class="erro"></div>
+    <div id="erro-criar" class="erro" role="alert"></div>
   </section>
 
   <!-- ===== TELA 3: ESCOLHA (jogar ou só assistir) ===== -->
   <section id="tela-escolha" class="tela">
-    <h2>Partida <span id="escolha-codigo"></span></h2>
-    <p style="text-align:center">
-      Cada jogador começa com <strong id="escolha-saldo"></strong> fichas.
-    </p>
+    <button class="voltar" onclick="mostrar('tela-inicio')">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+    </button>
 
-    <label>Seu nome</label>
-    <input id="campo-nome-entrada" type="text" placeholder="Ex.: Carlos" maxlength="20" autocomplete="off">
+    <div class="convite">
+      <div class="rotulo">Você foi convidado para a partida</div>
+      <div class="grande-codigo" id="escolha-codigo"></div>
+      <p>Cada jogador começa com <strong id="escolha-saldo"></strong> fichas.</p>
+    </div>
 
-    <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
-    <button class="secundario" onclick="entrarComoEspectador()">Só assistir</button>
-    <button class="secundario" onclick="mostrar('tela-inicio')">Voltar</button>
+    <div class="cartao">
+      <label for="campo-nome-entrada">Seu nome</label>
+      <input id="campo-nome-entrada" type="text" placeholder="Ex.: Carlos" maxlength="20" autocomplete="off">
 
-    <div id="erro-escolha" class="erro"></div>
+      <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
+      <button class="secundario" onclick="entrarComoEspectador()">Só assistir</button>
+      <div id="erro-escolha" class="erro" role="alert"></div>
+    </div>
   </section>
 
   <!-- ===== TELA 4: MESA ===== -->
   <section id="tela-mesa" class="tela">
-    <h2>Mesa</h2>
-    <div class="aviso">Código da partida: <strong id="mesa-codigo"></strong></div>
-    <div class="aviso" id="mesa-papel"></div>
 
-    <div class="painel">
-      <div>Pote</div>
-      <div class="pote" id="mesa-pote">0</div>
-      <div class="detalhe" id="mesa-blinds"></div>
-      <div class="detalhe" id="mesa-aposta"></div>
-      <div class="detalhe" id="mesa-status" style="margin-top:8px; font-weight:bold"></div>
+    <div class="topo">
+      <button class="codigo-pill" onclick="compartilharCodigo()" aria-label="Compartilhar o código da partida">
+        <span class="rotulo">Código</span>
+        <strong id="mesa-codigo"></strong>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg>
+      </button>
+      <div class="papel" id="mesa-papel"></div>
     </div>
+
+    <div class="mesa-centro">
+      <div class="pote-ficha" id="pote-ficha">
+        <div class="miolo">
+          <span class="pote-rotulo">Pote</span>
+          <span class="pote-valor" id="mesa-pote" data-len="1">0</span>
+        </div>
+      </div>
+      <div class="pilulas">
+        <span class="pilula" id="mesa-mao"></span>
+        <span class="pilula" id="mesa-nivel"></span>
+        <span class="pilula" id="mesa-blinds"></span>
+        <span class="pilula destaque" id="mesa-aposta"></span>
+      </div>
+    </div>
+
+    <div class="status" id="mesa-status"></div>
 
     <!-- A lista de jogadores é montada pelo JavaScript -->
     <div id="lista-jogadores"></div>
 
     <!-- Histórico (toque para abrir/fechar) -->
     <details class="historico">
-      <summary>📜 Histórico</summary>
-      <div id="hist-lista" style="margin-top:10px"></div>
+      <summary>Histórico</summary>
+      <div id="hist-lista"></div>
     </details>
 
     <!-- Painel só do criador -->
-    <div id="painel-criador" class="painel" hidden>
-      <div class="detalhe">👑 Apenas o criador da partida</div>
+    <div id="painel-criador" class="cartao" hidden>
+      <div class="cartao-titulo">
+        <svg class="ic cheio" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>
+        Controles do criador
+      </div>
+      <p class="dica" id="dica-iniciar" style="margin-top:0">Quando todo mundo tiver entrado, toque em iniciar. Compartilhe o código pelo botão no topo.</p>
       <button id="botao-iniciar" onclick="iniciarPartida()">Iniciar partida</button>
       <button id="botao-distribuir" onclick="abrirDistribuicao()">Distribuir pote</button>
       <button id="botao-nivel" class="secundario" onclick="subirNivel()">Subir nível (dobrar blinds)</button>
-      <button id="botao-resetar" class="perigo" onclick="resetarPartida()">Resetar partida</button>
-      <div id="erro-criador" class="erro"></div>
+      <button id="botao-resetar" class="contorno-perigo" onclick="resetarPartida()">Resetar partida</button>
+      <div id="erro-criador" class="erro" role="alert"></div>
     </div>
 
     <!-- Formulário de distribuição (montado só quando o criador abre) -->
-    <div id="painel-distribuir" class="painel" hidden>
-      <div style="font-weight:bold">Quanto cada jogador recebe?</div>
+    <div id="painel-distribuir" class="cartao painel-distribuir" hidden>
+      <div class="cartao-titulo">Quanto cada jogador recebe?</div>
       <div class="detalhe">Pote a distribuir: <strong id="dist-pote"></strong></div>
       <div id="dist-linhas"></div>
       <div id="dist-soma" class="soma"></div>
       <button id="botao-confirmar-dist" onclick="confirmarDistribuicao()" disabled>Confirmar distribuição</button>
       <button class="secundario" onclick="fecharDistribuicao()">Cancelar</button>
-      <div id="erro-distribuir" class="erro"></div>
+      <div id="erro-distribuir" class="erro" role="alert"></div>
     </div>
 
-    <button class="secundario" onclick="sair()">Sair</button>
-    <div class="aviso">Etapa 5: o criador distribui o pote e uma nova mão começa. Blinds automáticos vêm na Etapa 6.</div>
+    <button class="fantasma" onclick="sair()" style="margin-top:20px">Sair da mesa</button>
   </section>
 
 </main>
 
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 <!-- ===== BARRA DE AÇÕES (só aparece para jogadores, com a partida iniciada) ===== -->
 <div id="barra-acoes" class="barra-acoes">
-  <div id="erro-barra" class="erro"></div>
-  <div id="barra-titulo" class="detalhe" style="text-align:center; margin-bottom:6px"></div>
+  <div id="erro-barra" class="erro" role="alert"></div>
+  <div id="barra-titulo" class="barra-titulo"></div>
 
   <!-- Modo blind: só um botão grande -->
   <div id="barra-blind" hidden>
     <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
   </div>
 
-  <!-- Modo normal: todas as ações -->
-  <div id="barra-normal">
+  <!-- Modo normal: aparece só na sua vez -->
+  <div id="barra-normal" hidden>
     <div class="grade">
       <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
       <button id="btn-check" class="secundario" onclick="agir('check')">Check</button>
-      <button id="btn-pagar" class="secundario" onclick="agir('pagar')">Pagar</button>
+      <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
       <button id="btn-allin" onclick="agir('allin')">All-in</button>
     </div>
+    <div class="atalhos-aposta" id="atalhos-aposta">
+      <button type="button" onclick="preencherAposta('meio')">½ pote</button>
+      <button type="button" onclick="preencherAposta('pote')">Pote</button>
+      <button type="button" onclick="preencherAposta('bb')">Big blind</button>
+    </div>
     <div class="linha-aposta">
-      <input id="campo-valor" type="number" inputmode="numeric" placeholder="Valor">
+      <input id="campo-valor" type="number" inputmode="numeric" placeholder="Valor da aposta">
       <button id="btn-apostar" onclick="apostar()">Apostar</button>
     </div>
     <div class="linha-passar">
-      <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">↩ Desfazer</button>
-      <button id="btn-passar" class="secundario" onclick="passarVez()">Passar a vez ➜</button>
+      <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg>Desfazer
+      </button>
+      <button id="btn-passar" onclick="passarVez()">Passar a vez</button>
     </div>
   </div>
 </div>
@@ -361,6 +893,12 @@
   let versaoMesa = 0;         // evita que uma resposta antiga sobrescreva uma nova
   let ocupado = false;        // evita toques duplos enquanto uma ação está sendo enviada
   let jogadoresAtuais = [];   // última lista de jogadores (usada no formulário de distribuir)
+  let eraMinhaVez = false;    // para vibrar só quando a vez chega para mim
+  let ultimoPote = null;      // para animar a ficha quando o pote muda
+  let bigEditado = false;     // se a pessoa mexeu no big blind à mão
+
+  // Ícone da coroa (criador da partida)
+  const ICONE_COROA = '<svg class="ic cheio coroa" viewBox="0 0 24 24" aria-label="Criador"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>';
 
   // =====================================================
   // 3) FUNÇÕES AUXILIARES
@@ -394,6 +932,16 @@
     return div.innerHTML;
   }
 
+  // Aviso rápido que aparece no topo e some sozinho
+  let temporizadorAviso = null;
+  function aviso(texto) {
+    const el = document.getElementById('toast');
+    el.textContent = texto;
+    el.classList.add('visivel');
+    clearTimeout(temporizadorAviso);
+    temporizadorAviso = setTimeout(function () { el.classList.remove('visivel'); }, 2200);
+  }
+
   // ----- A "gaveta" do navegador (localStorage) -----
   function guardarMeuJogador(partidaId, jogadorId, segredo) {
     localStorage.setItem('poker-jogador-' + partidaId,
@@ -408,6 +956,54 @@
     } catch (erro) {
       return null;
     }
+  }
+
+  // Lembra o último nome digitado, para não precisar digitar de novo
+  function lembrarNome(nome) {
+    try { localStorage.setItem('poker-nome', nome); } catch (erro) {}
+  }
+  function lerNome() {
+    try { return localStorage.getItem('poker-nome') || ''; } catch (erro) { return ''; }
+  }
+
+  // Compartilha o código (abre o WhatsApp etc. no celular); se não der, copia
+  async function compartilharCodigo() {
+    if (!partidaAtual) return;
+    const codigo = partidaAtual.codigo;
+    const texto = 'Entre na minha mesa de poker! Código: ' + codigo;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Poker Room', text: texto, url: location.href });
+        return;
+      } catch (erro) {
+        if (erro && erro.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(codigo);
+      aviso('Código ' + codigo + ' copiado');
+    } catch (erro) {
+      aviso('Código da partida: ' + codigo);
+    }
+  }
+
+  // Atalhos da tela de criar partida
+  function definirSaldo(valor) {
+    document.getElementById('campo-saldo').value = valor;
+  }
+
+  // Sugestões de valor para apostar
+  function preencherAposta(tipo) {
+    if (!partidaAtual) return;
+    const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
+    let valor;
+    if (tipo === 'meio') valor = Math.round(partidaAtual.pote / 2);
+    else if (tipo === 'pote') valor = partidaAtual.pote;
+    else valor = partidaAtual.big_blind;
+    if (eu) valor = Math.min(valor, eu.saldo);
+    if (!(valor > 0)) return;
+    document.getElementById('campo-valor').value = valor;
   }
 
   // =====================================================
@@ -430,6 +1026,8 @@
       mostrarErro('erro-criar', 'O big blind não pode ser menor que o small blind.');
       return;
     }
+
+    lembrarNome(nome);
 
     const botao = document.getElementById('botao-criar');
     botao.disabled = true;
@@ -519,7 +1117,7 @@
     meuJogadorId = null;
     meuSegredo = null;
     limparErro('erro-escolha');
-    document.getElementById('campo-nome-entrada').value = '';
+    document.getElementById('campo-nome-entrada').value = lerNome();
     document.getElementById('escolha-codigo').textContent = partida.codigo;
     document.getElementById('escolha-saldo').textContent = partida.saldo_inicial;
     mostrar('tela-escolha');
@@ -533,6 +1131,8 @@
 
     const nome = document.getElementById('campo-nome-entrada').value.trim();
     if (!nome) { mostrarErro('erro-escolha', 'Digite seu nome.'); return; }
+
+    lembrarNome(nome);
 
     const botao = document.getElementById('botao-jogar');
     botao.disabled = true;
@@ -567,6 +1167,9 @@
     const guardado = lerMeuJogador(partida.id);
     meuJogadorId = guardado ? guardado.id : null;
     meuSegredo   = guardado ? guardado.segredo : null;
+
+    eraMinhaVez = false;
+    ultimoPote = null;
 
     limparErro('erro-barra');
     limparErro('erro-criador');
@@ -610,34 +1213,57 @@
     const minhaVez = !!eu && partida.iniciada && partida.vez_jogador_id === eu.id;
     const falta = eu ? Math.max(0, partida.aposta_atual - eu.apostou) : 0;
 
+    // Vibra o celular quando a vez chega para mim (onde o navegador permite)
+    if (minhaVez && !eraMinhaVez && navigator.vibrate) {
+      try { navigator.vibrate([150, 80, 150]); } catch (erro) {}
+    }
+    eraMinhaVez = minhaVez;
+
     // ----- Painel do topo -----
     document.getElementById('mesa-codigo').textContent = partida.codigo;
-    document.getElementById('mesa-pote').textContent = partida.pote;
+
+    const elPote = document.getElementById('mesa-pote');
+    elPote.textContent = partida.pote;
+    elPote.dataset.len = String(String(partida.pote).length);
+    if (ultimoPote !== null && ultimoPote !== partida.pote) {
+      const ficha = document.getElementById('pote-ficha');
+      ficha.classList.remove('bump');
+      void ficha.offsetWidth;
+      ficha.classList.add('bump');
+    }
+    ultimoPote = partida.pote;
+
+    document.getElementById('mesa-mao').textContent =
+      partida.iniciada ? 'Mão ' + partida.mao : '';
+    document.getElementById('mesa-nivel').textContent = 'Nível ' + partida.nivel;
     document.getElementById('mesa-blinds').textContent =
-      'Blinds ' + partida.small_blind + ' / ' + partida.big_blind + ' · Nível ' + partida.nivel;
+      'Blinds ' + partida.small_blind + '/' + partida.big_blind;
     document.getElementById('mesa-aposta').textContent =
-      partida.iniciada ? 'Mão ' + partida.mao + ' · Maior aposta: ' + partida.aposta_atual : '';
+      partida.iniciada ? 'Maior aposta ' + partida.aposta_atual : '';
     document.getElementById('mesa-papel').textContent =
-      eu ? 'Você é o Jogador ' + eu.ordem : '👀 Você está só assistindo';
+      eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo';
+
+    // ----- Faixa de status -----
     let status;
     if (!partida.iniciada) {
       status = 'Aguardando o criador iniciar a partida';
     } else if (jogadorDaVez && partida.fase_blind === 1) {
-      status = jogadorDaVez.nome + ' deve pagar o small blind';
+      status = minhaVez ? 'Você deve pagar o small blind' : jogadorDaVez.nome + ' deve pagar o small blind';
     } else if (jogadorDaVez && partida.fase_blind === 2) {
-      status = jogadorDaVez.nome + ' deve pagar o big blind';
+      status = minhaVez ? 'Você deve pagar o big blind' : jogadorDaVez.nome + ' deve pagar o big blind';
     } else if (jogadorDaVez) {
-      status = 'Vez de ' + jogadorDaVez.nome;
+      status = minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + jogadorDaVez.nome;
     } else if (partida.pote > 0) {
       status = 'Aguardando o criador distribuir o pote.';
     } else {
       status = 'Fim da partida: só resta um jogador com fichas.';
     }
-    document.getElementById('mesa-status').textContent = status;
+    const elStatus = document.getElementById('mesa-status');
+    elStatus.textContent = status;
+    elStatus.classList.toggle('minha-vez', minhaVez);
 
     // ----- Lista de jogadores -----
-    const lista = document.getElementById('lista-jogadores');
-    lista.innerHTML = '';
+    let htmlLista = '';
     jogadores.forEach(function (j) {
       const souEu = (j.id === meuJogadorId);
       const naVez = partida.iniciada && (j.id === partida.vez_jogador_id);
@@ -647,38 +1273,47 @@
       if (naVez) classes += ' vez';
       if (j.desistiu) classes += ' desistiu';
 
-      let detalhe = '';
+      let tags = '';
       if (partida.iniciada) {
         if (j.desistiu) {
-          detalhe = 'Desistiu';
+          tags += '<span class="tag fora">Desistiu</span>';
         } else if (j.saldo === 0 && j.apostou === 0) {
-          detalhe = 'Sem fichas';
+          tags += '<span class="tag fora">Sem fichas</span>';
         } else {
-          detalhe = 'Apostou ' + j.apostou;
-          if (j.saldo === 0) detalhe += ' · All-in';
-          if (j.id === partida.sb_jogador_id) detalhe += ' · Small blind';
-          if (j.id === partida.bb_jogador_id) detalhe += ' · Big blind';
-          if (naVez) detalhe += ' · vez de jogar';
+          if (naVez) tags += '<span class="tag vez">Vez de jogar</span>';
+          if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">Small blind</span>';
+          if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">Big blind</span>';
+          if (j.saldo === 0) tags += '<span class="tag allin">All-in</span>';
+          tags += '<span class="tag">Apostou ' + j.apostou + '</span>';
         }
       }
-      lista.innerHTML += `
+
+      const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
+
+      htmlLista += `
         <div class="${classes}">
-          <div class="esquerda">
-            <div class="numero">${j.ordem}</div>
-            <div>
-              <div class="nome">${j.criador ? '👑 ' : ''}${escapar(j.nome)}${souEu ? ' (você)' : ''}</div>
-              <div class="detalhe">${detalhe}</div>
+          <div class="ficha ${corFicha}">${j.ordem}</div>
+          <div class="info">
+            <div class="nome">
+              ${j.criador ? ICONE_COROA : ''}
+              <span class="texto">${escapar(j.nome)}</span>
+              ${souEu ? '<span class="voce">você</span>' : ''}
             </div>
+            <div class="tags">${tags}</div>
           </div>
           <div class="saldo">${j.saldo}</div>
         </div>
       `;
     });
+    document.getElementById('lista-jogadores').innerHTML = htmlLista;
+
     // ----- Histórico -----
     carregarHistorico(idPartida);
+
     // ----- Painel do criador -----
     const souCriador = !!eu && eu.criador;
     document.getElementById('painel-criador').hidden = !souCriador;
+    document.getElementById('dica-iniciar').hidden = partida.iniciada;
     document.getElementById('botao-iniciar').hidden = partida.iniciada;
     document.getElementById('botao-distribuir').hidden = !partida.iniciada;
     document.getElementById('botao-distribuir').disabled = !(partida.pote > 0);
@@ -690,15 +1325,16 @@
     const barra = document.getElementById('barra-acoes');
     const mostrarBarra = !!eu && partida.iniciada;
     barra.classList.toggle('visivel', mostrarBarra);
+    barra.classList.toggle('minha-vez', mostrarBarra && minhaVez);
 
     if (mostrarBarra) {
       const emBlind = partida.fase_blind > 0;
       const minhaVezBlind = emBlind && minhaVez;
       const podeAgir = minhaVez && !emBlind && !partida.agiu && !eu.desistiu;
 
-      // Alterna entre o botão grande do blind e o menu normal
+      // Fora da sua vez a barra encolhe e mostra só o aviso
       document.getElementById('barra-blind').hidden  = !minhaVezBlind;
-      document.getElementById('barra-normal').hidden = minhaVezBlind;
+      document.getElementById('barra-normal').hidden = !(minhaVez && !emBlind);
 
       if (minhaVezBlind) {
         const valorBlind = Math.min(
@@ -709,11 +1345,12 @@
       }
 
       let titulo;
-      if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'SMALL BLIND' : 'BIG BLIND') + '. Toque no botão para pagar.';
+      if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'small blind' : 'big blind') + '. Toque no botão para pagar.';
       else if (emBlind)                  titulo = 'Aguarde: os blinds estão sendo pagos.';
-      else if (minhaVez && partida.agiu) titulo = 'Ação feita. Passe a vez ou desfaça.';
+      else if (minhaVez && partida.agiu) titulo = 'Jogada feita. Passe a vez ou desfaça.';
       else if (eu.desistiu)              titulo = 'Você desistiu desta mão.';
       else if (minhaVez)                 titulo = 'Sua vez de jogar!';
+      else if (jogadorDaVez)             titulo = 'Aguarde. Vez de ' + jogadorDaVez.nome + '.';
       else                               titulo = 'Aguarde a sua vez.';
       document.getElementById('barra-titulo').textContent = titulo;
 
@@ -725,6 +1362,9 @@
       document.getElementById('btn-allin').disabled    = !podeAgir || eu.saldo <= 0;
       document.getElementById('campo-valor').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-apostar').disabled  = !podeAgir || eu.saldo <= 0;
+      document.querySelectorAll('#atalhos-aposta button').forEach(function (b) {
+        b.disabled = !podeAgir || eu.saldo <= 0;
+      });
       document.getElementById('btn-passar').disabled   = !(minhaVez && partida.agiu);
       document.getElementById('btn-desfazer').disabled = !(minhaVez && partida.agiu);
     }
@@ -747,11 +1387,11 @@
 
     const caixa = document.getElementById('hist-lista');
     if (resp.data.length === 0) {
-      caixa.innerHTML = '<div class="detalhe">Nada registrado ainda.</div>';
+      caixa.innerHTML = '<div class="detalhe" style="padding:4px 0 8px">Nada registrado ainda. As jogadas aparecem aqui.</div>';
       return;
     }
     caixa.innerHTML = resp.data.map(function (linha) {
-      return '<div class="hist-linha"><span class="hist-mao">M' + linha.mao + '</span>'
+      return '<div class="hist-linha"><span class="hist-mao">Mão ' + linha.mao + '</span>'
            + '<span>' + escapar(linha.texto) + '</span></div>';
     }).join('');
   }
@@ -862,6 +1502,7 @@
       p_segredo: meuSegredo
     }, 'erro-criador');
   }
+
   // Pagar o blind (o botão grande já é a confirmação)
   function pagarBlind() {
     return executar('pagar_blind', {
@@ -883,6 +1524,7 @@
       p_segredo: meuSegredo
     }, 'erro-criador');
   }
+
   // =====================================================
   // 9) DISTRIBUIR O POTE (só o criador)
   // =====================================================
@@ -894,18 +1536,18 @@
 
     document.getElementById('dist-pote').textContent = partidaAtual.pote;
 
-    const area = document.getElementById('dist-linhas');
-    area.innerHTML = '';
+    let html = '';
     jogadoresAtuais.forEach(function (j) {
-      area.innerHTML += `
+      html += `
         <div class="linha-premio">
-          <div class="nome">${escapar(j.nome)}${j.desistiu ? ' <span class="detalhe">(desistiu)</span>' : ''}</div>
+          <div class="nome"><span class="texto">${escapar(j.nome)}</span>${j.desistiu ? ' <span class="voce">(desistiu)</span>' : ''}</div>
           <input type="number" inputmode="numeric" min="0" placeholder="0"
                  data-jogador="${j.id}" oninput="atualizarSoma()">
-          <button class="secundario" onclick="darTudo('${j.id}')">Tudo</button>
+          <button type="button" class="secundario" onclick="darTudo('${j.id}')">Tudo</button>
         </div>
       `;
     });
+    document.getElementById('dist-linhas').innerHTML = html;
 
     document.getElementById('painel-distribuir').hidden = false;
     atualizarSoma();
@@ -949,7 +1591,7 @@
     const resta = pote - soma;
 
     if (resta === 0) {
-      caixa.textContent = '✔ Soma confere: ' + soma + ' de ' + pote;
+      caixa.textContent = 'Soma confere: ' + soma + ' de ' + pote;
       caixa.className = 'soma ok';
     } else if (resta > 0) {
       caixa.textContent = 'Faltam ' + resta + ' para distribuir';
@@ -979,9 +1621,48 @@
     partidaAtual = null;
     meuJogadorId = null;
     meuSegredo = null;
+    eraMinhaVez = false;
+    ultimoPote = null;
     document.getElementById('campo-codigo').value = '';
     mostrar('tela-inicio');
   }
+
+  // =====================================================
+  // 11) DETALHES DE CONFORTO (só interface)
+  // =====================================================
+
+  // Nome lembrado da última vez
+  document.getElementById('campo-nome').value = lerNome();
+
+  // Código: sempre maiúsculo, sem símbolos, e Enter entra na partida
+  const campoCodigo = document.getElementById('campo-codigo');
+  campoCodigo.addEventListener('input', function () {
+    campoCodigo.value = campoCodigo.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  });
+  campoCodigo.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') entrarPartida();
+  });
+
+  // Ao digitar o small blind, o big blind acompanha (o dobro), a menos que a pessoa mexa nele
+  const campoSmall = document.getElementById('campo-small');
+  const campoBig = document.getElementById('campo-big');
+  campoBig.addEventListener('input', function () { bigEditado = true; });
+  campoSmall.addEventListener('input', function () {
+    const s = parseInt(campoSmall.value);
+    if (!bigEditado && s > 0) campoBig.value = s * 2;
+  });
+
+  // A barra fixa muda de altura; a mesa ganha espaço embaixo para nada ficar escondido
+  const barraEl = document.getElementById('barra-acoes');
+  const mesaEl = document.getElementById('tela-mesa');
+  function ajustarEspaco() {
+    const altura = barraEl.classList.contains('visivel') ? barraEl.offsetHeight : 0;
+    mesaEl.style.paddingBottom = (altura + 28) + 'px';
+  }
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(ajustarEspaco).observe(barraEl);
+  }
+  new MutationObserver(ajustarEspaco).observe(barraEl, { attributes: true, attributeFilter: ['class'] });
 </script>
 </body>
 </html>
