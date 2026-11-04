@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b3d2e">
+  <title>Poker Room</title>
+
+  <!-- Biblioteca oficial do Supabase (carregada pela internet) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ---------- Aparência geral ---------- */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body { margin: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b3d2e;
+      color: #fff;
+      touch-action: manipulation;
+    }
+    main {
+      padding: 16px;
+      padding-top: calc(16px + env(safe-area-inset-top));
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+    h1, h2 { text-align: center; }
+
+    /* ---------- Telas ---------- */
+    .tela { display: none; }
+    .tela.ativa { display: block; }
+
+    /* ---------- Botões e campos ---------- */
+    button {
+      width: 100%;
+      min-height: 52px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      background: #f5c542;
+      color: #222;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; }
+    button.secundario { background: #1d6b52; color: #fff; }
+    button.perigo { background: #c0392b; color: #fff; }
+
+    input {
+      width: 100%;
+      min-height: 52px;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+    }
+    label { display: block; margin-top: 14px; font-size: 15px; }
+
+    /* ---------- Mensagem de erro ---------- */
+    .erro {
+      background: #c0392b;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      display: none;
+    }
+    .erro.visivel { display: block; }
+
+    /* ---------- Mesa ---------- */
+    .painel {
+      background: #14573f;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+      text-align: center;
+    }
+    .pote { font-size: 36px; font-weight: bold; color: #f5c542; }
+    .jogador {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #14573f;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 8px;
+      border: 2px solid transparent;
+    }
+    .jogador.eu { background: #1a6b4d; }
+    .jogador.vez { border-color: #f5c542; }
+    .jogador.desistiu { opacity: 0.4; }
+    .nome { font-weight: bold; font-size: 17px; }
+    .detalhe { font-size: 13px; opacity: 0.8; }
+    .saldo { font-size: 20px; font-weight: bold; }
+    .aviso { font-size: 12px; opacity: 0.7; text-align: center; margin-top: 6px; }
+
+    /* ---------- Formulário de distribuir o pote ---------- */
+    .linha-premio {
+      display: grid;
+      grid-template-columns: 1fr 90px 70px;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      text-align: left;
+    }
+    .linha-premio input { margin-top: 0; }
+    .linha-premio button {
+      margin-top: 0;
+      padding: 0;
+      font-size: 15px;
+    }
+
+    /* ---------- Barra de ações fixa embaixo ---------- */
+    .barra-acoes {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #0f4d38;
+      border-top: 2px solid #f5c542;
+      padding: 10px 12px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      display: none;
+    }
+    .barra-acoes.visivel { display: block; }
+    .barra-acoes .grade {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .barra-acoes button { margin-top: 0; min-height: 48px; }
+    .barra-acoes .linha-aposta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .barra-acoes input { margin-top: 0; min-height: 48px; }
+    .barra-acoes .linha-passar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    button.neutro { background: #d9d9d9; color: #222; }
+    .barra-acoes .erro { margin-top: 0; margin-bottom: 8px; }
+
+    #tela-mesa { padding-bottom: 300px; }
+
+    /* ---------- Número do jogador ---------- */
+    .esquerda { display: flex; align-items: center; gap: 12px; }
+    .numero {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: #0b3d2e;
+      border: 2px solid #f5c542;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* ---------- Botão grande de pagar blind ---------- */
+    .barra-acoes button.grande {
+      min-height: 76px;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    /* ---------- Histórico ---------- */
+    details.historico {
+      background: #14573f;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    details.historico summary {
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .hist-linha {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 14px;
+    }
+    .hist-linha:last-child { border-bottom: none; }
+    .hist-mao {
+      flex-shrink: 0;
+      min-width: 34px;
+      font-size: 12px;
+      opacity: 0.7;
+      padding-top: 2px;
+    }
+  </style>
+</head>
+
+<body>
+<main>
+
+  <!-- ===== TELA 1: INÍCIO ===== -->
+  <section id="tela-inicio" class="tela ativa">
+    <h1>♠ Poker Room ♥</h1>
+    <p style="text-align:center">Controle de fichas para o poker com os amigos.</p>
+
+    <button onclick="mostrar('tela-criar')">Criar partida</button>
+
+    <label>Já tem um código?</label>
+    <input id="campo-codigo" type="text" placeholder="Ex.: K7QM2" maxlength="5"
+           autocapitalize="characters" autocomplete="off">
+    <button id="botao-entrar" class="secundario" onclick="entrarPartida()">Entrar na partida</button>
+
+    <div id="erro-inicio" class="erro"></div>
+  </section>
+
+  <!-- ===== TELA 2: CRIAR PARTIDA ===== -->
+  <section id="tela-criar" class="tela">
+    <h2>Configurar partida</h2>
+
+    <label>Seu nome</label>
+    <input id="campo-nome" type="text" placeholder="Ex.: Ana" maxlength="20" autocomplete="off">
+
+    <label>Saldo inicial de cada jogador</label>
+    <input id="campo-saldo" type="number" inputmode="numeric" value="1000">
+
+    <label>Small blind</label>
+    <input id="campo-small" type="number" inputmode="numeric" value="10">
+
+    <label>Big blind</label>
+    <input id="campo-big" type="number" inputmode="numeric" value="20">
+
+    <button id="botao-criar" onclick="criarPartida()">Criar e ir para a mesa</button>
+    <button class="secundario" onclick="mostrar('tela-inicio')">Voltar</button>
+
+    <div id="erro-criar" class="erro"></div>
+  </section>
+
+  <!-- ===== TELA 3: ESCOLHA (jogar ou só assistir) ===== -->
+  <section id="tela-escolha" class="tela">
+    <h2>Partida <span id="escolha-codigo"></span></h2>
+    <p style="text-align:center">
+      Cada jogador começa com <strong id="escolha-saldo"></strong> fichas.
+    </p>
+
+    <label>Seu nome</label>
+    <input id="campo-nome-entrada" type="text" placeholder="Ex.: Carlos" maxlength="20" autocomplete="off">
+
+    <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
+    <button class="secundario" onclick="entrarComoEspectador()">Só assistir</button>
+    <button class="secundario" onclick="mostrar('tela-inicio')">Voltar</button>
+
+    <div id="erro-escolha" class="erro"></div>
+  </section>
+
+  <!-- ===== TELA 4: MESA ===== -->
+  <section id="tela-mesa" class="tela">
+    <h2>Mesa</h2>
+    <div class="aviso">Código da partida: <strong id="mesa-codigo"></strong></div>
+    <div class="aviso" id="mesa-papel"></div>
+
+    <div class="painel">
+      <div>Pote</div>
+      <div class="pote" id="mesa-pote">0</div>
+      <div class="detalhe" id="mesa-blinds"></div>
+      <div class="detalhe" id="mesa-aposta"></div>
+      <div class="detalhe" id="mesa-status" style="margin-top:8px; font-weight:bold"></div>
+    </div>
+
+    <!-- A lista de jogadores é montada pelo JavaScript -->
+    <div id="lista-jogadores"></div>
+
+    <!-- Histórico (toque para abrir/fechar) -->
+    <details class="historico">
+      <summary>📜 Histórico</summary>
+      <div id="hist-lista" style="margin-top:10px"></div>
+    </details>
+
+    <!-- Painel só do criador -->
+    <div id="painel-criador" class="painel" hidden>
+      <div class="detalhe">👑 Apenas o criador da partida</div>
+      <button id="botao-iniciar" onclick="iniciarPartida()">Iniciar partida</button>
+      <button id="botao-distribuir" onclick="abrirDistribuicao()">Distribuir pote</button>
+      <button id="botao-nivel" class="secundario" onclick="subirNivel()">Subir nível (dobrar blinds)</button>
+      <button id="botao-resetar" class="perigo" onclick="resetarPartida()">Resetar partida</button>
+      <div id="erro-criador" class="erro"></div>
+    </div>
+
+    <!-- Formulário de distribuição (montado só quando o criador abre) -->
+    <div id="painel-distribuir" class="painel" hidden>
+      <div style="font-weight:bold">Quanto cada jogador recebe?</div>
+      <div class="detalhe">Pote a distribuir: <strong id="dist-pote"></strong></div>
+      <div id="dist-linhas"></div>
+      <div id="dist-soma" class="soma"></div>
+      <button id="botao-confirmar-dist" onclick="confirmarDistribuicao()" disabled>Confirmar distribuição</button>
+      <button class="secundario" onclick="fecharDistribuicao()">Cancelar</button>
+      <div id="erro-distribuir" class="erro"></div>
+    </div>
+
+    <button class="secundario" onclick="sair()">Sair</button>
+    <div class="aviso">Etapa 5: o criador distribui o pote e uma nova mão começa. Blinds automáticos vêm na Etapa 6.</div>
+  </section>
+
+</main>
+
+<!-- ===== BARRA DE AÇÕES (só aparece para jogadores, com a partida iniciada) ===== -->
+<div id="barra-acoes" class="barra-acoes">
+  <div id="erro-barra" class="erro"></div>
+  <div id="barra-titulo" class="detalhe" style="text-align:center; margin-bottom:6px"></div>
+
+  <!-- Modo blind: só um botão grande -->
+  <div id="barra-blind" hidden>
+    <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
+  </div>
+
+  <!-- Modo normal: todas as ações -->
+  <div id="barra-normal">
+    <div class="grade">
+      <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
+      <button id="btn-check" class="secundario" onclick="agir('check')">Check</button>
+      <button id="btn-pagar" class="secundario" onclick="agir('pagar')">Pagar</button>
+      <button id="btn-allin" onclick="agir('allin')">All-in</button>
+    </div>
+    <div class="linha-aposta">
+      <input id="campo-valor" type="number" inputmode="numeric" placeholder="Valor">
+      <button id="btn-apostar" onclick="apostar()">Apostar</button>
+    </div>
+    <div class="linha-passar">
+      <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">↩ Desfazer</button>
+      <button id="btn-passar" class="secundario" onclick="passarVez()">Passar a vez ➜</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // =====================================================
+  // 1) CONEXÃO COM O SUPABASE
+  // =====================================================
+  const SUPABASE_URL = 'https://lymawbmtdalvjvgclnpd.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_RG0H_4lqNuQNL0GCg1uY9A_efA8wDga';
+
+  const banco = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // =====================================================
+  // 2) MEMÓRIA DO SITE
+  // =====================================================
+  let partidaAtual = null;    // a partida que estamos vendo
+  let meuJogadorId = null;    // o id do meu jogador (null = espectador)
+  let meuSegredo = null;      // meu segredo (prova de que sou eu)
+  let canal = null;           // a "linha aberta" do tempo real
+  let versaoMesa = 0;         // evita que uma resposta antiga sobrescreva uma nova
+  let ocupado = false;        // evita toques duplos enquanto uma ação está sendo enviada
+  let jogadoresAtuais = [];   // última lista de jogadores (usada no formulário de distribuir)
+
+  // =====================================================
+  // 3) FUNÇÕES AUXILIARES
+  // =====================================================
+
+  function mostrar(idDaTela) {
+    document.querySelectorAll('.tela').forEach(function (tela) {
+      tela.classList.remove('ativa');
+    });
+    document.getElementById(idDaTela).classList.add('ativa');
+
+    if (idDaTela !== 'tela-mesa') {
+      document.getElementById('barra-acoes').classList.remove('visivel');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function mostrarErro(idDaCaixa, texto) {
+    const caixa = document.getElementById(idDaCaixa);
+    caixa.textContent = texto;
+    caixa.classList.add('visivel');
+  }
+  function limparErro(idDaCaixa) {
+    document.getElementById(idDaCaixa).classList.remove('visivel');
+  }
+
+  // Protege o site contra textos maliciosos digitados como nome
+  function escapar(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+  }
+
+  // ----- A "gaveta" do navegador (localStorage) -----
+  function guardarMeuJogador(partidaId, jogadorId, segredo) {
+    localStorage.setItem('poker-jogador-' + partidaId,
+      JSON.stringify({ id: jogadorId, segredo: segredo }));
+  }
+  function lerMeuJogador(partidaId) {
+    try {
+      const texto = localStorage.getItem('poker-jogador-' + partidaId);
+      if (!texto) return null;
+      const dados = JSON.parse(texto);
+      return (dados && dados.id && dados.segredo) ? dados : null;
+    } catch (erro) {
+      return null;
+    }
+  }
+
+  // =====================================================
+  // 4) CRIAR PARTIDA
+  // =====================================================
+  async function criarPartida() {
+    limparErro('erro-criar');
+
+    const nome  = document.getElementById('campo-nome').value.trim();
+    const saldo = parseInt(document.getElementById('campo-saldo').value);
+    const small = parseInt(document.getElementById('campo-small').value);
+    const big   = parseInt(document.getElementById('campo-big').value);
+
+    if (!nome) { mostrarErro('erro-criar', 'Digite seu nome.'); return; }
+    if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
+      mostrarErro('erro-criar', 'Saldo e blinds precisam ser números maiores que zero.');
+      return;
+    }
+    if (big < small) {
+      mostrarErro('erro-criar', 'O big blind não pode ser menor que o small blind.');
+      return;
+    }
+
+    const botao = document.getElementById('botao-criar');
+    botao.disabled = true;
+    botao.textContent = 'Criando...';
+
+    const resp = await banco.rpc('criar_partida', {
+      p_nome: nome,
+      p_saldo: saldo,
+      p_small: small,
+      p_big: big
+    });
+
+    if (resp.error) {
+      mostrarErro('erro-criar', resp.error.message);
+    } else {
+      const dados = resp.data;
+      guardarMeuJogador(dados.partida_id, dados.jogador_id, dados.segredo);
+
+      const respPartida = await banco
+        .from('partidas')
+        .select('*')
+        .eq('id', dados.partida_id)
+        .single();
+
+      if (respPartida.error) {
+        mostrarErro('erro-criar', 'Erro ao abrir a mesa: ' + respPartida.error.message);
+      } else {
+        await abrirMesa(respPartida.data);
+      }
+    }
+
+    botao.disabled = false;
+    botao.textContent = 'Criar e ir para a mesa';
+  }
+
+  // =====================================================
+  // 5) ENTRAR POR CÓDIGO
+  // =====================================================
+  async function entrarPartida() {
+    limparErro('erro-inicio');
+
+    const codigo = document.getElementById('campo-codigo').value.trim().toUpperCase();
+    if (codigo.length !== 5) {
+      mostrarErro('erro-inicio', 'O código tem 5 caracteres.');
+      return;
+    }
+
+    const botao = document.getElementById('botao-entrar');
+    botao.disabled = true;
+    botao.textContent = 'Buscando...';
+
+    const resp = await banco
+      .from('partidas')
+      .select('*')
+      .eq('codigo', codigo)
+      .maybeSingle();
+
+    if (resp.error || !resp.data) {
+      mostrarErro('erro-inicio', 'Partida não encontrada. Confira o código.');
+    } else {
+      const partida = resp.data;
+
+      const guardado = lerMeuJogador(partida.id);
+      let jaSouJogador = false;
+      if (guardado) {
+        const conferir = await banco
+          .from('jogadores')
+          .select('id')
+          .eq('id', guardado.id)
+          .maybeSingle();
+        jaSouJogador = !!(conferir.data);
+      }
+
+      if (jaSouJogador) {
+        await abrirMesa(partida);
+      } else {
+        prepararEscolha(partida);
+      }
+    }
+
+    botao.disabled = false;
+    botao.textContent = 'Entrar na partida';
+  }
+
+  function prepararEscolha(partida) {
+    partidaAtual = partida;
+    meuJogadorId = null;
+    meuSegredo = null;
+    limparErro('erro-escolha');
+    document.getElementById('campo-nome-entrada').value = '';
+    document.getElementById('escolha-codigo').textContent = partida.codigo;
+    document.getElementById('escolha-saldo').textContent = partida.saldo_inicial;
+    mostrar('tela-escolha');
+  }
+
+  // =====================================================
+  // 6) ENTRAR COMO JOGADOR / COMO ESPECTADOR
+  // =====================================================
+  async function entrarComoJogador() {
+    limparErro('erro-escolha');
+
+    const nome = document.getElementById('campo-nome-entrada').value.trim();
+    if (!nome) { mostrarErro('erro-escolha', 'Digite seu nome.'); return; }
+
+    const botao = document.getElementById('botao-jogar');
+    botao.disabled = true;
+    botao.textContent = 'Entrando...';
+
+    const resp = await banco.rpc('entrar_partida', {
+      p_partida_id: partidaAtual.id,
+      p_nome: nome
+    });
+
+    if (resp.error) {
+      mostrarErro('erro-escolha', resp.error.message);
+    } else {
+      guardarMeuJogador(partidaAtual.id, resp.data.jogador_id, resp.data.segredo);
+      await abrirMesa(partidaAtual);
+    }
+
+    botao.disabled = false;
+    botao.textContent = 'Entrar como jogador';
+  }
+
+  async function entrarComoEspectador() {
+    await abrirMesa(partidaAtual);
+  }
+
+  // =====================================================
+  // 7) MESA: abrir, desenhar e atualizar em tempo real
+  // =====================================================
+  async function abrirMesa(partida) {
+    partidaAtual = partida;
+
+    const guardado = lerMeuJogador(partida.id);
+    meuJogadorId = guardado ? guardado.id : null;
+    meuSegredo   = guardado ? guardado.segredo : null;
+
+    limparErro('erro-barra');
+    limparErro('erro-criador');
+    fecharDistribuicao();
+    document.getElementById('campo-valor').value = '';
+
+    await atualizarMesa();
+    mostrar('tela-mesa');
+    ligarTempoReal();
+  }
+
+  // Busca os dados mais recentes no banco e redesenha a mesa
+  async function atualizarMesa() {
+    if (!partidaAtual) return;
+    const minhaVersao = ++versaoMesa;
+    const idPartida = partidaAtual.id;
+
+    const respPartida = await banco
+      .from('partidas')
+      .select('*')
+      .eq('id', idPartida)
+      .single();
+
+    const respJogadores = await banco
+      .from('jogadores')
+      .select('*')
+      .eq('partida_id', idPartida)
+      .order('ordem');
+
+    if (!partidaAtual || minhaVersao !== versaoMesa) return;
+    if (respPartida.error || respJogadores.error) return;
+
+    const partida = respPartida.data;
+    const jogadores = respJogadores.data;
+    partidaAtual = partida;
+    jogadoresAtuais = jogadores;
+
+    // ----- Quem sou eu e de quem é a vez? -----
+    const eu = jogadores.find(function (j) { return j.id === meuJogadorId; }) || null;
+    const jogadorDaVez = jogadores.find(function (j) { return j.id === partida.vez_jogador_id; }) || null;
+    const minhaVez = !!eu && partida.iniciada && partida.vez_jogador_id === eu.id;
+    const falta = eu ? Math.max(0, partida.aposta_atual - eu.apostou) : 0;
+
+    // ----- Painel do topo -----
+    document.getElementById('mesa-codigo').textContent = partida.codigo;
+    document.getElementById('mesa-pote').textContent = partida.pote;
+    document.getElementById('mesa-blinds').textContent =
+      'Blinds ' + partida.small_blind + ' / ' + partida.big_blind + ' · Nível ' + partida.nivel;
+    document.getElementById('mesa-aposta').textContent =
+      partida.iniciada ? 'Mão ' + partida.mao + ' · Maior aposta: ' + partida.aposta_atual : '';
+    document.getElementById('mesa-papel').textContent =
+      eu ? 'Você é o Jogador ' + eu.ordem : '👀 Você está só assistindo';
+    let status;
+    if (!partida.iniciada) {
+      status = 'Aguardando o criador iniciar a partida';
+    } else if (jogadorDaVez && partida.fase_blind === 1) {
+      status = jogadorDaVez.nome + ' deve pagar o small blind';
+    } else if (jogadorDaVez && partida.fase_blind === 2) {
+      status = jogadorDaVez.nome + ' deve pagar o big blind';
+    } else if (jogadorDaVez) {
+      status = 'Vez de ' + jogadorDaVez.nome;
+    } else if (partida.pote > 0) {
+      status = 'Aguardando o criador distribuir o pote.';
+    } else {
+      status = 'Fim da partida: só resta um jogador com fichas.';
+    }
+    document.getElementById('mesa-status').textContent = status;
+
+    // ----- Lista de jogadores -----
+    const lista = document.getElementById('lista-jogadores');
+    lista.innerHTML = '';
+    jogadores.forEach(function (j) {
+      const souEu = (j.id === meuJogadorId);
+      const naVez = partida.iniciada && (j.id === partida.vez_jogador_id);
+
+      let classes = 'jogador';
+      if (souEu) classes += ' eu';
+      if (naVez) classes += ' vez';
+      if (j.desistiu) classes += ' desistiu';
+
+      let detalhe = '';
+      if (partida.iniciada) {
+        if (j.desistiu) {
+          detalhe = 'Desistiu';
+        } else if (j.saldo === 0 && j.apostou === 0) {
+          detalhe = 'Sem fichas';
+        } else {
+          detalhe = 'Apostou ' + j.apostou;
+          if (j.saldo === 0) detalhe += ' · All-in';
+          if (j.id === partida.sb_jogador_id) detalhe += ' · Small blind';
+          if (j.id === partida.bb_jogador_id) detalhe += ' · Big blind';
+          if (naVez) detalhe += ' · vez de jogar';
+        }
+      }
+      lista.innerHTML += `
+        <div class="${classes}">
+          <div class="esquerda">
+            <div class="numero">${j.ordem}</div>
+            <div>
+              <div class="nome">${j.criador ? '👑 ' : ''}${escapar(j.nome)}${souEu ? ' (você)' : ''}</div>
+              <div class="detalhe">${detalhe}</div>
+            </div>
+          </div>
+          <div class="saldo">${j.saldo}</div>
+        </div>
+      `;
+    });
+    // ----- Histórico -----
+    carregarHistorico(idPartida);
+    // ----- Painel do criador -----
+    const souCriador = !!eu && eu.criador;
+    document.getElementById('painel-criador').hidden = !souCriador;
+    document.getElementById('botao-iniciar').hidden = partida.iniciada;
+    document.getElementById('botao-distribuir').hidden = !partida.iniciada;
+    document.getElementById('botao-distribuir').disabled = !(partida.pote > 0);
+    document.getElementById('botao-nivel').disabled = partida.pote > 0;
+    // Se o pote zerou (ou eu não sou criador), o formulário de distribuir não faz sentido
+    if (!souCriador || !(partida.pote > 0)) fecharDistribuicao();
+
+    // ----- Barra de ações -----
+    const barra = document.getElementById('barra-acoes');
+    const mostrarBarra = !!eu && partida.iniciada;
+    barra.classList.toggle('visivel', mostrarBarra);
+
+    if (mostrarBarra) {
+      const emBlind = partida.fase_blind > 0;
+      const minhaVezBlind = emBlind && minhaVez;
+      const podeAgir = minhaVez && !emBlind && !partida.agiu && !eu.desistiu;
+
+      // Alterna entre o botão grande do blind e o menu normal
+      document.getElementById('barra-blind').hidden  = !minhaVezBlind;
+      document.getElementById('barra-normal').hidden = minhaVezBlind;
+
+      if (minhaVezBlind) {
+        const valorBlind = Math.min(
+          partida.fase_blind === 1 ? partida.small_blind : partida.big_blind,
+          eu.saldo
+        );
+        document.getElementById('btn-blind').textContent = 'PAGAR BLIND (' + valorBlind + ')';
+      }
+
+      let titulo;
+      if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'SMALL BLIND' : 'BIG BLIND') + '. Toque no botão para pagar.';
+      else if (emBlind)                  titulo = 'Aguarde: os blinds estão sendo pagos.';
+      else if (minhaVez && partida.agiu) titulo = 'Ação feita. Passe a vez ou desfaça.';
+      else if (eu.desistiu)              titulo = 'Você desistiu desta mão.';
+      else if (minhaVez)                 titulo = 'Sua vez de jogar!';
+      else                               titulo = 'Aguarde a sua vez.';
+      document.getElementById('barra-titulo').textContent = titulo;
+
+      document.getElementById('btn-desistir').disabled = !podeAgir;
+      document.getElementById('btn-check').disabled    = !podeAgir || falta > 0;
+      document.getElementById('btn-pagar').disabled    = !podeAgir || falta <= 0;
+      document.getElementById('btn-pagar').textContent =
+        falta > 0 ? 'Pagar ' + Math.min(falta, eu.saldo) : 'Pagar';
+      document.getElementById('btn-allin').disabled    = !podeAgir || eu.saldo <= 0;
+      document.getElementById('campo-valor').disabled  = !podeAgir || eu.saldo <= 0;
+      document.getElementById('btn-apostar').disabled  = !podeAgir || eu.saldo <= 0;
+      document.getElementById('btn-passar').disabled   = !(minhaVez && partida.agiu);
+      document.getElementById('btn-desfazer').disabled = !(minhaVez && partida.agiu);
+    }
+  }
+
+  // Busca as últimas 40 linhas do histórico e desenha na tela
+  let versaoHist = 0;
+  async function carregarHistorico(idPartida) {
+    const minha = ++versaoHist;
+
+    const resp = await banco
+      .from('historico')
+      .select('mao, texto')
+      .eq('partida_id', idPartida)
+      .order('id', { ascending: false })
+      .limit(40);
+
+    // Ignora se saí da mesa ou se chegou uma resposta mais nova
+    if (resp.error || minha !== versaoHist || !partidaAtual) return;
+
+    const caixa = document.getElementById('hist-lista');
+    if (resp.data.length === 0) {
+      caixa.innerHTML = '<div class="detalhe">Nada registrado ainda.</div>';
+      return;
+    }
+    caixa.innerHTML = resp.data.map(function (linha) {
+      return '<div class="hist-linha"><span class="hist-mao">M' + linha.mao + '</span>'
+           + '<span>' + escapar(linha.texto) + '</span></div>';
+    }).join('');
+  }
+
+  function ligarTempoReal() {
+    desligarTempoReal();
+
+    canal = banco
+      .channel('mesa-' + partidaAtual.id)
+      .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'jogadores',
+            filter: 'partida_id=eq.' + partidaAtual.id },
+          atualizarMesa)
+      .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'partidas',
+            filter: 'id=eq.' + partidaAtual.id },
+          atualizarMesa)
+      .on('postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'historico',
+            filter: 'partida_id=eq.' + partidaAtual.id },
+          atualizarMesa)
+      .subscribe();
+  }
+
+  function desligarTempoReal() {
+    if (canal) {
+      banco.removeChannel(canal);
+      canal = null;
+    }
+  }
+
+  // =====================================================
+  // 8) AÇÕES (todas passam pelas funções do banco)
+  // =====================================================
+  async function executar(funcao, parametros, idDoErro) {
+    if (ocupado) return false;
+    ocupado = true;
+    limparErro('erro-barra');
+    limparErro('erro-criador');
+    limparErro('erro-distribuir');
+
+    const resp = await banco.rpc(funcao, parametros);
+
+    if (resp.error) {
+      mostrarErro(idDoErro, resp.error.message);
+    } else {
+      await atualizarMesa();
+    }
+    ocupado = false;
+    return !resp.error;
+  }
+
+  function agir(acao) {
+    return executar('jogar', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo,
+      p_acao: acao,
+      p_valor: 0
+    }, 'erro-barra');
+  }
+
+  async function apostar() {
+    const campo = document.getElementById('campo-valor');
+    const valor = parseInt(campo.value);
+    if (!(valor > 0)) {
+      mostrarErro('erro-barra', 'Digite um valor para apostar.');
+      return;
+    }
+    const deuCerto = await executar('jogar', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo,
+      p_acao: 'apostar',
+      p_valor: valor
+    }, 'erro-barra');
+    if (deuCerto) campo.value = '';
+  }
+
+  function passarVez() {
+    return executar('passar_vez', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo
+    }, 'erro-barra');
+  }
+
+  function iniciarPartida() {
+    return executar('iniciar_partida', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo
+    }, 'erro-criador');
+  }
+
+  // Desfazer a própria jogada (antes de passar a vez)
+  function desfazerJogada() {
+    return executar('desfazer_jogada', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo
+    }, 'erro-barra');
+  }
+
+  // Resetar a partida (só o criador), com confirmação
+  function resetarPartida() {
+    const certeza = confirm(
+      'Resetar a partida?\n\nTodos voltam ao saldo inicial, o pote é zerado e a partida volta para "aguardando iniciar".'
+    );
+    if (!certeza) return;
+    return executar('resetar_partida', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo
+    }, 'erro-criador');
+  }
+  // Pagar o blind (o botão grande já é a confirmação)
+  function pagarBlind() {
+    return executar('pagar_blind', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo
+    }, 'erro-barra');
+  }
+
+  // Subir o nível: dobra os blinds (só o criador), com confirmação
+  function subirNivel() {
+    const novoSmall = partidaAtual.small_blind * 2;
+    const novoBig = partidaAtual.big_blind * 2;
+    const certeza = confirm(
+      'Subir para o nível ' + (partidaAtual.nivel + 1) + '?\n\nOs blinds passam a ' + novoSmall + ' / ' + novoBig + '.'
+    );
+    if (!certeza) return;
+    return executar('subir_nivel', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo
+    }, 'erro-criador');
+  }
+  // =====================================================
+  // 9) DISTRIBUIR O POTE (só o criador)
+  // =====================================================
+
+  // Monta o formulário: uma linha com campo numérico para cada jogador
+  function abrirDistribuicao() {
+    if (!partidaAtual || !(partidaAtual.pote > 0)) return;
+    limparErro('erro-distribuir');
+
+    document.getElementById('dist-pote').textContent = partidaAtual.pote;
+
+    const area = document.getElementById('dist-linhas');
+    area.innerHTML = '';
+    jogadoresAtuais.forEach(function (j) {
+      area.innerHTML += `
+        <div class="linha-premio">
+          <div class="nome">${escapar(j.nome)}${j.desistiu ? ' <span class="detalhe">(desistiu)</span>' : ''}</div>
+          <input type="number" inputmode="numeric" min="0" placeholder="0"
+                 data-jogador="${j.id}" oninput="atualizarSoma()">
+          <button class="secundario" onclick="darTudo('${j.id}')">Tudo</button>
+        </div>
+      `;
+    });
+
+    document.getElementById('painel-distribuir').hidden = false;
+    atualizarSoma();
+    document.getElementById('painel-distribuir').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Botão "Tudo": coloca o pote inteiro neste jogador e zera os outros campos
+  function darTudo(idDoJogador) {
+    document.querySelectorAll('#dist-linhas input').forEach(function (campo) {
+      campo.value = (campo.dataset.jogador === idDoJogador) ? partidaAtual.pote : '';
+    });
+    atualizarSoma();
+  }
+
+  function fecharDistribuicao() {
+    document.getElementById('painel-distribuir').hidden = true;
+    document.getElementById('dist-linhas').innerHTML = '';
+    limparErro('erro-distribuir');
+  }
+
+  // Lê os campos e devolve a lista de prêmios maiores que zero
+  function lerPremios() {
+    const premios = [];
+    document.querySelectorAll('#dist-linhas input').forEach(function (campo) {
+      const valor = parseInt(campo.value);
+      if (valor > 0) {
+        premios.push({ jogador_id: campo.dataset.jogador, valor: valor });
+      }
+    });
+    return premios;
+  }
+
+  // Mostra quanto já foi distribuído e libera o botão só quando a soma bate
+  function atualizarSoma() {
+    const pote = partidaAtual.pote;
+    let soma = 0;
+    lerPremios().forEach(function (p) { soma += p.valor; });
+
+    const caixa = document.getElementById('dist-soma');
+    const botao = document.getElementById('botao-confirmar-dist');
+    const resta = pote - soma;
+
+    if (resta === 0) {
+      caixa.textContent = '✔ Soma confere: ' + soma + ' de ' + pote;
+      caixa.className = 'soma ok';
+    } else if (resta > 0) {
+      caixa.textContent = 'Faltam ' + resta + ' para distribuir';
+      caixa.className = 'soma';
+    } else {
+      caixa.textContent = 'Passou ' + (-resta) + ' do pote';
+      caixa.className = 'soma';
+    }
+    botao.disabled = (resta !== 0);
+  }
+
+  async function confirmarDistribuicao() {
+    const deuCerto = await executar('distribuir_pote', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo,
+      p_premios: lerPremios()
+    }, 'erro-distribuir');
+    if (deuCerto) fecharDistribuicao();
+  }
+
+  // =====================================================
+  // 10) SAIR DA MESA
+  // =====================================================
+  function sair() {
+    desligarTempoReal();
+    fecharDistribuicao();
+    partidaAtual = null;
+    meuJogadorId = null;
+    meuSegredo = null;
+    document.getElementById('campo-codigo').value = '';
+    mostrar('tela-inicio');
+  }
+</script>
+</body>
+</html>
