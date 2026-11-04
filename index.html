@@ -678,6 +678,54 @@
       letter-spacing: 0.04em;
     }
 
+    /* =====================================================
+       SENHA (com botão mostrar/ocultar)
+       ===================================================== */
+    .campo-senha { position: relative; }
+    .campo-senha input { padding-right: 104px; }
+    button.olho {
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      transform: translateY(-50%);
+      width: auto;
+      min-height: 42px;
+      margin: 0;
+      padding: 4px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--marfim-suave);
+      background: transparent;
+      box-shadow: none;
+    }
+    button.olho:active:not(:disabled) { transform: translateY(-50%); box-shadow: none; }
+
+    /* =====================================================
+       TELA DE CARREGANDO (ao recarregar a página)
+       ===================================================== */
+    .restaurando #tela-inicio { display: none !important; }
+    .restaurando #tela-carregando { display: block; }
+    .carregando {
+      min-height: 70dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 18px;
+    }
+    .carregando p { margin: 0; max-width: 280px; color: var(--marfim-suave); }
+    .carregando-acoes { width: 100%; max-width: 320px; }
+    .ficha-giro {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: repeating-conic-gradient(var(--marfim) 0deg 12deg, var(--vermelho) 12deg 30deg);
+      box-shadow: inset 0 0 0 14px var(--feltro-800), 0 10px 22px -8px rgba(0, 0, 0, 0.6);
+      animation: giro 1.4s linear infinite;
+    }
+    @keyframes giro { to { transform: rotate(360deg); } }
+
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -685,6 +733,14 @@
 </head>
 
 <body>
+<script>
+  // Se existe uma mesa salva, já esconde a tela inicial para ela não "piscar" ao recarregar
+  try {
+    if (localStorage.getItem('poker-partida-atual')) {
+      document.documentElement.classList.add('restaurando');
+    }
+  } catch (erro) {}
+</script>
 <main>
 
   <!-- ===== TELA 1: INÍCIO ===== -->
@@ -719,6 +775,14 @@
     <div class="cartao" style="margin-top:0">
       <label for="campo-nome">Seu nome</label>
       <input id="campo-nome" type="text" placeholder="Ex.: Ana" maxlength="20" autocomplete="off">
+
+      <label for="campo-senha">Sua senha</label>
+      <div class="campo-senha">
+        <input id="campo-senha" type="password" placeholder="Mínimo 3 caracteres" maxlength="30"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <button type="button" class="olho" onclick="alternarSenha('campo-senha', this)">Mostrar</button>
+      </div>
+      <p class="dica">Se você sair da mesa, é com este nome e esta senha que volta com as mesmas fichas.</p>
 
       <label for="campo-saldo">Fichas de cada jogador</label>
       <input id="campo-saldo" type="number" inputmode="numeric" value="1000">
@@ -761,6 +825,14 @@
     <div class="cartao">
       <label for="campo-nome-entrada">Seu nome</label>
       <input id="campo-nome-entrada" type="text" placeholder="Ex.: Carlos" maxlength="20" autocomplete="off">
+
+      <label for="campo-senha-entrada">Sua senha</label>
+      <div class="campo-senha">
+        <input id="campo-senha-entrada" type="password" placeholder="Mínimo 3 caracteres" maxlength="30"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+        <button type="button" class="olho" onclick="alternarSenha('campo-senha-entrada', this)">Mostrar</button>
+      </div>
+      <p class="dica">Primeira vez aqui? Escolha um nome e uma senha. Já jogou nesta mesa? Use o mesmo nome e a mesma senha para voltar com suas fichas.</p>
 
       <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
       <button class="secundario" onclick="entrarComoEspectador()">Só assistir</button>
@@ -834,6 +906,18 @@
     <button class="fantasma" onclick="sair()" style="margin-top:20px">Sair da mesa</button>
   </section>
 
+  <!-- ===== TELA DE CARREGANDO: aparece ao recarregar a página ===== -->
+  <section id="tela-carregando" class="tela">
+    <div class="carregando">
+      <div class="ficha-giro" aria-hidden="true"></div>
+      <p id="carregando-texto">Voltando para a mesa...</p>
+      <div id="carregando-acoes" class="carregando-acoes" hidden>
+        <button onclick="restaurarSessao()">Tentar de novo</button>
+        <button class="secundario" onclick="esquecerPartida(); mostrar('tela-inicio')">Ir para o início</button>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -905,6 +989,7 @@
   // =====================================================
 
   function mostrar(idDaTela) {
+    document.documentElement.classList.remove('restaurando');
     document.querySelectorAll('.tela').forEach(function (tela) {
       tela.classList.remove('ativa');
     });
@@ -956,6 +1041,25 @@
     } catch (erro) {
       return null;
     }
+  }
+
+  // Lembra em qual mesa a pessoa está, para voltar sozinha se a página recarregar
+  function guardarPartidaAtual(partidaId) {
+    try { localStorage.setItem('poker-partida-atual', String(partidaId)); } catch (erro) {}
+  }
+  function lerPartidaSalva() {
+    try { return localStorage.getItem('poker-partida-atual') || null; } catch (erro) { return null; }
+  }
+  function esquecerPartida() {
+    try { localStorage.removeItem('poker-partida-atual'); } catch (erro) {}
+  }
+
+  // Botão "Mostrar / Ocultar" do campo de senha
+  function alternarSenha(idDoCampo, botao) {
+    const campo = document.getElementById(idDoCampo);
+    const escondido = campo.type === 'password';
+    campo.type = escondido ? 'text' : 'password';
+    botao.textContent = escondido ? 'Ocultar' : 'Mostrar';
   }
 
   // Lembra o último nome digitado, para não precisar digitar de novo
@@ -1016,8 +1120,10 @@
     const saldo = parseInt(document.getElementById('campo-saldo').value);
     const small = parseInt(document.getElementById('campo-small').value);
     const big   = parseInt(document.getElementById('campo-big').value);
+    const senha = document.getElementById('campo-senha').value.trim();
 
     if (!nome) { mostrarErro('erro-criar', 'Digite seu nome.'); return; }
+    if (senha.length < 3) { mostrarErro('erro-criar', 'A senha precisa ter pelo menos 3 caracteres.'); return; }
     if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
       mostrarErro('erro-criar', 'Saldo e blinds precisam ser números maiores que zero.');
       return;
@@ -1033,11 +1139,12 @@
     botao.disabled = true;
     botao.textContent = 'Criando...';
 
-    const resp = await banco.rpc('criar_partida', {
+    const resp = await banco.rpc('criar_partida_com_senha', {
       p_nome: nome,
       p_saldo: saldo,
       p_small: small,
-      p_big: big
+      p_big: big,
+      p_senha: senha
     });
 
     if (resp.error) {
@@ -1118,6 +1225,7 @@
     meuSegredo = null;
     limparErro('erro-escolha');
     document.getElementById('campo-nome-entrada').value = lerNome();
+    document.getElementById('campo-senha-entrada').value = '';
     document.getElementById('escolha-codigo').textContent = partida.codigo;
     document.getElementById('escolha-saldo').textContent = partida.saldo_inicial;
     mostrar('tela-escolha');
@@ -1130,7 +1238,9 @@
     limparErro('erro-escolha');
 
     const nome = document.getElementById('campo-nome-entrada').value.trim();
+    const senha = document.getElementById('campo-senha-entrada').value.trim();
     if (!nome) { mostrarErro('erro-escolha', 'Digite seu nome.'); return; }
+    if (senha.length < 3) { mostrarErro('erro-escolha', 'A senha precisa ter pelo menos 3 caracteres.'); return; }
 
     lembrarNome(nome);
 
@@ -1138,16 +1248,25 @@
     botao.disabled = true;
     botao.textContent = 'Entrando...';
 
-    const resp = await banco.rpc('entrar_partida', {
-      p_partida_id: partidaAtual.id,
-      p_nome: nome
+    // Nome novo: cria o jogador. Nome que já existe: confere a senha e devolve o mesmo jogador.
+    const resp = await banco.rpc('entrar_com_senha', {
+      p_partida_id: String(partidaAtual.id),
+      p_nome: nome,
+      p_senha: senha
     });
 
     if (resp.error) {
       mostrarErro('erro-escolha', resp.error.message);
     } else {
+      const reconectou = !!resp.data.reconectado;
       guardarMeuJogador(partidaAtual.id, resp.data.jogador_id, resp.data.segredo);
       await abrirMesa(partidaAtual);
+
+      if (reconectou) {
+        const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
+        aviso(eu ? 'Bem-vindo de volta, ' + eu.nome + '! Você tem ' + eu.saldo + ' fichas.'
+                 : 'Bem-vindo de volta!');
+      }
     }
 
     botao.disabled = false;
@@ -1170,6 +1289,7 @@
 
     eraMinhaVez = false;
     ultimoPote = null;
+    guardarPartidaAtual(partida.id);
 
     limparErro('erro-barra');
     limparErro('erro-criador');
@@ -1623,6 +1743,7 @@
     meuSegredo = null;
     eraMinhaVez = false;
     ultimoPote = null;
+    esquecerPartida();
     document.getElementById('campo-codigo').value = '';
     mostrar('tela-inicio');
   }
@@ -1663,6 +1784,60 @@
     new ResizeObserver(ajustarEspaco).observe(barraEl);
   }
   new MutationObserver(ajustarEspaco).observe(barraEl, { attributes: true, attributeFilter: ['class'] });
+
+  // Enter no campo de senha entra na mesa
+  document.getElementById('campo-senha-entrada').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') entrarComoJogador();
+  });
+
+  // =====================================================
+  // 12) VOLTAR PARA A MESA AO RECARREGAR A PÁGINA
+  // =====================================================
+  async function restaurarSessao() {
+    const id = lerPartidaSalva();
+    if (!id) { mostrar('tela-inicio'); return; }
+
+    mostrar('tela-carregando');
+    document.getElementById('carregando-texto').textContent = 'Voltando para a mesa...';
+    document.getElementById('carregando-acoes').hidden = true;
+
+    let resp;
+    try {
+      resp = await banco.from('partidas').select('*').eq('id', id).maybeSingle();
+    } catch (erro) {
+      resp = { error: erro };
+    }
+
+    // Sem internet ou servidor fora do ar: não apaga nada, deixa tentar de novo
+    if (resp.error) {
+      document.getElementById('carregando-texto').textContent =
+        'Não consegui falar com o servidor. Confira a internet e tente de novo.';
+      document.getElementById('carregando-acoes').hidden = false;
+      return;
+    }
+
+    // A partida não existe mais
+    if (!resp.data) {
+      esquecerPartida();
+      mostrar('tela-inicio');
+      return;
+    }
+
+    // Abre a mesa; o jogador (e o segredo) vêm da gaveta do navegador
+    await abrirMesa(resp.data);
+  }
+
+  // Ao voltar para o app (ex.: depois de bloquear a tela), atualiza a mesa e religa o tempo real
+  document.addEventListener('visibilitychange', function () {
+    const naMesa = document.getElementById('tela-mesa').classList.contains('ativa');
+    if (document.visibilityState === 'visible' && partidaAtual && naMesa) {
+      atualizarMesa();
+      ligarTempoReal();
+    }
+  });
+
+  // Ao abrir a página: se havia uma mesa em andamento, volta para ela
+  if (lerPartidaSalva()) restaurarSessao();
 </script>
 </body>
 </html>
