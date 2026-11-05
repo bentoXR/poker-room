@@ -1028,6 +1028,10 @@
   let versaoSalas = 0;        // evita que uma resposta antiga da lista sobrescreva uma nova
   let htmlSalas = '';         // para só redesenhar a lista quando algo mudou
   let abrindoSala = false;    // evita toques duplos ao abrir uma sala
+  let temporizadorSinal = null; // avisa o banco, de tempos em tempos, que estou com a mesa aberta
+  // Botão "voltar" do celular: 0 = tela raiz (login/salas), 1 = tela interna (criar/escolha/mesa)
+  let profundidade = (history.state && history.state.poker) ? 1 : 0;
+  let ignorarPop = false;
 
   // Ícone da coroa (criador da partida)
   const ICONE_COROA = '<svg class="ic cheio coroa" viewBox="0 0 24 24" aria-label="Criador"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>';
@@ -1047,7 +1051,27 @@
       document.getElementById('barra-acoes').classList.remove('visivel');
     }
     if (idDaTela !== 'tela-salas') pararSalas();
+    ajustarHistorico(idDaTela);
     window.scrollTo(0, 0);
+  }
+
+  // Botão "voltar" do celular: volta uma tela dentro do app, em vez de sair do navegador.
+  // Telas internas ganham uma entrada no histórico; ao voltar para a raiz, a entrada é removida.
+  const TELAS_INTERNAS = ['tela-criar', 'tela-escolha', 'tela-mesa'];
+  const TELAS_RAIZ = ['tela-login', 'tela-salas'];
+  function ajustarHistorico(idDaTela) {
+    if (TELAS_INTERNAS.indexOf(idDaTela) >= 0) {
+      if (profundidade === 0) {
+        try { history.pushState({ poker: 1 }, ''); } catch (erro) {}
+        profundidade = 1;
+      }
+    } else if (TELAS_RAIZ.indexOf(idDaTela) >= 0) {
+      if (profundidade === 1) {
+        profundidade = 0;
+        ignorarPop = true;
+        try { history.back(); } catch (erro) { ignorarPop = false; }
+      }
+    }
   }
 
   function mostrarErro(idDaCaixa, texto) {
@@ -1491,7 +1515,7 @@
       .from('partidas')
       .select('*')
       .eq('id', idPartida)
-      .single();
+      .maybeSingle();
 
     const respJogadores = await banco
       .from('jogadores')
@@ -1501,6 +1525,13 @@
 
     if (!partidaAtual || minhaVersao !== versaoMesa) return;
     if (respPartida.error || respJogadores.error) return;
+
+    // A sala foi apagada (por exemplo, por ficar sem jogadores ativos)
+    if (!respPartida.data) {
+      aviso('Essa sala não existe mais.');
+      voltarParaSalas();
+      return;
+    }
 
     const partida = respPartida.data;
     const jogadores = respJogadores.data;
@@ -1720,12 +1751,35 @@
             filter: 'partida_id=eq.' + partidaAtual.id },
           atualizarMesa)
       .subscribe();
+
+    ligarSinal();
   }
 
   function desligarTempoReal() {
+    desligarSinal();
     if (canal) {
       banco.removeChannel(canal);
       canal = null;
+    }
+  }
+
+  // A cada 30 segundos o jogador avisa que está com a mesa aberta.
+  // Salas em que ninguém dá sinal por um tempo são apagadas pelo banco.
+  function enviarSinal() {
+    if (!meuJogadorId || !meuSegredo) return;
+    banco.rpc('ping_sala', { p_jogador: meuJogadorId, p_segredo: meuSegredo })
+      .then(function () {}, function () {});
+  }
+  function ligarSinal() {
+    desligarSinal();
+    if (!meuJogadorId) return;   // quem só assiste não mantém a sala viva
+    enviarSinal();
+    temporizadorSinal = setInterval(enviarSinal, 30000);
+  }
+  function desligarSinal() {
+    if (temporizadorSinal) {
+      clearInterval(temporizadorSinal);
+      temporizadorSinal = null;
     }
   }
 
@@ -2033,6 +2087,15 @@
     } else if (nasSalas) {
       carregarSalas();
     }
+  });
+
+  // Botão "voltar" do celular (ou gesto de voltar)
+  window.addEventListener('popstate', function () {
+    if (ignorarPop) { ignorarPop = false; return; }
+    profundidade = 0;
+    const ativa = document.querySelector('.tela.ativa');
+    const id = ativa ? ativa.id : '';
+    if (TELAS_INTERNAS.indexOf(id) >= 0) voltarParaSalas();
   });
 
   iniciarApp();
