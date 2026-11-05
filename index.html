@@ -260,7 +260,7 @@
     /* =====================================================
        TELA 1: INÍCIO
        ===================================================== */
-    #tela-inicio.ativa {
+    #tela-login.ativa {
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -302,17 +302,66 @@
       height: 1px;
       background: var(--linha);
     }
-    input.codigo {
-      text-align: center;
-      font-family: var(--fonte-numero);
-      font-size: 36px;
-      font-weight: 600;
-      letter-spacing: 0.3em;
-      padding-left: calc(14px + 0.3em);
-      text-transform: uppercase;
-      min-height: 66px;
+    /* =====================================================
+       TELA: SALAS
+       ===================================================== */
+    .cabecalho-conta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
-    input.codigo::placeholder { letter-spacing: 0.3em; }
+    .cabecalho-conta .ola { font-size: 15px; color: var(--marfim-suave); }
+    .cabecalho-conta .ola strong { color: var(--marfim); font-weight: 600; }
+    button.sair-conta {
+      width: auto;
+      min-height: 44px;
+      margin: 0;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      color: var(--marfim-suave);
+      box-shadow: none;
+    }
+    #lista-salas { margin-top: 6px; }
+    button.sala {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 72px;
+      margin-top: 10px;
+      padding: 14px 16px;
+      text-align: left;
+      background: var(--feltro-800);
+      color: var(--marfim);
+      border: 1.5px solid var(--linha);
+      box-shadow: none;
+    }
+    button.sala:active:not(:disabled) { transform: scale(0.99); box-shadow: none; }
+    button.sala.minha { background: var(--feltro-700); border-color: rgba(233, 185, 60, 0.55); }
+    button.sala .sala-info { flex: 1; min-width: 0; }
+    button.sala .sala-nome {
+      font-family: var(--fonte-numero);
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sala-nome .coroa { color: var(--ouro); vertical-align: -2px; margin-right: 2px; }
+    button.sala .sala-detalhe { margin-top: 4px; font-size: 14px; font-weight: 500; color: var(--marfim-suave); }
+    button.sala .sala-seta { color: var(--marfim-suave); }
+    .vazio {
+      margin-top: 14px;
+      padding: 24px 16px;
+      text-align: center;
+      color: var(--marfim-suave);
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--raio-lg);
+    }
 
     /* =====================================================
        TELA 2: CRIAR PARTIDA
@@ -340,15 +389,15 @@
        ===================================================== */
     .convite { text-align: center; padding: 8px 0 4px; }
     .convite .rotulo { font-size: 14px; color: var(--marfim-suave); }
-    .convite .grande-codigo {
+    .grande-sala {
       font-family: var(--fonte-numero);
-      font-size: 64px;
+      font-size: 46px;
       font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.14em;
-      padding-left: 0.14em;
+      line-height: 1.05;
       color: var(--ouro);
+      overflow-wrap: anywhere;
     }
+    .grande-sala.menor { font-size: 34px; margin-top: 2px; }
     .convite p { margin: 8px 0 0; color: var(--marfim-suave); }
     .convite strong { color: var(--marfim); }
 
@@ -363,25 +412,16 @@
       justify-content: space-between;
       gap: 12px;
     }
-    button.codigo-pill {
-      width: auto;
-      min-height: 48px;
-      margin: 0;
-      padding: 6px 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.28);
-      color: var(--marfim);
-      box-shadow: inset 0 0 0 1px var(--linha);
-    }
-    .codigo-pill .rotulo { font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
-    .codigo-pill strong {
+    .sala-pill { min-width: 0; display: flex; flex-direction: column; }
+    .sala-pill .rotulo { font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
+    .sala-pill strong {
       font-family: var(--fonte-numero);
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 700;
-      letter-spacing: 0.12em;
-      line-height: 1;
+      line-height: 1.05;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .papel {
       font-size: 14px;
@@ -703,7 +743,7 @@
     /* =====================================================
        TELA DE CARREGANDO (ao recarregar a página)
        ===================================================== */
-    .restaurando #tela-inicio { display: none !important; }
+    .restaurando #tela-login { display: none !important; }
     .restaurando #tela-carregando { display: block; }
     .carregando {
       min-height: 70dvh;
@@ -734,55 +774,67 @@
 
 <body>
 <script>
-  // Se existe uma mesa salva, já esconde a tela inicial para ela não "piscar" ao recarregar
+  // Se já existe um login salvo, esconde a tela de login para ela não "piscar" ao recarregar
   try {
-    if (localStorage.getItem('poker-partida-atual')) {
+    if (localStorage.getItem('poker-conta')) {
       document.documentElement.classList.add('restaurando');
     }
   } catch (erro) {}
 </script>
 <main>
 
-  <!-- ===== TELA 1: INÍCIO ===== -->
-  <section id="tela-inicio" class="tela ativa">
+  <!-- ===== TELA 1: LOGIN ===== -->
+  <section id="tela-login" class="tela ativa">
     <div class="marca">
       <div class="naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
       <h1>Poker Room</h1>
       <p>Fichas, blinds e pote da sua mesa, direto no celular.</p>
     </div>
 
-    <button onclick="mostrar('tela-criar')">Criar partida</button>
-
-    <div class="separador">ou entre numa mesa</div>
-
     <div class="cartao" style="margin-top:12px">
-      <label for="campo-codigo">Código da partida</label>
-      <input id="campo-codigo" class="codigo" type="text" placeholder="•••••" maxlength="5"
-             autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false"
-             enterkeyhint="go">
-      <button id="botao-entrar" class="secundario" onclick="entrarPartida()">Entrar na partida</button>
-      <div id="erro-inicio" class="erro" role="alert"></div>
+      <label for="campo-login-nome">Seu nome</label>
+      <input id="campo-login-nome" type="text" placeholder="Ex.: Pedro" maxlength="20"
+             autocomplete="username" autocorrect="off" spellcheck="false" enterkeyhint="next">
+
+      <label for="campo-login-senha">Sua senha</label>
+      <div class="campo-senha">
+        <input id="campo-login-senha" type="password" placeholder="Mínimo 3 caracteres" maxlength="30"
+               autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+        <button type="button" class="olho" onclick="alternarSenha('campo-login-senha', this)">Mostrar</button>
+      </div>
+
+      <button id="botao-login" onclick="fazerLogin()">Entrar</button>
+      <button id="botao-criar-conta" class="secundario" onclick="criarConta()">Criar conta</button>
+      <p class="dica">Primeira vez aqui? Escolha um nome e uma senha e toque em "Criar conta". Depois é só entrar com eles quando quiser.</p>
+      <div id="erro-login" class="erro" role="alert"></div>
     </div>
   </section>
 
-  <!-- ===== TELA 2: CRIAR PARTIDA ===== -->
+  <!-- ===== TELA 2: SALAS ===== -->
+  <section id="tela-salas" class="tela">
+    <div class="cabecalho-conta">
+      <div class="ola">Olá, <strong id="salas-nome"></strong></div>
+      <button class="sair-conta" onclick="sairDaConta()">Sair da conta</button>
+    </div>
+
+    <h2 style="margin-top:10px">Salas</h2>
+
+    <button onclick="abrirCriar()">Criar sala</button>
+    <div id="erro-salas" class="erro" role="alert"></div>
+
+    <div id="lista-salas"></div>
+  </section>
+
+  <!-- ===== TELA 3: CRIAR SALA ===== -->
   <section id="tela-criar" class="tela">
-    <button class="voltar" onclick="mostrar('tela-inicio')">
+    <button class="voltar" onclick="abrirSalas()">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
     </button>
-    <h2>Nova partida</h2>
+    <h2>Nova sala</h2>
 
     <div class="cartao" style="margin-top:0">
-      <label for="campo-nome">Seu nome</label>
-      <input id="campo-nome" type="text" placeholder="Ex.: Ana" maxlength="20" autocomplete="off">
-
-      <label for="campo-senha">Sua senha</label>
-      <div class="campo-senha">
-        <input id="campo-senha" type="password" placeholder="Mínimo 3 caracteres" maxlength="30"
-               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha', this)">Mostrar</button>
-      </div>
-      <p class="dica">Se você sair da mesa, é com este nome e esta senha que volta com as mesmas fichas.</p>
+      <div class="detalhe">Sua sala vai se chamar</div>
+      <div class="grande-sala menor" id="criar-nome-sala"></div>
 
       <label for="campo-saldo">Fichas de cada jogador</label>
       <input id="campo-saldo" type="number" inputmode="numeric" value="1000">
@@ -806,49 +858,38 @@
       <p class="dica">O big blind costuma ser o dobro do small blind.</p>
     </div>
 
-    <button id="botao-criar" onclick="criarPartida()">Criar e ir para a mesa</button>
+    <button id="botao-criar" onclick="criarSala()">Criar e ir para a mesa</button>
     <div id="erro-criar" class="erro" role="alert"></div>
   </section>
 
-  <!-- ===== TELA 3: ESCOLHA (jogar ou só assistir) ===== -->
+  <!-- ===== TELA 4: ESCOLHA (jogar ou só assistir) ===== -->
   <section id="tela-escolha" class="tela">
-    <button class="voltar" onclick="mostrar('tela-inicio')">
+    <button class="voltar" onclick="voltarParaSalas()">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
     </button>
 
     <div class="convite">
-      <div class="rotulo">Você foi convidado para a partida</div>
-      <div class="grande-codigo" id="escolha-codigo"></div>
+      <div class="rotulo">Você vai entrar na</div>
+      <div class="grande-sala" id="escolha-sala"></div>
       <p>Cada jogador começa com <strong id="escolha-saldo"></strong> fichas.</p>
     </div>
 
     <div class="cartao">
-      <label for="campo-nome-entrada">Seu nome</label>
-      <input id="campo-nome-entrada" type="text" placeholder="Ex.: Carlos" maxlength="20" autocomplete="off">
-
-      <label for="campo-senha-entrada">Sua senha</label>
-      <div class="campo-senha">
-        <input id="campo-senha-entrada" type="password" placeholder="Mínimo 3 caracteres" maxlength="30"
-               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-entrada', this)">Mostrar</button>
-      </div>
-      <p class="dica">Primeira vez aqui? Escolha um nome e uma senha. Já jogou nesta mesa? Use o mesmo nome e a mesma senha para voltar com suas fichas.</p>
-
       <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
       <button class="secundario" onclick="entrarComoEspectador()">Só assistir</button>
+      <p class="dica">Como jogador, você pode sair e voltar quando quiser: suas fichas ficam guardadas na sua conta.</p>
       <div id="erro-escolha" class="erro" role="alert"></div>
     </div>
   </section>
 
-  <!-- ===== TELA 4: MESA ===== -->
+  <!-- ===== TELA 5: MESA ===== -->
   <section id="tela-mesa" class="tela">
 
     <div class="topo">
-      <button class="codigo-pill" onclick="compartilharCodigo()" aria-label="Compartilhar o código da partida">
-        <span class="rotulo">Código</span>
-        <strong id="mesa-codigo"></strong>
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg>
-      </button>
+      <div class="sala-pill">
+        <span class="rotulo">Sala</span>
+        <strong id="mesa-sala"></strong>
+      </div>
       <div class="papel" id="mesa-papel"></div>
     </div>
 
@@ -884,11 +925,12 @@
         <svg class="ic cheio" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>
         Controles do criador
       </div>
-      <p class="dica" id="dica-iniciar" style="margin-top:0">Quando todo mundo tiver entrado, toque em iniciar. Compartilhe o código pelo botão no topo.</p>
+      <p class="dica" id="dica-iniciar" style="margin-top:0">Quando todo mundo tiver entrado, toque em iniciar. Seus amigos encontram esta sala na lista de salas.</p>
       <button id="botao-iniciar" onclick="iniciarPartida()">Iniciar partida</button>
       <button id="botao-distribuir" onclick="abrirDistribuicao()">Distribuir pote</button>
       <button id="botao-nivel" class="secundario" onclick="subirNivel()">Subir nível (dobrar blinds)</button>
       <button id="botao-resetar" class="contorno-perigo" onclick="resetarPartida()">Resetar partida</button>
+      <button id="botao-encerrar" class="contorno-perigo" onclick="encerrarSala()">Encerrar sala</button>
       <div id="erro-criador" class="erro" role="alert"></div>
     </div>
 
@@ -903,7 +945,7 @@
       <div id="erro-distribuir" class="erro" role="alert"></div>
     </div>
 
-    <button class="fantasma" onclick="sair()" style="margin-top:20px">Sair da mesa</button>
+    <button class="fantasma" onclick="voltarParaSalas()" style="margin-top:20px">Voltar para as salas</button>
   </section>
 
   <!-- ===== TELA DE CARREGANDO: aparece ao recarregar a página ===== -->
@@ -912,8 +954,8 @@
       <div class="ficha-giro" aria-hidden="true"></div>
       <p id="carregando-texto">Voltando para a mesa...</p>
       <div id="carregando-acoes" class="carregando-acoes" hidden>
-        <button onclick="restaurarSessao()">Tentar de novo</button>
-        <button class="secundario" onclick="esquecerPartida(); mostrar('tela-inicio')">Ir para o início</button>
+        <button onclick="iniciarApp()">Tentar de novo</button>
+        <button class="secundario" onclick="esquecerPartida(); abrirSalas()">Ir para as salas</button>
       </div>
     </div>
   </section>
@@ -980,6 +1022,12 @@
   let eraMinhaVez = false;    // para vibrar só quando a vez chega para mim
   let ultimoPote = null;      // para animar a ficha quando o pote muda
   let bigEditado = false;     // se a pessoa mexeu no big blind à mão
+  let minhaConta = lerContaSalva(); // { id, token, nome } de quem fez login (null = ninguém)
+  let salasAtuais = [];       // última lista de salas
+  let temporizadorSalas = null; // atualiza a lista de salas de tempos em tempos
+  let versaoSalas = 0;        // evita que uma resposta antiga da lista sobrescreva uma nova
+  let htmlSalas = '';         // para só redesenhar a lista quando algo mudou
+  let abrindoSala = false;    // evita toques duplos ao abrir uma sala
 
   // Ícone da coroa (criador da partida)
   const ICONE_COROA = '<svg class="ic cheio coroa" viewBox="0 0 24 24" aria-label="Criador"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>';
@@ -998,6 +1046,7 @@
     if (idDaTela !== 'tela-mesa') {
       document.getElementById('barra-acoes').classList.remove('visivel');
     }
+    if (idDaTela !== 'tela-salas') pararSalas();
     window.scrollTo(0, 0);
   }
 
@@ -1028,19 +1077,43 @@
   }
 
   // ----- A "gaveta" do navegador (localStorage) -----
+  // A chave depende da conta, para duas contas no mesmo aparelho não se misturarem
+  function chaveJogador(partidaId) {
+    return 'poker-jogador-' + (minhaConta ? minhaConta.id : 'x') + '-' + partidaId;
+  }
   function guardarMeuJogador(partidaId, jogadorId, segredo) {
-    localStorage.setItem('poker-jogador-' + partidaId,
-      JSON.stringify({ id: jogadorId, segredo: segredo }));
+    try {
+      localStorage.setItem(chaveJogador(partidaId),
+        JSON.stringify({ id: jogadorId, segredo: segredo }));
+    } catch (erro) {}
   }
   function lerMeuJogador(partidaId) {
     try {
-      const texto = localStorage.getItem('poker-jogador-' + partidaId);
+      const texto = localStorage.getItem(chaveJogador(partidaId));
       if (!texto) return null;
       const dados = JSON.parse(texto);
       return (dados && dados.id && dados.segredo) ? dados : null;
     } catch (erro) {
       return null;
     }
+  }
+
+  // O login fica guardado no aparelho: fechar o navegador não desloga
+  function lerContaSalva() {
+    try {
+      const texto = localStorage.getItem('poker-conta');
+      if (!texto) return null;
+      const dados = JSON.parse(texto);
+      return (dados && dados.id && dados.token && dados.nome) ? dados : null;
+    } catch (erro) {
+      return null;
+    }
+  }
+  function guardarConta(conta) {
+    try { localStorage.setItem('poker-conta', JSON.stringify(conta)); } catch (erro) {}
+  }
+  function esquecerConta() {
+    try { localStorage.removeItem('poker-conta'); } catch (erro) {}
   }
 
   // Lembra em qual mesa a pessoa está, para voltar sozinha se a página recarregar
@@ -1070,27 +1143,6 @@
     try { return localStorage.getItem('poker-nome') || ''; } catch (erro) { return ''; }
   }
 
-  // Compartilha o código (abre o WhatsApp etc. no celular); se não der, copia
-  async function compartilharCodigo() {
-    if (!partidaAtual) return;
-    const codigo = partidaAtual.codigo;
-    const texto = 'Entre na minha mesa de poker! Código: ' + codigo;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Poker Room', text: texto, url: location.href });
-        return;
-      } catch (erro) {
-        if (erro && erro.name === 'AbortError') return;
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(codigo);
-      aviso('Código ' + codigo + ' copiado');
-    } catch (erro) {
-      aviso('Código da partida: ' + codigo);
-    }
-  }
 
   // Atalhos da tela de criar partida
   function definirSaldo(valor) {
@@ -1111,19 +1163,203 @@
   }
 
   // =====================================================
-  // 4) CRIAR PARTIDA
+  // 4) LOGIN (um nome e uma senha para todas as salas)
   // =====================================================
-  async function criarPartida() {
+  function contaParams() {
+    return { p_conta: minhaConta.id, p_token: minhaConta.token };
+  }
+
+  // Se a conta não for mais válida, volta para o login
+  function tratarErroConta(erro) {
+    if (erro && /Sessão inválida/.test(erro.message || '')) {
+      aviso('Sua sessão expirou. Entre de novo.');
+      encerrarSessaoLocal();
+      return true;
+    }
+    return false;
+  }
+
+  async function entrarNaConta(funcao) {
+    limparErro('erro-login');
+
+    const nome = document.getElementById('campo-login-nome').value.trim();
+    const senha = document.getElementById('campo-login-senha').value.trim();
+    if (!nome) { mostrarErro('erro-login', 'Digite seu nome.'); return; }
+    if (senha.length < 3) { mostrarErro('erro-login', 'A senha precisa ter pelo menos 3 caracteres.'); return; }
+
+    const botoes = [document.getElementById('botao-login'), document.getElementById('botao-criar-conta')];
+    botoes.forEach(function (b) { b.disabled = true; });
+
+    let resp;
+    try {
+      resp = await banco.rpc(funcao, { p_nome: nome, p_senha: senha });
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+
+    if (resp.error) {
+      mostrarErro('erro-login', resp.error.message);
+    } else {
+      minhaConta = { id: resp.data.conta_id, token: resp.data.token, nome: resp.data.nome };
+      guardarConta(minhaConta);
+      lembrarNome(minhaConta.nome);
+      document.getElementById('campo-login-senha').value = '';
+      abrirSalas();
+    }
+
+    botoes.forEach(function (b) { b.disabled = false; });
+  }
+  function fazerLogin() { return entrarNaConta('login_conta'); }
+  function criarConta() { return entrarNaConta('criar_conta'); }
+
+  function sairDaConta() {
+    const certeza = confirm('Sair da conta?\n\nSuas salas e fichas continuam guardadas. É só entrar de novo com o mesmo nome e senha.');
+    if (!certeza) return;
+    encerrarSessaoLocal();
+  }
+
+  // Limpa tudo que é da pessoa neste aparelho e volta para o login
+  function encerrarSessaoLocal() {
+    desligarTempoReal();
+    pararSalas();
+    fecharDistribuicao();
+    partidaAtual = null;
+    meuJogadorId = null;
+    meuSegredo = null;
+    eraMinhaVez = false;
+    ultimoPote = null;
+    salasAtuais = [];
+    htmlSalas = '';
+    esquecerPartida();
+    esquecerConta();
+    minhaConta = null;
+    document.getElementById('campo-login-nome').value = lerNome();
+    document.getElementById('campo-login-senha').value = '';
+    limparErro('erro-login');
+    mostrar('tela-login');
+  }
+
+  // =====================================================
+  // 5) LISTA DE SALAS
+  // =====================================================
+  function abrirSalas() {
+    pararSalas();
+    document.getElementById('salas-nome').textContent = minhaConta.nome;
+    limparErro('erro-salas');
+    mostrar('tela-salas');
+    carregarSalas();
+    temporizadorSalas = setInterval(carregarSalas, 4000);
+  }
+
+  function pararSalas() {
+    if (temporizadorSalas) {
+      clearInterval(temporizadorSalas);
+      temporizadorSalas = null;
+    }
+  }
+
+  async function carregarSalas() {
+    if (!minhaConta) return;
+    const minha = ++versaoSalas;
+
+    let resp;
+    try {
+      resp = await banco.rpc('listar_salas', contaParams());
+    } catch (erro) {
+      resp = { error: { message: 'sem conexão' } };
+    }
+
+    // Ignora se saí da tela de salas ou se chegou uma resposta mais nova
+    if (minha !== versaoSalas || !document.getElementById('tela-salas').classList.contains('ativa')) return;
+
+    if (resp.error) {
+      if (tratarErroConta(resp.error)) return;
+      mostrarErro('erro-salas', 'Não consegui carregar as salas. Confira a internet.');
+      return;
+    }
+    limparErro('erro-salas');
+    salasAtuais = resp.data || [];
+    desenharSalas();
+  }
+
+  function desenharSalas() {
+    let html;
+    if (salasAtuais.length === 0) {
+      html = '<div class="vazio">Nenhuma sala aberta ainda.<br>Toque em "Criar sala" para começar.</div>';
+    } else {
+      html = salasAtuais.map(function (s) {
+        const estado = s.iniciada ? 'Em andamento · Mão ' + s.mao : 'Aguardando início';
+        const detalhe = estado + ' · ' + s.n_jogadores + (s.n_jogadores === 1 ? ' jogador' : ' jogadores')
+                      + ' · Blinds ' + s.small_blind + '/' + s.big_blind;
+        const tag = s.sou_jogador ? '<span class="tag vez">Continuar</span>' : '';
+        return `
+          <button type="button" class="sala ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
+            <div class="sala-info">
+              <div class="sala-nome">${s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
+              <div class="sala-detalhe">${escapar(detalhe)}</div>
+            </div>
+            ${tag}
+            <svg class="ic sala-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        `;
+      }).join('');
+    }
+    // Só mexe na tela se algo mudou (assim um toque nunca se perde no meio de uma atualização)
+    if (html === htmlSalas) return;
+    htmlSalas = html;
+    document.getElementById('lista-salas').innerHTML = html;
+  }
+
+  // Toque numa sala da lista
+  async function abrirSala(id) {
+    if (abrindoSala) return;
+    abrindoSala = true;
+    limparErro('erro-salas');
+
+    try {
+      const resp = await banco.from('partidas').select('*').eq('id', id).maybeSingle();
+      if (resp.error) {
+        mostrarErro('erro-salas', 'Não consegui abrir a sala. Confira a internet.');
+        return;
+      }
+      if (!resp.data || resp.data.encerrada) {
+        aviso('Essa sala não existe mais.');
+        carregarSalas();
+        return;
+      }
+
+      const sala = salasAtuais.find(function (s) { return s.id === id; });
+      if (sala && sala.sou_jogador) {
+        // Já jogo nesta sala: volto direto, com as mesmas fichas
+        pararSalas();
+        const entrou = await conectarNaSala(resp.data, 'erro-salas');
+        if (!entrou && document.getElementById('tela-salas').classList.contains('ativa')) {
+          temporizadorSalas = setInterval(carregarSalas, 4000);
+        }
+      } else {
+        prepararEscolha(resp.data);
+      }
+    } finally {
+      abrindoSala = false;
+    }
+  }
+
+  // =====================================================
+  // 6) CRIAR SALA / ENTRAR NA SALA
+  // =====================================================
+  function abrirCriar() {
+    limparErro('erro-criar');
+    document.getElementById('criar-nome-sala').textContent = 'Sala do ' + minhaConta.nome;
+    mostrar('tela-criar');
+  }
+
+  async function criarSala() {
     limparErro('erro-criar');
 
-    const nome  = document.getElementById('campo-nome').value.trim();
     const saldo = parseInt(document.getElementById('campo-saldo').value);
     const small = parseInt(document.getElementById('campo-small').value);
     const big   = parseInt(document.getElementById('campo-big').value);
-    const senha = document.getElementById('campo-senha').value.trim();
 
-    if (!nome) { mostrarErro('erro-criar', 'Digite seu nome.'); return; }
-    if (senha.length < 3) { mostrarErro('erro-criar', 'A senha precisa ter pelo menos 3 caracteres.'); return; }
     if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
       mostrarErro('erro-criar', 'Saldo e blinds precisam ser números maiores que zero.');
       return;
@@ -1133,22 +1369,18 @@
       return;
     }
 
-    lembrarNome(nome);
-
     const botao = document.getElementById('botao-criar');
     botao.disabled = true;
     botao.textContent = 'Criando...';
 
-    const resp = await banco.rpc('criar_partida_com_senha', {
-      p_nome: nome,
+    const resp = await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
       p_saldo: saldo,
       p_small: small,
-      p_big: big,
-      p_senha: senha
-    });
+      p_big: big
+    }));
 
     if (resp.error) {
-      mostrarErro('erro-criar', resp.error.message);
+      if (!tratarErroConta(resp.error)) mostrarErro('erro-criar', resp.error.message);
     } else {
       const dados = resp.data;
       guardarMeuJogador(dados.partida_id, dados.jogador_id, dados.segredo);
@@ -1170,104 +1402,50 @@
     botao.textContent = 'Criar e ir para a mesa';
   }
 
-  // =====================================================
-  // 5) ENTRAR POR CÓDIGO
-  // =====================================================
-  async function entrarPartida() {
-    limparErro('erro-inicio');
-
-    const codigo = document.getElementById('campo-codigo').value.trim().toUpperCase();
-    if (codigo.length !== 5) {
-      mostrarErro('erro-inicio', 'O código tem 5 caracteres.');
-      return;
-    }
-
-    const botao = document.getElementById('botao-entrar');
-    botao.disabled = true;
-    botao.textContent = 'Buscando...';
-
-    const resp = await banco
-      .from('partidas')
-      .select('*')
-      .eq('codigo', codigo)
-      .maybeSingle();
-
-    if (resp.error || !resp.data) {
-      mostrarErro('erro-inicio', 'Partida não encontrada. Confira o código.');
-    } else {
-      const partida = resp.data;
-
-      const guardado = lerMeuJogador(partida.id);
-      let jaSouJogador = false;
-      if (guardado) {
-        const conferir = await banco
-          .from('jogadores')
-          .select('id')
-          .eq('id', guardado.id)
-          .maybeSingle();
-        jaSouJogador = !!(conferir.data);
-      }
-
-      if (jaSouJogador) {
-        await abrirMesa(partida);
-      } else {
-        prepararEscolha(partida);
-      }
-    }
-
-    botao.disabled = false;
-    botao.textContent = 'Entrar na partida';
-  }
-
+  // Tela "jogar ou só assistir" (para salas em que ainda não jogo)
   function prepararEscolha(partida) {
     partidaAtual = partida;
     meuJogadorId = null;
     meuSegredo = null;
     limparErro('erro-escolha');
-    document.getElementById('campo-nome-entrada').value = lerNome();
-    document.getElementById('campo-senha-entrada').value = '';
-    document.getElementById('escolha-codigo').textContent = partida.codigo;
+    document.getElementById('escolha-sala').textContent = partida.nome || ('Sala ' + partida.codigo);
     document.getElementById('escolha-saldo').textContent = partida.saldo_inicial;
     mostrar('tela-escolha');
   }
 
-  // =====================================================
-  // 6) ENTRAR COMO JOGADOR / COMO ESPECTADOR
-  // =====================================================
+  // Pede ao banco o meu jogador nesta sala (cria se for a primeira vez) e abre a mesa
+  async function conectarNaSala(partida, idDoErro) {
+    let resp;
+    try {
+      resp = await banco.rpc('entrar_sala', Object.assign({}, contaParams(), { p_partida_id: partida.id }));
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+
+    if (resp.error) {
+      if (!tratarErroConta(resp.error)) mostrarErro(idDoErro, resp.error.message);
+      return false;
+    }
+
+    const reconectou = !!resp.data.reconectado;
+    guardarMeuJogador(partida.id, resp.data.jogador_id, resp.data.segredo);
+    await abrirMesa(partida);
+
+    if (reconectou) {
+      const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
+      if (eu) aviso('Bem-vindo de volta, ' + eu.nome + '! Você tem ' + eu.saldo + ' fichas.');
+    }
+    return true;
+  }
+
   async function entrarComoJogador() {
     limparErro('erro-escolha');
-
-    const nome = document.getElementById('campo-nome-entrada').value.trim();
-    const senha = document.getElementById('campo-senha-entrada').value.trim();
-    if (!nome) { mostrarErro('erro-escolha', 'Digite seu nome.'); return; }
-    if (senha.length < 3) { mostrarErro('erro-escolha', 'A senha precisa ter pelo menos 3 caracteres.'); return; }
-
-    lembrarNome(nome);
 
     const botao = document.getElementById('botao-jogar');
     botao.disabled = true;
     botao.textContent = 'Entrando...';
 
-    // Nome novo: cria o jogador. Nome que já existe: confere a senha e devolve o mesmo jogador.
-    const resp = await banco.rpc('entrar_com_senha', {
-      p_partida_id: String(partidaAtual.id),
-      p_nome: nome,
-      p_senha: senha
-    });
-
-    if (resp.error) {
-      mostrarErro('erro-escolha', resp.error.message);
-    } else {
-      const reconectou = !!resp.data.reconectado;
-      guardarMeuJogador(partidaAtual.id, resp.data.jogador_id, resp.data.segredo);
-      await abrirMesa(partidaAtual);
-
-      if (reconectou) {
-        const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
-        aviso(eu ? 'Bem-vindo de volta, ' + eu.nome + '! Você tem ' + eu.saldo + ' fichas.'
-                 : 'Bem-vindo de volta!');
-      }
-    }
+    await conectarNaSala(partidaAtual, 'erro-escolha');
 
     botao.disabled = false;
     botao.textContent = 'Entrar como jogador';
@@ -1276,6 +1454,7 @@
   async function entrarComoEspectador() {
     await abrirMesa(partidaAtual);
   }
+
 
   // =====================================================
   // 7) MESA: abrir, desenhar e atualizar em tempo real
@@ -1297,6 +1476,7 @@
     document.getElementById('campo-valor').value = '';
 
     await atualizarMesa();
+    if (!partidaAtual) return;   // a sala foi encerrada
     mostrar('tela-mesa');
     ligarTempoReal();
   }
@@ -1324,6 +1504,12 @@
 
     const partida = respPartida.data;
     const jogadores = respJogadores.data;
+
+    if (partida.encerrada) {
+      aviso('Essa sala foi encerrada.');
+      voltarParaSalas();
+      return;
+    }
     partidaAtual = partida;
     jogadoresAtuais = jogadores;
 
@@ -1340,7 +1526,7 @@
     eraMinhaVez = minhaVez;
 
     // ----- Painel do topo -----
-    document.getElementById('mesa-codigo').textContent = partida.codigo;
+    document.getElementById('mesa-sala').textContent = partida.nome || ('Sala ' + partida.codigo);
 
     const elPote = document.getElementById('mesa-pote');
     elPote.textContent = partida.pote;
@@ -1735,7 +1921,8 @@
   // =====================================================
   // 10) SAIR DA MESA
   // =====================================================
-  function sair() {
+  // Sair da mesa NÃO tira você da sala: suas fichas ficam guardadas na sua conta
+  function voltarParaSalas() {
     desligarTempoReal();
     fecharDistribuicao();
     partidaAtual = null;
@@ -1744,25 +1931,26 @@
     eraMinhaVez = false;
     ultimoPote = null;
     esquecerPartida();
-    document.getElementById('campo-codigo').value = '';
-    mostrar('tela-inicio');
+    abrirSalas();
+  }
+
+  // Encerrar a sala (só o criador): ela some da lista para todos
+  function encerrarSala() {
+    const certeza = confirm(
+      'Encerrar "' + (partidaAtual.nome || 'esta sala') + '"?\n\nEla some da lista de salas para todos. Isso não pode ser desfeito.'
+    );
+    if (!certeza) return;
+    return executar('encerrar_sala', Object.assign({}, contaParams(), {
+      p_partida_id: partidaAtual.id
+    }), 'erro-criador');
   }
 
   // =====================================================
   // 11) DETALHES DE CONFORTO (só interface)
   // =====================================================
 
-  // Nome lembrado da última vez
-  document.getElementById('campo-nome').value = lerNome();
-
-  // Código: sempre maiúsculo, sem símbolos, e Enter entra na partida
-  const campoCodigo = document.getElementById('campo-codigo');
-  campoCodigo.addEventListener('input', function () {
-    campoCodigo.value = campoCodigo.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  });
-  campoCodigo.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') entrarPartida();
-  });
+  // Nome lembrado da última vez (tela de login)
+  document.getElementById('campo-login-nome').value = lerNome();
 
   // Ao digitar o small blind, o big blind acompanha (o dobro), a menos que a pessoa mexa nele
   const campoSmall = document.getElementById('campo-small');
@@ -1785,17 +1973,24 @@
   }
   new MutationObserver(ajustarEspaco).observe(barraEl, { attributes: true, attributeFilter: ['class'] });
 
-  // Enter no campo de senha entra na mesa
-  document.getElementById('campo-senha-entrada').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') entrarComoJogador();
+  // Enter no login: no nome vai para a senha, na senha entra
+  document.getElementById('campo-login-nome').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('campo-login-senha').focus();
+  });
+  document.getElementById('campo-login-senha').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') fazerLogin();
   });
 
   // =====================================================
-  // 12) VOLTAR PARA A MESA AO RECARREGAR A PÁGINA
+  // 12) AO ABRIR A PÁGINA: voltar para onde a pessoa estava
   // =====================================================
-  async function restaurarSessao() {
+  async function iniciarApp() {
+    // Sem login salvo: tela de login
+    if (!minhaConta) { mostrar('tela-login'); return; }
+
+    // Com login e sem mesa salva: lista de salas
     const id = lerPartidaSalva();
-    if (!id) { mostrar('tela-inicio'); return; }
+    if (!id) { abrirSalas(); return; }
 
     mostrar('tela-carregando');
     document.getElementById('carregando-texto').textContent = 'Voltando para a mesa...';
@@ -1816,10 +2011,10 @@
       return;
     }
 
-    // A partida não existe mais
-    if (!resp.data) {
+    // A sala não existe mais ou foi encerrada
+    if (!resp.data || resp.data.encerrada) {
       esquecerPartida();
-      mostrar('tela-inicio');
+      abrirSalas();
       return;
     }
 
@@ -1827,17 +2022,20 @@
     await abrirMesa(resp.data);
   }
 
-  // Ao voltar para o app (ex.: depois de bloquear a tela), atualiza a mesa e religa o tempo real
+  // Ao voltar para o app (ex.: depois de bloquear a tela), atualiza tudo
   document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
     const naMesa = document.getElementById('tela-mesa').classList.contains('ativa');
-    if (document.visibilityState === 'visible' && partidaAtual && naMesa) {
+    const nasSalas = document.getElementById('tela-salas').classList.contains('ativa');
+    if (partidaAtual && naMesa) {
       atualizarMesa();
       ligarTempoReal();
+    } else if (nasSalas) {
+      carregarSalas();
     }
   });
 
-  // Ao abrir a página: se havia uma mesa em andamento, volta para ela
-  if (lerPartidaSalva()) restaurarSessao();
+  iniciarApp();
 </script>
 </body>
 </html>
