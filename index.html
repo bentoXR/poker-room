@@ -686,7 +686,7 @@
     .barra-acoes .grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .barra-acoes .grade button { padding: 8px 4px; font-size: 16px; }
 
-    .barra-acoes .atalhos-aposta { display: flex; gap: 8px; margin-top: 10px; }
+    .barra-acoes .atalhos-aposta { display: flex; gap: 8px; margin-top: 8px; }
     .barra-acoes .atalhos-aposta button {
       flex: 1;
       min-height: 36px;
@@ -698,11 +698,28 @@
     }
     .barra-acoes .linha-aposta {
       display: grid;
-      grid-template-columns: 1fr 128px;
+      grid-template-columns: 60px 1fr 60px;
       gap: 8px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
-    .barra-acoes input { margin-top: 0; min-height: 52px; font-family: var(--fonte-numero); font-size: 22px; font-weight: 600; }
+    .barra-acoes input {
+      margin-top: 0;
+      min-height: 52px;
+      text-align: center;
+      font-family: var(--fonte-numero);
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .barra-acoes button.passo {
+      padding: 0;
+      font-size: 30px;
+      font-weight: 500;
+      line-height: 1;
+      background: rgba(244, 236, 216, 0.14);
+      color: var(--marfim);
+      box-shadow: none;
+    }
+    .barra-acoes button.apostar { margin-top: 8px; }
     .barra-acoes .linha-passar {
       display: grid;
       grid-template-columns: 1fr 1.8fr;
@@ -723,6 +740,9 @@
        ===================================================== */
     .campo-senha { position: relative; }
     .campo-senha input { padding-right: 104px; }
+    /* Campo de texto que mostra bolinhas: o navegador não o trata como senha e não oferece salvar */
+    input.senha { -webkit-text-security: disc; text-security: disc; }
+    input.senha.revelada { -webkit-text-security: none; text-security: none; }
     button.olho {
       position: absolute;
       top: 50%;
@@ -794,12 +814,14 @@
     <div class="cartao" style="margin-top:12px">
       <label for="campo-login-nome">Seu nome</label>
       <input id="campo-login-nome" type="text" placeholder="Ex.: Pedro" maxlength="20"
-             autocomplete="username" autocorrect="off" spellcheck="false" enterkeyhint="next">
+             name="poker-apelido" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
+             data-lpignore="true" data-1p-ignore="true" enterkeyhint="next">
 
       <label for="campo-login-senha">Sua senha</label>
       <div class="campo-senha">
-        <input id="campo-login-senha" type="password" placeholder="Mínimo 3 caracteres" maxlength="30"
-               autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+        <input id="campo-login-senha" class="senha" type="text" placeholder="Mínimo 3 caracteres" maxlength="30"
+               name="poker-acesso" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+               data-lpignore="true" data-1p-ignore="true" enterkeyhint="go">
         <button type="button" class="olho" onclick="alternarSenha('campo-login-senha', this)">Mostrar</button>
       </div>
 
@@ -938,6 +960,7 @@
     <div id="painel-distribuir" class="cartao painel-distribuir" hidden>
       <div class="cartao-titulo">Quanto cada jogador recebe?</div>
       <div class="detalhe">Pote a distribuir: <strong id="dist-pote"></strong></div>
+      <p class="dica">Toque em "Ganhou" nos vencedores. Com mais de um, o pote é dividido igualmente (e dá para ajustar os valores).</p>
       <div id="dist-linhas"></div>
       <div id="dist-soma" class="soma"></div>
       <button id="botao-confirmar-dist" onclick="confirmarDistribuicao()" disabled>Confirmar distribuição</button>
@@ -982,15 +1005,17 @@
       <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
       <button id="btn-allin" onclick="agir('allin')">All-in</button>
     </div>
+    <div class="linha-aposta">
+      <button type="button" id="btn-menos" class="passo" onclick="ajustarAposta(-1)" aria-label="Diminuir aposta">−</button>
+      <input id="campo-valor" type="number" inputmode="numeric" aria-label="Valor da aposta" oninput="aoDigitarAposta()">
+      <button type="button" id="btn-mais" class="passo" onclick="ajustarAposta(1)" aria-label="Aumentar aposta">+</button>
+    </div>
     <div class="atalhos-aposta" id="atalhos-aposta">
+      <button type="button" onclick="preencherAposta('min')">Mínima</button>
       <button type="button" onclick="preencherAposta('meio')">½ pote</button>
       <button type="button" onclick="preencherAposta('pote')">Pote</button>
-      <button type="button" onclick="preencherAposta('bb')">Big blind</button>
     </div>
-    <div class="linha-aposta">
-      <input id="campo-valor" type="number" inputmode="numeric" placeholder="Valor da aposta">
-      <button id="btn-apostar" onclick="apostar()">Apostar</button>
-    </div>
+    <button id="btn-apostar" class="apostar" onclick="apostar()">Apostar</button>
     <div class="linha-passar">
       <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg>Desfazer
@@ -1029,6 +1054,8 @@
   let htmlSalas = '';         // para só redesenhar a lista quando algo mudou
   let abrindoSala = false;    // evita toques duplos ao abrir uma sala
   let temporizadorSinal = null; // avisa o banco, de tempos em tempos, que estou com a mesa aberta
+  let apostaEditada = false;  // se a pessoa mexeu no valor da aposta (senão ele acompanha a mesa)
+  let maoVista = null;        // para avisar quando uma mão termina
   // Botão "voltar" do celular: 0 = tela raiz (login/salas), 1 = tela interna (criar/escolha/mesa)
   let profundidade = (history.state && history.state.poker) ? 1 : 0;
   let ignorarPop = false;
@@ -1152,10 +1179,22 @@
   }
 
   // Botão "Mostrar / Ocultar" do campo de senha
+  // O campo é um texto comum mascarado por CSS: assim o navegador não pergunta se deve salvar a senha.
+  // Se o navegador não souber mascarar (raro), usa um campo de senha normal.
+  const SUPORTA_MASCARA = !!(window.CSS && CSS.supports && CSS.supports('-webkit-text-security', 'disc'));
+  function prepararCampoSenha(idDoCampo) {
+    if (!SUPORTA_MASCARA) document.getElementById(idDoCampo).type = 'password';
+  }
   function alternarSenha(idDoCampo, botao) {
     const campo = document.getElementById(idDoCampo);
-    const escondido = campo.type === 'password';
-    campo.type = escondido ? 'text' : 'password';
+    let escondido;
+    if (SUPORTA_MASCARA) {
+      escondido = !campo.classList.contains('revelada');
+      campo.classList.toggle('revelada', escondido);
+    } else {
+      escondido = campo.type === 'password';
+      campo.type = escondido ? 'text' : 'password';
+    }
     botao.textContent = escondido ? 'Ocultar' : 'Mostrar';
   }
 
@@ -1173,17 +1212,63 @@
     document.getElementById('campo-saldo').value = valor;
   }
 
-  // Sugestões de valor para apostar
-  function preencherAposta(tipo) {
-    if (!partidaAtual) return;
+  // ----- Aposta: já vem preenchida com a aposta mínima; mude com − / + ou com os atalhos -----
+  // Limites: mínima = o que falta para pagar + 1 big blind; máxima = todas as suas fichas.
+  function limitesAposta() {
+    if (!partidaAtual) return null;
     const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
-    let valor;
-    if (tipo === 'meio') valor = Math.round(partidaAtual.pote / 2);
-    else if (tipo === 'pote') valor = partidaAtual.pote;
-    else valor = partidaAtual.big_blind;
-    if (eu) valor = Math.min(valor, eu.saldo);
-    if (!(valor > 0)) return;
+    if (!eu) return null;
+    const falta = Math.max(0, partidaAtual.aposta_atual - eu.apostou);
+    const passo = Math.max(1, partidaAtual.big_blind);
+    const max = eu.saldo;
+    const min = Math.min(falta + passo, max);
+    return { falta: falta, passo: passo, min: min, max: max };
+  }
+
+  function definirAposta(valor, mexeu) {
+    const lim = limitesAposta();
+    if (!lim || !(lim.max > 0)) return;
+    valor = Math.max(lim.min, Math.min(lim.max, Math.round(valor)));
     document.getElementById('campo-valor').value = valor;
+    if (mexeu) apostaEditada = true;
+    atualizarRotuloApostar();
+  }
+
+  // Botões − e +: mudam o valor de big blind em big blind
+  function ajustarAposta(direcao) {
+    const lim = limitesAposta();
+    if (!lim) return;
+    const atual = parseInt(document.getElementById('campo-valor').value) || lim.min;
+    definirAposta(atual + direcao * lim.passo, true);
+  }
+
+  // Atalhos: Mínima, ½ pote e Pote
+  function preencherAposta(tipo) {
+    const lim = limitesAposta();
+    if (!lim) return;
+    let valor;
+    if (tipo === 'min') valor = lim.min;
+    else if (tipo === 'meio') valor = partidaAtual.pote / 2;
+    else valor = partidaAtual.pote;
+    definirAposta(valor, true);
+  }
+
+  // A pessoa digitou o valor à mão (continua possível)
+  function aoDigitarAposta() {
+    apostaEditada = true;
+    atualizarRotuloApostar();
+  }
+
+  // O botão mostra o valor: "Apostar 60"
+  function atualizarRotuloApostar() {
+    const lim = limitesAposta();
+    const valor = parseInt(document.getElementById('campo-valor').value);
+    let texto = 'Apostar';
+    if (valor > 0) {
+      texto += ' ' + valor;
+      if (lim && valor === lim.max) texto += ' (all-in)';
+    }
+    document.getElementById('btn-apostar').textContent = texto;
   }
 
   // =====================================================
@@ -1498,6 +1583,8 @@
     limparErro('erro-criador');
     fecharDistribuicao();
     document.getElementById('campo-valor').value = '';
+    apostaEditada = false;
+    maoVista = null;
 
     await atualizarMesa();
     if (!partidaAtual) return;   // a sala foi encerrada
@@ -1554,6 +1641,7 @@
     if (minhaVez && !eraMinhaVez && navigator.vibrate) {
       try { navigator.vibrate([150, 80, 150]); } catch (erro) {}
     }
+    if (minhaVez && !eraMinhaVez) apostaEditada = false;
     eraMinhaVez = minhaVez;
 
     // ----- Painel do topo -----
@@ -1569,6 +1657,11 @@
       ficha.classList.add('bump');
     }
     ultimoPote = partida.pote;
+
+    if (maoVista !== null && partida.mao > maoVista) {
+      aviso('Mão ' + (partida.mao - 1) + ' terminou. Veja o histórico.');
+    }
+    maoVista = partida.mao;
 
     document.getElementById('mesa-mao').textContent =
       partida.iniciada ? 'Mão ' + partida.mao : '';
@@ -1699,6 +1792,22 @@
       document.getElementById('btn-allin').disabled    = !podeAgir || eu.saldo <= 0;
       document.getElementById('campo-valor').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-apostar').disabled  = !podeAgir || eu.saldo <= 0;
+      document.getElementById('btn-menos').disabled    = !podeAgir || eu.saldo <= 0;
+      document.getElementById('btn-mais').disabled     = !podeAgir || eu.saldo <= 0;
+
+      // O valor da aposta já vem preenchido (aposta mínima), sem precisar digitar
+      const campoAposta = document.getElementById('campo-valor');
+      if (podeAgir && eu.saldo > 0) {
+        if (!apostaEditada || !(parseInt(campoAposta.value) > 0)) {
+          campoAposta.value = Math.min(falta + partida.big_blind, eu.saldo);
+        } else if (parseInt(campoAposta.value) > eu.saldo) {
+          campoAposta.value = eu.saldo;
+        }
+      } else if (!minhaVez) {
+        campoAposta.value = '';
+        apostaEditada = false;
+      }
+      atualizarRotuloApostar();
       document.querySelectorAll('#atalhos-aposta button').forEach(function (b) {
         b.disabled = !podeAgir || eu.saldo <= 0;
       });
@@ -1826,7 +1935,7 @@
       p_acao: 'apostar',
       p_valor: valor
     }, 'erro-barra');
-    if (deuCerto) campo.value = '';
+    if (deuCerto) apostaEditada = false;
   }
 
   function passarVez() {
@@ -1897,13 +2006,17 @@
     document.getElementById('dist-pote').textContent = partidaAtual.pote;
 
     let html = '';
-    jogadoresAtuais.forEach(function (j) {
+    // Quem ainda está na mão aparece primeiro; quem desistiu vai para o fim
+    const ordenados = jogadoresAtuais.slice().sort(function (a, b) {
+      return (Number(a.desistiu) - Number(b.desistiu)) || (a.ordem - b.ordem);
+    });
+    ordenados.forEach(function (j) {
       html += `
         <div class="linha-premio">
           <div class="nome"><span class="texto">${escapar(j.nome)}</span>${j.desistiu ? ' <span class="voce">(desistiu)</span>' : ''}</div>
           <input type="number" inputmode="numeric" min="0" placeholder="0"
                  data-jogador="${j.id}" oninput="atualizarSoma()">
-          <button type="button" class="secundario" onclick="darTudo('${j.id}')">Tudo</button>
+          <button type="button" class="secundario" data-jogador="${j.id}" data-ativo="0" onclick="alternarGanhador('${j.id}')">Ganhou</button>
         </div>
       `;
     });
@@ -1914,10 +2027,29 @@
     document.getElementById('painel-distribuir').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // Botão "Tudo": coloca o pote inteiro neste jogador e zera os outros campos
-  function darTudo(idDoJogador) {
+  // Botão "Ganhou": marca/desmarca o vencedor. Um vencedor leva tudo; vários dividem igualmente.
+  function alternarGanhador(idDoJogador) {
+    const botao = document.querySelector('#dist-linhas button[data-jogador="' + idDoJogador + '"]');
+    if (!botao) return;
+    const ativo = botao.dataset.ativo !== '1';
+    botao.dataset.ativo = ativo ? '1' : '0';
+    botao.classList.toggle('positivo', ativo);
+    botao.classList.toggle('secundario', !ativo);
+    dividirEntreGanhadores();
+  }
+
+  function dividirEntreGanhadores() {
+    const pote = partidaAtual.pote;
+    const ganhadores = Array.prototype.map.call(
+      document.querySelectorAll('#dist-linhas button[data-ativo="1"]'),
+      function (b) { return b.dataset.jogador; }
+    );
+    const base = ganhadores.length ? Math.floor(pote / ganhadores.length) : 0;
+    const resto = ganhadores.length ? pote - base * ganhadores.length : 0;   // as fichas que sobram vão para os primeiros
+
     document.querySelectorAll('#dist-linhas input').forEach(function (campo) {
-      campo.value = (campo.dataset.jogador === idDoJogador) ? partidaAtual.pote : '';
+      const i = ganhadores.indexOf(campo.dataset.jogador);
+      campo.value = (i < 0) ? '' : base + (i < resto ? 1 : 0);
     });
     atualizarSoma();
   }
@@ -2005,6 +2137,7 @@
 
   // Nome lembrado da última vez (tela de login)
   document.getElementById('campo-login-nome').value = lerNome();
+  prepararCampoSenha('campo-login-senha');
 
   // Ao digitar o small blind, o big blind acompanha (o dobro), a menos que a pessoa mexa nele
   const campoSmall = document.getElementById('campo-small');
