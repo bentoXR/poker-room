@@ -948,6 +948,19 @@
         Controles do criador
       </div>
       <p class="dica" id="dica-iniciar" style="margin-top:0">Quando todo mundo tiver entrado, toque em iniciar. Seus amigos encontram esta sala na lista de salas.</p>
+      <div id="bloco-blinds">
+        <div class="duas">
+          <div>
+            <label for="campo-small-mesa">Small blind</label>
+            <input id="campo-small-mesa" type="number" inputmode="numeric" oninput="aoDigitarSmallMesa()">
+          </div>
+          <div>
+            <label for="campo-big-mesa">Big blind</label>
+            <input id="campo-big-mesa" type="number" inputmode="numeric" oninput="bigMesaEditado = true">
+          </div>
+        </div>
+        <button id="botao-blinds" class="secundario" onclick="salvarBlinds()">Salvar blinds</button>
+      </div>
       <button id="botao-iniciar" onclick="iniciarPartida()">Iniciar partida</button>
       <button id="botao-distribuir" onclick="abrirDistribuicao()">Distribuir pote</button>
       <button id="botao-nivel" class="secundario" onclick="subirNivel()">Subir nível (dobrar blinds)</button>
@@ -1056,6 +1069,8 @@
   let temporizadorSinal = null; // avisa o banco, de tempos em tempos, que estou com a mesa aberta
   let apostaEditada = false;  // se a pessoa mexeu no valor da aposta (senão ele acompanha a mesa)
   let maoVista = null;        // para avisar quando uma mão termina
+  let blindsVistos = null;    // blinds que a mesa mostrou por último (para preencher os campos do criador)
+  let bigMesaEditado = false; // se o criador mexeu no big blind à mão
   // Botão "voltar" do celular: 0 = tela raiz (login/salas), 1 = tela interna (criar/escolha/mesa)
   let profundidade = (history.state && history.state.poker) ? 1 : 0;
   let ignorarPop = false;
@@ -1213,15 +1228,15 @@
   }
 
   // ----- Aposta: já vem preenchida com a aposta mínima; mude com − / + ou com os atalhos -----
-  // Limites: mínima = o que falta para pagar + 1 big blind; máxima = todas as suas fichas.
+  // Limites: mínima = o que falta para pagar + 1 big blind; máxima = todas as suas fichas. Os botões − e + andam de 10 em 10.
   function limitesAposta() {
     if (!partidaAtual) return null;
     const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
     if (!eu) return null;
     const falta = Math.max(0, partidaAtual.aposta_atual - eu.apostou);
-    const passo = Math.max(1, partidaAtual.big_blind);
+    const passo = 10;
     const max = eu.saldo;
-    const min = Math.min(falta + passo, max);
+    const min = Math.min(falta + Math.max(1, partidaAtual.big_blind), max);
     return { falta: falta, passo: passo, min: min, max: max };
   }
 
@@ -1234,7 +1249,7 @@
     atualizarRotuloApostar();
   }
 
-  // Botões − e +: mudam o valor de big blind em big blind
+  // Botões − e +: mudam o valor de 10 em 10
   function ajustarAposta(direcao) {
     const lim = limitesAposta();
     if (!lim) return;
@@ -1585,6 +1600,8 @@
     document.getElementById('campo-valor').value = '';
     apostaEditada = false;
     maoVista = null;
+    blindsVistos = null;
+    bigMesaEditado = false;
 
     await atualizarMesa();
     if (!partidaAtual) return;   // a sala foi encerrada
@@ -1743,6 +1760,15 @@
     // ----- Painel do criador -----
     const souCriador = !!eu && eu.criador;
     document.getElementById('painel-criador').hidden = !souCriador;
+    // Blinds editáveis só antes de iniciar a partida
+    document.getElementById('bloco-blinds').hidden = partida.iniciada;
+    const chaveBlinds = partida.small_blind + '/' + partida.big_blind;
+    if (chaveBlinds !== blindsVistos) {
+      blindsVistos = chaveBlinds;
+      document.getElementById('campo-small-mesa').value = partida.small_blind;
+      document.getElementById('campo-big-mesa').value = partida.big_blind;
+      bigMesaEditado = false;
+    }
     document.getElementById('dica-iniciar').hidden = partida.iniciada;
     document.getElementById('botao-iniciar').hidden = partida.iniciada;
     document.getElementById('botao-distribuir').hidden = !partida.iniciada;
@@ -1943,6 +1969,33 @@
       p_jogador: meuJogadorId,
       p_segredo: meuSegredo
     }, 'erro-barra');
+  }
+
+  // Ao digitar o small blind, o big blind acompanha (o dobro), a menos que o criador mexa nele
+  function aoDigitarSmallMesa() {
+    const s = parseInt(document.getElementById('campo-small-mesa').value);
+    if (!bigMesaEditado && s > 0) document.getElementById('campo-big-mesa').value = s * 2;
+  }
+
+  // Criador altera os blinds para qualquer valor (só antes de iniciar a partida)
+  async function salvarBlinds() {
+    const small = parseInt(document.getElementById('campo-small-mesa').value);
+    const big = parseInt(document.getElementById('campo-big-mesa').value);
+    if (!(small > 0) || !(big > 0)) {
+      mostrarErro('erro-criador', 'Os blinds precisam ser números maiores que zero.');
+      return;
+    }
+    if (big < small) {
+      mostrarErro('erro-criador', 'O big blind não pode ser menor que o small blind.');
+      return;
+    }
+    const deuCerto = await executar('alterar_blinds', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo,
+      p_small: small,
+      p_big: big
+    }, 'erro-criador');
+    if (deuCerto) aviso('Blinds: ' + small + ' / ' + big);
   }
 
   function iniciarPartida() {
