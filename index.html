@@ -683,24 +683,46 @@
     .barra-titulo:empty { display: none; }
 
     .barra-acoes button { margin-top: 0; min-height: 52px; }
-    .barra-acoes .grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .barra-acoes .grade button { padding: 8px 4px; font-size: 16px; }
+    .barra-acoes .grade-simples { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 8px; }
+    .barra-acoes .grade-simples button { min-height: 58px; padding: 8px 4px; font-size: 17px; }
+    .barra-acoes .dica-barra {
+      margin-top: 6px;
+      font-size: 13px;
+      text-align: center;
+      color: var(--marfim-suave);
+    }
+    .barra-acoes .dica-barra:empty { display: none; }
 
-    .barra-acoes .atalhos-aposta { display: flex; gap: 8px; margin-top: 8px; }
-    .barra-acoes .atalhos-aposta button {
-      flex: 1;
-      min-height: 36px;
-      padding: 4px;
-      font-size: 14px;
-      background: rgba(244, 236, 216, 0.1);
-      color: var(--marfim);
-      box-shadow: none;
+    .barra-acoes .caixa-aposta {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid var(--linha);
+      border-radius: var(--raio-md);
+    }
+    .barra-acoes .caixa-titulo {
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--marfim-suave);
     }
     .barra-acoes .linha-aposta {
       display: grid;
       grid-template-columns: 60px 1fr 60px;
       gap: 8px;
-      margin-top: 10px;
+    }
+    .barra-acoes .linha-apostar {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .barra-acoes .linha-apostar button { padding: 8px 6px; font-size: 17px; }
+    .barra-acoes button.allin {
+      background: transparent;
+      color: var(--ouro);
+      box-shadow: inset 0 0 0 2px var(--ouro);
     }
     .barra-acoes input {
       margin-top: 0;
@@ -719,13 +741,12 @@
       color: var(--marfim);
       box-shadow: none;
     }
-    .barra-acoes button.apostar { margin-top: 8px; }
     .barra-acoes .linha-passar {
       display: grid;
       grid-template-columns: 1fr 1.8fr;
       gap: 8px;
-      margin-top: 8px;
     }
+    .barra-acoes .linha-passar button { min-height: 64px; font-size: 18px; }
     .barra-acoes .linha-passar button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .barra-acoes button.grande {
       min-height: 78px;
@@ -1012,28 +1033,38 @@
 
   <!-- Modo normal: aparece só na sua vez -->
   <div id="barra-normal" hidden>
-    <div class="grade">
-      <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
-      <button id="btn-check" class="secundario" onclick="agir('check')">Check</button>
-      <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
-      <button id="btn-allin" onclick="agir('allin')">All-in</button>
+
+    <!-- PASSO 1: escolher a jogada -->
+    <div id="bloco-jogada">
+      <div class="grade-simples">
+        <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
+        <button id="btn-check" class="secundario" onclick="agir('check')">Check</button>
+        <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
+      </div>
+      <div id="dica-pagar" class="dica-barra"></div>
+
+      <div class="caixa-aposta">
+        <div class="caixa-titulo">Ou aumente a aposta</div>
+        <div class="linha-aposta">
+          <button type="button" id="btn-menos" class="passo" onclick="ajustarAposta(-1)" aria-label="Diminuir aposta">−</button>
+          <input id="campo-valor" type="number" inputmode="numeric" aria-label="Valor da aposta" oninput="aoDigitarAposta()">
+          <button type="button" id="btn-mais" class="passo" onclick="ajustarAposta(1)" aria-label="Aumentar aposta">+</button>
+        </div>
+        <div class="linha-apostar">
+          <button id="btn-apostar" class="apostar" onclick="apostar()">Apostar</button>
+          <button id="btn-allin" class="allin" onclick="agir('allin')">All-in</button>
+        </div>
+      </div>
     </div>
-    <div class="linha-aposta">
-      <button type="button" id="btn-menos" class="passo" onclick="ajustarAposta(-1)" aria-label="Diminuir aposta">−</button>
-      <input id="campo-valor" type="number" inputmode="numeric" aria-label="Valor da aposta" oninput="aoDigitarAposta()">
-      <button type="button" id="btn-mais" class="passo" onclick="ajustarAposta(1)" aria-label="Aumentar aposta">+</button>
-    </div>
-    <div class="atalhos-aposta" id="atalhos-aposta">
-      <button type="button" onclick="preencherAposta('min')">Mínima</button>
-      <button type="button" onclick="preencherAposta('meio')">½ pote</button>
-      <button type="button" onclick="preencherAposta('pote')">Pote</button>
-    </div>
-    <button id="btn-apostar" class="apostar" onclick="apostar()">Apostar</button>
-    <div class="linha-passar">
-      <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg>Desfazer
-      </button>
-      <button id="btn-passar" onclick="passarVez()">Passar a vez</button>
+
+    <!-- PASSO 2: confirmar ou desfazer -->
+    <div id="bloco-confirmar" hidden>
+      <div class="linha-passar">
+        <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg>Desfazer
+        </button>
+        <button id="btn-passar" class="positivo" onclick="passarVez()">Confirmar jogada</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1255,17 +1286,6 @@
     if (!lim) return;
     const atual = parseInt(document.getElementById('campo-valor').value) || lim.min;
     definirAposta(atual + direcao * lim.passo, true);
-  }
-
-  // Atalhos: Mínima, ½ pote e Pote
-  function preencherAposta(tipo) {
-    const lim = limitesAposta();
-    if (!lim) return;
-    let valor;
-    if (tipo === 'min') valor = lim.min;
-    else if (tipo === 'meio') valor = partidaAtual.pote / 2;
-    else valor = partidaAtual.pote;
-    definirAposta(valor, true);
   }
 
   // A pessoa digitou o valor à mão (continua possível)
@@ -1803,19 +1823,31 @@
       let titulo;
       if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'small blind' : 'big blind') + '. Toque no botão para pagar.';
       else if (emBlind)                  titulo = 'Aguarde: os blinds estão sendo pagos.';
-      else if (minhaVez && partida.agiu) titulo = 'Jogada feita. Passe a vez ou desfaça.';
+      else if (minhaVez && partida.agiu) titulo = 'Jogada feita! Confirme para passar a vez ou desfaça.';
       else if (eu.desistiu)              titulo = 'Você desistiu desta mão.';
-      else if (minhaVez)                 titulo = 'Sua vez de jogar!';
+      else if (minhaVez)                 titulo = 'Sua vez! Escolha uma jogada.';
       else if (jogadorDaVez)             titulo = 'Aguarde. Vez de ' + jogadorDaVez.nome + '.';
       else                               titulo = 'Aguarde a sua vez.';
       document.getElementById('barra-titulo').textContent = titulo;
 
+      // Passo 1 (escolher a jogada) ou passo 2 (confirmar / desfazer)
+      const jaJogou = minhaVez && !emBlind && partida.agiu;
+      document.getElementById('bloco-jogada').hidden    = jaJogou;
+      document.getElementById('bloco-confirmar').hidden = !jaJogou;
+
+      const valorPagar = Math.min(falta, eu.saldo);
       document.getElementById('btn-desistir').disabled = !podeAgir;
       document.getElementById('btn-check').disabled    = !podeAgir || falta > 0;
       document.getElementById('btn-pagar').disabled    = !podeAgir || falta <= 0;
       document.getElementById('btn-pagar').textContent =
-        falta > 0 ? 'Pagar ' + Math.min(falta, eu.saldo) : 'Pagar';
+        falta > 0 ? 'Pagar ' + valorPagar : 'Pagar';
+      document.getElementById('dica-pagar').textContent =
+        !podeAgir ? '' :
+        falta > 0 ? 'Pagar ' + valorPagar + ' é o mínimo para continuar na mão (ou desista).'
+                  : 'Ninguém apostou: você pode dar check ou apostar.';
       document.getElementById('btn-allin').disabled    = !podeAgir || eu.saldo <= 0;
+      document.getElementById('btn-allin').textContent =
+        eu.saldo > 0 ? 'All-in ' + eu.saldo : 'All-in';
       document.getElementById('campo-valor').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-apostar').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-menos').disabled    = !podeAgir || eu.saldo <= 0;
@@ -1834,9 +1866,6 @@
         apostaEditada = false;
       }
       atualizarRotuloApostar();
-      document.querySelectorAll('#atalhos-aposta button').forEach(function (b) {
-        b.disabled = !podeAgir || eu.saldo <= 0;
-      });
       document.getElementById('btn-passar').disabled   = !(minhaVez && partida.agiu);
       document.getElementById('btn-desfazer').disabled = !(minhaVez && partida.agiu);
     }
