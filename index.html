@@ -1062,146 +1062,201 @@
     #tela-mesa.apostando .feltro { gap: 4px; }
 
     /* =====================================================
-       V4: JOGADORES EM RODA, CENTRO COM POTE E CARTAS
+       V6: MESA PARA CELULAR
+       Jogadores em volta de um painel central limpo:
+       em cima, nas laterais e embaixo (você). Tudo em fluxo
+       normal (grid/flex), sem posicionamento absoluto e sem sobreposição.
        ===================================================== */
-    .mesa-wrap { position: relative; display: block; flex: 1; min-height: 0; margin: 6px 0 0; aspect-ratio: auto; }
-    .roda-fundo {
-      position: absolute;
-      inset: 44px 50px;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, var(--feltro-600), var(--feltro-800) 78%);
-      box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.2), inset 0 0 0 6px var(--linha);
-      pointer-events: none;
+
+    /* ----- Cabeçalho enxuto: título + uma única linha de informações ----- */
+    body.na-mesa main { padding-top: calc(6px + env(safe-area-inset-top)); }
+    .sala-pill .rotulo { font-size: 12px; }
+    .sala-pill strong { font-size: 23px; }
+    .barra-info { margin-top: 0; gap: 0; row-gap: 0; flex-wrap: wrap; justify-content: center; }
+    .barra-info .pilula {
+      padding: 2px 9px;
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--marfim-suave);
+      background: none;
+      border-radius: 0;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
+    .barra-info .pilula:not(:empty) ~ .pilula:not(:empty) { border-left: 1px solid var(--linha); }
+    .barra-info #mesa-blinds { color: var(--marfim); font-weight: 600; }
+
+    /* Avisos mais discretos */
+    .status { margin: 6px 0 0; padding: 8px 12px; font-size: 16px; border-radius: 12px; }
+    .ultima { margin-top: 3px; min-height: 0; font-size: 12.5px; }
+    .faixa-fase { margin-top: 6px; padding: 8px 10px; font-size: 15px; border-radius: 12px; }
+
+    /* ----- Área da mesa: grade de 3 colunas x 3 linhas ----- */
+    .mesa-wrap {
+      --lugar-w: clamp(74px, 23vw, 92px);
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: none;
+      margin: 8px 0 0;
+      aspect-ratio: auto;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-rows: auto minmax(min-content, 1fr) auto;
+      row-gap: 8px;
+      column-gap: 0;
+    }
+    #lista-jogadores { display: contents; }
+    .zona { display: flex; gap: 6px; }
+    .z-cima { grid-column: 1 / -1; grid-row: 1; justify-content: center; flex-wrap: wrap; }
+    .z-esq  { grid-column: 1; grid-row: 2; flex-direction: column-reverse; justify-content: center; align-self: center; margin-right: 6px; }
+    .z-dir  { grid-column: 3; grid-row: 2; flex-direction: column; justify-content: center; align-self: center; margin-left: 6px; }
+    .z-eu   { grid-column: 1 / -1; grid-row: 3; justify-content: center; }
+
+    /* ----- Painel central: etapa, pote, cartas comunitárias e maior aposta ----- */
     .centro-roda {
-      position: absolute;
-      left: 50%;
-      top: calc(50% - 26px);
-      transform: translate(-50%, -50%);
-      width: 140px;
+      grid-column: 2;
+      grid-row: 2;
+      position: static;
+      transform: none;
+      width: auto;
+      min-width: 0;
+      padding: 10px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      pointer-events: none;
+      justify-content: space-evenly;
+      gap: 8px;
+      text-align: center;
+      border-radius: 26px;
+      background: radial-gradient(ellipse at 50% 38%, var(--feltro-600), var(--feltro-800) 82%);
+      box-shadow: inset 0 0 0 1.5px var(--linha), inset 0 12px 28px -14px rgba(0, 0, 0, 0.45);
     }
+    .centro-roda .fase-nome {
+      padding: 2px 12px;
+      font-size: 11.5px;
+      letter-spacing: 0.14em;
+      color: var(--ouro);
+      background: rgba(0, 0, 0, 0.22);
+      border-radius: 999px;
+    }
+    .centro-roda .fase-nome:empty { display: none; }
     .centro-roda .pote-ficha { transform: none; margin: 0; width: 80px; height: 80px; padding: 6px; flex-shrink: 0; }
     .centro-roda .pote-ficha .miolo { border-width: 2px; }
-    .centro-roda .pote-rotulo { font-size: 11px; }
-    .centro-roda .pote-valor { font-size: 27px; }
-    .centro-roda .pote-valor[data-len="5"], .centro-roda .pote-valor[data-len="6"] { font-size: 21px; }
-    .centro-roda .pote-valor[data-len="7"], .centro-roda .pote-valor[data-len="8"] { font-size: 16px; }
-    .centro-roda .board { width: 100%; max-width: none; }
-    .centro-roda .pilula { font-size: 12px; padding: 2px 10px; }
+    .centro-roda .pote-rotulo { font-size: 11px; line-height: 1; }
+    .centro-roda .pote-valor { font-size: 28px; }
+    .centro-roda .pote-valor[data-len="5"] { font-size: 22px; }
+    .centro-roda .pote-valor[data-len="6"] { font-size: 18px; }
+    .centro-roda .pote-valor[data-len="7"], .centro-roda .pote-valor[data-len="8"] { font-size: 14px; }
+    .centro-roda .board { width: 100%; max-width: 200px; gap: 2px; }
+    .centro-roda .slots, .centro-roda .rotulos { gap: 4px; }
+    .centro-roda .rotulos span { font-size: 8.5px; letter-spacing: 0.03em; text-align: center; white-space: nowrap; }
+    .centro-roda .pilula.destaque { padding: 3px 12px; font-size: 12.5px; font-weight: 600; }
 
-    #lista-jogadores { position: absolute; inset: 0; pointer-events: none; }
+    /* ----- Lugares (jogadores) ----- */
     .lugar {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      width: 94px;
-      min-height: 80px;
-      padding: 18px 5px 6px;
+      position: relative;
+      width: var(--lugar-w);
+      min-height: 58px;
+      padding: 4px 5px 3px;
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 1px;
-      text-align: center;
+      text-align: left;
       background: var(--feltro-800);
       border: 2px solid var(--linha);
-      border-radius: 16px;
-      box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.7);
-      pointer-events: auto;
-      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+      border-radius: 14px;
+      box-shadow: 0 5px 12px -6px rgba(0, 0, 0, 0.7);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     }
-    .lugar.eu { background: var(--feltro-700); border-color: rgba(244, 236, 216, 0.6); }
-    .lugar.desistiu { opacity: 0.42; }
-    .lugar .ficha { position: absolute; top: -14px; left: -10px; width: 34px; height: 34px; font-size: 16px; border-width: 3px; }
-    .lugar .dealer { top: -7px; right: -10px; width: 18px; height: 18px; font-size: 10px; }
-    .l-nome {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      max-width: 100%;
-      font-size: 14.5px;
-      font-weight: 700;
-      line-height: 1.15;
-    }
+    .lugar.eu { width: clamp(150px, 46vw, 196px); background: var(--feltro-700); border-color: rgba(244, 236, 216, 0.55); }
+    .lugar.desistiu { opacity: 0.45; }
+
+    .l-topo { display: flex; align-items: center; gap: 5px; min-width: 0; }
+    .lugar .ficha { position: static; width: 18px; height: 18px; font-size: 11px; border-width: 2px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
+    .l-nome { flex: 1; min-width: 0; display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; line-height: 1.1; }
     .l-nome .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .l-nome .coroa { width: 13px; height: 13px; color: var(--ouro); }
-    .l-saldo { font-family: var(--fonte-numero); font-size: 29px; font-weight: 700; line-height: 1.05; }
-    .l-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-height: 17px; margin-top: 2px; }
+    .l-nome .coroa { width: 10px; height: 10px; flex-shrink: 0; color: var(--ouro); }
+    .l-voce { flex-shrink: 0; font-size: 10.5px; font-weight: 600; color: var(--marfim-suave); }
+
+    .l-meio { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 4px; }
+    .l-saldo { font-family: var(--fonte-numero); font-size: 22px; font-weight: 700; line-height: 1.05; }
+    .lugar.eu .l-saldo { font-size: 26px; }
     .l-aposta {
-      position: absolute;
-      top: -11px;
-      right: -8px;
-      padding: 0 8px;
+      flex-shrink: 0;
+      padding: 0 5px;
       font-family: var(--fonte-numero);
-      font-size: 15px;
+      font-size: 12.5px;
       font-weight: 700;
+      line-height: 16px;
       color: #241a00;
       background: var(--ouro);
       border-radius: 99px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
-    .lugar .tag { padding: 1px 7px; font-size: 11px; white-space: nowrap; }
+
+    .l-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; min-height: 15px; }
+    .lugar .tag { padding: 0 5px; font-size: 9.5px; line-height: 15px; font-weight: 700; white-space: nowrap; }
     .tag.allin { background: var(--vermelho); color: #fff; }
     .tag.prox { background: var(--marfim); color: #241a00; }
+    .tag.d { width: 15px; padding: 0; text-align: center; border-radius: 50%; background: #fff; color: #111; }
     #tempo-turno { font-variant-numeric: tabular-nums; }
 
-    /* Quem está na vez: lugar dourado, maior e com brilho */
+    /* Quem está na vez: dourado, com brilho pulsante */
     .lugar.vez {
-      z-index: 3;
-      transform: translate(-50%, -50%) scale(1.07);
+      z-index: 2;
       color: #241a00;
-      background: linear-gradient(180deg, #f3cd57, #d9a21f);
+      background: linear-gradient(180deg, #f6d466, #dba622);
       border-color: #fff3c2;
-      box-shadow: 0 0 0 4px rgba(233, 185, 60, 0.4), 0 0 26px rgba(233, 185, 60, 0.75);
+      box-shadow: 0 0 0 3px rgba(233, 185, 60, 0.45), 0 0 22px rgba(233, 185, 60, 0.7);
+      animation: pulso-vez 1.6s ease-in-out infinite;
     }
-    .lugar.vez .l-nome .coroa { color: #241a00; }
+    @keyframes pulso-vez {
+      50% { box-shadow: 0 0 0 5px rgba(233, 185, 60, 0.25), 0 0 28px rgba(233, 185, 60, 0.9); }
+    }
+    .lugar.vez .l-nome .coroa, .lugar.vez .l-voce { color: #241a00; }
     .lugar.vez .tag.vez { background: #241a00; color: var(--ouro); }
     .lugar.vez .tag.blind { color: #241a00; box-shadow: inset 0 0 0 1px rgba(36, 26, 0, 0.5); }
+    .lugar.vez .l-aposta { background: #241a00; color: var(--ouro); }
 
-    /* Com 6 a 8 jogadores: lugares um pouco menores e centro enxuto */
-    #tela-mesa.muitos .lugar { width: 88px; min-height: 70px; padding: 16px 3px 4px; }
-    #tela-mesa.muitos .l-nome { font-size: 13px; }
-    #tela-mesa.muitos .l-saldo { font-size: 23px; }
-    #tela-mesa.muitos .lugar .ficha { width: 30px; height: 30px; font-size: 14px; top: -12px; left: -9px; border-width: 3px; }
-    #tela-mesa.muitos .lugar .tag { font-size: 10px; padding: 0 5px; }
-    #tela-mesa.muitos .l-tags { min-height: 15px; }
-    #tela-mesa.muitos .l-aposta { font-size: 13px; top: -10px; }
-    #tela-mesa.muitos .centro-roda .pote-ficha { width: 60px; height: 60px; padding: 4px; }
-    #tela-mesa.muitos .centro-roda .pote-valor { font-size: 20px; }
-    #tela-mesa.muitos .centro-roda .pote-rotulo,
-    #tela-mesa.muitos .centro-roda .fase-nome,
-    #tela-mesa.muitos .centro-roda .rotulos,
-    #tela-mesa.muitos .centro-roda .pilula { display: none; }
+    /* Próximo a jogar: contorno tracejado claro */
+    .lugar.prox { border-style: dashed; border-color: rgba(244, 236, 216, 0.85); }
 
-    /* Com a caixa de aposta aberta a mesa fica mais baixa: centro enxuto */
-    #tela-mesa.apostando .centro-roda .pote-ficha { width: 54px; height: 54px; padding: 4px; }
-    #tela-mesa.apostando .centro-roda .pote-valor { font-size: 17px; }
+    /* ----- Barra de ações: uma linha de aviso + botões ----- */
+    .barra-acoes .barra-titulo { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.2; }
+    .barra-acoes:not(.minha-vez) .barra-titulo { margin-bottom: 0; }
+    .barra-acoes button.grande { min-height: 62px; font-size: clamp(20px, 6.4vw, 24px); white-space: nowrap; }
+
+    /* ----- Telas mais baixas ou caixa de aposta aberta: centro mais enxuto ----- */
+    #tela-mesa.apostando .centro-roda { padding: 6px; gap: 5px; }
+    #tela-mesa.apostando .centro-roda .pote-ficha { width: 58px; height: 58px; padding: 4px; }
+    #tela-mesa.apostando .centro-roda .pote-valor { font-size: 20px; }
+    #tela-mesa.apostando .centro-roda .pote-valor[data-len="5"], #tela-mesa.apostando .centro-roda .pote-valor[data-len="6"] { font-size: 15px; }
     #tela-mesa.apostando .centro-roda .pote-rotulo,
-    #tela-mesa.apostando .centro-roda .fase-nome,
-    #tela-mesa.apostando .centro-roda .rotulos,
-    #tela-mesa.apostando .centro-roda .pilula { display: none; }
+    #tela-mesa.apostando .centro-roda .rotulos { display: none; }
+    #tela-mesa.apostando .ultima { display: none; }
+    #tela-mesa.apostando .l-tags:empty { display: none; }
+    #tela-mesa.apostando .l-tags { min-height: 0; }
+    #tela-mesa.apostando .centro-roda .fase-nome { font-size: 10.5px; padding: 1px 10px; }
+    body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
+    @media (max-height: 700px) {
+      .centro-roda .pote-ficha { width: 66px; height: 66px; padding: 5px; }
+      .centro-roda .pote-valor { font-size: 23px; }
+      .lugar { min-height: 58px; }
+      .l-saldo { font-size: 21px; }
+    }
+    @media (max-height: 620px) {
+      .ultima { display: none; }
+      .mesa-wrap { margin-top: 4px; row-gap: 6px; overflow-y: auto; overscroll-behavior: contain; padding: 4px 0; }
+    }
 
-    /* ===== V5: lugares compactos (menos poluição) ===== */
-    .lugar, #tela-mesa.muitos .lugar { width: 72px; min-height: 54px; padding: 13px 3px 4px; border-radius: 13px; border-width: 2px; }
-    #tela-mesa.muitos .lugar { width: 66px; min-height: 50px; }
-    .lugar .ficha, #tela-mesa.muitos .lugar .ficha { width: 26px; height: 26px; font-size: 13px; top: -11px; left: -8px; border-width: 2px; }
-    .lugar .dealer, #tela-mesa.muitos .lugar .dealer { width: 15px; height: 15px; font-size: 9px; top: -6px; right: -8px; }
-    .l-nome, #tela-mesa.muitos .l-nome { font-size: 12px; font-weight: 600; }
-    .l-nome .coroa { width: 10px; height: 10px; }
-    .l-saldo, #tela-mesa.muitos .l-saldo { font-size: 21px; }
-    .l-tags, #tela-mesa.muitos .l-tags { min-height: 0; margin-top: 1px; gap: 2px; }
-    .l-tags:empty { display: none; }
-    .lugar .tag, #tela-mesa.muitos .lugar .tag { padding: 0 5px; font-size: 9.5px; font-weight: 700; }
-    .lugar .tag.prox { display: none; }
-    .l-aposta, #tela-mesa.muitos .l-aposta { font-size: 12px; padding: 0 6px; top: -9px; right: -7px; }
-    .lugar.vez { transform: translate(-50%, -50%) scale(1.12); }
-    .roda-fundo { inset: 30px 36px; }
-    .centro-roda { width: 160px; }
-    .centro-roda .pote-ficha { width: 76px; height: 76px; }
+    /* ----- Telas largas (desktop): coluna central um pouco maior ----- */
+    @media (min-width: 700px) {
+      .mesa-wrap { --lugar-w: 104px; }
+      .lugar { min-height: 68px; }
+      .l-nome { font-size: 14px; }
+    }
   </style>
 </head>
 
@@ -1354,9 +1409,9 @@
     <button id="btn-iniciar-rapido" class="positivo" onclick="iniciarPartida()" hidden>Iniciar partida</button>
 
     <div class="mesa-wrap">
-      <div class="roda-fundo" id="roda-fundo"></div>
-      <!-- Centro da roda: pote + cartas comunitárias -->
+      <!-- Painel central: etapa, pote, cartas comunitárias e maior aposta -->
       <div class="centro-roda">
+        <div class="fase-nome" id="mesa-fase"></div>
         <div class="pote-ficha" id="pote-ficha">
           <div class="miolo">
             <span class="pote-rotulo">Pote</span>
@@ -1364,13 +1419,12 @@
           </div>
         </div>
         <div class="board" id="board">
-          <div class="fase-nome" id="mesa-fase"></div>
           <div class="slots"><i></i><i></i><i></i><i></i><i></i></div>
           <div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>
         </div>
         <span class="pilula destaque" id="mesa-aposta"></span>
       </div>
-      <!-- Jogadores sentados em roda (você fica embaixo) -->
+      <!-- Jogadores: zonas em cima, nas laterais e embaixo (você) -->
       <div id="lista-jogadores"></div>
     </div>
 
@@ -2282,19 +2336,31 @@
       }
     }
 
-    // ----- Jogadores sentados em roda (você fica embaixo; a vez anda no sentido horário) -----
-    let htmlLista = '';
+    // ----- Jogadores em volta do painel central -----
+    // Você fica embaixo; os outros seguem no sentido horário: lateral esquerda (de baixo para cima),
+    // em cima (da esquerda para a direita) e lateral direita (de cima para baixo).
     const nJ = jogadores.length;
     const meuIdx = Math.max(0, jogadores.findIndex(function (j) { return j.id === meuJogadorId; }));
+    const outros = nJ - 1;
+    let nEsq, nCima, nDir;
+    if (outros <= 2)      { nEsq = 0; nDir = 0; nCima = Math.max(0, outros); }
+    else if (outros === 3) { nEsq = 1; nCima = 1; nDir = 1; }
+    else if (outros <= 5)  { nEsq = 1; nDir = 1; nCima = outros - 2; }
+    else                   { nEsq = 2; nDir = 2; nCima = outros - 4; }
+    const zEu = [], zEsq = [], zCima = [], zDir = [];
+
     jogadores.forEach(function (j, i) {
       const souEu = (j.id === meuJogadorId);
       const naVez = !!vezAtivaId && j.id === vezAtivaId;
+      const ehProximo = !naVez && !j.desistiu && j.id === proximoId;
 
       let classes = 'lugar';
       if (souEu) classes += ' eu';
       if (naVez) classes += ' vez';
+      if (ehProximo) classes += ' prox';
       if (j.desistiu) classes += ' desistiu';
 
+      // Rodapé do lugar: primeiro o estado (vez / próximo / fora), depois D, SB e BB
       let tags = '';
       if (partida.iniciada) {
         if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
@@ -2303,33 +2369,43 @@
           if (naVez) {
             const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
             tags += '<span class="tag vez">▶ ' + rotulo + (rotulo === 'VEZ' ? ' <span id="tempo-turno"></span>' : '') + '</span>';
-          } else if (j.id === proximoId) {
+          } else if (ehProximo) {
             tags += '<span class="tag prox">PRÓX ▸</span>';
           }
-          if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">SB</span>';
-          if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">BB</span>';
           if (j.saldo === 0) tags += '<span class="tag allin">ALL-IN</span>';
         }
+        if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
+        if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">SB</span>';
+        if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">BB</span>';
       }
       const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
-      const k = (i - meuIdx + nJ) % nJ;   // posição na roda: 0 = embaixo (eu)
+      const k = (i - meuIdx + nJ) % nJ;   // posição a partir de mim: 0 = eu (embaixo)
 
-      htmlLista += `
-        <div class="${classes}" data-k="${k}" data-n="${nJ}">
-          <div class="ficha ${corFicha}">${j.ordem}${partida.iniciada && j.id === partida.dealer_jogador_id ? '<span class="dealer">D</span>' : ''}</div>
-          ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
-          <div class="l-nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(j.nome)}</span></div>
-          <div class="l-saldo">${j.saldo}</div>
+      const htmlLugar = `
+        <div class="${classes}">
+          <div class="l-topo">
+            <div class="ficha ${corFicha}">${j.ordem}</div>
+            <div class="l-nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(j.nome)}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+          </div>
+          <div class="l-meio">
+            <div class="l-saldo">${j.saldo}</div>
+            ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
+          </div>
           <div class="l-tags">${tags}</div>
         </div>
       `;
+      if (k === 0) zEu.push(htmlLugar);
+      else if (k <= nEsq) zEsq.push(htmlLugar);
+      else if (k <= nEsq + nCima) zCima.push(htmlLugar);
+      else zDir.push(htmlLugar);
     });
+    const zona = function (cls, itens) { return itens.length ? '<div class="zona ' + cls + '">' + itens.join('') + '</div>' : ''; };
+    const htmlLista = zona('z-cima', zCima) + zona('z-esq', zEsq) + zona('z-dir', zDir) + zona('z-eu', zEu);
     document.getElementById('tela-mesa').classList.toggle('muitos', nJ > 5);
     if (htmlLista !== htmlJogadoresVisto) {
       htmlJogadoresVisto = htmlLista;
       document.getElementById('lista-jogadores').innerHTML = htmlLista;
     }
-    posicionarAssentos();
 
     // ----- Cronômetros -----
     relogio.offset = estado.agora ? Date.parse(estado.agora) - Date.now() : 0;
@@ -2393,6 +2469,7 @@
     // ----- Barra de ações -----
     const barra = document.getElementById('barra-acoes');
     const mostrarBarra = !!eu && partida.iniciada;
+    elStatus.hidden = mostrarBarra;
     barra.classList.toggle('visivel', mostrarBarra);
     barra.classList.toggle('minha-vez', mostrarBarra && minhaVez);
 
@@ -2414,15 +2491,10 @@
           'PAGAR ' + (partida.fase_blind === 1 ? 'SMALL' : 'BIG') + ' BLIND (' + valorBlind + ')';
       }
 
-      let titulo;
-      if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'small blind' : 'big blind') + '. Toque no botão para pagar.';
-      else if (emBlind)                  titulo = 'Aguarde: os blinds estão sendo pagos.';
-      else if (partida.fase === 4)       titulo = 'Showdown: aguarde o criador distribuir o pote.';
-      else if (partida.aguardando_cartas) titulo = 'Aguarde: as cartas estão sendo viradas.';
-      else if (eu.desistiu)              titulo = 'Você desistiu desta mão.';
-      else if (minhaVez)                 titulo = '';
-      else if (jogadorDaVez)             titulo = 'Aguarde. Vez de ' + jogadorDaVez.nome + '.';
-      else                               titulo = 'Aguarde a sua vez.';
+      // O aviso da mesa (quem joga agora, blinds, showdown...) fica só na barra de baixo
+      // enquanto ela está visível, para não repetir a mesma frase em dois lugares.
+      let titulo = status;
+      if (eu.desistiu && emJogo && !emBlind) titulo = 'Você desistiu desta mão. ' + status;
       document.getElementById('barra-titulo').textContent = titulo;
 
       const valorPagar = Math.min(falta, eu.saldo);
@@ -2464,28 +2536,6 @@
   }
 
   // Histórico: só redesenha se mudou
-  // Espalha os lugares numa elipse que ocupa toda a área da mesa
-  function posicionarAssentos() {
-    const lista = document.getElementById('lista-jogadores');
-    const W = lista.clientWidth, H = lista.clientHeight;
-    if (!W || !H) return;
-    const lugares = lista.querySelectorAll('.lugar');
-    let sw = 0, sh = 0;
-    lugares.forEach(function (el) {
-      sw = Math.max(sw, el.offsetWidth);
-      sh = Math.max(sh, el.offsetHeight);
-    });
-    const rx = Math.max(0, (W - sw) / 2 - 6);
-    const ry = Math.max(0, (H - sh) / 2 - 6);
-    lugares.forEach(function (el) {
-      const ang = Math.PI / 2 + Number(el.dataset.k) * 2 * Math.PI / Number(el.dataset.n);
-      el.style.left = (W / 2 + rx * Math.cos(ang)).toFixed(1) + 'px';
-      el.style.top = (H / 2 + ry * Math.sin(ang)).toFixed(1) + 'px';
-    });
-    const fundo = document.getElementById('roda-fundo');
-    fundo.style.inset = (sh / 2 + 2) + 'px ' + (sw / 2 + 2) + 'px';
-  }
-
   function desenharHistorico(linhas) {
     const ult = document.getElementById('mesa-ultima');
     if (ult) ult.textContent = (linhas && linhas.length) ? linhas[0].texto : '';
@@ -2895,10 +2945,7 @@
     new ResizeObserver(ajustarEspaco).observe(barraEl);
   }
   new MutationObserver(ajustarEspaco).observe(barraEl, { attributes: true, attributeFilter: ['class'] });
-  // Quando a área da mesa muda de tamanho (barra abre/fecha, girar o celular), reposiciona a roda
-  if ('ResizeObserver' in window) {
-    new ResizeObserver(function () { posicionarAssentos(); }).observe(document.getElementById('lista-jogadores'));
-  }
+  // (Os lugares ficam numa grade CSS: não precisam ser reposicionados por script.)
 
   // Enter no login: no nome vai para a senha, na senha entra
   document.getElementById('campo-login-nome').addEventListener('keydown', function (e) {
