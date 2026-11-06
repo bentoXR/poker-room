@@ -862,6 +862,24 @@
     .barra-acoes .presets button { min-height: 40px; padding: 4px; font-size: 15px; }
     .barra-acoes input[type=range] { width: 100%; min-height: 28px; height: 28px; padding: 0; margin: 0 0 8px; border: 0; background: none; box-shadow: none; accent-color: var(--ouro); }
     .barra-acoes .grade-simples { grid-template-columns: 1fr 2fr; }
+
+    /* Ajustes de leitura e toque para celular em posição vertical */
+    button, input { touch-action: manipulation; }
+    button { -webkit-user-select: none; user-select: none; }
+    @media (max-width: 600px) and (orientation: portrait) {
+      main { width: 100%; padding-left: 14px; padding-right: 14px; }
+      h2 { font-size: 30px; margin-bottom: 12px; }
+      .marca { margin-bottom: 20px; }
+      .marca h1 { font-size: clamp(60px, 18vw, 76px); }
+      .cartao { padding: 15px; margin-top: 12px; }
+      input { font-size: 16px; }
+      .mesa-wrap { width: min(100%, 390px); margin-top: 4px; }
+      .assento { width: clamp(66px, 19vw, 76px); }
+      .a-nome { font-size: 12px; }
+      .a-saldo { font-size: 16px; }
+      .barra-acoes { padding-left: 12px; padding-right: 12px; }
+      .barra-acoes .presets button { min-height: 44px; }
+    }
   </style>
 </head>
 
@@ -957,7 +975,7 @@
     <div id="erro-criar" class="erro" role="alert"></div>
   </section>
 
-  <!-- ===== TELA 4: ESCOLHA (jogar ou só assistir) ===== -->
+  <!-- ===== TELA 4: ENTRADA NA SALA ===== -->
   <section id="tela-escolha" class="tela">
     <button class="voltar" onclick="voltarParaSalas()">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
@@ -971,7 +989,6 @@
 
     <div class="cartao">
       <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
-      <button class="secundario" onclick="entrarComoEspectador()">Só assistir</button>
       <p class="dica">Como jogador, você pode sair e voltar quando quiser: suas fichas ficam guardadas na sua conta.</p>
       <div id="erro-escolha" class="erro" role="alert"></div>
     </div>
@@ -1559,7 +1576,7 @@
         return;
       }
 
-      // Sala nova para mim: preciso dos dados dela para a tela "jogar ou assistir"
+      // Sala nova para mim: carrega os dados e entra diretamente como jogador
       const resp = await banco.from('partidas').select('*').eq('id', id).maybeSingle();
       if (resp.error) {
         mostrarErro('erro-salas', 'Não consegui abrir a sala. Confira a internet.');
@@ -1570,7 +1587,8 @@
         carregarSalas();
         return;
       }
-      prepararEscolha(resp.data);
+      pararSalas();
+      await conectarNaSala(resp.data, 'erro-salas');
     } finally {
       abrindoSala = false;
     }
@@ -1624,7 +1642,7 @@
     botao.textContent = 'Criar e ir para a mesa';
   }
 
-  // Tela "jogar ou só assistir" (para salas em que ainda não jogo)
+  // Atualiza a sala selecionada antes de entrar como jogador
   function prepararEscolha(partida) {
     partidaAtual = partida;
     meuJogadorId = null;
@@ -1672,11 +1690,6 @@
     botao.disabled = false;
     botao.textContent = 'Entrar como jogador';
   }
-
-  async function entrarComoEspectador() {
-    await abrirMesa(partidaAtual);
-  }
-
 
   // =====================================================
   // 7) MESA: abrir, desenhar e atualizar em tempo real
