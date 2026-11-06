@@ -1184,6 +1184,24 @@
     #tela-mesa.apostando .centro-roda .fase-nome,
     #tela-mesa.apostando .centro-roda .rotulos,
     #tela-mesa.apostando .centro-roda .pilula { display: none; }
+
+    /* ===== V5: lugares compactos (menos poluição) ===== */
+    .lugar, #tela-mesa.muitos .lugar { width: 72px; min-height: 54px; padding: 13px 3px 4px; border-radius: 13px; border-width: 2px; }
+    #tela-mesa.muitos .lugar { width: 66px; min-height: 50px; }
+    .lugar .ficha, #tela-mesa.muitos .lugar .ficha { width: 26px; height: 26px; font-size: 13px; top: -11px; left: -8px; border-width: 2px; }
+    .lugar .dealer, #tela-mesa.muitos .lugar .dealer { width: 15px; height: 15px; font-size: 9px; top: -6px; right: -8px; }
+    .l-nome, #tela-mesa.muitos .l-nome { font-size: 12px; font-weight: 600; }
+    .l-nome .coroa { width: 10px; height: 10px; }
+    .l-saldo, #tela-mesa.muitos .l-saldo { font-size: 21px; }
+    .l-tags, #tela-mesa.muitos .l-tags { min-height: 0; margin-top: 1px; gap: 2px; }
+    .l-tags:empty { display: none; }
+    .lugar .tag, #tela-mesa.muitos .lugar .tag { padding: 0 5px; font-size: 9.5px; font-weight: 700; }
+    .lugar .tag.prox { display: none; }
+    .l-aposta, #tela-mesa.muitos .l-aposta { font-size: 12px; padding: 0 6px; top: -9px; right: -7px; }
+    .lugar.vez { transform: translate(-50%, -50%) scale(1.12); }
+    .roda-fundo { inset: 30px 36px; }
+    .centro-roda { width: 160px; }
+    .centro-roda .pote-ficha { width: 76px; height: 76px; }
   </style>
 </head>
 
