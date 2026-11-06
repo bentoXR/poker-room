@@ -9,6 +9,8 @@
   <!-- Fontes (se não carregarem, o site usa fontes do próprio celular) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://lymawbmtdalvjvgclnpd.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Biblioteca oficial do Supabase (carregada pela internet) -->
@@ -1085,7 +1087,12 @@
   let meuJogadorId = null;    // o id do meu jogador (null = espectador)
   let meuSegredo = null;      // meu segredo (prova de que sou eu)
   let canal = null;           // a "linha aberta" do tempo real
-  let versaoMesa = 0;         // evita que uma resposta antiga sobrescreva uma nova
+  let ultimaVersao = -1;     // versão mais nova da mesa já desenhada (ignora o que for velho ou repetido)
+  let promessaBusca = null;  // há uma busca da mesa em andamento?
+  let buscaSuja = false;     // chegou aviso novo durante a busca: busca de novo ao terminar
+  let htmlJogadoresVisto = ''; // só redesenha a lista de jogadores se ela mudou
+  let htmlHistoricoVisto = ''; // idem para o histórico
+  let temporizadorReserva = null; // busca de segurança, caso algum aviso se perca
   let ocupado = false;        // evita toques duplos enquanto uma ação está sendo enviada
   let jogadoresAtuais = [];   // última lista de jogadores (usada no formulário de distribuir)
   let eraMinhaVez = false;    // para vibrar só quando a vez chega para mim
@@ -1403,7 +1410,7 @@
   }
 
   async function carregarSalas() {
-    if (!minhaConta) return;
+    if (!minhaConta || document.hidden) return;
     const minha = ++versaoSalas;
 
     let resp;
@@ -1461,6 +1468,20 @@
     limparErro('erro-salas');
 
     try {
+      const sala = salasAtuais.find(function (x) { return x.id === id; });
+
+      if (sala && sala.sou_jogador) {
+        // Já jogo nesta sala: volto direto (o servidor avisa se ela não existe mais)
+        pararSalas();
+        const entrou = await conectarNaSala({ id: id }, 'erro-salas');
+        if (!entrou && document.getElementById('tela-salas').classList.contains('ativa')) {
+          carregarSalas();
+          temporizadorSalas = setInterval(carregarSalas, 4000);
+        }
+        return;
+      }
+
+      // Sala nova para mim: preciso dos dados dela para a tela "jogar ou assistir"
       const resp = await banco.from('partidas').select('*').eq('id', id).maybeSingle();
       if (resp.error) {
         mostrarErro('erro-salas', 'Não consegui abrir a sala. Confira a internet.');
@@ -1471,18 +1492,7 @@
         carregarSalas();
         return;
       }
-
-      const sala = salasAtuais.find(function (s) { return s.id === id; });
-      if (sala && sala.sou_jogador) {
-        // Já jogo nesta sala: volto direto, com as mesmas fichas
-        pararSalas();
-        const entrou = await conectarNaSala(resp.data, 'erro-salas');
-        if (!entrou && document.getElementById('tela-salas').classList.contains('ativa')) {
-          temporizadorSalas = setInterval(carregarSalas, 4000);
-        }
-      } else {
-        prepararEscolha(resp.data);
-      }
+      prepararEscolha(resp.data);
     } finally {
       abrindoSala = false;
     }
@@ -1529,17 +1539,7 @@
       const dados = resp.data;
       guardarMeuJogador(dados.partida_id, dados.jogador_id, dados.segredo);
 
-      const respPartida = await banco
-        .from('partidas')
-        .select('*')
-        .eq('id', dados.partida_id)
-        .single();
-
-      if (respPartida.error) {
-        mostrarErro('erro-criar', 'Erro ao abrir a mesa: ' + respPartida.error.message);
-      } else {
-        await abrirMesa(respPartida.data);
-      }
+      await abrirMesa({ id: dados.partida_id });
     }
 
     botao.disabled = false;
@@ -1603,7 +1603,7 @@
   // =====================================================
   // 7) MESA: abrir, desenhar e atualizar em tempo real
   // =====================================================
-  async function abrirMesa(partida) {
+  async function abrirMesa(partida, estadoInicial) {
     partidaAtual = partida;
 
     const guardado = lerMeuJogador(partida.id);
@@ -1622,43 +1622,79 @@
     maoVista = null;
     blindsVistos = null;
     bigMesaEditado = false;
+    ultimaVersao = -1;
+    htmlJogadoresVisto = '';
+    htmlHistoricoVisto = '';
 
-    await atualizarMesa();
+    if (estadoInicial) receberEstado(estadoInicial, true);
+    else await buscarMesa(true);
     if (!partidaAtual) return;   // a sala foi encerrada
     mostrar('tela-mesa');
     ligarTempoReal();
   }
 
-  // Busca os dados mais recentes no banco e redesenha a mesa
-  async function atualizarMesa() {
+  // Pede ao banco o estado completo da mesa (partida + jogadores + histórico) em UMA chamada.
+  // Se chegar aviso novo durante a busca, busca de novo logo depois.
+  function buscarMesa(forcar) {
+    if (!partidaAtual) return Promise.resolve();
+    if (promessaBusca) { buscaSuja = true; return promessaBusca; }
+
+    promessaBusca = (async function () {
+      try {
+        do {
+          buscaSuja = false;
+          const id = partidaAtual && partidaAtual.id;
+          if (!id) break;
+
+          let resp;
+          try {
+            resp = await banco.rpc('estado_mesa', { p_partida: id });
+          } catch (erro) {
+            break;   // sem internet: tenta de novo no próximo aviso
+          }
+          if (resp.error) break;
+          if (!partidaAtual || partidaAtual.id !== id) break;
+
+          receberEstado(resp.data, forcar);
+        } while (buscaSuja);
+      } finally {
+        promessaBusca = null;
+      }
+    })();
+    return promessaBusca;
+  }
+
+  // Recebe um estado (de uma busca, da resposta de uma ação ou do aviso de outro jogador).
+  // Só desenha se for MAIS NOVO do que o que já está na tela.
+  function receberEstado(estado, forcar) {
     if (!partidaAtual) return;
-    const minhaVersao = ++versaoMesa;
-    const idPartida = partidaAtual.id;
-
-    const respPartida = await banco
-      .from('partidas')
-      .select('*')
-      .eq('id', idPartida)
-      .maybeSingle();
-
-    const respJogadores = await banco
-      .from('jogadores')
-      .select('*')
-      .eq('partida_id', idPartida)
-      .order('ordem');
-
-    if (!partidaAtual || minhaVersao !== versaoMesa) return;
-    if (respPartida.error || respJogadores.error) return;
-
-    // A sala foi apagada (por exemplo, por ficar sem jogadores ativos)
-    if (!respPartida.data) {
+    if (!estado || !estado.partida) {
       aviso('Essa sala não existe mais.');
       voltarParaSalas();
       return;
     }
+    if (estado.partida.id !== partidaAtual.id) return;
 
-    const partida = respPartida.data;
-    const jogadores = respJogadores.data;
+    const versao = Number(estado.partida.versao) || 0;
+    if (!forcar && versao <= ultimaVersao) return;
+    ultimaVersao = versao;
+    desenharMesa(estado);
+  }
+
+  // Aplica o estado na minha tela e avisa os outros jogadores (broadcast = o caminho mais rápido)
+  function publicarEstado(estado) {
+    if (canal) {
+      try {
+        canal.send({ type: 'broadcast', event: 'estado', payload: estado }).catch(function () {});
+      } catch (erro) {}
+    }
+    receberEstado(estado, false);
+  }
+
+  // Desenha a mesa a partir do estado
+  function desenharMesa(estado) {
+    const partida = estado.partida;
+    const jogadores = estado.jogadores;
 
     if (partida.encerrada) {
       aviso('Essa sala foi encerrada.');
@@ -1772,10 +1808,13 @@
         </div>
       `;
     });
-    document.getElementById('lista-jogadores').innerHTML = htmlLista;
+    if (htmlLista !== htmlJogadoresVisto) {
+      htmlJogadoresVisto = htmlLista;
+      document.getElementById('lista-jogadores').innerHTML = htmlLista;
+    }
 
     // ----- Histórico -----
-    carregarHistorico(idPartida);
+    desenharHistorico(estado.historico);
 
     // ----- Painel do criador -----
     const souCriador = !!eu && eu.criador;
@@ -1871,56 +1910,59 @@
     }
   }
 
-  // Busca as últimas 40 linhas do histórico e desenha na tela
-  let versaoHist = 0;
-  async function carregarHistorico(idPartida) {
-    const minha = ++versaoHist;
-
-    const resp = await banco
-      .from('historico')
-      .select('mao, texto')
-      .eq('partida_id', idPartida)
-      .order('id', { ascending: false })
-      .limit(40);
-
-    // Ignora se saí da mesa ou se chegou uma resposta mais nova
-    if (resp.error || minha !== versaoHist || !partidaAtual) return;
-
-    const caixa = document.getElementById('hist-lista');
-    if (resp.data.length === 0) {
-      caixa.innerHTML = '<div class="detalhe" style="padding:4px 0 8px">Nada registrado ainda. As jogadas aparecem aqui.</div>';
-      return;
+  // Histórico: só redesenha se mudou
+  function desenharHistorico(linhas) {
+    let html;
+    if (!linhas || linhas.length === 0) {
+      html = '<div class="detalhe" style="padding:4px 0 8px">Nada registrado ainda. As jogadas aparecem aqui.</div>';
+    } else {
+      html = linhas.map(function (linha) {
+        return '<div class="hist-linha"><span class="hist-mao">Mão ' + linha.mao + '</span>'
+             + '<span>' + escapar(linha.texto) + '</span></div>';
+      }).join('');
     }
-    caixa.innerHTML = resp.data.map(function (linha) {
-      return '<div class="hist-linha"><span class="hist-mao">Mão ' + linha.mao + '</span>'
-           + '<span>' + escapar(linha.texto) + '</span></div>';
-    }).join('');
+    if (html === htmlHistoricoVisto) return;
+    htmlHistoricoVisto = html;
+    document.getElementById('hist-lista').innerHTML = html;
   }
 
   function ligarTempoReal() {
     desligarTempoReal();
+    const idSala = partidaAtual.id;
+    let jaInscrito = false;
 
     canal = banco
-      .channel('mesa-' + partidaAtual.id)
+      .channel('mesa-' + idSala)
+      // Caminho rápido: quem jogou manda o estado pronto para os outros
+      .on('broadcast', { event: 'estado' }, function (msg) {
+        if (msg && msg.payload && msg.payload.partida) receberEstado(msg.payload, false);
+      })
+      // Caminho de segurança: toda mudança no banco sobe a versão da partida
       .on('postgres_changes',
-          { event: '*', schema: 'public', table: 'jogadores',
-            filter: 'partida_id=eq.' + partidaAtual.id },
-          atualizarMesa)
-      .on('postgres_changes',
-          { event: '*', schema: 'public', table: 'partidas',
-            filter: 'id=eq.' + partidaAtual.id },
-          atualizarMesa)
-      .on('postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'historico',
-            filter: 'partida_id=eq.' + partidaAtual.id },
-          atualizarMesa)
-      .subscribe();
+          { event: '*', schema: 'public', table: 'partidas', filter: 'id=eq.' + idSala },
+          function (p) {
+            if (p.eventType === 'DELETE') { buscarMesa(true); return; }
+            const v = p.new ? Number(p.new.versao) : NaN;
+            if (!(v <= ultimaVersao)) buscarMesa(false);
+          })
+      .subscribe(function (status) {
+        if (status === 'SUBSCRIBED') {
+          if (jaInscrito) buscarMesa(false);   // reconectou: pega o que perdeu
+          jaInscrito = true;
+        }
+      });
+
+    // Rede de proteção: de 20 em 20 segundos confere se não perdeu nada
+    temporizadorReserva = setInterval(function () {
+      if (!document.hidden) buscarMesa(false);
+    }, 20000);
 
     ligarSinal();
   }
 
   function desligarTempoReal() {
     desligarSinal();
+    if (temporizadorReserva) { clearInterval(temporizadorReserva); temporizadorReserva = null; }
     if (canal) {
       banco.removeChannel(canal);
       canal = null;
@@ -1957,15 +1999,23 @@
     limparErro('erro-criador');
     limparErro('erro-distribuir');
 
-    const resp = await banco.rpc(funcao, parametros);
-
-    if (resp.error) {
-      mostrarErro(idDoErro, resp.error.message);
-    } else {
-      await atualizarMesa();
+    let deuCerto = false;
+    try {
+      const resp = await banco.rpc(funcao, parametros);
+      if (resp.error) {
+        mostrarErro(idDoErro, resp.error.message);
+      } else {
+        deuCerto = true;
+        // As ações devolvem a mesa já pronta: desenha na hora e avisa os outros
+        if (resp.data && resp.data.partida) publicarEstado(resp.data);
+        else await buscarMesa(false);
+      }
+    } catch (erro) {
+      mostrarErro(idDoErro, 'Não consegui falar com o servidor. Confira a internet.');
+    } finally {
+      ocupado = false;
     }
-    ocupado = false;
-    return !resp.error;
+    return deuCerto;
   }
 
   function agir(acao) {
@@ -2267,7 +2317,7 @@
 
     let resp;
     try {
-      resp = await banco.from('partidas').select('*').eq('id', id).maybeSingle();
+      resp = await banco.rpc('estado_mesa', { p_partida: id });
     } catch (erro) {
       resp = { error: erro };
     }
@@ -2281,14 +2331,14 @@
     }
 
     // A sala não existe mais ou foi encerrada
-    if (!resp.data || resp.data.encerrada) {
+    if (!resp.data || !resp.data.partida || resp.data.partida.encerrada) {
       esquecerPartida();
       abrirSalas();
       return;
     }
 
     // Abre a mesa; o jogador (e o segredo) vêm da gaveta do navegador
-    await abrirMesa(resp.data);
+    await abrirMesa(resp.data.partida, resp.data);
   }
 
   // Ao voltar para o app (ex.: depois de bloquear a tela), atualiza tudo
@@ -2297,11 +2347,17 @@
     const naMesa = document.getElementById('tela-mesa').classList.contains('ativa');
     const nasSalas = document.getElementById('tela-salas').classList.contains('ativa');
     if (partidaAtual && naMesa) {
-      atualizarMesa();
-      ligarTempoReal();
+      buscarMesa(false);
+      if (!canal || canal.state !== 'joined') ligarTempoReal();
+      enviarSinal();
     } else if (nasSalas) {
       carregarSalas();
     }
+  });
+
+  // Internet voltou: confere a mesa
+  window.addEventListener('online', function () {
+    if (partidaAtual && document.getElementById('tela-mesa').classList.contains('ativa')) buscarMesa(false);
   });
 
   // Botão "voltar" do celular (ou gesto de voltar)
