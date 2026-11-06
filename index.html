@@ -1062,115 +1062,128 @@
     #tela-mesa.apostando .feltro { gap: 4px; }
 
     /* =====================================================
-       V3: MESA EM LISTA (sem o oval)
+       V4: JOGADORES EM RODA, CENTRO COM POTE E CARTAS
        ===================================================== */
-    .mesa-wrap {
-      position: static;
+    .mesa-wrap { position: relative; display: block; flex: 1; min-height: 0; margin: 6px 0 0; aspect-ratio: auto; }
+    .roda-fundo {
+      position: absolute;
+      inset: 44px 50px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, var(--feltro-600), var(--feltro-800) 78%);
+      box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.2), inset 0 0 0 6px var(--linha);
+      pointer-events: none;
+    }
+    .centro-roda {
+      position: absolute;
+      left: 50%;
+      top: calc(50% - 26px);
+      transform: translate(-50%, -50%);
+      width: 140px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin: 6px 0 0;
-      aspect-ratio: auto;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
     }
+    .centro-roda .pote-ficha { transform: none; margin: 0; width: 80px; height: 80px; padding: 6px; flex-shrink: 0; }
+    .centro-roda .pote-ficha .miolo { border-width: 2px; }
+    .centro-roda .pote-rotulo { font-size: 11px; }
+    .centro-roda .pote-valor { font-size: 27px; }
+    .centro-roda .pote-valor[data-len="5"], .centro-roda .pote-valor[data-len="6"] { font-size: 21px; }
+    .centro-roda .pote-valor[data-len="7"], .centro-roda .pote-valor[data-len="8"] { font-size: 16px; }
+    .centro-roda .board { width: 100%; max-width: none; }
+    .centro-roda .pilula { font-size: 12px; padding: 2px 10px; }
 
-    /* Centro da mesa: pote à esquerda, cartas comunitárias à direita */
-    .centro {
+    #lista-jogadores { position: absolute; inset: 0; pointer-events: none; }
+    .lugar {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 94px;
+      min-height: 80px;
+      padding: 18px 5px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      text-align: center;
+      background: var(--feltro-800);
+      border: 2px solid var(--linha);
+      border-radius: 16px;
+      box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.7);
+      pointer-events: auto;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .lugar.eu { background: var(--feltro-700); border-color: rgba(244, 236, 216, 0.6); }
+    .lugar.desistiu { opacity: 0.42; }
+    .lugar .ficha { position: absolute; top: -14px; left: -10px; width: 34px; height: 34px; font-size: 16px; border-width: 3px; }
+    .lugar .dealer { top: -7px; right: -10px; width: 18px; height: 18px; font-size: 10px; }
+    .l-nome {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-      padding: 8px 12px;
-      border-radius: 18px;
-      border: 1px solid var(--linha);
-      background: radial-gradient(ellipse at center, var(--feltro-600), var(--feltro-800));
-      box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.18);
+      justify-content: center;
+      gap: 3px;
+      max-width: 100%;
+      font-size: 14.5px;
+      font-weight: 700;
+      line-height: 1.15;
     }
-    .centro .pote-ficha { transform: none; margin: 0; width: 84px; height: 84px; padding: 6px; flex-shrink: 0; }
-    .centro .pote-ficha .miolo { border-width: 2px; }
-    .centro .pote-rotulo { font-size: 11px; }
-    .centro .pote-valor { font-size: 28px; }
-    .centro .pote-valor[data-len="5"], .centro .pote-valor[data-len="6"] { font-size: 22px; }
-    .centro .pote-valor[data-len="7"], .centro .pote-valor[data-len="8"] { font-size: 17px; }
-    .centro-info { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .centro .board { width: 100%; max-width: none; }
-    .centro .pilula { font-size: 12.5px; padding: 2px 10px; }
-    #tela-mesa.apostando .centro { padding: 5px 10px; }
-    #tela-mesa.apostando .centro .pote-ficha { width: 58px; height: 58px; padding: 4px; }
-    #tela-mesa.apostando .centro .pote-rotulo { display: none; }
-    #tela-mesa.apostando .centro .pote-valor { font-size: 18px; }
-    #tela-mesa.apostando .centro .fase-nome,
-    #tela-mesa.apostando .centro .rotulos,
-    #tela-mesa.apostando .centro .pilula { display: none; }
-
-    /* Lista de jogadores: ocupa todo o espaço que sobra */
-    #lista-jogadores {
-      position: relative;
-      inset: auto;
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      pointer-events: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 3px 3px 4px;
-      overscroll-behavior: contain;
-    }
-    #lista-jogadores .jogador {
-      position: relative;
-      margin: 0;
-      flex: 1 1 58px;
-      min-height: 58px;
-      max-height: 92px;
-      padding: 8px 12px;
-      border-width: 2px;
-    }
-
-    .jogador .ficha { position: relative; }
-    .jogador .dealer { top: -7px; right: -8px; width: 20px; height: 20px; font-size: 11px; }
-    .jogador .nome { font-size: 19px; }
-    .jogador .tags { margin-top: 3px; gap: 4px; }
-    .jogador .saldo { font-size: 36px; }
-    .j-dir { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
-    .j-aposta {
+    .l-nome .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .l-nome .coroa { width: 13px; height: 13px; color: var(--ouro); }
+    .l-saldo { font-family: var(--fonte-numero); font-size: 29px; font-weight: 700; line-height: 1.05; }
+    .l-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-height: 17px; margin-top: 2px; }
+    .l-aposta {
+      position: absolute;
+      top: -11px;
+      right: -8px;
       padding: 0 8px;
       font-family: var(--fonte-numero);
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
       color: #241a00;
       background: var(--ouro);
       border-radius: 99px;
-      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
-    /* Com 6 a 8 jogadores: linhas compactas e centro menor, para tudo caber sem rolar */
-    #tela-mesa.muitos #lista-jogadores .jogador { flex: 0 0 auto; min-height: 46px; max-height: none; padding: 4px 10px; gap: 10px; }
-    #tela-mesa.muitos .jogador .ficha { width: 36px; height: 36px; font-size: 17px; border-width: 3px; }
-    #tela-mesa.muitos .jogador .dealer { top: -8px; right: -9px; }
-    #tela-mesa.muitos .jogador .nome { font-size: 17px; }
-    #tela-mesa.muitos .jogador .tags { margin-top: 2px; }
-    #tela-mesa.muitos .jogador .saldo { font-size: 28px; }
-    #tela-mesa.muitos .j-dir { flex-direction: row; align-items: center; gap: 8px; }
-    #tela-mesa.muitos .tag { font-size: 11.5px; padding: 1px 7px; }
-    #tela-mesa.muitos .tag.vez { font-size: 13px; }
-    #tela-mesa.muitos .centro { padding: 5px 10px; }
-    #tela-mesa.muitos .centro .pote-ficha { width: 58px; height: 58px; padding: 4px; }
-    #tela-mesa.muitos .centro .fase-nome, #tela-mesa.muitos .centro .rotulos { display: none; }
-    #tela-mesa.muitos #lista-jogadores { gap: 4px; }
-    #tela-mesa.muitos .centro .pote-rotulo, #tela-mesa.muitos .centro .pilula { display: none; }
-    #tela-mesa.muitos .centro .pote-valor { font-size: 20px; }
-
-    /* Quem está na vez: cartão dourado e com brilho */
-    .jogador.vez {
-      background: linear-gradient(90deg, rgba(233, 185, 60, 0.34), var(--feltro-700) 75%);
-      border-color: var(--ouro);
-      box-shadow: 0 0 0 3px rgba(233, 185, 60, 0.3), 0 0 20px rgba(233, 185, 60, 0.35);
-    }
-    .jogador.vez .nome { color: #fff; }
-    .tag { font-size: 12.5px; }
-    .tag.vez { padding: 2px 10px; font-size: 14px; }
+    .lugar .tag { padding: 1px 7px; font-size: 11px; white-space: nowrap; }
     .tag.allin { background: var(--vermelho); color: #fff; }
     .tag.prox { background: var(--marfim); color: #241a00; }
     #tempo-turno { font-variant-numeric: tabular-nums; }
+
+    /* Quem está na vez: lugar dourado, maior e com brilho */
+    .lugar.vez {
+      z-index: 3;
+      transform: translate(-50%, -50%) scale(1.07);
+      color: #241a00;
+      background: linear-gradient(180deg, #f3cd57, #d9a21f);
+      border-color: #fff3c2;
+      box-shadow: 0 0 0 4px rgba(233, 185, 60, 0.4), 0 0 26px rgba(233, 185, 60, 0.75);
+    }
+    .lugar.vez .l-nome .coroa { color: #241a00; }
+    .lugar.vez .tag.vez { background: #241a00; color: var(--ouro); }
+    .lugar.vez .tag.blind { color: #241a00; box-shadow: inset 0 0 0 1px rgba(36, 26, 0, 0.5); }
+
+    /* Com 6 a 8 jogadores: lugares um pouco menores e centro enxuto */
+    #tela-mesa.muitos .lugar { width: 88px; min-height: 70px; padding: 16px 3px 4px; }
+    #tela-mesa.muitos .l-nome { font-size: 13px; }
+    #tela-mesa.muitos .l-saldo { font-size: 23px; }
+    #tela-mesa.muitos .lugar .ficha { width: 30px; height: 30px; font-size: 14px; top: -12px; left: -9px; border-width: 3px; }
+    #tela-mesa.muitos .lugar .tag { font-size: 10px; padding: 0 5px; }
+    #tela-mesa.muitos .l-tags { min-height: 15px; }
+    #tela-mesa.muitos .l-aposta { font-size: 13px; top: -10px; }
+    #tela-mesa.muitos .centro-roda .pote-ficha { width: 60px; height: 60px; padding: 4px; }
+    #tela-mesa.muitos .centro-roda .pote-valor { font-size: 20px; }
+    #tela-mesa.muitos .centro-roda .pote-rotulo,
+    #tela-mesa.muitos .centro-roda .fase-nome,
+    #tela-mesa.muitos .centro-roda .rotulos,
+    #tela-mesa.muitos .centro-roda .pilula { display: none; }
+
+    /* Com a caixa de aposta aberta a mesa fica mais baixa: centro enxuto */
+    #tela-mesa.apostando .centro-roda .pote-ficha { width: 54px; height: 54px; padding: 4px; }
+    #tela-mesa.apostando .centro-roda .pote-valor { font-size: 17px; }
+    #tela-mesa.apostando .centro-roda .pote-rotulo,
+    #tela-mesa.apostando .centro-roda .fase-nome,
+    #tela-mesa.apostando .centro-roda .rotulos,
+    #tela-mesa.apostando .centro-roda .pilula { display: none; }
   </style>
 </head>
 
@@ -1323,24 +1336,23 @@
     <button id="btn-iniciar-rapido" class="positivo" onclick="iniciarPartida()" hidden>Iniciar partida</button>
 
     <div class="mesa-wrap">
-      <!-- Centro: pote + cartas comunitárias -->
-      <div class="centro">
+      <div class="roda-fundo" id="roda-fundo"></div>
+      <!-- Centro da roda: pote + cartas comunitárias -->
+      <div class="centro-roda">
         <div class="pote-ficha" id="pote-ficha">
           <div class="miolo">
             <span class="pote-rotulo">Pote</span>
             <span class="pote-valor" id="mesa-pote" data-len="1">0</span>
           </div>
         </div>
-        <div class="centro-info">
-          <div class="board" id="board">
-            <div class="fase-nome" id="mesa-fase"></div>
-            <div class="slots"><i></i><i></i><i></i><i></i><i></i></div>
-            <div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>
-          </div>
-          <span class="pilula destaque" id="mesa-aposta"></span>
+        <div class="board" id="board">
+          <div class="fase-nome" id="mesa-fase"></div>
+          <div class="slots"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>
         </div>
+        <span class="pilula destaque" id="mesa-aposta"></span>
       </div>
-      <!-- Jogadores: um cartão para cada, na ordem de jogo -->
+      <!-- Jogadores sentados em roda (você fica embaixo) -->
       <div id="lista-jogadores"></div>
     </div>
 
@@ -2252,13 +2264,15 @@
       }
     }
 
-    // ----- Jogadores em lista (de cima para baixo = ordem de jogo) -----
+    // ----- Jogadores sentados em roda (você fica embaixo; a vez anda no sentido horário) -----
     let htmlLista = '';
-    jogadores.forEach(function (j) {
+    const nJ = jogadores.length;
+    const meuIdx = Math.max(0, jogadores.findIndex(function (j) { return j.id === meuJogadorId; }));
+    jogadores.forEach(function (j, i) {
       const souEu = (j.id === meuJogadorId);
       const naVez = !!vezAtivaId && j.id === vezAtivaId;
 
-      let classes = 'jogador';
+      let classes = 'lugar';
       if (souEu) classes += ' eu';
       if (naVez) classes += ' vez';
       if (j.desistiu) classes += ' desistiu';
@@ -2270,9 +2284,9 @@
         else {
           if (naVez) {
             const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
-            tags += '<span class="tag vez">▶ ' + rotulo + ' <span id="tempo-turno"></span></span>';
+            tags += '<span class="tag vez">▶ ' + rotulo + (rotulo === 'VEZ' ? ' <span id="tempo-turno"></span>' : '') + '</span>';
           } else if (j.id === proximoId) {
-            tags += '<span class="tag prox">PRÓXIMO</span>';
+            tags += '<span class="tag prox">PRÓX ▸</span>';
           }
           if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">SB</span>';
           if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">BB</span>';
@@ -2280,35 +2294,24 @@
         }
       }
       const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
+      const k = (i - meuIdx + nJ) % nJ;   // posição na roda: 0 = embaixo (eu)
 
       htmlLista += `
-        <div class="${classes}">
+        <div class="${classes}" data-k="${k}" data-n="${nJ}">
           <div class="ficha ${corFicha}">${j.ordem}${partida.iniciada && j.id === partida.dealer_jogador_id ? '<span class="dealer">D</span>' : ''}</div>
-          <div class="info">
-            <div class="nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(j.nome)}</span>${souEu ? '<span class="voce">(você)</span>' : ''}</div>
-            <div class="tags">${tags}</div>
-          </div>
-          <div class="j-dir">
-            <div class="saldo">${j.saldo}</div>
-            ${j.apostou > 0 ? '<div class="j-aposta">apostou ' + j.apostou + '</div>' : ''}
-          </div>
+          ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
+          <div class="l-nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(j.nome)}</span></div>
+          <div class="l-saldo">${j.saldo}</div>
+          <div class="l-tags">${tags}</div>
         </div>
       `;
     });
-    const elLista = document.getElementById('lista-jogadores');
-    document.getElementById('tela-mesa').classList.toggle('muitos', jogadores.length > 5);
+    document.getElementById('tela-mesa').classList.toggle('muitos', nJ > 5);
     if (htmlLista !== htmlJogadoresVisto) {
       htmlJogadoresVisto = htmlLista;
-      elLista.innerHTML = htmlLista;
-      // Garante que quem está na vez apareça na tela, mesmo com muitos jogadores
-      const daVez = elLista.querySelector('.jogador.vez');
-      if (daVez) {
-        const topo = daVez.offsetTop, base = topo + daVez.offsetHeight;
-        if (topo < elLista.scrollTop || base > elLista.scrollTop + elLista.clientHeight) {
-          elLista.scrollTop = Math.max(0, topo - 6);
-        }
-      }
+      document.getElementById('lista-jogadores').innerHTML = htmlLista;
     }
+    posicionarAssentos();
 
     // ----- Cronômetros -----
     relogio.offset = estado.agora ? Date.parse(estado.agora) - Date.now() : 0;
@@ -2443,6 +2446,28 @@
   }
 
   // Histórico: só redesenha se mudou
+  // Espalha os lugares numa elipse que ocupa toda a área da mesa
+  function posicionarAssentos() {
+    const lista = document.getElementById('lista-jogadores');
+    const W = lista.clientWidth, H = lista.clientHeight;
+    if (!W || !H) return;
+    const lugares = lista.querySelectorAll('.lugar');
+    let sw = 0, sh = 0;
+    lugares.forEach(function (el) {
+      sw = Math.max(sw, el.offsetWidth);
+      sh = Math.max(sh, el.offsetHeight);
+    });
+    const rx = Math.max(0, (W - sw) / 2 - 6);
+    const ry = Math.max(0, (H - sh) / 2 - 6);
+    lugares.forEach(function (el) {
+      const ang = Math.PI / 2 + Number(el.dataset.k) * 2 * Math.PI / Number(el.dataset.n);
+      el.style.left = (W / 2 + rx * Math.cos(ang)).toFixed(1) + 'px';
+      el.style.top = (H / 2 + ry * Math.sin(ang)).toFixed(1) + 'px';
+    });
+    const fundo = document.getElementById('roda-fundo');
+    fundo.style.inset = (sh / 2 + 2) + 'px ' + (sw / 2 + 2) + 'px';
+  }
+
   function desenharHistorico(linhas) {
     const ult = document.getElementById('mesa-ultima');
     if (ult) ult.textContent = (linhas && linhas.length) ? linhas[0].texto : '';
@@ -2852,6 +2877,10 @@
     new ResizeObserver(ajustarEspaco).observe(barraEl);
   }
   new MutationObserver(ajustarEspaco).observe(barraEl, { attributes: true, attributeFilter: ['class'] });
+  // Quando a área da mesa muda de tamanho (barra abre/fecha, girar o celular), reposiciona a roda
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(function () { posicionarAssentos(); }).observe(document.getElementById('lista-jogadores'));
+  }
 
   // Enter no login: no nome vai para a senha, na senha entra
   document.getElementById('campo-login-nome').addEventListener('keydown', function (e) {
