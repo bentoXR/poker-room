@@ -716,7 +716,7 @@
     }
     .barra-acoes .linha-apostar {
       display: grid;
-      grid-template-columns: 1.6fr 1fr;
+      grid-template-columns: 1fr;
       gap: 8px;
       margin-top: 8px;
     }
@@ -812,6 +812,56 @@
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
+
+    /* ---------- Mesa de poker (etapas 9-12) ---------- */
+    .mesa-wrap { position: relative; width: 100%; max-width: 440px; margin: 8px auto 0; aspect-ratio: 3 / 4.1; }
+    .feltro {
+      position: absolute; inset: 9% 20%; border-radius: 50%;
+      background: radial-gradient(ellipse at center, var(--feltro-600), var(--feltro-800));
+      box-shadow: inset 0 0 0 4px rgba(0,0,0,.25), inset 0 0 0 7px var(--linha), 0 14px 30px -14px #000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; text-align: center; padding: 8px 4px;
+    }
+    .feltro .pote-ficha { transform: scale(.5); margin: -40px 0; flex-shrink: 0; }
+    .feltro .pilulas { gap: 4px; }
+    .feltro .pilula { font-size: 11px; padding: 2px 7px; }
+    .board { display: grid; gap: 3px; width: 100%; max-width: 140px; }
+    .fase-nome { font-size: 11px; letter-spacing: 1.5px; font-weight: 800; color: var(--ouro); text-transform: uppercase; }
+    .slots, .rotulos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+    .slots i { aspect-ratio: 5 / 7; border-radius: 4px; border: 1.5px dashed var(--linha); background: rgba(0,0,0,.18); }
+    .slots i.on { border: 1.5px solid var(--marfim); background: rgba(244,236,216,.88); }
+    .slots i.novo { animation: pisca .9s infinite; border-color: var(--ouro); background: rgba(233,185,60,.6); }
+    @keyframes pisca { 50% { opacity: .35; } }
+    .rotulos span { font-size: 9px; letter-spacing: 1px; font-weight: 800; color: var(--marfim-suave); }
+    .rotulos span.atual { color: var(--ouro); }
+    .rotulos .r-flop { grid-column: 1 / 4; }
+
+    #lista-jogadores { position: absolute; inset: 0; pointer-events: none; }
+    .assento { position: absolute; transform: translate(-50%, -50%); width: 76px; display: flex; flex-direction: column; align-items: center; pointer-events: auto; }
+    .assento .ficha { width: 34px; height: 34px; font-size: 16px; border-width: 3px; position: relative; }
+    .assento.vez .ficha { box-shadow: 0 0 0 3px var(--ouro), 0 0 14px 4px rgba(233,185,60,.75); }
+    .assento.desistiu { opacity: .4; }
+    .a-nome { max-width: 100%; margin-top: 3px; padding: 1px 8px; border-radius: 99px; background: rgba(0,0,0,.6); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .assento.eu .a-nome { background: var(--ouro); color: #241a00; }
+    .a-saldo { font-family: var(--fonte-numero); font-size: 17px; font-weight: 700; line-height: 1.1; }
+    .a-aposta { font-family: var(--fonte-numero); font-size: 13px; font-weight: 700; color: #241a00; background: var(--ouro); border-radius: 99px; padding: 0 7px; margin-top: 1px; }
+    .a-tags { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+    .mini { font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 5px; background: rgba(0,0,0,.55); letter-spacing: .5px; }
+    .mini.prox { background: var(--marfim); color: #241a00; }
+    .mini.vez { background: var(--ouro); color: #241a00; }
+    .mini.allin { background: var(--vermelho); }
+    .dealer { position: absolute; top: -6px; right: -9px; width: 17px; height: 17px; border-radius: 50%; background: #fff; color: #111; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px #000; }
+    .a-timer { font-family: var(--fonte-numero); font-size: 14px; font-weight: 700; color: var(--ouro); }
+    .a-timer:empty { display: none; }
+    .faixa-fase { margin-top: 10px; padding: 12px; border-radius: var(--raio-md); background: var(--ouro); color: #241a00; text-align: center; font-weight: 800; font-size: 18px; }
+    .faixa-fase button { margin-top: 8px; background: #241a00; color: var(--ouro); }
+    .linha-ordem { display: flex; align-items: center; gap: 8px; margin-top: 6px; text-align: left; }
+    .linha-ordem span { flex: 1; font-weight: 600; }
+    .linha-ordem button { width: 48px; min-height: 40px; margin: 0; padding: 0; }
+    .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+    .barra-acoes .presets button { min-height: 40px; padding: 4px; font-size: 15px; }
+    .barra-acoes input[type=range] { width: 100%; min-height: 28px; height: 28px; padding: 0; margin: 0 0 8px; border: 0; background: none; box-shadow: none; accent-color: var(--ouro); }
+    .barra-acoes .grade-simples { grid-template-columns: 1fr 2fr; }
   </style>
 </head>
 
@@ -938,25 +988,37 @@
       <div class="papel" id="mesa-papel"></div>
     </div>
 
-    <div class="mesa-centro">
-      <div class="pote-ficha" id="pote-ficha">
-        <div class="miolo">
-          <span class="pote-rotulo">Pote</span>
-          <span class="pote-valor" id="mesa-pote" data-len="1">0</span>
-        </div>
-      </div>
-      <div class="pilulas">
-        <span class="pilula" id="mesa-mao"></span>
-        <span class="pilula" id="mesa-nivel"></span>
-        <span class="pilula" id="mesa-blinds"></span>
-        <span class="pilula destaque" id="mesa-aposta"></span>
-      </div>
+    <div class="faixa-fase" id="faixa-fase" hidden>
+      <div id="faixa-texto"></div>
+      <button id="btn-abrir-rodada" onclick="abrirRodada()" hidden>Cartas viradas: abrir apostas ▶</button>
+      <div id="erro-faixa" class="erro" role="alert"></div>
     </div>
 
     <div class="status" id="mesa-status"></div>
 
-    <!-- A lista de jogadores é montada pelo JavaScript -->
-    <div id="lista-jogadores"></div>
+    <div class="mesa-wrap">
+      <div class="feltro">
+        <div class="board" id="board">
+          <div class="fase-nome" id="mesa-fase"></div>
+          <div class="slots"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>
+        </div>
+        <div class="pote-ficha" id="pote-ficha">
+          <div class="miolo">
+            <span class="pote-rotulo">Pote</span>
+            <span class="pote-valor" id="mesa-pote" data-len="1">0</span>
+          </div>
+        </div>
+        <div class="pilulas">
+          <span class="pilula" id="mesa-relogio"></span>
+          <span class="pilula" id="mesa-mao"></span>
+          <span class="pilula" id="mesa-nivel"></span>
+          <span class="pilula" id="mesa-blinds"></span>
+          <span class="pilula destaque" id="mesa-aposta"></span>
+        </div>
+      </div>
+      <div id="lista-jogadores"></div>
+    </div>
 
     <!-- Histórico (toque para abrir/fechar) -->
     <details class="historico">
@@ -971,6 +1033,10 @@
         Controles do criador
       </div>
       <p class="dica" id="dica-iniciar" style="margin-top:0">Quando todo mundo tiver entrado, toque em iniciar. Seus amigos encontram esta sala na lista de salas.</p>
+      <div id="bloco-ordem">
+        <div class="cartao-titulo" style="margin-top:6px">Ordem dos jogadores</div>
+        <div id="lista-ordem"></div>
+      </div>
       <div id="bloco-blinds">
         <div class="duas">
           <div>
@@ -1036,17 +1102,23 @@
   <!-- Modo normal: aparece só na sua vez -->
   <div id="barra-normal" hidden>
 
-    <!-- PASSO 1: escolher a jogada -->
+    <!-- Escolha a jogada: ela vale na hora e a vez passa sozinha -->
     <div id="bloco-jogada">
       <div class="grade-simples">
         <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
-        <button id="btn-check" class="secundario" onclick="agir('check')">Check</button>
+        <button id="btn-check" class="positivo" onclick="agir('check')">Check</button>
         <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
       </div>
       <div id="dica-pagar" class="dica-barra"></div>
 
       <div class="caixa-aposta">
-        <div class="caixa-titulo">Ou aumente a aposta</div>
+        <div class="presets">
+          <button type="button" class="secundario" onclick="apostaPote(1/3)">⅓ pote</button>
+          <button type="button" class="secundario" onclick="apostaPote(1/2)">½ pote</button>
+          <button type="button" class="secundario" onclick="apostaPote(2/3)">⅔ pote</button>
+          <button type="button" class="secundario" onclick="apostaPote(1)">Pote</button>
+        </div>
+        <input id="campo-slider" type="range" min="0" max="0" step="1" value="0" aria-label="Valor da aposta" oninput="aoMoverSlider()">
         <div class="linha-aposta">
           <button type="button" id="btn-menos" class="passo" onclick="ajustarAposta(-1)" aria-label="Diminuir aposta">−</button>
           <input id="campo-valor" type="number" inputmode="numeric" aria-label="Valor da aposta" oninput="aoDigitarAposta()">
@@ -1054,19 +1126,9 @@
         </div>
         <div class="linha-apostar">
           <button id="btn-apostar" class="apostar" onclick="apostar()">Apostar</button>
-          <button id="btn-allin" class="allin" onclick="agir('allin')">All-in</button>
         </div>
       </div>
     </div>
-
-    <!-- PASSO 2: confirmar ou desfazer -->
-    <div id="bloco-confirmar" hidden>
-      <div class="linha-passar">
-        <button id="btn-desfazer" class="neutro" onclick="desfazerJogada()">
-          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg>Desfazer
-        </button>
-        <button id="btn-passar" class="positivo" onclick="passarVez()">Confirmar jogada</button>
-      </div>
     </div>
   </div>
 </div>
@@ -1112,6 +1174,8 @@
   // Botão "voltar" do celular: 0 = tela raiz (login/salas), 1 = tela interna (criar/escolha/mesa)
   let profundidade = (history.state && history.state.poker) ? 1 : 0;
   let ignorarPop = false;
+  let htmlOrdemVisto = '';
+  const relogio = { offset: 0, ini: null, vez: null };   // cronômetros (hora do servidor)
 
   // Ícone da coroa (criador da partida)
   const ICONE_COROA = '<svg class="ic cheio coroa" viewBox="0 0 24 24" aria-label="Criador"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>';
@@ -1295,6 +1359,18 @@
     definirAposta(atual + direcao * lim.passo, true);
   }
 
+  // Atalhos por tamanho do pote: valor = o que falta pagar + fração de (pote + o que falta pagar)
+  function apostaPote(fracao) {
+    const lim = limitesAposta();
+    if (!lim || !(lim.max > 0)) return;
+    const passo = Math.max(1, partidaAtual.small_blind);
+    const bruto = lim.falta + fracao * (partidaAtual.pote + lim.falta);
+    definirAposta(Math.round(bruto / passo) * passo, true);
+  }
+  function aoMoverSlider() {
+    definirAposta(parseInt(document.getElementById('campo-slider').value), true);
+  }
+
   // A pessoa digitou o valor à mão (continua possível)
   function aoDigitarAposta() {
     apostaEditada = true;
@@ -1311,6 +1387,8 @@
       if (lim && valor === lim.max) texto += ' (all-in)';
     }
     document.getElementById('btn-apostar').textContent = texto;
+    const sl = document.getElementById('campo-slider');
+    if (lim) { sl.min = lim.min; sl.max = lim.max; if (valor > 0) sl.value = valor; }
   }
 
   // =====================================================
@@ -1707,7 +1785,9 @@
     // ----- Quem sou eu e de quem é a vez? -----
     const eu = jogadores.find(function (j) { return j.id === meuJogadorId; }) || null;
     const jogadorDaVez = jogadores.find(function (j) { return j.id === partida.vez_jogador_id; }) || null;
-    const minhaVez = !!eu && partida.iniciada && partida.vez_jogador_id === eu.id;
+    const emJogo = partida.iniciada && !partida.aguardando_cartas && partida.fase < 4;
+    const vezAtivaId = emJogo ? partida.vez_jogador_id : null;
+    const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id;
     const falta = eu ? Math.max(0, partida.aposta_atual - eu.apostou) : 0;
 
     // Vibra o celular quando a vez chega para mim (onde o navegador permite)
@@ -1747,6 +1827,7 @@
       eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo';
 
     // ----- Faixa de status -----
+    const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
     let status;
     if (!partida.iniciada) {
       status = 'Aguardando o criador iniciar a partida';
@@ -1754,6 +1835,10 @@
       status = minhaVez ? 'Você deve pagar o small blind' : jogadorDaVez.nome + ' deve pagar o small blind';
     } else if (jogadorDaVez && partida.fase_blind === 2) {
       status = minhaVez ? 'Você deve pagar o big blind' : jogadorDaVez.nome + ' deve pagar o big blind';
+    } else if (partida.fase === 4) {
+      status = 'Showdown: mostrem as cartas. O criador distribui o pote.';
+    } else if (partida.aguardando_cartas) {
+      status = 'Virem as cartas do ' + NOMES_FASE[partida.fase] + '.';
     } else if (jogadorDaVez) {
       status = minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + jogadorDaVez.nome;
     } else if (partida.pote > 0) {
@@ -1765,46 +1850,69 @@
     elStatus.textContent = status;
     elStatus.classList.toggle('minha-vez', minhaVez);
 
-    // ----- Lista de jogadores -----
-    let htmlLista = '';
-    jogadores.forEach(function (j) {
-      const souEu = (j.id === meuJogadorId);
-      const naVez = partida.iniciada && (j.id === partida.vez_jogador_id);
+    // ----- Cartas comunitárias (só marcação) -----
+    const acesas = [0, 3, 4, 5, 5][partida.fase] || 0;
+    const novasDe = [0, 0, 3, 4, 5][partida.fase];
+    document.querySelectorAll('#board .slots i').forEach(function (el, k) {
+      el.classList.toggle('on', partida.iniciada && k < acesas);
+      el.classList.toggle('novo', partida.iniciada && partida.aguardando_cartas && k >= novasDe && k < acesas);
+    });
+    document.querySelectorAll('#board .rotulos span').forEach(function (el) {
+      el.classList.toggle('atual', partida.iniciada && Number(el.dataset.f) === partida.fase);
+    });
+    document.getElementById('mesa-fase').textContent = partida.iniciada ? NOMES_FASE[partida.fase] : '';
 
-      let classes = 'jogador';
+    // ----- Quem é o próximo a jogar? -----
+    let proximoId = null;
+    if (partida.iniciada && partida.fase_blind === 1) proximoId = partida.bb_jogador_id;
+    else if (partida.iniciada && partida.fase_blind === 2) proximoId = partida.primeiro_jogador_id;
+    else if (vezAtivaId) {
+      const n = jogadores.length;
+      const idx = jogadores.findIndex(function (j) { return j.id === vezAtivaId; });
+      for (let k = 1; k < n; k++) {
+        const c = jogadores[(idx + k) % n];
+        if (!c.desistiu && c.saldo > 0 && (!c.falou || c.apostou < partida.aposta_atual)) { proximoId = c.id; break; }
+      }
+    }
+
+    // ----- Jogadores sentados ao redor da mesa (você fica embaixo) -----
+    let htmlLista = '';
+    const nJ = jogadores.length;
+    const meuIdx = Math.max(0, jogadores.findIndex(function (j) { return j.id === meuJogadorId; }));
+    jogadores.forEach(function (j, i) {
+      const souEu = (j.id === meuJogadorId);
+      const naVez = !!vezAtivaId && j.id === vezAtivaId;
+      const ang = Math.PI / 2 + (i - meuIdx) * 2 * Math.PI / nJ;
+      const x = 50 + 40 * Math.cos(ang);
+      const y = 50 + 40 * Math.sin(ang);
+
+      let classes = 'assento';
       if (souEu) classes += ' eu';
       if (naVez) classes += ' vez';
       if (j.desistiu) classes += ' desistiu';
 
       let tags = '';
       if (partida.iniciada) {
-        if (j.desistiu) {
-          tags += '<span class="tag fora">Desistiu</span>';
-        } else if (j.saldo === 0 && j.apostou === 0) {
-          tags += '<span class="tag fora">Sem fichas</span>';
-        } else {
-          if (naVez) tags += '<span class="tag vez">Vez de jogar</span>';
-          if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">Small blind</span>';
-          if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">Big blind</span>';
-          if (j.saldo === 0) tags += '<span class="tag allin">All-in</span>';
-          tags += '<span class="tag">Apostou ' + j.apostou + '</span>';
+        if (j.desistiu) tags += '<span class="mini">FORA</span>';
+        else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="mini">SEM FICHAS</span>';
+        else {
+          if (naVez) tags += '<span class="mini vez">VEZ</span>';
+          else if (j.id === proximoId) tags += '<span class="mini prox">PRÓX ▸</span>';
+          if (j.id === partida.sb_jogador_id) tags += '<span class="mini">SB</span>';
+          if (j.id === partida.bb_jogador_id) tags += '<span class="mini">BB</span>';
+          if (j.saldo === 0) tags += '<span class="mini allin">ALL-IN</span>';
         }
       }
-
       const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
 
       htmlLista += `
-        <div class="${classes}">
-          <div class="ficha ${corFicha}">${j.ordem}</div>
-          <div class="info">
-            <div class="nome">
-              ${j.criador ? ICONE_COROA : ''}
-              <span class="texto">${escapar(j.nome)}</span>
-              ${souEu ? '<span class="voce">você</span>' : ''}
-            </div>
-            <div class="tags">${tags}</div>
-          </div>
-          <div class="saldo">${j.saldo}</div>
+        <div class="${classes}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%">
+          <div class="ficha ${corFicha}">${j.ordem}${partida.iniciada && j.id === partida.dealer_jogador_id ? '<span class="dealer">D</span>' : ''}</div>
+          <div class="a-nome">${j.criador ? '♛ ' : ''}${escapar(j.nome)}</div>
+          <div class="a-saldo">${j.saldo}</div>
+          ${j.apostou > 0 ? '<div class="a-aposta">+' + j.apostou + '</div>' : ''}
+          ${naVez ? '<div class="a-timer" id="tempo-turno"></div>' : ''}
+          <div class="a-tags">${tags}</div>
         </div>
       `;
     });
@@ -1813,12 +1921,37 @@
       document.getElementById('lista-jogadores').innerHTML = htmlLista;
     }
 
+    // ----- Cronômetros -----
+    relogio.offset = estado.agora ? Date.parse(estado.agora) - Date.now() : 0;
+    relogio.ini = partida.iniciada && partida.iniciada_em ? Date.parse(partida.iniciada_em) : null;
+    relogio.vez = vezAtivaId && partida.vez_desde ? Date.parse(partida.vez_desde) : null;
+    tick();
+
     // ----- Histórico -----
     desenharHistorico(estado.historico);
 
     // ----- Painel do criador -----
     const souCriador = !!eu && eu.criador;
     document.getElementById('painel-criador').hidden = !souCriador;
+
+    // Faixa de aviso: hora de virar as cartas / showdown
+    const faixaOn = partida.iniciada && partida.fase_blind === 0 && (partida.aguardando_cartas || partida.fase === 4);
+    document.getElementById('faixa-fase').hidden = !faixaOn;
+    if (faixaOn) {
+      document.getElementById('faixa-texto').textContent = partida.fase === 4
+        ? 'SHOWDOWN: mostrem as cartas'
+        : NOMES_FASE[partida.fase].toUpperCase() + ': ' + ['', 'virem 3 cartas', 'vire a 4ª carta', 'vire a 5ª carta'][partida.fase];
+    }
+    document.getElementById('btn-abrir-rodada').hidden = !(souCriador && partida.aguardando_cartas);
+
+    // Ordem dos jogadores (só antes de iniciar)
+    document.getElementById('bloco-ordem').hidden = partida.iniciada || jogadores.length < 2;
+    const htmlOrdem = jogadores.map(function (j) {
+      return '<div class="linha-ordem"><span>' + j.ordem + '. ' + escapar(j.nome) + '</span>'
+        + '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',-1)" aria-label="Subir">▲</button>'
+        + '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',1)" aria-label="Descer">▼</button></div>';
+    }).join('');
+    if (htmlOrdem !== htmlOrdemVisto) { htmlOrdemVisto = htmlOrdem; document.getElementById('lista-ordem').innerHTML = htmlOrdem; }
     // Blinds editáveis só antes de iniciar a partida
     document.getElementById('bloco-blinds').hidden = partida.iniciada;
     const chaveBlinds = partida.small_blind + '/' + partida.big_blind;
@@ -1845,11 +1978,11 @@
     if (mostrarBarra) {
       const emBlind = partida.fase_blind > 0;
       const minhaVezBlind = emBlind && minhaVez;
-      const podeAgir = minhaVez && !emBlind && !partida.agiu && !eu.desistiu;
+      const podeAgir = minhaVez && !emBlind && !eu.desistiu && emJogo;
 
       // Fora da sua vez a barra encolhe e mostra só o aviso
       document.getElementById('barra-blind').hidden  = !minhaVezBlind;
-      document.getElementById('barra-normal').hidden = !(minhaVez && !emBlind);
+      document.getElementById('barra-normal').hidden = !(minhaVez && !emBlind && emJogo);
 
       if (minhaVezBlind) {
         const valorBlind = Math.min(
@@ -1862,31 +1995,27 @@
       let titulo;
       if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'small blind' : 'big blind') + '. Toque no botão para pagar.';
       else if (emBlind)                  titulo = 'Aguarde: os blinds estão sendo pagos.';
-      else if (minhaVez && partida.agiu) titulo = 'Jogada feita! Confirme para passar a vez ou desfaça.';
+      else if (partida.fase === 4)       titulo = 'Showdown: aguarde o criador distribuir o pote.';
+      else if (partida.aguardando_cartas) titulo = 'Aguarde: as cartas estão sendo viradas.';
       else if (eu.desistiu)              titulo = 'Você desistiu desta mão.';
       else if (minhaVez)                 titulo = 'Sua vez! Escolha uma jogada.';
       else if (jogadorDaVez)             titulo = 'Aguarde. Vez de ' + jogadorDaVez.nome + '.';
       else                               titulo = 'Aguarde a sua vez.';
       document.getElementById('barra-titulo').textContent = titulo;
 
-      // Passo 1 (escolher a jogada) ou passo 2 (confirmar / desfazer)
-      const jaJogou = minhaVez && !emBlind && partida.agiu;
-      document.getElementById('bloco-jogada').hidden    = jaJogou;
-      document.getElementById('bloco-confirmar').hidden = !jaJogou;
-
       const valorPagar = Math.min(falta, eu.saldo);
       document.getElementById('btn-desistir').disabled = !podeAgir;
       document.getElementById('btn-check').disabled    = !podeAgir || falta > 0;
       document.getElementById('btn-pagar').disabled    = !podeAgir || falta <= 0;
+      document.getElementById('btn-check').hidden      = falta > 0;
+      document.getElementById('btn-pagar').hidden      = falta <= 0;
+      document.getElementById('campo-slider').disabled = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-pagar').textContent =
         falta > 0 ? 'Pagar ' + valorPagar : 'Pagar';
       document.getElementById('dica-pagar').textContent =
         !podeAgir ? '' :
         falta > 0 ? 'Pagar ' + valorPagar + ' é o mínimo para continuar na mão (ou desista).'
                   : 'Ninguém apostou: você pode dar check ou apostar.';
-      document.getElementById('btn-allin').disabled    = !podeAgir || eu.saldo <= 0;
-      document.getElementById('btn-allin').textContent =
-        eu.saldo > 0 ? 'All-in ' + eu.saldo : 'All-in';
       document.getElementById('campo-valor').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-apostar').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-menos').disabled    = !podeAgir || eu.saldo <= 0;
@@ -1905,8 +2034,6 @@
         apostaEditada = false;
       }
       atualizarRotuloApostar();
-      document.getElementById('btn-passar').disabled   = !(minhaVez && partida.agiu);
-      document.getElementById('btn-desfazer').disabled = !(minhaVez && partida.agiu);
     }
   }
 
@@ -1998,6 +2125,7 @@
     limparErro('erro-barra');
     limparErro('erro-criador');
     limparErro('erro-distribuir');
+    limparErro('erro-faixa');
 
     let deuCerto = false;
     try {
@@ -2043,13 +2171,6 @@
     if (deuCerto) apostaEditada = false;
   }
 
-  function passarVez() {
-    return executar('passar_vez', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo
-    }, 'erro-barra');
-  }
-
   // Ao digitar o small blind, o big blind acompanha (o dobro), a menos que o criador mexa nele
   function aoDigitarSmallMesa() {
     const s = parseInt(document.getElementById('campo-small-mesa').value);
@@ -2077,19 +2198,37 @@
     if (deuCerto) aviso('Blinds: ' + small + ' / ' + big);
   }
 
+  function abrirRodada() {
+    return executar('abrir_rodada', { p_jogador: meuJogadorId, p_segredo: meuSegredo }, 'erro-faixa');
+  }
+
+  function moverJogador(id, direcao) {
+    return executar('mover_jogador', {
+      p_jogador: meuJogadorId, p_segredo: meuSegredo, p_alvo: id, p_dir: direcao
+    }, 'erro-criador');
+  }
+
+  // Cronômetros: o da mesa (desde que a partida começou) e o do turno de quem está jogando
+  function formatarTempo(ms) {
+    const t = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sg = t % 60;
+    const dois = function (n) { return (n < 10 ? '0' : '') + n; };
+    return h > 0 ? h + ':' + dois(m) + ':' + dois(sg) : dois(m) + ':' + dois(sg);
+  }
+  function tick() {
+    const agora = Date.now() + relogio.offset;
+    const geral = document.getElementById('mesa-relogio');
+    if (geral) geral.textContent = relogio.ini ? 'Mesa ' + formatarTempo(agora - relogio.ini) : '';
+    const turno = document.getElementById('tempo-turno');
+    if (turno) turno.textContent = relogio.vez ? formatarTempo(agora - relogio.vez) : '';
+  }
+  setInterval(tick, 1000);
+
   function iniciarPartida() {
     return executar('iniciar_partida', {
       p_jogador: meuJogadorId,
       p_segredo: meuSegredo
     }, 'erro-criador');
-  }
-
-  // Desfazer a própria jogada (antes de passar a vez)
-  function desfazerJogada() {
-    return executar('desfazer_jogada', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo
-    }, 'erro-barra');
   }
 
   // Resetar a partida (só o criador), com confirmação
