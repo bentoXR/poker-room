@@ -1051,7 +1051,7 @@
     .barra-acoes .linha-aposta button { min-height: 52px; }
     .barra-acoes .linha-aposta button.apostar { padding: 4px; font-size: 16px; line-height: 1.1; }
     .barra-acoes .linha-aposta input { min-width: 0; padding: 0 4px; font-size: 24px; }
-    .barra-acoes button.grande { min-height: 68px; font-size: 28px; }
+    .barra-acoes button.grande { min-height: 68px; font-size: 25px; letter-spacing: 0.02em; }
 
     /* Com a caixa de aposta aberta a mesa fica mais baixa: encolhe o pote */
     #tela-mesa.apostando .feltro .pote-ficha { width: 66px; height: 66px; padding: 5px; }
@@ -1060,6 +1060,117 @@
     #tela-mesa.apostando .feltro .pote-valor[data-len="7"], #tela-mesa.apostando .feltro .pote-valor[data-len="8"] { font-size: 13px; }
     #tela-mesa.apostando .feltro .pote-rotulo, #tela-mesa.apostando .feltro .pilulas { display: none; }
     #tela-mesa.apostando .feltro { gap: 4px; }
+
+    /* =====================================================
+       V3: MESA EM LISTA (sem o oval)
+       ===================================================== */
+    .mesa-wrap {
+      position: static;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 6px 0 0;
+      aspect-ratio: auto;
+    }
+
+    /* Centro da mesa: pote à esquerda, cartas comunitárias à direita */
+    .centro {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      padding: 8px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--linha);
+      background: radial-gradient(ellipse at center, var(--feltro-600), var(--feltro-800));
+      box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.18);
+    }
+    .centro .pote-ficha { transform: none; margin: 0; width: 84px; height: 84px; padding: 6px; flex-shrink: 0; }
+    .centro .pote-ficha .miolo { border-width: 2px; }
+    .centro .pote-rotulo { font-size: 11px; }
+    .centro .pote-valor { font-size: 28px; }
+    .centro .pote-valor[data-len="5"], .centro .pote-valor[data-len="6"] { font-size: 22px; }
+    .centro .pote-valor[data-len="7"], .centro .pote-valor[data-len="8"] { font-size: 17px; }
+    .centro-info { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .centro .board { width: 100%; max-width: none; }
+    .centro .pilula { font-size: 12.5px; padding: 2px 10px; }
+    #tela-mesa.apostando .centro { padding: 5px 10px; }
+    #tela-mesa.apostando .centro .pote-ficha { width: 58px; height: 58px; padding: 4px; }
+    #tela-mesa.apostando .centro .pote-rotulo { display: none; }
+    #tela-mesa.apostando .centro .pote-valor { font-size: 18px; }
+    #tela-mesa.apostando .centro .fase-nome,
+    #tela-mesa.apostando .centro .rotulos,
+    #tela-mesa.apostando .centro .pilula { display: none; }
+
+    /* Lista de jogadores: ocupa todo o espaço que sobra */
+    #lista-jogadores {
+      position: relative;
+      inset: auto;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 3px 3px 4px;
+      overscroll-behavior: contain;
+    }
+    #lista-jogadores .jogador {
+      position: relative;
+      margin: 0;
+      flex: 1 1 58px;
+      min-height: 58px;
+      max-height: 92px;
+      padding: 8px 12px;
+      border-width: 2px;
+    }
+
+    .jogador .ficha { position: relative; }
+    .jogador .dealer { top: -7px; right: -8px; width: 20px; height: 20px; font-size: 11px; }
+    .jogador .nome { font-size: 19px; }
+    .jogador .tags { margin-top: 3px; gap: 4px; }
+    .jogador .saldo { font-size: 36px; }
+    .j-dir { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+    .j-aposta {
+      padding: 0 8px;
+      font-family: var(--fonte-numero);
+      font-size: 14px;
+      font-weight: 700;
+      color: #241a00;
+      background: var(--ouro);
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    /* Com 6 a 8 jogadores: linhas compactas e centro menor, para tudo caber sem rolar */
+    #tela-mesa.muitos #lista-jogadores .jogador { flex: 0 0 auto; min-height: 46px; max-height: none; padding: 4px 10px; gap: 10px; }
+    #tela-mesa.muitos .jogador .ficha { width: 36px; height: 36px; font-size: 17px; border-width: 3px; }
+    #tela-mesa.muitos .jogador .dealer { top: -8px; right: -9px; }
+    #tela-mesa.muitos .jogador .nome { font-size: 17px; }
+    #tela-mesa.muitos .jogador .tags { margin-top: 2px; }
+    #tela-mesa.muitos .jogador .saldo { font-size: 28px; }
+    #tela-mesa.muitos .j-dir { flex-direction: row; align-items: center; gap: 8px; }
+    #tela-mesa.muitos .tag { font-size: 11.5px; padding: 1px 7px; }
+    #tela-mesa.muitos .tag.vez { font-size: 13px; }
+    #tela-mesa.muitos .centro { padding: 5px 10px; }
+    #tela-mesa.muitos .centro .pote-ficha { width: 58px; height: 58px; padding: 4px; }
+    #tela-mesa.muitos .centro .fase-nome, #tela-mesa.muitos .centro .rotulos { display: none; }
+    #tela-mesa.muitos #lista-jogadores { gap: 4px; }
+    #tela-mesa.muitos .centro .pote-rotulo, #tela-mesa.muitos .centro .pilula { display: none; }
+    #tela-mesa.muitos .centro .pote-valor { font-size: 20px; }
+
+    /* Quem está na vez: cartão dourado e com brilho */
+    .jogador.vez {
+      background: linear-gradient(90deg, rgba(233, 185, 60, 0.34), var(--feltro-700) 75%);
+      border-color: var(--ouro);
+      box-shadow: 0 0 0 3px rgba(233, 185, 60, 0.3), 0 0 20px rgba(233, 185, 60, 0.35);
+    }
+    .jogador.vez .nome { color: #fff; }
+    .tag { font-size: 12.5px; }
+    .tag.vez { padding: 2px 10px; font-size: 14px; }
+    .tag.allin { background: var(--vermelho); color: #fff; }
+    .tag.prox { background: var(--marfim); color: #241a00; }
+    #tempo-turno { font-variant-numeric: tabular-nums; }
   </style>
 </head>
 
@@ -1212,22 +1323,24 @@
     <button id="btn-iniciar-rapido" class="positivo" onclick="iniciarPartida()" hidden>Iniciar partida</button>
 
     <div class="mesa-wrap">
-      <div class="feltro">
-        <div class="board" id="board">
-          <div class="fase-nome" id="mesa-fase"></div>
-          <div class="slots"><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>
-        </div>
+      <!-- Centro: pote + cartas comunitárias -->
+      <div class="centro">
         <div class="pote-ficha" id="pote-ficha">
           <div class="miolo">
             <span class="pote-rotulo">Pote</span>
             <span class="pote-valor" id="mesa-pote" data-len="1">0</span>
           </div>
         </div>
-        <div class="pilulas">
+        <div class="centro-info">
+          <div class="board" id="board">
+            <div class="fase-nome" id="mesa-fase"></div>
+            <div class="slots"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>
+          </div>
           <span class="pilula destaque" id="mesa-aposta"></span>
         </div>
       </div>
+      <!-- Jogadores: um cartão para cada, na ordem de jogo -->
       <div id="lista-jogadores"></div>
     </div>
 
@@ -1399,7 +1512,6 @@
   let htmlOrdemVisto = '';
   let ultimoEstado = null;     // último estado desenhado (para restaurar a tela se uma jogada falhar)
   let apostaAberta = false;    // a caixa de aposta (valor, atalhos) está aberta?
-  let ultimoBlindAuto = '';    // evita pagar o mesmo blind automático duas vezes
   // Depois de rodar o arquivo otimizacoes.sql no Supabase, troque para true:
   // assim qualquer jogador (não só o criador) toca em "abrir apostas".
   const QUALQUER_UM_ABRE_RODADA = false;
@@ -1638,16 +1750,6 @@
     buscarMesa(true);
   }
 
-  // Blinds são pagos sozinhos quando chega a sua vez
-  function agendarBlindAuto(ativo) {
-    if (!ativo || !partidaAtual) return;
-    const chave = partidaAtual.id + '-' + partidaAtual.iniciada_em + '-' + partidaAtual.mao + '-' + partidaAtual.fase_blind;
-    if (chave === ultimoBlindAuto) return;
-    ultimoBlindAuto = chave;
-    setTimeout(function () {
-      if (partidaAtual && partidaAtual.fase_blind > 0 && partidaAtual.vez_jogador_id === meuJogadorId) pagarBlind();
-    }, 350);
-  }
 
   // A pessoa digitou o valor à mão (continua possível)
   function aoDigitarAposta() {
@@ -2150,50 +2252,62 @@
       }
     }
 
-    // ----- Jogadores sentados ao redor da mesa (você fica embaixo) -----
+    // ----- Jogadores em lista (de cima para baixo = ordem de jogo) -----
     let htmlLista = '';
-    const nJ = jogadores.length;
-    const meuIdx = Math.max(0, jogadores.findIndex(function (j) { return j.id === meuJogadorId; }));
-    jogadores.forEach(function (j, i) {
+    jogadores.forEach(function (j) {
       const souEu = (j.id === meuJogadorId);
       const naVez = !!vezAtivaId && j.id === vezAtivaId;
-      const ang = Math.PI / 2 + (i - meuIdx) * 2 * Math.PI / nJ;
-      const x = 50 + 38 * Math.cos(ang);
-      const y = 50 + 36 * Math.sin(ang);
 
-      let classes = 'assento';
+      let classes = 'jogador';
       if (souEu) classes += ' eu';
       if (naVez) classes += ' vez';
       if (j.desistiu) classes += ' desistiu';
 
       let tags = '';
       if (partida.iniciada) {
-        if (j.desistiu) tags += '<span class="mini">FORA</span>';
-        else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="mini">SEM FICHAS</span>';
+        if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
+        else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">SEM FICHAS</span>';
         else {
-          if (naVez) tags += '<span class="mini vez">VEZ</span>';
-          else if (j.id === proximoId) tags += '<span class="mini prox">PRÓX ▸</span>';
-          if (j.id === partida.sb_jogador_id) tags += '<span class="mini">SB</span>';
-          if (j.id === partida.bb_jogador_id) tags += '<span class="mini">BB</span>';
-          if (j.saldo === 0) tags += '<span class="mini allin">ALL-IN</span>';
+          if (naVez) {
+            const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
+            tags += '<span class="tag vez">▶ ' + rotulo + ' <span id="tempo-turno"></span></span>';
+          } else if (j.id === proximoId) {
+            tags += '<span class="tag prox">PRÓXIMO</span>';
+          }
+          if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">SB</span>';
+          if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">BB</span>';
+          if (j.saldo === 0) tags += '<span class="tag allin">ALL-IN</span>';
         }
       }
       const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
 
       htmlLista += `
-        <div class="${classes}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%">
+        <div class="${classes}">
           <div class="ficha ${corFicha}">${j.ordem}${partida.iniciada && j.id === partida.dealer_jogador_id ? '<span class="dealer">D</span>' : ''}</div>
-          <div class="a-nome">${j.criador ? '♛ ' : ''}${escapar(j.nome)}</div>
-          <div class="a-saldo">${j.saldo}</div>
-          ${j.apostou > 0 ? '<div class="a-aposta">+' + j.apostou + '</div>' : ''}
-          ${naVez ? '<div class="a-timer" id="tempo-turno"></div>' : ''}
-          <div class="a-tags">${tags}</div>
+          <div class="info">
+            <div class="nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(j.nome)}</span>${souEu ? '<span class="voce">(você)</span>' : ''}</div>
+            <div class="tags">${tags}</div>
+          </div>
+          <div class="j-dir">
+            <div class="saldo">${j.saldo}</div>
+            ${j.apostou > 0 ? '<div class="j-aposta">apostou ' + j.apostou + '</div>' : ''}
+          </div>
         </div>
       `;
     });
+    const elLista = document.getElementById('lista-jogadores');
+    document.getElementById('tela-mesa').classList.toggle('muitos', jogadores.length > 5);
     if (htmlLista !== htmlJogadoresVisto) {
       htmlJogadoresVisto = htmlLista;
-      document.getElementById('lista-jogadores').innerHTML = htmlLista;
+      elLista.innerHTML = htmlLista;
+      // Garante que quem está na vez apareça na tela, mesmo com muitos jogadores
+      const daVez = elLista.querySelector('.jogador.vez');
+      if (daVez) {
+        const topo = daVez.offsetTop, base = topo + daVez.offsetHeight;
+        if (topo < elLista.scrollTop || base > elLista.scrollTop + elLista.clientHeight) {
+          elLista.scrollTop = Math.max(0, topo - 6);
+        }
+      }
     }
 
     // ----- Cronômetros -----
@@ -2264,7 +2378,6 @@
     if (mostrarBarra) {
       const emBlind = partida.fase_blind > 0;
       const minhaVezBlind = emBlind && minhaVez;
-      agendarBlindAuto(minhaVezBlind);
       const podeAgir = minhaVez && !emBlind && !eu.desistiu && emJogo;
 
       // Fora da sua vez a barra encolhe e mostra só o aviso
@@ -2276,11 +2389,12 @@
           partida.fase_blind === 1 ? partida.small_blind : partida.big_blind,
           eu.saldo
         );
-        document.getElementById('btn-blind').textContent = 'PAGAR BLIND (' + valorBlind + ')';
+        document.getElementById('btn-blind').textContent =
+          'PAGAR ' + (partida.fase_blind === 1 ? 'SMALL' : 'BIG') + ' BLIND (' + valorBlind + ')';
       }
 
       let titulo;
-      if (minhaVezBlind)                 titulo = 'Pagando o ' + (partida.fase_blind === 1 ? 'small blind' : 'big blind') + '…';
+      if (minhaVezBlind)                 titulo = 'Você é o ' + (partida.fase_blind === 1 ? 'small blind' : 'big blind') + '. Toque no botão para pagar.';
       else if (emBlind)                  titulo = 'Aguarde: os blinds estão sendo pagos.';
       else if (partida.fase === 4)       titulo = 'Showdown: aguarde o criador distribuir o pote.';
       else if (partida.aguardando_cartas) titulo = 'Aguarde: as cartas estão sendo viradas.';
