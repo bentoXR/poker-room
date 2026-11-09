@@ -1257,6 +1257,7 @@
       .lugar { min-height: 68px; }
       .l-nome { font-size: 14px; }
     }
+    .linha-ordem button.remover { width: auto; padding: 0 12px; font-size: 14px; }
   </style>
 </head>
 
@@ -1382,6 +1383,9 @@
         <span class="rotulo" id="mesa-papel"></span>
         <strong id="mesa-sala"></strong>
       </div>
+      <button id="btn-sair-mesa" class="icone-btn" onclick="sairDaMesa()" aria-label="Sair da mesa" hidden>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
       <button class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
@@ -1406,7 +1410,7 @@
 
     <div class="status" id="mesa-status"></div>
     <div class="ultima" id="mesa-ultima"></div>
-    <button id="btn-iniciar-rapido" class="positivo" onclick="iniciarPartida()" hidden>Iniciar partida</button>
+    <button id="btn-iniciar-rapido" class="positivo" onclick="iniciarOuProximaMao()" hidden>Iniciar partida</button>
 
     <div class="mesa-wrap">
       <!-- Painel central: etapa, pote, cartas comunitárias e maior aposta -->
@@ -2245,6 +2249,14 @@
 
     // ----- Quem sou eu e de quem é a vez? -----
     const eu = jogadores.find(function (j) { return j.id === meuJogadorId; }) || null;
+
+    // Não está mais na sala (saiu ou foi removido): volta para as salas
+    if (meuJogadorId && !eu) {
+      esquecerSegredo(partida.id);
+      aviso('Você não está mais nesta sala.');
+      voltarParaSalas();
+      return;
+    }
     const jogadorDaVez = jogadores.find(function (j) { return j.id === partida.vez_jogador_id; }) || null;
     const emJogo = partida.iniciada && !partida.aguardando_cartas && partida.fase < 4;
     const vezAtivaId = emJogo ? partida.vez_jogador_id : null;
@@ -2292,6 +2304,15 @@
     let status;
     if (!partida.iniciada) {
       status = 'Aguardando o criador iniciar a partida';
+    } else if (partida.aguardando_proxima_mao) {
+      const comFichas = jogadores.filter(function (j) { return j.saldo > 0; }).length;
+      if (comFichas < 2) {
+        status = 'Fim da partida: só resta um jogador com fichas.';
+      } else if (eu && eu.criador) {
+        status = 'Mão ' + (partida.mao - 1) + ' terminou. Toque em "Próxima mão" quando quiser.';
+      } else {
+        status = 'Mão ' + (partida.mao - 1) + ' terminou. Aguardando o criador.';
+      }
     } else if (jogadorDaVez && partida.fase_blind === 1) {
       status = minhaVez ? 'Você deve pagar o small blind' : jogadorDaVez.nome + ' deve pagar o small blind';
     } else if (jogadorDaVez && partida.fase_blind === 2) {
@@ -2419,15 +2440,23 @@
     // ----- Painel do criador -----
     const souCriador = !!eu && eu.criador;
     document.getElementById('btn-criador').hidden = !souCriador;
+    const btnSair = document.getElementById('btn-sair-mesa');
+    btnSair.hidden = !eu || souCriador;
+    btnSair.disabled = partida.iniciada && !partida.aguardando_proxima_mao;
+    btnSair.title = btnSair.disabled ? 'Só dá para sair entre as mãos' : 'Sair da mesa';
     if (!souCriador) { document.getElementById('painel-criador').hidden = true; atualizarFundo(); }
 
     // Criador: botão grande para iniciar direto na tela principal
     const btnIni = document.getElementById('btn-iniciar-rapido');
-    btnIni.hidden = !(souCriador && !partida.iniciada);
-    btnIni.disabled = jogadores.length < 2;
-    btnIni.textContent = jogadores.length < 2
-      ? 'Aguardando mais jogadores…'
-      : 'Iniciar partida (' + jogadores.length + ' jogadores)';
+    const pausa = partida.iniciada && partida.aguardando_proxima_mao;
+    const comFichasAgora = jogadores.filter(function (j) { return j.saldo > 0; }).length;
+    btnIni.hidden = !(souCriador && (!partida.iniciada || (pausa && comFichasAgora >= 2)));
+    btnIni.disabled = !pausa && jogadores.length < 2;
+    btnIni.textContent = pausa
+      ? 'Próxima mão'
+      : (jogadores.length < 2
+          ? 'Aguardando mais jogadores…'
+          : 'Iniciar partida (' + jogadores.length + ' jogadores)');
 
     // Faixa de aviso: hora de virar as cartas / showdown
     const faixaOn = partida.iniciada && partida.fase_blind === 0 && (partida.aguardando_cartas || partida.fase === 4);
@@ -2442,11 +2471,19 @@
     document.getElementById('btn-distribuir-faixa').hidden = !(souCriador && faixaOn && partida.fase === 4 && partida.pote > 0);
 
     // Ordem dos jogadores (só antes de iniciar)
-    document.getElementById('bloco-ordem').hidden = partida.iniciada || jogadores.length < 2;
+    const podeRemover = !partida.iniciada || partida.aguardando_proxima_mao;
+    const podeMexerNaOrdem = !partida.iniciada;
+    document.getElementById('bloco-ordem').hidden = !podeRemover || jogadores.length < 2;
     const htmlOrdem = jogadores.map(function (j) {
-      return '<div class="linha-ordem"><span>' + j.ordem + '. ' + escapar(j.nome) + '</span>'
-        + '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',-1)" aria-label="Subir">▲</button>'
-        + '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',1)" aria-label="Descer">▼</button></div>';
+      let linha = '<div class="linha-ordem"><span>' + j.ordem + '. ' + escapar(j.nome) + '</span>';
+      if (podeMexerNaOrdem) {
+        linha += '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',-1)" aria-label="Subir">▲</button>'
+              +  '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',1)" aria-label="Descer">▼</button>';
+      }
+      if (!j.criador) {
+        linha += '<button class="contorno-perigo remover" onclick="removerJogador(\'' + j.id + '\')">Remover</button>';
+      }
+      return linha + '</div>';
     }).join('');
     if (htmlOrdem !== htmlOrdemVisto) { htmlOrdemVisto = htmlOrdem; document.getElementById('lista-ordem').innerHTML = htmlOrdem; }
     // Blinds editáveis só antes de iniciar a partida
@@ -2732,6 +2769,64 @@
       p_jogador: meuJogadorId,
       p_segredo: meuSegredo
     }, 'erro-criador').then(function (ok) { if (ok) fecharFolhas(); return ok; });
+  }
+
+  // Apaga o segredo deste aparelho para essa sala (o jogador não volta sozinho)
+  function esquecerSegredo(partidaId) {
+    try { localStorage.removeItem(chaveJogador(partidaId)); } catch (erro) {}
+  }
+
+  // Botão "Sair da mesa" (qualquer jogador que não seja o criador)
+  async function sairDaMesa() {
+    if (ocupado || !partidaAtual || !meuJogadorId || !meuSegredo) return;
+    if (!confirm('Sair da mesa? Suas fichas ficam guardadas e você volta com elas se entrar de novo.')) return;
+
+    ocupado = true;
+    const partidaId = partidaAtual.id;
+    let resp;
+    try {
+      resp = await banco.rpc('sair_da_sala', { p_jogador: meuJogadorId, p_segredo: meuSegredo });
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+    ocupado = false;
+
+    if (resp.error) {
+      mostrarErro('erro-barra', resp.error.message);
+      return;
+    }
+
+    // Avisa os outros jogadores com o estado novo
+    if (resp.data && resp.data.partida && canal) {
+      try { canal.send({ type: 'broadcast', event: 'estado', payload: resp.data }).catch(function () {}); } catch (erro) {}
+    }
+
+    esquecerSegredo(partidaId);
+    aviso('Você saiu da mesa. Fichas guardadas.');
+    voltarParaSalas();
+  }
+
+  // Botão "Remover" na gaveta do criador
+  function removerJogador(idDoJogador) {
+    const alvo = jogadoresAtuais.find(function (j) { return j.id === idDoJogador; });
+    const nome = alvo ? alvo.nome : 'este jogador';
+    if (!confirm('Remover ' + nome + ' da sala? As fichas dele serão perdidas.')) return;
+    return executar('remover_jogador', {
+      p_jogador: meuJogadorId,
+      p_segredo: meuSegredo,
+      p_alvo: idDoJogador
+    }, 'erro-criador');
+  }
+
+  // Botão do criador: começa a partida ou a próxima mão, conforme o momento
+  function iniciarOuProximaMao() {
+    if (partidaAtual && partidaAtual.aguardando_proxima_mao) {
+      return executar('proxima_mao', {
+        p_jogador: meuJogadorId,
+        p_segredo: meuSegredo
+      }, 'erro-faixa');
+    }
+    return iniciarPartida();
   }
 
   // Resetar a partida (só o criador), com confirmação
