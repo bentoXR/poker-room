@@ -1679,6 +1679,17 @@
   
     /* ----- Barra de aposta: arrastar sem rolar a página ----- */
     .barra-acoes input[type=range] { touch-action: none; height: 34px; min-height: 34px; cursor: pointer; }
+  
+    /* ----- Caixa de aposta aberta: só [Apostar] e [Cancelar] ----- */
+    #btn-confirmar-aposta { display: none; }
+    .barra-acoes .grade-simples.modo-aposta { grid-template-columns: 2fr 1fr; }
+    .grade-simples.modo-aposta #btn-desistir,
+    .grade-simples.modo-aposta #btn-check,
+    .grade-simples.modo-aposta #btn-pagar { display: none; }
+    .grade-simples.modo-aposta #btn-confirmar-aposta { display: block; min-height: 64px; font-size: 19px; }
+    .barra-acoes .grade-simples.modo-aposta #btn-aumentar { background: rgba(244,247,255,.12); color: var(--marfim); box-shadow: none; }
+    .barra-acoes .linha-aposta { grid-template-columns: 46px 1fr 46px; }
+    .barra-acoes .linha-aposta .apostar { display: none; }
   </style>
 </head>
 
@@ -2120,6 +2131,7 @@
       <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
       <button id="btn-check" class="positivo" onclick="agir('check')">Check</button>
       <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
+      <button id="btn-confirmar-aposta" class="positivo" onclick="apostar()">Apostar</button>
       <button id="btn-aumentar" onclick="alternarAposta()">Aumentar</button>
     </div>
     <div id="dica-pagar" class="dica-barra"></div>
@@ -2171,6 +2183,7 @@
   let htmlSelFichasVisto = '';
   let opFichas = null, opFichasChave = '';
   let ultimoEstado = null;     // último estado desenhado (para restaurar a tela se uma jogada falhar)
+  let apostaAbertaEm = 0;      // quando a caixa de aposta abriu (evita toque duplo acidental)
   let apostaAberta = false;    // a caixa de aposta (valor, atalhos) está aberta?
   let modoDev = false;         // a mesa aberta é uma sala DEV (jogadores fictícios neste aparelho)
   // Depois de rodar o arquivo otimizacoes.sql no Supabase, troque para true:
@@ -2526,9 +2539,11 @@
   // Botão "Aumentar": abre/fecha a caixa de aposta (a aposta mínima já vem preenchida)
   function alternarAposta() {
     apostaAberta = !apostaAberta;
+    apostaAbertaEm = Date.now();
     document.getElementById('caixa-aposta').hidden = !apostaAberta;
     document.getElementById('btn-aumentar').classList.toggle('aberto', apostaAberta);
     document.getElementById('tela-mesa').classList.toggle('apostando', apostaAberta);
+    sincronizarModoAposta();
     if (apostaAberta) {
       apostaEditada = false;
       const lim = limitesAposta();
@@ -2536,10 +2551,24 @@
     }
   }
 
+  // Com a caixa de aposta aberta, a linha de baixo mostra só [Apostar] e [Cancelar]:
+  // não dá para tocar em Pagar, Check ou Desistir sem querer.
+  function sincronizarModoAposta() {
+    const g = document.querySelector('#barra-normal .grade-simples');
+    if (g) g.classList.toggle('modo-aposta', apostaAberta);
+    const btn = document.getElementById('btn-aumentar');
+    if (btn) {
+      const falta = ultimoEstado && ultimoEstado.partida
+        ? Math.max(0, ultimoEstado.partida.aposta_atual - ((jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; }) || {}).apostou || 0)) : 0;
+      btn.textContent = apostaAberta ? 'Cancelar' : (falta > 0 ? 'Aumentar' : 'Apostar');
+    }
+  }
+
   // Assim que toca numa jogada, a barra já some e mostra "Enviando…" (sensação de resposta imediata)
   function modoEnviando() {
     try { if (navigator.vibrate) navigator.vibrate(15); } catch (erro) {}
     apostaAberta = false;
+    sincronizarModoAposta();
     document.getElementById('tela-mesa').classList.remove('apostando');
     document.getElementById('barra-normal').hidden = true;
     document.getElementById('barra-blind').hidden = true;
@@ -2570,6 +2599,7 @@
       if (lim && valor === lim.max) texto += ' (all-in)';
     }
     document.getElementById('btn-apostar').textContent = texto;
+    document.getElementById('btn-confirmar-aposta').textContent = texto;
     if (lim && !semSlider) configurarSlider(lim, valor);
   }
 
@@ -3295,7 +3325,6 @@
       document.getElementById('campo-slider').disabled = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-pagar').textContent =
         falta > 0 ? 'Pagar ' + valorPagar + (valorPagar >= eu.saldo ? ' (all-in)' : '') : 'Pagar';
-      document.getElementById('btn-aumentar').textContent = falta > 0 ? 'Aumentar' : 'Apostar';
       document.getElementById('dica-pagar').textContent = '';
       document.getElementById('campo-valor').disabled  = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-apostar').disabled  = !podeAgir || eu.saldo <= 0;
@@ -3307,6 +3336,8 @@
       document.getElementById('tela-mesa').classList.toggle('apostando', apostaAberta);
       document.getElementById('btn-aumentar').disabled = !podeAgir || eu.saldo <= 0;
       document.getElementById('btn-aumentar').classList.toggle('aberto', apostaAberta);
+      document.getElementById('btn-confirmar-aposta').disabled = !podeAgir || eu.saldo <= 0;
+      sincronizarModoAposta();
 
       // O valor da aposta já vem preenchido (aposta mínima), sem precisar digitar
       const campoAposta = document.getElementById('campo-valor');
@@ -3506,6 +3537,7 @@
   }
 
   async function apostar() {
+    if (Date.now() - apostaAbertaEm < 450) return;   // toque duplo no "Aumentar" não confirma a aposta
     const campo = document.getElementById('campo-valor');
     const valor = parseInt(campo.value);
     if (!(valor > 0)) {
