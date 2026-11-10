@@ -1676,6 +1676,9 @@
     .tag.espera { background: rgba(47, 111, 208, .35); color: #d6e4ff; }
     select { font: inherit; width: 100%; min-height: 48px; padding: 8px 12px; font-size: 16px; color: var(--marfim); background: var(--feltro-950); border: 1.5px solid var(--linha); border-radius: var(--raio-md); }
     #bloco-fichas { margin-top: 4px; }
+  
+    /* ----- Barra de aposta: arrastar sem rolar a página ----- */
+    .barra-acoes input[type=range] { touch-action: none; height: 34px; min-height: 34px; cursor: pointer; }
   </style>
 </head>
 
@@ -2481,8 +2484,37 @@
     const passo = Math.max(1, partidaAtual.small_blind);
     definirAposta(Math.round(bruto / passo) * passo, true);
   }
+  // Barrinha de aposta: anda em "níveis" alinhados ao passo (10 em 10 no modo padrão; o passo da sala no modo R$).
+  // A última posição da barra é sempre o ALL-IN (mesmo quando ele não é um número redondo).
+  function infoSlider(lim) {
+    const passoS = lim.passo > 1 ? lim.passo : (partidaAtual.big_blind >= 10 ? 10 : 1);
+    const total = lim.apostou + lim.max;
+    const Lmin = Math.ceil((lim.apostou + lim.min) / passoS) * passoS;
+    const Lmax = Math.floor(total / passoS) * passoS;
+    const extra = total > Lmax;
+    const ativo = Lmin <= Lmax && lim.max > lim.min;
+    return { passoS: passoS, Lmin: Lmin, Lmax: Lmax, extra: extra, top: Lmax + (extra ? passoS : 0), ativo: ativo };
+  }
+  function configurarSlider(lim, valor) {
+    const sl = document.getElementById('campo-slider');
+    const inf = infoSlider(lim);
+    if (!inf.ativo) { sl.min = 0; sl.max = 0; sl.step = 1; sl.value = 0; return; }
+    sl.step = inf.passoS;
+    sl.min = inf.Lmin;
+    sl.max = inf.top;
+    sl.value = (valor >= lim.max) ? inf.top : Math.max(inf.Lmin, Math.min(inf.Lmax, lim.apostou + valor));
+  }
   function aoMoverSlider() {
-    definirAposta(parseInt(document.getElementById('campo-slider').value), true);
+    const lim = limitesAposta();
+    if (!lim || !(lim.max > 0)) return;
+    const inf = infoSlider(lim);
+    if (!inf.ativo) return;
+    const nivel = parseInt(document.getElementById('campo-slider').value);
+    let valor = (inf.extra && nivel >= inf.top) ? lim.max : nivel - lim.apostou;
+    valor = Math.max(lim.min, Math.min(lim.max, valor));
+    document.getElementById('campo-valor').value = valor;
+    apostaEditada = true;
+    atualizarRotuloApostar(true);   // não mexe na barra enquanto o dedo está arrastando
   }
 
   function apostaAllIn() {
@@ -2529,7 +2561,7 @@
   }
 
   // O botão mostra o valor: "Apostar 60"
-  function atualizarRotuloApostar() {
+  function atualizarRotuloApostar(semSlider) {
     const lim = limitesAposta();
     const valor = parseInt(document.getElementById('campo-valor').value);
     let texto = 'Apostar';
@@ -2538,14 +2570,7 @@
       if (lim && valor === lim.max) texto += ' (all-in)';
     }
     document.getElementById('btn-apostar').textContent = texto;
-    const sl = document.getElementById('campo-slider');
-    if (lim) {
-      const passo = lim.passo > 1 ? lim.passo : 1;
-      sl.step = passo;
-      sl.min = lim.min;
-      sl.max = passo > 1 ? lim.min + Math.floor((lim.max - lim.min) / passo) * passo : lim.max;
-      if (valor > 0) sl.value = Math.min(valor, sl.max);
-    }
+    if (lim && !semSlider) configurarSlider(lim, valor);
   }
 
   // =====================================================
