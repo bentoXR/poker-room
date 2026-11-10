@@ -3383,7 +3383,7 @@
   }
   function atualizarReais(forcar) {
     if (!partidaAtual) return;
-    $id('btn-reais').hidden = false;
+    $id('btn-reais').hidden = !valorPorMil(partidaAtual.id);   // só aparece em salas com valor em R$
     if (!forcar && $id('folha-reais').hidden) return;
     const v = valorPorMil(partidaAtual.id);
     if (!v) {
