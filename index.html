@@ -1258,6 +1258,26 @@
       .l-nome { font-size: 14px; }
     }
     .linha-ordem button.remover { width: auto; padding: 0 12px; font-size: 14px; }
+
+    /* ----- Modo DEV ----- */
+    .linha-botoes { display: flex; gap: 10px; align-items: stretch; }
+    .linha-botoes > button:first-child { flex: 1; width: auto; }
+    button.botao-dev-entrada { width: auto; min-width: 118px; padding: 12px; font-size: 15px; }
+    #btn-dev { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ouro); }
+    .linha-dev {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: var(--feltro-800);
+      border: 1.5px solid var(--linha);
+      border-radius: var(--raio-md);
+    }
+    .linha-dev.atual { border-color: var(--ouro); background: var(--feltro-700); }
+    .linha-dev .info-dev { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+    .linha-dev .info-dev small { display: block; font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
+    .linha-dev button { width: auto; min-height: 44px; margin: 0; padding: 8px 14px; font-size: 15px; }
   </style>
 </head>
 
@@ -1310,7 +1330,10 @@
 
     <h2 style="margin-top:10px">Salas</h2>
 
-    <button onclick="abrirCriar()">Criar sala</button>
+    <div class="linha-botoes">
+      <button onclick="abrirCriar()">Criar sala</button>
+      <button type="button" class="secundario botao-dev-entrada" onclick="abrirSalaDev()">Sala DEV</button>
+    </div>
     <div id="erro-salas" class="erro" role="alert"></div>
 
     <div id="lista-salas"></div>
@@ -1353,6 +1376,38 @@
     <div id="erro-criar" class="erro" role="alert"></div>
   </section>
 
+  <!-- ===== TELA DEV: cria a sala de teste (só neste aparelho) ===== -->
+  <section id="tela-dev" class="tela">
+    <button class="voltar" onclick="abrirSalas()">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+    </button>
+    <h2>Sala DEV</h2>
+
+    <div class="cartao" style="margin-top:0">
+      <p class="dica" style="margin-top:0">Sala de teste só para este aparelho. Ela não aparece na lista de salas e não se mistura com as partidas reais. Os jogadores são fictícios e você controla todos daqui.</p>
+
+      <label for="campo-dev-saldo">Fichas de cada jogador</label>
+      <input id="campo-dev-saldo" type="number" inputmode="numeric" value="1000">
+
+      <div class="duas">
+        <div>
+          <label for="campo-dev-small">Small blind</label>
+          <input id="campo-dev-small" type="number" inputmode="numeric" value="10">
+        </div>
+        <div>
+          <label for="campo-dev-big">Big blind</label>
+          <input id="campo-dev-big" type="number" inputmode="numeric" value="20">
+        </div>
+      </div>
+
+      <label for="campo-dev-qtd">Quantos jogadores fictícios (de 2 a 9)</label>
+      <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4">
+    </div>
+
+    <button id="botao-criar-dev" onclick="criarSalaDev()">Criar sala DEV</button>
+    <div id="erro-dev-criar" class="erro" role="alert"></div>
+  </section>
+
   <!-- ===== TELA 4: ENTRADA NA SALA ===== -->
   <section id="tela-escolha" class="tela">
     <button class="voltar" onclick="voltarParaSalas()">
@@ -1389,6 +1444,7 @@
       <button class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
+      <button id="btn-dev" class="icone-btn" onclick="abrirPainelDev()" aria-label="Painel DEV" hidden>DEV</button>
       <button id="btn-criador" class="icone-btn ouro" onclick="abrirCriador()" aria-label="Opções do criador" hidden>
         <svg class="ic cheio" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>
       </button>
@@ -1479,6 +1535,29 @@
         </div>
         <button id="botao-encerrar" class="contorno-perigo" onclick="encerrarSala()">Encerrar sala</button>
         <div id="erro-criador" class="erro" role="alert"></div>
+      </div>
+    </div>
+
+    <!-- Gaveta: painel DEV (só no modo DEV) -->
+    <div id="painel-dev" class="folha" hidden>
+      <div class="folha-topo">
+        <div class="folha-titulo">Modo DEV</div>
+        <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="folha-corpo">
+        <p class="dica" style="margin-top:0">Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.</p>
+        <div id="lista-dev"></div>
+        <button id="botao-add-dev" class="secundario" onclick="adicionarJogadorDev()">Adicionar jogador</button>
+        <div class="grade-2">
+          <button id="dev-iniciar" onclick="devAcao('iniciar_partida', {}, 'Partida iniciada')">Iniciar partida</button>
+          <button id="dev-proxima" onclick="devAcao('proxima_mao', {}, 'Próxima mão')" hidden>Próxima mão</button>
+        </div>
+        <div class="grade-2">
+          <button class="secundario" onclick="devAcao('subir_nivel', {}, 'Nível subido')">Subir nível</button>
+          <button class="contorno-perigo" onclick="devAcao('resetar_partida', {}, 'Partida reiniciada')">Reiniciar partida</button>
+        </div>
+        <button class="contorno-perigo" onclick="excluirSalaDev()">Encerrar e excluir sala DEV</button>
+        <div id="erro-dev" class="erro" role="alert"></div>
       </div>
     </div>
 
@@ -1600,6 +1679,7 @@
   let htmlOrdemVisto = '';
   let ultimoEstado = null;     // último estado desenhado (para restaurar a tela se uma jogada falhar)
   let apostaAberta = false;    // a caixa de aposta (valor, atalhos) está aberta?
+  let modoDev = false;         // a mesa aberta é uma sala DEV (jogadores fictícios neste aparelho)
   // Depois de rodar o arquivo otimizacoes.sql no Supabase, troque para true:
   // assim qualquer jogador (não só o criador) toca em "abrir apostas".
   const QUALQUER_UM_ABRE_RODADA = false;
@@ -1630,7 +1710,7 @@
 
   // Botão "voltar" do celular: volta uma tela dentro do app, em vez de sair do navegador.
   // Telas internas ganham uma entrada no histórico; ao voltar para a raiz, a entrada é removida.
-  const TELAS_INTERNAS = ['tela-criar', 'tela-escolha', 'tela-mesa'];
+  const TELAS_INTERNAS = ['tela-criar', 'tela-dev', 'tela-escolha', 'tela-mesa'];
   const TELAS_RAIZ = ['tela-login', 'tela-salas'];
   function ajustarHistorico(idDaTela) {
     if (TELAS_INTERNAS.indexOf(idDaTela) >= 0) {
@@ -1926,6 +2006,7 @@
     salasAtuais = [];
     htmlSalas = '';
     esquecerPartida();
+    modoDev = false;
     esquecerConta();
     minhaConta = null;
     document.getElementById('campo-login-nome').value = lerNome();
@@ -2146,13 +2227,15 @@
   async function abrirMesa(partida, estadoInicial) {
     partidaAtual = partida;
 
-    const guardado = lerMeuJogador(partida.id);
-    meuJogadorId = guardado ? guardado.id : null;
-    meuSegredo   = guardado ? guardado.segredo : null;
+    if (!modoDev) {
+      const guardado = lerMeuJogador(partida.id);
+      meuJogadorId = guardado ? guardado.id : null;
+      meuSegredo   = guardado ? guardado.segredo : null;
+    }
 
     eraMinhaVez = false;
     ultimoPote = null;
-    guardarPartidaAtual(partida.id);
+    if (!modoDev) guardarPartidaAtual(partida.id);
 
     limparErro('erro-barra');
     limparErro('erro-criador');
@@ -2296,8 +2379,9 @@
       'Blinds ' + partida.small_blind + '/' + partida.big_blind;
     document.getElementById('mesa-aposta').textContent =
       partida.iniciada ? 'Maior aposta ' + partida.aposta_atual : '';
-    document.getElementById('mesa-papel').textContent =
-      eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo';
+    document.getElementById('mesa-papel').textContent = modoDev
+      ? 'MODO DEV · ' + (eu ? eu.nome : 'só assistindo')
+      : (eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo');
 
     // ----- Faixa de status -----
     const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
@@ -2441,7 +2525,7 @@
     const souCriador = !!eu && eu.criador;
     document.getElementById('btn-criador').hidden = !souCriador;
     const btnSair = document.getElementById('btn-sair-mesa');
-    btnSair.hidden = !eu || souCriador;
+    btnSair.hidden = !eu || souCriador || modoDev;
     btnSair.disabled = partida.iniciada && !partida.aguardando_proxima_mao;
     btnSair.title = btnSair.disabled ? 'Só dá para sair entre as mãos' : 'Sair da mesa';
     if (!souCriador) { document.getElementById('painel-criador').hidden = true; atualizarFundo(); }
@@ -2500,6 +2584,9 @@
     document.getElementById('botao-distribuir').hidden = !partida.iniciada;
     document.getElementById('botao-distribuir').disabled = !(partida.pote > 0);
     document.getElementById('botao-nivel').disabled = partida.pote > 0;
+    document.getElementById('botao-encerrar').hidden = modoDev;
+    document.getElementById('btn-dev').hidden = !modoDev;
+    if (modoDev) desenharPainelDev();
     // Se o pote zerou (ou eu não sou criador), o formulário de distribuir não faz sentido
     if (!souCriador || !(partida.pote > 0)) fecharDistribuicao();
 
@@ -2923,7 +3010,7 @@
   }
 
   // ----- Gavetas que sobem de baixo (criador, histórico, distribuir) -----
-  const FOLHAS = ['painel-criador', 'painel-distribuir', 'folha-hist'];
+  const FOLHAS = ['painel-criador', 'painel-distribuir', 'folha-hist', 'painel-dev'];
   function algumaFolhaAberta() {
     return FOLHAS.some(function (id) { return !document.getElementById(id).hidden; });
   }
@@ -2999,6 +3086,7 @@
     eraMinhaVez = false;
     ultimoPote = null;
     esquecerPartida();
+    modoDev = false;
     abrirSalas();
   }
 
@@ -3010,6 +3098,238 @@
       if (ok && partidaAtual) voltarParaSalas();
       return ok;
     });
+  }
+
+  // =====================================================
+  // 10b) MODO DEV: sala de teste com jogadores fictícios, tudo neste aparelho
+  // As regras do jogo são as próprias funções do banco (jogar, iniciar_partida, estado_mesa...).
+  // Aqui só criamos as contas fictícias, controlamos qual jogador o aparelho usa e listamos as salas DEV.
+  // =====================================================
+  const CHAVE_DEV_SALA = 'poker-dev-sala';
+  const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
+  const MAX_DEV = 9;
+  let htmlDevVisto = '';
+
+  function lerDevSala() {
+    try {
+      const dados = JSON.parse(localStorage.getItem(CHAVE_DEV_SALA) || 'null');
+      return (dados && dados.partida_id && dados.jogadores && dados.jogadores.length) ? dados : null;
+    } catch (erro) {
+      return null;
+    }
+  }
+  function salvarDevSala(dados) {
+    try { localStorage.setItem(CHAVE_DEV_SALA, JSON.stringify(dados)); } catch (erro) {}
+  }
+  function esquecerDevSala() {
+    try { localStorage.removeItem(CHAVE_DEV_SALA); } catch (erro) {}
+  }
+  // Monta o jogador fictício a partir da resposta do banco
+  function jogadorDevDe(resp) {
+    return { id: resp.jogador_id, segredo: resp.segredo, conta_id: resp.conta_id, token: resp.token, nome: resp.nome };
+  }
+
+  // Botão "Sala DEV" (tela de salas): abre a sala que já existe neste aparelho, ou pede para criar
+  function abrirSalaDev() {
+    limparErro('erro-salas');
+    if (lerDevSala()) { abrirMesaDev(0); return; }
+    limparErro('erro-dev-criar');
+    mostrar('tela-dev');
+  }
+
+  // Cria a sala DEV e os jogadores fictícios (um por vez)
+  async function criarSalaDev() {
+    limparErro('erro-dev-criar');
+    const saldo = parseInt(document.getElementById('campo-dev-saldo').value);
+    const small = parseInt(document.getElementById('campo-dev-small').value);
+    const big   = parseInt(document.getElementById('campo-dev-big').value);
+    const qtd   = parseInt(document.getElementById('campo-dev-qtd').value);
+
+    if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
+      mostrarErro('erro-dev-criar', 'Saldo e blinds precisam ser números maiores que zero.');
+      return;
+    }
+    if (big < small) {
+      mostrarErro('erro-dev-criar', 'O big blind não pode ser menor que o small blind.');
+      return;
+    }
+    if (!(qtd >= 2 && qtd <= MAX_DEV)) {
+      mostrarErro('erro-dev-criar', 'Escolha entre 2 e 9 jogadores.');
+      return;
+    }
+
+    const botao = document.getElementById('botao-criar-dev');
+    botao.disabled = true;
+    botao.textContent = 'Criando sala DEV...';
+
+    let resp;
+    try {
+      resp = await banco.rpc('dev_criar_sala', { p_nome: NOMES_DEV[0], p_saldo: saldo, p_small: small, p_big: big });
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+    if (resp.error) {
+      botao.disabled = false;
+      botao.textContent = 'Criar sala DEV';
+      mostrarErro('erro-dev-criar', resp.error.message);
+      return;
+    }
+
+    const sala = { partida_id: resp.data.partida_id, jogadores: [jogadorDevDe(resp.data)] };
+    salvarDevSala(sala);
+
+    let falhou = null;
+    for (let i = 1; i < qtd && !falhou; i++) {
+      botao.textContent = 'Adicionando jogador ' + (i + 1) + ' de ' + qtd + '...';
+      let r;
+      try {
+        r = await banco.rpc('dev_adicionar_jogador', { p_partida: sala.partida_id, p_nome: NOMES_DEV[i] });
+      } catch (erro) {
+        r = { error: { message: 'Não consegui falar com o servidor.' } };
+      }
+      if (r.error) {
+        falhou = r.error.message;
+      } else {
+        sala.jogadores.push(jogadorDevDe(r.data));
+        salvarDevSala(sala);
+      }
+    }
+
+    botao.disabled = false;
+    botao.textContent = 'Criar sala DEV';
+    if (falhou) aviso('Sala criada com ' + sala.jogadores.length + ' jogadores. ' + falhou);
+    abrirMesaDev(0);
+  }
+
+  // Abre a mesa da sala DEV controlando o jogador de índice (0 = criador)
+  function abrirMesaDev(indice) {
+    const sala = lerDevSala();
+    if (!sala) { abrirSalas(); return; }
+    modoDev = true;
+    controlarDev(indice, sala);
+    abrirMesa({ id: sala.partida_id });
+  }
+
+  // Passa a controlar o jogador de índice (as jogadas passam a valer para ele)
+  function controlarDev(indice, sala) {
+    const s = sala || lerDevSala();
+    const j = s.jogadores[indice] || s.jogadores[0];
+    meuJogadorId = j.id;
+    meuSegredo = j.segredo;
+    eraMinhaVez = false;
+    ultimoPote = null;
+    apostaEditada = false;
+    apostaAberta = false;
+    ultimaVersao = -1;
+    htmlJogadoresVisto = '';
+    htmlHistoricoVisto = '';
+    document.getElementById('campo-valor').value = '';
+  }
+
+  // Botão "Controlar" na gaveta DEV
+  function trocarJogadorDev(indice) {
+    controlarDev(indice);
+    fecharFolhas();
+    buscarMesa(true);
+  }
+
+  // Botão DEV no topo da mesa
+  function abrirPainelDev() {
+    desenharPainelDev();
+    abrirFolha('painel-dev');
+  }
+
+  // Lista de jogadores fictícios com o botão "Controlar" (só redesenha se mudou)
+  function desenharPainelDev() {
+    const sala = lerDevSala();
+    if (!sala) return;
+
+    const iniciada = !!(partidaAtual && partidaAtual.iniciada);
+    const pausa = iniciada && !!partidaAtual.aguardando_proxima_mao;
+    document.getElementById('dev-iniciar').hidden = iniciada;
+    document.getElementById('dev-proxima').hidden = !pausa;
+
+    const add = document.getElementById('botao-add-dev');
+    add.disabled = sala.jogadores.length >= MAX_DEV;
+    add.textContent = 'Adicionar jogador (' + sala.jogadores.length + ' de ' + MAX_DEV + ')';
+
+    const html = sala.jogadores.map(function (j, i) {
+      const naMesa = jogadoresAtuais.find(function (x) { return x.id === j.id; });
+      const controlando = j.id === meuJogadorId;
+      const partes = [];
+      if (i === 0) partes.push('criador');
+      if (controlando) partes.push('você está controlando');
+      partes.push('fichas: ' + (naMesa ? naMesa.saldo : '—'));
+      return '<div class="linha-dev' + (controlando ? ' atual' : '') + '">'
+           + '<div class="info-dev">' + escapar(j.nome) + '<small>' + partes.join(' · ') + '</small></div>'
+           + (controlando ? '' : '<button type="button" class="secundario" onclick="trocarJogadorDev(' + i + ')">Controlar</button>')
+           + '</div>';
+    }).join('');
+    if (html !== htmlDevVisto) {
+      htmlDevVisto = html;
+      document.getElementById('lista-dev').innerHTML = html;
+    }
+  }
+
+  // Adiciona um jogador fictício (até 9)
+  async function adicionarJogadorDev() {
+    const sala = lerDevSala();
+    if (!sala || sala.jogadores.length >= MAX_DEV) return;
+    limparErro('erro-dev');
+
+    const botao = document.getElementById('botao-add-dev');
+    botao.disabled = true;
+    let resp;
+    try {
+      resp = await banco.rpc('dev_adicionar_jogador', { p_partida: sala.partida_id, p_nome: NOMES_DEV[sala.jogadores.length] });
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+    botao.disabled = false;
+    if (resp.error) { mostrarErro('erro-dev', resp.error.message); return; }
+
+    sala.jogadores.push(jogadorDevDe(resp.data));
+    salvarDevSala(sala);
+    htmlDevVisto = '';
+    desenharPainelDev();
+    buscarMesa(true);
+  }
+
+  // Ações de criador (iniciar, próxima mão, nível, reiniciar): usam o jogador criador da sala DEV
+  function devAcao(funcao, extra, mensagem) {
+    const sala = lerDevSala();
+    if (!sala) return Promise.resolve(false);
+    const criador = sala.jogadores[0];
+    limparErro('erro-dev');
+    const params = Object.assign({ p_jogador: criador.id, p_segredo: criador.segredo }, extra || {});
+    return executar(funcao, params, 'erro-dev').then(function (ok) {
+      if (ok) { fecharFolhas(); if (mensagem) aviso(mensagem); }
+      return ok;
+    });
+  }
+
+  // Encerra a sala (como o criador) e apaga a sala DEV do banco
+  async function excluirSalaDev() {
+    const sala = lerDevSala();
+    if (!sala || ocupado) return;
+    if (!confirm('Encerrar e excluir a sala DEV? Os jogadores fictícios também saem deste aparelho.')) return;
+
+    ocupado = true;
+    limparErro('erro-dev');
+    const criador = sala.jogadores[0];
+    let resp;
+    try {
+      await banco.rpc('encerrar_sala', { p_conta: criador.conta_id, p_token: criador.token, p_partida_id: sala.partida_id });
+      resp = await banco.rpc('dev_apagar_sala', { p_partida: sala.partida_id });
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+    ocupado = false;
+
+    if (resp.error) { mostrarErro('erro-dev', resp.error.message); return; }
+    esquecerDevSala();
+    aviso('Sala DEV excluída.');
+    voltarParaSalas();
   }
 
   // =====================================================
