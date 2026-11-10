@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0a2f24">
+  <meta name="theme-color" content="#0a1a3f">
   <title>Poker Room</title>
 
   <!-- Fontes (se não carregarem, o site usa fontes do próprio celular) -->
@@ -21,19 +21,20 @@
        CORES, FONTES E MEDIDAS
        ===================================================== */
     :root {
-      --feltro-950: #06231b;
-      --feltro-900: #0a2f24;
-      --feltro-800: #0f3f31;
-      --feltro-700: #17533f;
-      --feltro-600: #1f6850;
-      --linha: rgba(244, 236, 216, 0.16);
+      --feltro-950: #060d24;
+      --feltro-900: #0b1b3a;
+      --feltro-800: #11295c;
+      --feltro-700: #1a3a7a;
+      --feltro-600: #2450a0;
+      --linha: rgba(244, 247, 255, 0.16);
 
-      --marfim: #f4ecd8;
-      --marfim-suave: rgba(244, 236, 216, 0.72);
-      --ouro: #e9b93c;
-      --ouro-escuro: #b98a14;
-      --vermelho: #cf4a35;
-      --verde: #3fae82;
+      --marfim: #f4f7ff;
+      --estrela: #ffffff;
+      --marfim-suave: rgba(244, 247, 255, 0.72);
+      --ouro: #9b1c31;
+      --ouro-escuro: #5e0f1d;
+      --vermelho: #8f1d2c;
+      --verde: #2f6fd0;
 
       --raio-lg: 20px;
       --raio-md: 14px;
@@ -61,7 +62,7 @@
       line-height: 1.4;
       color: var(--marfim);
       background:
-        radial-gradient(120% 60% at 50% 0%, #1d6a50 0%, rgba(29, 106, 80, 0) 62%),
+        radial-gradient(120% 60% at 50% 0%, #2a5cc0 0%, rgba(42, 92, 192, 0) 62%),
         var(--feltro-900);
       background-repeat: no-repeat;
       touch-action: manipulation;
@@ -103,7 +104,7 @@
       border: none;
       border-radius: var(--raio-md);
       background: var(--ouro);
-      color: #241a00;
+      color: #fff;
       box-shadow: 0 3px 0 var(--ouro-escuro), 0 10px 18px -10px rgba(0, 0, 0, 0.6);
       transition: transform 0.08s ease, opacity 0.15s ease;
       cursor: pointer;
@@ -118,23 +119,23 @@
     }
     button.positivo {
       background: var(--verde);
-      color: #04231a;
-      box-shadow: 0 3px 0 #2a7d5c;
+      color: #fff;
+      box-shadow: 0 3px 0 #1a478f;
     }
     button.perigo {
-      background: var(--vermelho);
-      color: #fff;
-      box-shadow: 0 3px 0 #9c3322;
+      background: var(--marfim);
+      color: #8f1d2c;
+      box-shadow: 0 3px 0 #aab6dc;
     }
     button.neutro {
-      background: rgba(244, 236, 216, 0.14);
+      background: rgba(244, 247, 255, 0.14);
       color: var(--marfim);
       box-shadow: none;
     }
     button.contorno-perigo {
       background: transparent;
-      color: #ffab9c;
-      box-shadow: inset 0 0 0 1.5px rgba(207, 74, 53, 0.55);
+      color: #ff8d9c;
+      box-shadow: inset 0 0 0 1.5px rgba(155, 28, 49, 0.55);
     }
     button.fantasma {
       background: transparent;
@@ -192,10 +193,10 @@
       border-radius: var(--raio-md);
       outline: none;
     }
-    input::placeholder { color: rgba(244, 236, 216, 0.35); }
+    input::placeholder { color: rgba(244, 247, 255, 0.35); }
     input:focus {
       border-color: var(--ouro);
-      box-shadow: 0 0 0 3px rgba(233, 185, 60, 0.22);
+      box-shadow: 0 0 0 3px rgba(155, 28, 49, 0.22);
     }
     input[type=number] { -moz-appearance: textfield; }
     input::-webkit-outer-spin-button,
@@ -211,7 +212,7 @@
        CARTÕES E MENSAGENS
        ===================================================== */
     .cartao {
-      background: rgba(6, 35, 27, 0.55);
+      background: rgba(6, 13, 36, 0.55);
       border: 1px solid var(--linha);
       border-radius: var(--raio-lg);
       padding: 18px;
@@ -233,8 +234,8 @@
       font-size: 14px;
       line-height: 1.35;
       color: #ffd6cd;
-      background: rgba(207, 74, 53, 0.2);
-      border: 1px solid rgba(207, 74, 53, 0.6);
+      background: rgba(155, 28, 49, 0.2);
+      border: 1px solid rgba(155, 28, 49, 0.6);
       border-radius: var(--raio-sm);
     }
     .erro.visivel { display: block; }
@@ -248,7 +249,7 @@
       padding: 10px 18px;
       font-size: 15px;
       font-weight: 600;
-      color: #241a00;
+      color: #0a1a3f;
       background: var(--marfim);
       border-radius: 999px;
       box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
@@ -277,7 +278,7 @@
       line-height: 1;
       color: var(--marfim);
     }
-    .naipes .r { color: #ff7d68; }
+    .naipes .r { color: #ff6b78; }
     .marca h1 {
       margin-top: 10px;
       font-size: 76px;
@@ -342,7 +343,7 @@
       box-shadow: none;
     }
     button.sala:active:not(:disabled) { transform: scale(0.99); box-shadow: none; }
-    button.sala.minha { background: var(--feltro-700); border-color: rgba(233, 185, 60, 0.55); }
+    button.sala.minha { background: var(--feltro-700); border-color: rgba(155, 28, 49, 0.55); }
     button.sala .sala-info { flex: 1; min-width: 0; }
     button.sala .sala-nome {
       font-family: var(--fonte-numero);
@@ -353,7 +354,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .sala-nome .coroa { color: var(--ouro); vertical-align: -2px; margin-right: 2px; }
+    .sala-nome .coroa { color: var(--estrela); vertical-align: -2px; margin-right: 2px; }
     button.sala .sala-detalhe { margin-top: 4px; font-size: 14px; font-weight: 500; color: var(--marfim-suave); }
     button.sala .sala-seta { color: var(--marfim-suave); }
     .vazio {
@@ -381,7 +382,7 @@
       font-family: var(--fonte-numero);
       font-weight: 600;
       letter-spacing: 0.03em;
-      background: rgba(244, 236, 216, 0.1);
+      background: rgba(244, 247, 255, 0.1);
       color: var(--marfim);
       box-shadow: none;
     }
@@ -396,7 +397,7 @@
       font-size: 46px;
       font-weight: 700;
       line-height: 1.05;
-      color: var(--ouro);
+      color: var(--estrela);
       overflow-wrap: anywhere;
     }
     .grande-sala.menor { font-size: 34px; margin-top: 2px; }
@@ -452,7 +453,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at 35% 28%, #1f6850, #0a2f24 72%);
+      background: radial-gradient(circle at 35% 28%, #2450a0, #0a1a3f 72%);
       border: 3px solid var(--marfim);
       box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.28);
     }
@@ -462,7 +463,7 @@
       font-size: 56px;
       font-weight: 700;
       line-height: 1;
-      color: var(--ouro);
+      color: var(--estrela);
     }
     .pote-valor[data-len="6"] { font-size: 44px; }
     .pote-valor[data-len="7"], .pote-valor[data-len="8"] { font-size: 34px; }
@@ -483,7 +484,7 @@
       border-radius: 999px;
     }
     .pilula:empty { display: none; }
-    .pilula.destaque { background: rgba(233, 185, 60, 0.2); color: var(--ouro); }
+    .pilula.destaque { background: rgba(155, 28, 49, 0.2); color: var(--estrela); }
 
     .status {
       margin: 16px 0;
@@ -494,7 +495,7 @@
       background: rgba(0, 0, 0, 0.25);
       border-radius: var(--raio-md);
     }
-    .status.minha-vez { background: var(--ouro); color: #241a00; }
+    .status.minha-vez { background: var(--ouro); color: #fff; }
 
     /* Jogadores */
     .jogador {
@@ -510,7 +511,7 @@
     .jogador.eu { background: var(--feltro-700); }
     .jogador.vez {
       border-color: var(--ouro);
-      box-shadow: 0 0 0 4px rgba(233, 185, 60, 0.2);
+      box-shadow: 0 0 0 4px rgba(155, 28, 49, 0.2);
     }
     .jogador.desistiu { opacity: 0.45; }
 
@@ -533,14 +534,14 @@
       border: 4px dashed rgba(255, 255, 255, 0.85);
       box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.4);
     }
-    .ficha.c1 { --cor: #cf4a35; }
+    .ficha.c1 { --cor: #9b1c31; }
     .ficha.c2 { --cor: #2f6fd0; }
-    .ficha.c3 { --cor: #2b2b2b; }
-    .ficha.c4 { --cor: #7a4bc2; }
-    .ficha.c5 { --cor: #e08a1e; --txt: #1d1300; }
-    .ficha.c6 { --cor: #1e9c8e; }
-    .ficha.c7 { --cor: #d9cfae; --txt: #2a2410; }
-    .ficha.c8 { --cor: #c2417f; }
+    .ficha.c3 { --cor: #e9eefc; --txt: #0a1a3f; }
+    .ficha.c4 { --cor: #1b3d94; }
+    .ficha.c5 { --cor: #8aa9ff; --txt: #0a1a3f; }
+    .ficha.c6 { --cor: #6b7a99; }
+    .ficha.c7 { --cor: #c9d3ee; --txt: #0a1a3f; }
+    .ficha.c8 { --cor: #3b4a6b; }
 
     .info { flex: 1; min-width: 0; }
     .nome {
@@ -551,7 +552,7 @@
       font-weight: 600;
     }
     .nome .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .nome .coroa { color: var(--ouro); flex-shrink: 0; }
+    .nome .coroa { color: var(--estrela); flex-shrink: 0; }
     .nome .voce { font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
     .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
     .tags:empty { display: none; }
@@ -560,12 +561,12 @@
       font-size: 12.5px;
       font-weight: 600;
       color: var(--marfim-suave);
-      background: rgba(244, 236, 216, 0.12);
+      background: rgba(244, 247, 255, 0.12);
       border-radius: 999px;
     }
-    .tag.vez, .tag.allin { background: var(--ouro); color: #241a00; }
-    .tag.blind { color: var(--marfim); box-shadow: inset 0 0 0 1px rgba(244, 236, 216, 0.4); background: transparent; }
-    .tag.fora { background: rgba(207, 74, 53, 0.28); color: #ffbcae; }
+    .tag.vez, .tag.allin { background: var(--ouro); color: #fff; }
+    .tag.blind { color: var(--marfim); box-shadow: inset 0 0 0 1px rgba(244, 247, 255, 0.4); background: transparent; }
+    .tag.fora { background: rgba(155, 28, 49, 0.28); color: #ffbcae; }
 
     .saldo {
       font-family: var(--fonte-numero);
@@ -578,7 +579,7 @@
     /* Histórico */
     details.historico {
       margin-top: 16px;
-      background: rgba(6, 35, 27, 0.45);
+      background: rgba(6, 13, 36, 0.45);
       border: 1px solid var(--linha);
       border-radius: var(--raio-lg);
       overflow: hidden;
@@ -616,7 +617,7 @@
       gap: 12px;
       padding: 10px 0;
       font-size: 15px;
-      border-top: 1px solid rgba(244, 236, 216, 0.1);
+      border-top: 1px solid rgba(244, 247, 255, 0.1);
     }
     .hist-mao {
       flex-shrink: 0;
@@ -624,12 +625,12 @@
       padding-top: 1px;
       font-size: 13px;
       font-weight: 600;
-      color: var(--ouro);
+      color: var(--estrela);
     }
     .detalhe { font-size: 14px; color: var(--marfim-suave); }
 
     /* Painel do criador e distribuição */
-    .painel-distribuir { border-color: rgba(233, 185, 60, 0.6); }
+    .painel-distribuir { border-color: rgba(155, 28, 49, 0.6); }
     .linha-premio {
       display: grid;
       grid-template-columns: 1fr 96px 72px;
@@ -649,7 +650,7 @@
       background: rgba(0, 0, 0, 0.25);
       border-radius: var(--raio-sm);
     }
-    .soma.ok { background: rgba(63, 174, 130, 0.22); color: #9ae8c6; }
+    .soma.ok { background: rgba(59, 130, 246, 0.25); color: #bcd4ff; }
 
     /* =====================================================
        BARRA DE AÇÕES (fixa embaixo)
@@ -681,7 +682,7 @@
       text-align: center;
       color: var(--marfim-suave);
     }
-    .barra-acoes.minha-vez .barra-titulo { color: var(--ouro); }
+    .barra-acoes.minha-vez .barra-titulo { color: var(--estrela); }
     .barra-titulo:empty { display: none; }
 
     .barra-acoes button { margin-top: 0; min-height: 52px; }
@@ -723,7 +724,7 @@
     .barra-acoes .linha-apostar button { padding: 8px 6px; font-size: 17px; }
     .barra-acoes button.allin {
       background: transparent;
-      color: var(--ouro);
+      color: var(--estrela);
       box-shadow: inset 0 0 0 2px var(--ouro);
     }
     .barra-acoes input {
@@ -739,7 +740,7 @@
       font-size: 30px;
       font-weight: 500;
       line-height: 1;
-      background: rgba(244, 236, 216, 0.14);
+      background: rgba(244, 247, 255, 0.14);
       color: var(--marfim);
       box-shadow: none;
     }
@@ -826,35 +827,35 @@
     .feltro .pilulas { gap: 4px; }
     .feltro .pilula { font-size: 11px; padding: 2px 7px; }
     .board { display: grid; gap: 3px; width: 100%; max-width: 140px; }
-    .fase-nome { font-size: 11px; letter-spacing: 1.5px; font-weight: 800; color: var(--ouro); text-transform: uppercase; }
+    .fase-nome { font-size: 11px; letter-spacing: 1.5px; font-weight: 800; color: var(--estrela); text-transform: uppercase; }
     .slots, .rotulos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
     .slots i { aspect-ratio: 5 / 7; border-radius: 4px; border: 1.5px dashed var(--linha); background: rgba(0,0,0,.18); }
     .slots i.on { border: 1.5px solid var(--marfim); background: rgba(244,236,216,.88); }
-    .slots i.novo { animation: pisca .9s infinite; border-color: var(--ouro); background: rgba(233,185,60,.6); }
+    .slots i.novo { animation: pisca .9s infinite; border-color: var(--ouro); background: rgba(155,28,49,.6); }
     @keyframes pisca { 50% { opacity: .35; } }
     .rotulos span { font-size: 9px; letter-spacing: 1px; font-weight: 800; color: var(--marfim-suave); }
-    .rotulos span.atual { color: var(--ouro); }
+    .rotulos span.atual { color: var(--estrela); }
     .rotulos .r-flop { grid-column: 1 / 4; }
 
     #lista-jogadores { position: absolute; inset: 0; pointer-events: none; }
     .assento { position: absolute; transform: translate(-50%, -50%); width: 76px; display: flex; flex-direction: column; align-items: center; pointer-events: auto; }
     .assento .ficha { width: 34px; height: 34px; font-size: 16px; border-width: 3px; position: relative; }
-    .assento.vez .ficha { box-shadow: 0 0 0 3px var(--ouro), 0 0 14px 4px rgba(233,185,60,.75); }
+    .assento.vez .ficha { box-shadow: 0 0 0 3px var(--ouro), 0 0 14px 4px rgba(155,28,49,.75); }
     .assento.desistiu { opacity: .4; }
     .a-nome { max-width: 100%; margin-top: 3px; padding: 1px 8px; border-radius: 99px; background: rgba(0,0,0,.6); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .assento.eu .a-nome { background: var(--ouro); color: #241a00; }
+    .assento.eu .a-nome { background: var(--ouro); color: #fff; }
     .a-saldo { font-family: var(--fonte-numero); font-size: 17px; font-weight: 700; line-height: 1.1; }
-    .a-aposta { font-family: var(--fonte-numero); font-size: 13px; font-weight: 700; color: #241a00; background: var(--ouro); border-radius: 99px; padding: 0 7px; margin-top: 1px; }
+    .a-aposta { font-family: var(--fonte-numero); font-size: 13px; font-weight: 700; color: #fff; background: var(--ouro); border-radius: 99px; padding: 0 7px; margin-top: 1px; }
     .a-tags { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
     .mini { font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 5px; background: rgba(0,0,0,.55); letter-spacing: .5px; }
-    .mini.prox { background: var(--marfim); color: #241a00; }
-    .mini.vez { background: var(--ouro); color: #241a00; }
+    .mini.prox { background: var(--marfim); color: #0a1a3f; }
+    .mini.vez { background: var(--ouro); color: #fff; }
     .mini.allin { background: var(--vermelho); }
     .dealer { position: absolute; top: -6px; right: -9px; width: 17px; height: 17px; border-radius: 50%; background: #fff; color: #111; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px #000; }
-    .a-timer { font-family: var(--fonte-numero); font-size: 14px; font-weight: 700; color: var(--ouro); }
+    .a-timer { font-family: var(--fonte-numero); font-size: 14px; font-weight: 700; color: var(--estrela); }
     .a-timer:empty { display: none; }
-    .faixa-fase { margin-top: 10px; padding: 12px; border-radius: var(--raio-md); background: var(--ouro); color: #241a00; text-align: center; font-weight: 800; font-size: 18px; }
-    .faixa-fase button { margin-top: 8px; background: #241a00; color: var(--ouro); }
+    .faixa-fase { margin-top: 10px; padding: 12px; border-radius: var(--raio-md); background: var(--ouro); color: #fff; text-align: center; font-weight: 800; font-size: 18px; }
+    .faixa-fase button { margin-top: 8px; background: #0a1a3f; color: var(--estrela); }
     .linha-ordem { display: flex; align-items: center; gap: 8px; margin-top: 6px; text-align: left; }
     .linha-ordem span { flex: 1; font-weight: 600; }
     .linha-ordem button { width: 48px; min-height: 40px; margin: 0; padding: 0; }
@@ -914,13 +915,13 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: rgba(244, 236, 216, 0.12);
+      background: rgba(244, 247, 255, 0.12);
       color: var(--marfim);
       box-shadow: none;
       border-radius: 12px;
     }
     button.icone-btn:active:not(:disabled) { transform: scale(0.94); box-shadow: none; }
-    button.icone-btn.ouro { background: var(--ouro); color: #241a00; box-shadow: 0 2px 0 var(--ouro-escuro); }
+    button.icone-btn.ouro { background: var(--ouro); color: #fff; box-shadow: 0 2px 0 var(--ouro-escuro); }
     button.icone-btn .ic { width: 22px; height: 22px; }
     .sala-pill { flex: 1; min-width: 0; }
     .sala-pill .rotulo { font-size: 12px; line-height: 1.2; }
@@ -1008,7 +1009,7 @@
       padding: 12px 12px 4px 18px;
     }
     .folha-titulo { display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 600; }
-    .folha-titulo .ic { color: var(--ouro); }
+    .folha-titulo .ic { color: var(--estrela); }
     .folha button.fechar {
       width: 44px;
       height: 44px;
@@ -1016,7 +1017,7 @@
       margin: 0;
       padding: 0;
       font-size: 20px;
-      background: rgba(244, 236, 216, 0.12);
+      background: rgba(244, 247, 255, 0.12);
       color: var(--marfim);
       box-shadow: none;
       border-radius: 50%;
@@ -1042,11 +1043,11 @@
     .barra-acoes .barra-titulo { margin-bottom: 6px; font-size: 14px; }
     .barra-acoes .grade-simples { grid-template-columns: 1fr 1.25fr 1.25fr; gap: 8px; }
     .barra-acoes .grade-simples button { min-height: 60px; padding: 6px 4px; font-size: 18px; line-height: 1.1; }
-    .barra-acoes button#btn-aumentar.aberto { background: var(--feltro-700); color: var(--ouro); box-shadow: inset 0 0 0 2px var(--ouro); }
+    .barra-acoes button#btn-aumentar.aberto { background: var(--feltro-700); color: var(--estrela); box-shadow: inset 0 0 0 2px var(--ouro); }
     .barra-acoes .caixa-aposta { margin: 0 0 8px; padding: 8px; }
     .barra-acoes .presets { grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 6px; }
     .barra-acoes .presets button { min-height: 42px; padding: 2px; font-size: 14px; }
-    .barra-acoes .presets button.allin { background: transparent; color: var(--ouro); box-shadow: inset 0 0 0 2px var(--ouro); }
+    .barra-acoes .presets button.allin { background: transparent; color: var(--estrela); box-shadow: inset 0 0 0 2px var(--ouro); }
     .barra-acoes .linha-aposta { grid-template-columns: 46px 1fr 46px 1.5fr; gap: 6px; align-items: stretch; }
     .barra-acoes .linha-aposta button { min-height: 52px; }
     .barra-acoes .linha-aposta button.apostar { padding: 4px; font-size: 16px; line-height: 1.1; }
@@ -1138,7 +1139,7 @@
       padding: 2px 12px;
       font-size: 11.5px;
       letter-spacing: 0.14em;
-      color: var(--ouro);
+      color: var(--estrela);
       background: rgba(0, 0, 0, 0.22);
       border-radius: 999px;
     }
@@ -1171,14 +1172,14 @@
       box-shadow: 0 5px 12px -6px rgba(0, 0, 0, 0.7);
       transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     }
-    .lugar.eu { width: clamp(150px, 46vw, 196px); background: var(--feltro-700); border-color: rgba(244, 236, 216, 0.55); }
+    .lugar.eu { width: clamp(150px, 46vw, 196px); background: var(--feltro-700); border-color: rgba(244, 247, 255, 0.55); }
     .lugar.desistiu { opacity: 0.45; }
 
     .l-topo { display: flex; align-items: center; gap: 5px; min-width: 0; }
     .lugar .ficha { position: static; width: 18px; height: 18px; font-size: 11px; border-width: 2px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
     .l-nome { flex: 1; min-width: 0; display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; line-height: 1.1; }
     .l-nome .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .l-nome .coroa { width: 10px; height: 10px; flex-shrink: 0; color: var(--ouro); }
+    .l-nome .coroa { width: 10px; height: 10px; flex-shrink: 0; color: var(--estrela); }
     .l-voce { flex-shrink: 0; font-size: 10.5px; font-weight: 600; color: var(--marfim-suave); }
 
     .l-meio { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 4px; }
@@ -1191,7 +1192,7 @@
       font-size: 12.5px;
       font-weight: 700;
       line-height: 16px;
-      color: #241a00;
+      color: #fff;
       background: var(--ouro);
       border-radius: 99px;
     }
@@ -1199,29 +1200,29 @@
     .l-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; min-height: 15px; }
     .lugar .tag { padding: 0 5px; font-size: 9.5px; line-height: 15px; font-weight: 700; white-space: nowrap; }
     .tag.allin { background: var(--vermelho); color: #fff; }
-    .tag.prox { background: var(--marfim); color: #241a00; }
+    .tag.prox { background: var(--marfim); color: #0a1a3f; }
     .tag.d { width: 15px; padding: 0; text-align: center; border-radius: 50%; background: #fff; color: #111; }
     #tempo-turno { font-variant-numeric: tabular-nums; }
 
     /* Quem está na vez: dourado, com brilho pulsante */
     .lugar.vez {
       z-index: 2;
-      color: #241a00;
-      background: linear-gradient(180deg, #f6d466, #dba622);
-      border-color: #fff3c2;
-      box-shadow: 0 0 0 3px rgba(233, 185, 60, 0.45), 0 0 22px rgba(233, 185, 60, 0.7);
+      color: #fff;
+      background: linear-gradient(180deg, #b3263d, #7d1626);
+      border-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(155, 28, 49, 0.45), 0 0 22px rgba(155, 28, 49, 0.7);
       animation: pulso-vez 1.6s ease-in-out infinite;
     }
     @keyframes pulso-vez {
-      50% { box-shadow: 0 0 0 5px rgba(233, 185, 60, 0.25), 0 0 28px rgba(233, 185, 60, 0.9); }
+      50% { box-shadow: 0 0 0 5px rgba(155, 28, 49, 0.25), 0 0 28px rgba(155, 28, 49, 0.9); }
     }
-    .lugar.vez .l-nome .coroa, .lugar.vez .l-voce { color: #241a00; }
-    .lugar.vez .tag.vez { background: #241a00; color: var(--ouro); }
-    .lugar.vez .tag.blind { color: #241a00; box-shadow: inset 0 0 0 1px rgba(36, 26, 0, 0.5); }
-    .lugar.vez .l-aposta { background: #241a00; color: var(--ouro); }
+    .lugar.vez .l-nome .coroa, .lugar.vez .l-voce { color: #fff; }
+    .lugar.vez .tag.vez { background: #0a1a3f; color: var(--estrela); }
+    .lugar.vez .tag.blind { color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65); }
+    .lugar.vez .l-aposta { background: #0a1a3f; color: var(--estrela); }
 
     /* Próximo a jogar: contorno tracejado claro */
-    .lugar.prox { border-style: dashed; border-color: rgba(244, 236, 216, 0.85); }
+    .lugar.prox { border-style: dashed; border-color: rgba(244, 247, 255, 0.85); }
 
     /* ----- Barra de ações: uma linha de aviso + botões ----- */
     .barra-acoes .barra-titulo { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.2; }
@@ -1263,7 +1264,7 @@
     .linha-botoes { display: flex; gap: 10px; align-items: stretch; }
     .linha-botoes > button:first-child { flex: 1; width: auto; }
     button.botao-dev-entrada { width: auto; min-width: 118px; padding: 12px; font-size: 15px; }
-    #btn-dev { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ouro); }
+    #btn-dev { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--estrela); }
     .linha-dev {
       display: flex;
       align-items: center;
@@ -1359,9 +1360,9 @@
       gap: 6px;
       min-height: 34px;
       padding: 5px 13px;
-      color: #241a00;
+      color: #fff;
       background: var(--ouro);
-      border: 1px solid rgba(255, 243, 194, .85);
+      border: 1px solid rgba(255, 255, 255, .85);
       border-radius: 999px;
       box-shadow: 0 3px 10px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255,255,255,.3);
       font-family: var(--fonte-numero);
@@ -1500,7 +1501,160 @@
       .mesa-wrap { max-width: 560px; }
       .lugar.assento-redondo { padding: 7px 8px 6px; }
     }
+    /* ----- Criar sala: seleção de stack ----- */
+    .stacks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+    @media (min-width: 420px) { .stacks { grid-template-columns: repeat(4, 1fr); } }
+    button.stack {
+      width: 100%; min-height: 68px; margin: 0; padding: 8px 4px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      background: var(--feltro-800); color: var(--marfim);
+      box-shadow: inset 0 0 0 1.5px var(--linha);
+    }
+    button.stack b { font-family: var(--fonte-numero); font-size: 26px; font-weight: 700; line-height: 1; }
+    button.stack small { font-size: 12px; font-weight: 500; color: var(--marfim-suave); }
+    button.stack.sel { background: var(--ouro); color: #fff; box-shadow: 0 3px 0 var(--ouro-escuro); }
+    button.stack.sel small { color: rgba(255,255,255,.85); }
+    button.stack.especial { margin-top: 10px; min-height: 56px; flex-direction: row; gap: 10px; }
+    button.stack.especial b { font-size: 21px; }
+    .profund {
+      margin-top: 16px; padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: rgba(0, 0, 0, 0.25); border: 1px solid var(--linha); border-radius: var(--raio-md);
+    }
+    .profund span { display: block; font-size: 14px; font-weight: 600; }
+    .profund small { font-size: 13px; color: var(--marfim-suave); }
+    .profund strong { font-family: var(--fonte-numero); font-size: 30px; line-height: 1; color: var(--estrela); white-space: nowrap; }
+    .painel-real { margin-top: 10px; padding: 12px; background: rgba(0,0,0,.2); border: 1px solid var(--linha); border-radius: var(--raio-md); }
+    .painel-real label { margin-top: 12px; }
+    input[readonly] { opacity: .6; }
+    button.dev-prox {
+      width: auto; min-height: 34px; margin: 0; padding: 4px 14px;
+      font-size: 14px; font-weight: 700; white-space: nowrap;
+      color: var(--estrela); background: rgba(155, 28, 49, 0.16);
+      box-shadow: inset 0 0 0 1.5px rgba(155, 28, 49, 0.6); border-radius: 999px;
+    }
+  
 
+    /* =====================================================
+       TEMA: azul-marinho, bordô e branco (visual simples)
+       ===================================================== */
+    body {
+      background:
+        radial-gradient(120% 45% at 50% 0%, #1d3f86 0%, rgba(29, 63, 134, 0) 70%),
+        var(--feltro-900);
+      background-repeat: no-repeat;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: calc(3px + env(safe-area-inset-top));
+      z-index: 60;
+      pointer-events: none;
+      background: linear-gradient(90deg, #8f1d2c 0 33.3%, #ffffff 33.3% 66.6%, #2f6fd0 66.6% 100%);
+    }
+    .marca h1 { color: #fff; text-shadow: none; }
+    .cartao { box-shadow: none; }
+    .folha { border-top: 2px solid var(--linha); }
+    .barra-acoes { border-top: 1px solid var(--linha); }
+    .barra-acoes.minha-vez { border-top: 3px solid #9b1c31; }
+    .lugar.vez { box-shadow: 0 0 0 2px rgba(255,255,255,.55); animation: none; }
+    .centro-roda { box-shadow: inset 0 0 0 2px var(--linha) !important; }
+    .pote-valor { color: #fff; }
+    button { box-shadow: 0 2px 0 var(--ouro-escuro); }
+
+    /* ----- Criar sala: tudo cabe na tela do celular, sem rolar ----- */
+    #tela-criar .topo-criar { display: flex; align-items: center; gap: 4px; }
+    #tela-dev .topo-criar { display: flex; align-items: center; gap: 4px; }
+    #tela-criar .topo-criar h2 { margin: 0; font-size: 28px; }
+    #tela-dev .topo-criar h2 { margin: 0; font-size: 28px; }
+    #tela-criar .topo-criar button.voltar { margin: 0 0 0 -6px; }
+    #tela-dev .topo-criar button.voltar { margin: 0 0 0 -6px; }
+    #tela-criar .cartao { margin-top: 6px; padding: 12px; }
+    #tela-dev .cartao { margin-top: 6px; padding: 12px; }
+    #tela-criar .nome-sala-linha { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+    #tela-dev .nome-sala-linha { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+    #tela-criar .nome-sala-linha strong { font-family: var(--fonte-numero); font-size: 24px; line-height: 1.1; color: #fff; overflow-wrap: anywhere; }
+    #tela-dev .nome-sala-linha strong { font-family: var(--fonte-numero); font-size: 24px; line-height: 1.1; color: #fff; overflow-wrap: anywhere; }
+    #tela-criar label { margin: 10px 0 4px; font-size: 13px; }
+    #tela-dev label { margin: 10px 0 4px; font-size: 13px; }
+    #tela-criar .stacks { grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+    #tela-dev .stacks { grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+    #tela-criar button.stack { min-height: 46px; padding: 4px 2px; }
+    #tela-dev button.stack { min-height: 46px; padding: 4px 2px; }
+    #tela-criar button.stack b { font-size: 19px; }
+    #tela-dev button.stack b { font-size: 19px; }
+    #tela-criar button.stack.especial { margin-top: 8px; min-height: 44px; gap: 8px; }
+    #tela-dev button.stack.especial { margin-top: 8px; min-height: 44px; gap: 8px; }
+    #tela-criar button.stack.especial b { font-size: 17px; }
+    #tela-dev button.stack.especial b { font-size: 17px; }
+    #tela-criar button.stack.especial small { font-size: 12px; }
+    #tela-dev button.stack.especial small { font-size: 12px; }
+    #tela-criar .painel-real { margin-top: 8px; padding: 8px; }
+    #tela-dev .painel-real { margin-top: 8px; padding: 8px; }
+    #tela-criar .painel-real label { margin-top: 8px; }
+    #tela-dev .painel-real label { margin-top: 8px; }
+    #tela-criar .atalhos { margin-top: 0; }
+    #tela-dev .atalhos { margin-top: 0; }
+    #tela-criar button.atalho { min-height: 38px; }
+    #tela-dev button.atalho { min-height: 38px; }
+    #tela-criar .painel-real .dica { margin-top: 4px; font-size: 12px; }
+    #tela-dev .painel-real .dica { margin-top: 4px; font-size: 12px; }
+    #tela-criar input { min-height: 44px; padding: 8px 10px; font-size: 16px; }
+    #tela-dev input { min-height: 44px; padding: 8px 10px; font-size: 16px; }
+    #tela-criar .trio { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 8px; }
+    #tela-dev .trio { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 8px; }
+    #tela-criar .trio label { white-space: nowrap; }
+    #tela-dev .trio label { white-space: nowrap; }
+    #tela-criar .profund { margin-top: 10px; padding: 8px 12px; }
+    #tela-dev .profund { margin-top: 10px; padding: 8px 12px; }
+    #tela-criar .profund strong { font-size: 26px; }
+    #tela-dev .profund strong { font-size: 26px; }
+    #tela-criar #botao-criar { margin-top: 10px; min-height: 50px; }
+    #tela-dev #botao-criar-dev { margin-top: 10px; min-height: 50px; }
+    #tela-criar .erro { margin-top: 8px; }
+    #tela-dev .erro { margin-top: 8px; }
+  
+    /* ----- Topo da mesa: limpo, em duas linhas ----- */
+    .topo { gap: 6px; align-items: center; }
+    .topo button.icone-btn { width: 40px; height: 40px; min-height: 40px; border-radius: 11px; }
+    .topo button.icone-btn .ic { width: 20px; height: 20px; }
+    .topo #btn-reais, .topo #btn-dev { font-size: 13px !important; }
+    .sala-pill { flex: 1; min-width: 0; padding-left: 2px; }
+    .sala-pill strong { font-size: 21px; line-height: 1.1; }
+    .sala-pill .rotulo { display: block; margin-top: 1px; font-size: 12px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .barra-info { display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 0; margin-top: 6px; }
+    .barra-info .pilula, .barra-info #mesa-relogio:not(:empty) {
+      display: inline-block; min-height: 0; padding: 0 9px; font-family: var(--fonte-texto);
+      font-size: 13px; font-weight: 500; line-height: 1.2; color: var(--marfim-suave);
+      background: none; border: 0; border-radius: 0; box-shadow: none; letter-spacing: 0;
+    }
+    .barra-info #mesa-relogio:not(:empty) { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .barra-info #mesa-relogio:not(:empty)::before { content: none; }
+    .barra-info #mesa-blinds { color: #fff; font-weight: 600; }
+    .linha-ultima { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; min-height: 0; }
+    .linha-ultima .ultima { flex: 1; min-width: 0; margin: 0; text-align: center; }
+    button.dev-prox { flex-shrink: 0; max-width: 46%; min-height: 30px; padding: 2px 12px; font-size: 13px; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff; }
+  
+    /* ----- Assentos: tamanho legível, sempre dentro da tela ----- */
+    .lugar.assento-redondo {
+      width: var(--w, 90px);
+      left: clamp(calc(var(--w, 90px) / 2 + 2px), var(--x, 50%), calc(100% - var(--w, 90px) / 2 - 2px));
+      top: clamp(38px, var(--y, 50%), calc(100% - 38px));
+      padding: 5px 6px 4px;
+    }
+    .lugar.assento-redondo .l-nome { font-size: calc(12.5px * var(--escala-lugar, 1)); }
+    .lugar.assento-redondo .l-saldo { font-size: calc(21px * var(--escala-lugar, 1)); }
+    .lugar.assento-redondo .l-saldo.longo { font-size: calc(18px * var(--escala-lugar, 1)); }
+    .lugar.assento-redondo.eu .l-saldo { font-size: calc(23px * var(--escala-lugar, 1)); }
+    .lugar.assento-redondo.eu .l-saldo.longo { font-size: calc(20px * var(--escala-lugar, 1)); }
+    .lugar.assento-redondo .l-aposta { font-size: calc(11.5px * var(--escala-lugar, 1)); }
+    .lugar.assento-redondo .l-tags { gap: 3px; min-height: 16px; }
+    .lugar.assento-redondo .tag { padding: 0 5px; font-size: calc(10.5px * var(--escala-lugar, 1)); line-height: 16px; }
+    .lugar.assento-redondo .tag.d { width: 16px; padding: 0; }
+    .lugar.assento-redondo .tag.vez { font-size: calc(11.5px * var(--escala-lugar, 1)); font-weight: 800; line-height: 17px; }
+    #tempo-turno { margin: 0; font-size: inherit; font-weight: inherit; letter-spacing: 0; }
+    #tempo-turno:not(:empty)::before { content: none; }
   </style>
 </head>
 
@@ -1564,35 +1718,55 @@
 
   <!-- ===== TELA 3: CRIAR SALA ===== -->
   <section id="tela-criar" class="tela">
-    <button class="voltar" onclick="abrirSalas()">
-      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
-    </button>
-    <h2>Nova sala</h2>
+    <div class="topo-criar">
+      <button class="voltar" onclick="abrirSalas()">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+      </button>
+      <h2>Nova sala</h2>
+    </div>
 
-    <div class="cartao" style="margin-top:0">
-      <div class="detalhe">Sua sala vai se chamar</div>
-      <div class="grande-sala menor" id="criar-nome-sala"></div>
+    <div class="cartao">
+      <div class="nome-sala-linha"><span class="detalhe">Sua sala:</span> <strong id="criar-nome-sala"></strong></div>
 
-      <label for="campo-saldo">Fichas de cada jogador</label>
-      <input id="campo-saldo" type="number" inputmode="numeric" value="1000">
-      <div class="atalhos">
-        <button type="button" class="atalho" onclick="definirSaldo(500)">500</button>
-        <button type="button" class="atalho" onclick="definirSaldo(1000)">1000</button>
-        <button type="button" class="atalho" onclick="definirSaldo(2000)">2000</button>
-        <button type="button" class="atalho" onclick="definirSaldo(5000)">5000</button>
+      <label>Fichas iniciais</label>
+      <div class="stacks" id="stacks">
+        <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
+        <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
+        <button type="button" class="stack" data-s="5000" onclick="escolherStack(5000)"><b>5.000</b></button>
+        <button type="button" class="stack" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
+      </div>
+      <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')"><b>Referência em R$</b><small>mantém 100 BB</small></button>
+      <div class="painel-real" id="painel-real" hidden>
+        <div class="atalhos">
+          <button type="button" class="atalho" onclick="definirReais(0.5,'')">R$ 0,50</button>
+          <button type="button" class="atalho" onclick="definirReais(1,'')">R$ 1</button>
+          <button type="button" class="atalho" onclick="definirReais(2,'')">R$ 2</button>
+          <button type="button" class="atalho" onclick="definirReais(5,'')">R$ 5</button>
+        </div>
+        <label for="campo-reais">Valor por jogador (R$)</label>
+        <input id="campo-reais" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('')">
+        <p class="dica" id="reais-res"></p>
       </div>
 
-      <div class="duas">
+      <div class="trio">
+        <div>
+          <label for="campo-saldo">Fichas</label>
+          <input id="campo-saldo" type="number" inputmode="numeric" value="10000" oninput="aoEditarConfig()">
+        </div>
         <div>
           <label for="campo-small">Small blind</label>
-          <input id="campo-small" type="number" inputmode="numeric" value="10">
+          <input id="campo-small" type="number" inputmode="numeric" value="50" oninput="aoEditarConfig()">
         </div>
         <div>
           <label for="campo-big">Big blind</label>
-          <input id="campo-big" type="number" inputmode="numeric" value="20">
+          <input id="campo-big" type="number" inputmode="numeric" value="100" oninput="aoEditarConfig()">
         </div>
       </div>
-      <p class="dica">O big blind costuma ser o dobro do small blind.</p>
+
+      <div class="profund">
+        <div><span>Profundidade do stack</span><small id="prof-det"></small></div>
+        <strong id="prof-val"></strong>
+      </div>
     </div>
 
     <button id="botao-criar" onclick="criarSala()">Criar e ir para a mesa</button>
@@ -1601,30 +1775,58 @@
 
   <!-- ===== TELA DEV: cria a sala de teste (só neste aparelho) ===== -->
   <section id="tela-dev" class="tela">
-    <button class="voltar" onclick="abrirSalas()">
-      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
-    </button>
-    <h2>Sala DEV</h2>
+    <div class="topo-criar">
+      <button class="voltar" onclick="abrirSalas()">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+      </button>
+      <h2>Sala DEV</h2>
+    </div>
 
-    <div class="cartao" style="margin-top:0">
-      <p class="dica" style="margin-top:0">Sala de teste só para este aparelho. Ela não aparece na lista de salas e não se mistura com as partidas reais. Os jogadores são fictícios e você controla todos daqui.</p>
+    <div class="cartao">
+      <p class="dica" style="margin-top:0">Sala de teste só neste aparelho, com jogadores fictícios que você controla.</p>
 
-      <label for="campo-dev-saldo">Fichas de cada jogador</label>
-      <input id="campo-dev-saldo" type="number" inputmode="numeric" value="1000">
+      <label>Fichas iniciais</label>
+      <div class="stacks" id="stacks-dev">
+        <button type="button" class="stack" data-s="1000" onclick="escolherStackDev(1000)"><b>1.000</b></button>
+        <button type="button" class="stack" data-s="2000" onclick="escolherStackDev(2000)"><b>2.000</b></button>
+        <button type="button" class="stack" data-s="5000" onclick="escolherStackDev(5000)"><b>5.000</b></button>
+        <button type="button" class="stack" data-s="10000" onclick="escolherStackDev(10000)"><b>10.000</b></button>
+      </div>
+      <button type="button" class="stack especial" id="stack-real-dev" onclick="alternarReal('dev')"><b>Referência em R$</b><small>mantém 100 BB</small></button>
+      <div class="painel-real" id="painel-real-dev" hidden>
+        <div class="atalhos">
+          <button type="button" class="atalho" onclick="definirReais(0.5,'dev')">R$ 0,50</button>
+          <button type="button" class="atalho" onclick="definirReais(1,'dev')">R$ 1</button>
+          <button type="button" class="atalho" onclick="definirReais(2,'dev')">R$ 2</button>
+          <button type="button" class="atalho" onclick="definirReais(5,'dev')">R$ 5</button>
+        </div>
+        <label for="campo-reais-dev">Valor por jogador (R$)</label>
+        <input id="campo-reais-dev" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('dev')">
+        <p class="dica" id="reais-res-dev"></p>
+      </div>
 
-      <div class="duas">
+      <div class="trio">
+        <div>
+          <label for="campo-dev-saldo">Fichas</label>
+          <input id="campo-dev-saldo" type="number" inputmode="numeric" value="10000" oninput="aoEditarConfigDev()">
+        </div>
         <div>
           <label for="campo-dev-small">Small blind</label>
-          <input id="campo-dev-small" type="number" inputmode="numeric" value="10">
+          <input id="campo-dev-small" type="number" inputmode="numeric" value="50" oninput="aoEditarConfigDev()">
         </div>
         <div>
           <label for="campo-dev-big">Big blind</label>
-          <input id="campo-dev-big" type="number" inputmode="numeric" value="20">
+          <input id="campo-dev-big" type="number" inputmode="numeric" value="100" oninput="aoEditarConfigDev()">
         </div>
       </div>
 
-      <label for="campo-dev-qtd">Quantos jogadores fictícios (de 2 a 9)</label>
+      <label for="campo-dev-qtd">Jogadores fictícios (2 a 9)</label>
       <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4">
+
+      <div class="profund">
+        <div><span>Profundidade do stack</span><small id="prof-det-dev"></small></div>
+        <strong id="prof-val-dev"></strong>
+      </div>
     </div>
 
     <button id="botao-criar-dev" onclick="criarSalaDev()">Criar sala DEV</button>
@@ -1658,8 +1860,8 @@
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
       </button>
       <div class="sala-pill">
-        <span class="rotulo" id="mesa-papel"></span>
         <strong id="mesa-sala"></strong>
+        <span class="rotulo" id="mesa-papel"></span>
       </div>
       <button id="btn-sair-mesa" class="icone-btn" onclick="sairDaMesa()" aria-label="Sair da mesa" hidden>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -1667,6 +1869,7 @@
       <button class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
+      <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Valor em reais" hidden>R$</button>
       <button id="btn-dev" class="icone-btn" onclick="abrirPainelDev()" aria-label="Painel DEV" hidden>DEV</button>
       <button id="btn-criador" class="icone-btn ouro" onclick="abrirCriador()" aria-label="Opções do criador" hidden>
         <svg class="ic cheio" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>
@@ -1688,7 +1891,10 @@
     </div>
 
     <div class="status" id="mesa-status"></div>
-    <div class="ultima" id="mesa-ultima"></div>
+    <div class="linha-ultima">
+      <div class="ultima" id="mesa-ultima"></div>
+      <button type="button" id="btn-dev-prox" class="dev-prox" onclick="proximoJogadorDev()" aria-label="Controlar o próximo jogador" hidden></button>
+    </div>
     <button id="btn-iniciar-rapido" class="positivo" onclick="iniciarOuProximaMao()" hidden>Iniciar partida</button>
 
     <div class="mesa-wrap">
@@ -1758,6 +1964,19 @@
         </div>
         <button id="botao-encerrar" class="contorno-perigo" onclick="encerrarSala()">Encerrar sala</button>
         <div id="erro-criador" class="erro" role="alert"></div>
+      </div>
+    </div>
+
+    <!-- Gaveta: conversão das fichas em reais (modo R$ 1 por jogador) -->
+    <div id="folha-reais" class="folha" hidden>
+      <div class="folha-topo">
+        <div class="folha-titulo">Fichas em reais</div>
+        <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="folha-corpo">
+        <p class="dica" id="info-real" style="margin-top:0;font-size:15px"></p>
+        <div id="lista-reais"></div>
+        <p class="dica">O valor em reais é apenas uma referência.</p>
       </div>
     </div>
 
@@ -1907,6 +2126,12 @@
   // assim qualquer jogador (não só o criador) toca em "abrir apostas".
   const QUALQUER_UM_ABRE_RODADA = false;
   const relogio = { offset: 0, ini: null, vez: null };   // cronômetros (hora do servidor)
+
+  // Na sala DEV os nomes vêm com um sufixo técnico ("Ana DEV 1946"): na tela mostramos só "Ana"
+  function nomeDe(texto) {
+    const t = String(texto == null ? '' : texto);
+    return modoDev ? t.replace(/\s+DEV\s+[0-9a-z]{3,8}\b/gi, '') : t;
+  }
 
   // Ícone da coroa (criador da partida)
   const ICONE_COROA = '<svg class="ic cheio coroa" viewBox="0 0 24 24" aria-label="Criador"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>';
@@ -2059,9 +2284,77 @@
 
 
   // Atalhos da tela de criar partida
-  function definirSaldo(valor) {
-    document.getElementById('campo-saldo').value = valor;
+  const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
+  const cfgReal = { '': false, dev: false };
+  const $id = function (i) { return document.getElementById(i); };
+  function idsCfg(p) {
+    return p ? { saldo: 'campo-dev-saldo', small: 'campo-dev-small', big: 'campo-dev-big', s: '-dev' }
+             : { saldo: 'campo-saldo', small: 'campo-small', big: 'campo-big', s: '' };
   }
+  function fmtNum(n) { return Number(n).toLocaleString('pt-BR'); }
+  function fmtReais(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 4 }); }
+  function definirSaldo(valor) { $id('campo-saldo').value = valor; }
+  // 100 big blinds: big = stack / 100, small = metade
+  function blinds100(s) { const sb = Math.max(1, Math.round(s / 200)); return [sb, Math.max(sb + 1, Math.round(s / 100))]; }
+  function aplicarConfig(p, s, sb, bb) {
+    const i = idsCfg(p);
+    $id(i.saldo).value = s; $id(i.small).value = sb; $id(i.big).value = bb;
+    if (!p) bigEditado = false;
+    atualizarProfundidade(p);
+  }
+  function escolherStack(s) { aplicarConfig('', s, STACKS[s][0], STACKS[s][1]); }
+  function escolherStackDev(s) { aplicarConfig('dev', s, STACKS[s][0], STACKS[s][1]); }
+  function alternarReal(p) {
+    cfgReal[p] = !cfgReal[p];
+    if (cfgReal[p]) {
+      const s = parseInt($id(idsCfg(p).saldo).value) || 1000, b = blinds100(s);
+      aplicarConfig(p, s, b[0], b[1]);
+    } else atualizarProfundidade(p);
+  }
+  function definirReais(v, p) { $id('campo-reais' + idsCfg(p).s).value = v; atualizarProfundidade(p); }
+  // Edição manual do stack ou dos blinds (depois do ajuste automático do big blind)
+  function aoEditarConfig() { setTimeout(function () { ajustarReal(''); }, 0); }
+  function aoEditarConfigDev() { setTimeout(function () { ajustarReal('dev'); }, 0); }
+  function ajustarReal(p) {
+    const i = idsCfg(p), s = parseInt($id(i.saldo).value);
+    if (cfgReal[p] && s > 0) { const b = blinds100(s); $id(i.small).value = b[0]; $id(i.big).value = b[1]; }
+    atualizarProfundidade(p);
+  }
+  function atualizarProfundidade(p) {
+    p = p || '';
+    const i = idsCfg(p), real = cfgReal[p];
+    const s = parseInt($id(i.saldo).value), sb = parseInt($id(i.small).value), bb = parseInt($id(i.big).value);
+    $id(i.small).readOnly = real; $id(i.big).readOnly = real;
+    document.querySelectorAll('#stacks' + i.s + ' .stack').forEach(function (b) {
+      const k = Number(b.dataset.s);
+      b.classList.toggle('sel', s === k && sb === STACKS[k][0] && bb === STACKS[k][1]);
+    });
+    $id('stack-real' + i.s).classList.toggle('sel', real);
+    $id('painel-real' + i.s).hidden = !real;
+    const reais = parseFloat($id('campo-reais' + i.s).value);
+    $id('reais-res' + i.s).textContent = (real && s > 0 && reais > 0)
+      ? fmtNum(s) + ' fichas = ' + fmtReais(reais) + ' · 1.000 fichas = ' + fmtReais(reais / s * 1000) + '. Apenas referência.' : '';
+    const ok = s > 0 && bb > 0;
+    $id('prof-val' + i.s).textContent = ok ? (Math.round(s / bb * 10) / 10).toLocaleString('pt-BR') + ' BB' : '—';
+    $id('prof-det' + i.s).textContent = ok ? 'Stack ' + fmtNum(s) + ' · Big blind ' + fmtNum(bb) : 'Informe stack e blinds';
+  }
+  // Ao criar a sala, grava no banco (uma única vez) quanto valem 1.000 fichas em reais
+  async function registrarRealCriacao(p, id, saldo, jid, seg) {
+    const reais = parseFloat($id('campo-reais' + idsCfg(p).s).value);
+    if (!(cfgReal[p] && reais > 0 && saldo > 0)) return;
+    const v = Math.round(reais / saldo * 1000 * 1e6) / 1e6;
+    for (let t = 0; t < 3; t++) {
+      try {
+        const r = await banco.rpc('definir_valor_real', { p_jogador: jid, p_segredo: seg, p_valor: v });
+        if (!r.error) { marcarReal(id, v); return; }
+        erroReal = r.error.message;
+      } catch (erro) {}
+      await new Promise(function (ok) { setTimeout(ok, 600); });
+    }
+    aviso('Não consegui salvar o valor em reais: ' + erroReal);
+  }
+  atualizarProfundidade('');
+  atualizarProfundidade('dev');
 
   // ----- Aposta: já vem preenchida com a aposta mínima; mude com − / + ou com os atalhos -----
   // Limites: mínima = o que falta para pagar + 1 big blind; máxima = todas as suas fichas. Os botões − e + andam de 10 em 10.
@@ -2367,8 +2660,8 @@
       mostrarErro('erro-criar', 'Saldo e blinds precisam ser números maiores que zero.');
       return;
     }
-    if (big < small) {
-      mostrarErro('erro-criar', 'O big blind não pode ser menor que o small blind.');
+    if (big <= small) {
+      mostrarErro('erro-criar', 'O big blind precisa ser maior que o small blind.');
       return;
     }
 
@@ -2387,6 +2680,7 @@
     } else {
       const dados = resp.data;
       guardarMeuJogador(dados.partida_id, dados.jogador_id, dados.segredo);
+      await registrarRealCriacao('', dados.partida_id, saldo, dados.jogador_id, dados.segredo);
 
       await abrirMesa({ id: dados.partida_id });
     }
@@ -2550,6 +2844,7 @@
       return;
     }
     partidaAtual = partida;
+    if (Number(partida.valor_real_mil) > 0) marcarReal(partida.id, Number(partida.valor_real_mil));
     jogadoresAtuais = jogadores;
     ultimoEstado = estado;
 
@@ -2577,7 +2872,7 @@
     eraMinhaVez = minhaVez;
 
     // ----- Painel do topo -----
-    document.getElementById('mesa-sala').textContent = partida.nome || ('Sala ' + partida.codigo);
+    document.getElementById('mesa-sala').textContent = nomeDe(partida.nome || ('Sala ' + partida.codigo));
 
     const elPote = document.getElementById('mesa-pote');
     elPote.textContent = partida.pote;
@@ -2603,7 +2898,7 @@
     document.getElementById('mesa-aposta').textContent =
       partida.iniciada ? 'Maior aposta ' + partida.aposta_atual : '';
     document.getElementById('mesa-papel').textContent = modoDev
-      ? 'MODO DEV · ' + (eu ? eu.nome : 'só assistindo')
+      ? 'DEV · ' + (eu ? nomeDe(eu.nome) : 'só assistindo')
       : (eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo');
 
     // ----- Faixa de status -----
@@ -2621,15 +2916,15 @@
         status = 'Mão ' + (partida.mao - 1) + ' terminou. Aguardando o criador.';
       }
     } else if (jogadorDaVez && partida.fase_blind === 1) {
-      status = minhaVez ? 'Você deve pagar o small blind' : jogadorDaVez.nome + ' deve pagar o small blind';
+      status = minhaVez ? 'Você deve pagar o small blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o small blind';
     } else if (jogadorDaVez && partida.fase_blind === 2) {
-      status = minhaVez ? 'Você deve pagar o big blind' : jogadorDaVez.nome + ' deve pagar o big blind';
+      status = minhaVez ? 'Você deve pagar o big blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o big blind';
     } else if (partida.fase === 4) {
       status = 'Showdown: mostrem as cartas. O criador distribui o pote.';
     } else if (partida.aguardando_cartas) {
       status = 'Virem as cartas do ' + NOMES_FASE[partida.fase] + '.';
     } else if (jogadorDaVez) {
-      status = minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + jogadorDaVez.nome;
+      status = minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + nomeDe(jogadorDaVez.nome);
     } else if (partida.pote > 0) {
       status = 'Aguardando o criador distribuir o pote.';
     } else {
@@ -2669,8 +2964,8 @@
     // Os cartões diminuem gradualmente conforme aumenta o número de participantes.
     const nJ = jogadores.length;
     const meuIdx = Math.max(0, jogadores.findIndex(function (j) { return j.id === meuJogadorId; }));
-    const larguraLugar = nJ <= 4 ? 86 : nJ <= 6 ? 76 : nJ <= 8 ? 64 : 56;
-    const escalaLugar = nJ <= 4 ? 1 : nJ <= 6 ? 0.92 : nJ <= 8 ? 0.84 : 0.76;
+    const larguraLugar = nJ <= 4 ? 100 : nJ <= 6 ? 94 : nJ <= 8 ? 88 : 84;
+    const escalaLugar = nJ <= 4 ? 1.05 : nJ <= 6 ? 1 : nJ <= 8 ? 0.95 : 0.92;
     const lugaresCirculares = [];
 
     jogadores.forEach(function (j, i) {
@@ -2692,7 +2987,7 @@
         else {
           if (naVez) {
             const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
-            tags += '<span class="tag vez">▶ ' + rotulo + (rotulo === 'VEZ' ? ' <span id="tempo-turno"></span>' : '') + '</span>';
+            tags += '<span class="tag vez">▶ ' + (rotulo === 'VEZ' ? '<span id="tempo-turno">VEZ</span>' : rotulo) + '</span>';
           } else if (ehProximo) {
             tags += '<span class="tag prox">PRÓX ▸</span>';
           }
@@ -2705,19 +3000,19 @@
       const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
       const k = (i - meuIdx + nJ) % nJ;   // 0 = você, fixo na parte inferior
       const angulo = (90 + (360 * k / Math.max(1, nJ))) * Math.PI / 180;
-      const x = 50 + 41 * Math.cos(angulo);
+      const x = 50 + 40 * Math.cos(angulo);
       const y = 50 + 39 * Math.sin(angulo);
       const largura = larguraLugar + (souEu ? 8 : 0);
-      const estiloLugar = 'left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%;width:' + largura + 'px;--escala-lugar:' + escalaLugar + ';';
+      const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,27vw);--escala-lugar:' + escalaLugar + ';';
 
       const htmlLugar = `
         <div class="${classes}" style="${estiloLugar}">
           <div class="l-topo">
             <div class="ficha ${corFicha}">${j.ordem}</div>
-            <div class="l-nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(j.nome)}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+            <div class="l-nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
           </div>
           <div class="l-meio">
-            <div class="l-saldo">${j.saldo}</div>
+            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
             ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
           </div>
           <div class="l-tags">${tags}</div>
@@ -2779,7 +3074,7 @@
     const podeMexerNaOrdem = !partida.iniciada;
     document.getElementById('bloco-ordem').hidden = !podeRemover || jogadores.length < 2;
     const htmlOrdem = jogadores.map(function (j) {
-      let linha = '<div class="linha-ordem"><span>' + j.ordem + '. ' + escapar(j.nome) + '</span>';
+      let linha = '<div class="linha-ordem"><span>' + j.ordem + '. ' + escapar(nomeDe(j.nome)) + '</span>';
       if (podeMexerNaOrdem) {
         linha += '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',-1)" aria-label="Subir">▲</button>'
               +  '<button class="secundario" onclick="moverJogador(\'' + j.id + '\',1)" aria-label="Descer">▼</button>';
@@ -2806,6 +3101,10 @@
     document.getElementById('botao-nivel').disabled = partida.pote > 0;
     document.getElementById('botao-encerrar').hidden = modoDev;
     document.getElementById('btn-dev').hidden = !modoDev;
+    const btnProx = document.getElementById('btn-dev-prox');
+    btnProx.hidden = !modoDev;
+    if (modoDev) btnProx.textContent = (eu ? nomeDe(eu.nome) : 'Jogador') + ' ▶';
+    atualizarReais(false);
     if (modoDev) desenharPainelDev();
     // Se o pote zerou (ou eu não sou criador), o formulário de distribuir não faz sentido
     if (!souCriador || !(partida.pote > 0)) fecharDistribuicao();
@@ -2879,17 +3178,67 @@
     }
   }
 
+  // ----- Conversão em reais: valor de 1.000 fichas definido na criação da sala (só leitura) -----
+  // Valor de 1.000 fichas em R$: vem do banco, é igual para todos e nunca muda.
+  let erroReal = '';
+  const realPorSala = {};   // só memória (não usa mais localStorage)
+  function marcarReal(id, porMil) { if (porMil > 0) realPorSala[id] = porMil; }
+  function valorPorMil(id) { return realPorSala[id] || null; }
+  async function carregarValorReal() {
+    if (!partidaAtual) return;
+    const id = partidaAtual.id;
+    if (realPorSala[id]) return;
+    try {
+      const resp = await banco.rpc('valor_real_sala', { p_partida: id });
+      erroReal = resp && resp.error ? resp.error.message : '';
+      const v = resp && !resp.error ? Number(resp.data) : NaN;
+      if (v > 0) {
+        marcarReal(id, v);
+        if (partidaAtual && partidaAtual.id === id) atualizarReais(false);
+      }
+    } catch (erro) { erroReal = 'sem conexão'; }
+    if (partidaAtual && partidaAtual.id === id) atualizarReais(false);
+  }
+  function abrirReais() {
+    atualizarReais(true);
+    abrirFolha('folha-reais');
+    if (!valorPorMil(partidaAtual.id)) carregarValorReal();
+  }
+  function atualizarReais(forcar) {
+    if (!partidaAtual) return;
+    $id('btn-reais').hidden = false;
+    if (!forcar && $id('folha-reais').hidden) return;
+    const v = valorPorMil(partidaAtual.id);
+    if (!v) {
+      $id('info-real').textContent = 'Esta sala não tem valor em reais definido.' + (erroReal ? ' (erro: ' + erroReal + ')' : '');
+      $id('lista-reais').innerHTML = '';
+      return;
+    }
+    const conv = function (n) { return fmtReais(n / 1000 * v); };
+    const ini = Number(partidaAtual.saldo_inicial);
+    $id('info-real').textContent = '1.000 fichas = ' + fmtReais(v)
+      + (ini > 0 ? ' · Cada jogador começou com ' + fmtNum(ini) + ' fichas (' + conv(ini) + ')' : '');
+    let html = jogadoresAtuais.map(function (j) {
+      return '<div class="linha-dev' + (j.id === meuJogadorId ? ' atual' : '') + '"><div class="info-dev">' + escapar(nomeDe(j.nome))
+        + '<small>' + j.saldo + ' fichas</small></div><strong>' + conv(j.saldo) + '</strong></div>';
+    }).join('');
+    if (partidaAtual.pote > 0) {
+      html += '<div class="linha-dev"><div class="info-dev">No pote<small>' + partidaAtual.pote + ' fichas</small></div><strong>' + conv(partidaAtual.pote) + '</strong></div>';
+    }
+    $id('lista-reais').innerHTML = html;
+  }
+
   // Histórico: só redesenha se mudou
   function desenharHistorico(linhas) {
     const ult = document.getElementById('mesa-ultima');
-    if (ult) ult.textContent = (linhas && linhas.length) ? linhas[0].texto : '';
+    if (ult) ult.textContent = (linhas && linhas.length) ? nomeDe(linhas[0].texto) : '';
     let html;
     if (!linhas || linhas.length === 0) {
       html = '<div class="detalhe" style="padding:4px 0 8px">Nada registrado ainda. As jogadas aparecem aqui.</div>';
     } else {
       html = linhas.map(function (linha) {
         return '<div class="hist-linha"><span class="hist-mao">Mão ' + linha.mao + '</span>'
-             + '<span>' + escapar(linha.texto) + '</span></div>';
+             + '<span>' + escapar(nomeDe(linha.texto)) + '</span></div>';
       }).join('');
     }
     if (html === htmlHistoricoVisto) return;
@@ -2920,6 +3269,7 @@
         if (status === 'SUBSCRIBED') {
           if (jaInscrito) buscarMesa(false);   // reconectou: pega o que perdeu
           jaInscrito = true;
+          carregarValorReal();
         }
       });
 
@@ -3067,7 +3417,7 @@
     const geral = document.getElementById('mesa-relogio');
     if (geral) geral.textContent = relogio.ini ? 'Mesa ' + formatarTempo(agora - relogio.ini) : '';
     const turno = document.getElementById('tempo-turno');
-    if (turno) turno.textContent = relogio.vez ? formatarTempo(agora - relogio.vez) : '';
+    if (turno) turno.textContent = relogio.vez ? formatarTempo(agora - relogio.vez) : 'VEZ';
   }
   setInterval(tick, 1000);
 
@@ -3182,7 +3532,7 @@
     ordenados.forEach(function (j) {
       html += `
         <div class="linha-premio">
-          <div class="nome"><span class="texto">${escapar(j.nome)}</span>${j.desistiu ? ' <span class="voce">(desistiu)</span>' : ''}</div>
+          <div class="nome"><span class="texto">${escapar(nomeDe(j.nome))}</span>${j.desistiu ? ' <span class="voce">(desistiu)</span>' : ''}</div>
           <input type="number" inputmode="numeric" min="0" placeholder="0"
                  data-jogador="${j.id}" oninput="atualizarSoma()">
           <button type="button" class="secundario" data-jogador="${j.id}" data-ativo="0" onclick="alternarGanhador('${j.id}')">Ganhou</button>
@@ -3230,7 +3580,7 @@
   }
 
   // ----- Gavetas que sobem de baixo (criador, histórico, distribuir) -----
-  const FOLHAS = ['painel-criador', 'painel-distribuir', 'folha-hist', 'painel-dev'];
+  const FOLHAS = ['painel-criador', 'painel-distribuir', 'folha-hist', 'painel-dev', 'folha-reais'];
   function algumaFolhaAberta() {
     return FOLHAS.some(function (id) { return !document.getElementById(id).hidden; });
   }
@@ -3369,8 +3719,8 @@
       mostrarErro('erro-dev-criar', 'Saldo e blinds precisam ser números maiores que zero.');
       return;
     }
-    if (big < small) {
-      mostrarErro('erro-dev-criar', 'O big blind não pode ser menor que o small blind.');
+    if (big <= small) {
+      mostrarErro('erro-dev-criar', 'O big blind precisa ser maior que o small blind.');
       return;
     }
     if (!(qtd >= 2 && qtd <= MAX_DEV)) {
@@ -3397,6 +3747,7 @@
 
     const sala = { partida_id: resp.data.partida_id, jogadores: [jogadorDevDe(resp.data)] };
     salvarDevSala(sala);
+    await registrarRealCriacao('dev', sala.partida_id, saldo, sala.jogadores[0].id, sala.jogadores[0].segredo);
 
     let falhou = null;
     for (let i = 1; i < qtd && !falhou; i++) {
@@ -3453,6 +3804,14 @@
     buscarMesa(true);
   }
 
+  // Setinha: passa o controle para o próximo jogador fictício
+  function proximoJogadorDev() {
+    const sala = lerDevSala();
+    if (!sala || sala.jogadores.length < 2) return;
+    const i = sala.jogadores.findIndex(function (j) { return j.id === meuJogadorId; });
+    trocarJogadorDev((i + 1) % sala.jogadores.length);
+  }
+
   // Botão DEV no topo da mesa
   function abrirPainelDev() {
     desenharPainelDev();
@@ -3481,7 +3840,7 @@
       if (controlando) partes.push('você está controlando');
       partes.push('fichas: ' + (naMesa ? naMesa.saldo : '—'));
       return '<div class="linha-dev' + (controlando ? ' atual' : '') + '">'
-           + '<div class="info-dev">' + escapar(j.nome) + '<small>' + partes.join(' · ') + '</small></div>'
+           + '<div class="info-dev">' + escapar(nomeDe(j.nome)) + '<small>' + partes.join(' · ') + '</small></div>'
            + (controlando ? '' : '<button type="button" class="secundario" onclick="trocarJogadorDev(' + i + ')">Controlar</button>')
            + '</div>';
     }).join('');
