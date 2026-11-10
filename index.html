@@ -1655,6 +1655,27 @@
     .lugar.assento-redondo .tag.vez { font-size: calc(11.5px * var(--escala-lugar, 1)); font-weight: 800; line-height: 17px; }
     #tempo-turno { margin: 0; font-size: inherit; font-weight: inherit; letter-spacing: 0; }
     #tempo-turno:not(:empty)::before { content: none; }
+  
+    /* ----- Guia de mãos ----- */
+    .guia-item { padding: 12px 0; border-top: 1px solid var(--linha); }
+    .guia-item:first-child { border-top: 0; }
+    .guia-topo { display: flex; align-items: center; gap: 10px; }
+    .guia-num { width: 26px; height: 26px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--fonte-numero); font-size: 16px; font-weight: 700; color: #fff; background: var(--ouro); border-radius: 50%; }
+    .guia-nome { font-size: 18px; font-weight: 600; line-height: 1.15; }
+    .guia-en { font-size: 12.5px; color: var(--marfim-suave); }
+    .guia-cartas { display: flex; gap: 6px; margin: 10px 0 8px; }
+    .guia-desc { font-size: 14px; color: var(--marfim-suave); }
+    .carta-mini { position: relative; width: 42px; aspect-ratio: 5 / 7; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; background: var(--marfim); color: #0b1b3a; box-shadow: 0 2px 5px rgba(0,0,0,.4); }
+    .carta-mini.verm { color: #8f1d2c; }
+    .carta-mini .cv { font-family: var(--fonte-numero); font-size: 19px; font-weight: 700; line-height: 1; }
+    .carta-mini .cn { font-size: 18px; line-height: 1; }
+    .carta-mini.apagada { opacity: .35; box-shadow: none; }
+  
+    /* ----- Esperando e adicionar fichas ----- */
+    .lugar.espera { opacity: .78; }
+    .tag.espera { background: rgba(47, 111, 208, .35); color: #d6e4ff; }
+    select { font: inherit; width: 100%; min-height: 48px; padding: 8px 12px; font-size: 16px; color: var(--marfim); background: var(--feltro-950); border: 1.5px solid var(--linha); border-radius: var(--raio-md); }
+    #bloco-fichas { margin-top: 4px; }
   </style>
 </head>
 
@@ -1869,6 +1890,7 @@
       <button class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
+      <button id="btn-guia" class="icone-btn" style="font-size:19px" onclick="abrirGuia()" aria-label="Guia de mãos do poker">♠</button>
       <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Valor em reais" hidden>R$</button>
       <button id="btn-dev" class="icone-btn" onclick="abrirPainelDev()" aria-label="Painel DEV" hidden>DEV</button>
       <button id="btn-criador" class="icone-btn ouro" onclick="abrirCriador()" aria-label="Opções do criador" hidden>
@@ -1943,6 +1965,18 @@
           <div class="cartao-titulo" style="margin-top:6px">Ordem dos jogadores</div>
           <div id="lista-ordem"></div>
         </div>
+        <div id="bloco-fichas">
+          <div class="cartao-titulo" style="margin-top:14px">Adicionar fichas</div>
+          <label for="sel-fichas-jogador">Jogador</label>
+          <select id="sel-fichas-jogador"></select>
+          <div class="atalhos" style="margin-top:8px">
+            <button type="button" class="atalho" id="btn-fichas-stack" onclick="usarStackFichas()">1 stack</button>
+          </div>
+          <label for="campo-fichas-valor">Quantidade de fichas (somada ao saldo atual)</label>
+          <input id="campo-fichas-valor" type="number" inputmode="numeric" placeholder="Ex.: 10000">
+          <p class="dica" id="dica-fichas"></p>
+          <button id="botao-add-fichas" class="secundario" onclick="adicionarFichas()">Adicionar fichas</button>
+        </div>
         <div id="bloco-blinds">
           <div class="duas">
             <div>
@@ -1977,6 +2011,18 @@
         <p class="dica" id="info-real" style="margin-top:0;font-size:15px"></p>
         <div id="lista-reais"></div>
         <p class="dica">O valor em reais é apenas uma referência.</p>
+      </div>
+    </div>
+
+    <!-- Gaveta: guia de mãos do poker -->
+    <div id="folha-guia" class="folha" hidden>
+      <div class="folha-topo">
+        <div class="folha-titulo">Guia de mãos</div>
+        <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="folha-corpo">
+        <p class="dica" style="margin-top:0">Da mais forte para a mais fraca. Cartas apagadas não fazem parte da combinação: só servem para desempatar.</p>
+        <div id="guia-lista"></div>
       </div>
     </div>
 
@@ -2119,6 +2165,8 @@
   let profundidade = (history.state && history.state.poker) ? 1 : 0;
   let ignorarPop = false;
   let htmlOrdemVisto = '';
+  let htmlSelFichasVisto = '';
+  let opFichas = null, opFichasChave = '';
   let ultimoEstado = null;     // último estado desenhado (para restaurar a tela se uma jogada falhar)
   let apostaAberta = false;    // a caixa de aposta (valor, atalhos) está aberta?
   let modoDev = false;         // a mesa aberta é uma sala DEV (jogadores fictícios neste aparelho)
@@ -2131,6 +2179,15 @@
   function nomeDe(texto) {
     const t = String(texto == null ? '' : texto);
     return modoDev ? t.replace(/\s+DEV\s+[0-9a-z]{3,8}\b/gi, '') : t;
+  }
+
+  // Ações de criador: na sala DEV usam sempre o jogador criador (o primeiro), seja qual for o jogador controlado
+  function credC() {
+    if (modoDev) {
+      const sala = lerDevSala();
+      if (sala && sala.jogadores[0]) return { id: sala.jogadores[0].id, segredo: sala.jogadores[0].segredo };
+    }
+    return { id: meuJogadorId, segredo: meuSegredo };
   }
 
   // Ícone da coroa (criador da partida)
@@ -2358,40 +2415,70 @@
 
   // ----- Aposta: já vem preenchida com a aposta mínima; mude com − / + ou com os atalhos -----
   // Limites: mínima = o que falta para pagar + 1 big blind; máxima = todas as suas fichas. Os botões − e + andam de 10 em 10.
+  // Passo (incremento) das apostas. Em salas com valor em R$ é o menor valor "redondo"
+  // (1, 2, 5, 10, 20, 50, 100...) que vale pelo menos R$ 0,01. É a mesma regra do banco (passo_aposta).
+  function passoSala() {
+    if (!partidaAtual) return 1;
+    const v = valorPorMil(partidaAtual.id);
+    if (!(v > 0)) return 1;
+    const bruto = Math.ceil(Math.round(10 / v * 1e6) / 1e6);
+    if (bruto <= 1) return 1;
+    const pot = Math.pow(10, Math.floor(Math.log10(bruto)));
+    const ms = [1, 2, 5, 10];
+    for (let k = 0; k < ms.length; k++) { if (ms[k] * pot >= bruto) return ms[k] * pot; }
+    return 10 * pot;
+  }
+
+  // Limites: mínima = o que falta pagar + 1 big blind (alinhada ao passo); máxima = todas as fichas (all-in).
   function limitesAposta() {
     if (!partidaAtual) return null;
     const eu = jogadoresAtuais.find(function (j) { return j.id === meuJogadorId; });
     if (!eu) return null;
     const falta = Math.max(0, partidaAtual.aposta_atual - eu.apostou);
-    const passo = Math.max(1, partidaAtual.small_blind);
+    const passo = passoSala();
     const max = eu.saldo;
-    const min = Math.min(falta + Math.max(1, partidaAtual.big_blind), max);
-    return { falta: falta, passo: passo, min: min, max: max };
+    let min = falta + Math.max(1, partidaAtual.big_blind);
+    if (passo > 1) min = Math.ceil((eu.apostou + min) / passo) * passo - eu.apostou;
+    min = Math.min(min, max);
+    return { falta: falta, passo: passo, passoBotoes: passo > 1 ? passo : Math.max(1, partidaAtual.small_blind),
+             min: min, max: max, apostou: eu.apostou };
+  }
+
+  // Ajusta o valor: o NÍVEL da aposta (já apostado + valor) vira múltiplo do passo; all-in é sempre permitido.
+  function ajustaValor(valor, lim) {
+    valor = Math.round(valor);
+    if (valor >= lim.max) return lim.max;
+    if (lim.passo > 1) {
+      valor = Math.round((lim.apostou + valor) / lim.passo) * lim.passo - lim.apostou;
+      if (valor >= lim.max) return lim.max;
+    }
+    return Math.max(lim.min, valor);
   }
 
   function definirAposta(valor, mexeu) {
     const lim = limitesAposta();
     if (!lim || !(lim.max > 0)) return;
-    valor = Math.max(lim.min, Math.min(lim.max, Math.round(valor)));
+    valor = ajustaValor(valor, lim);
     document.getElementById('campo-valor').value = valor;
     if (mexeu) apostaEditada = true;
     atualizarRotuloApostar();
   }
 
-  // Botões − e +: mudam o valor de 10 em 10
+  // Botões − e +: andam de passo em passo
   function ajustarAposta(direcao) {
     const lim = limitesAposta();
     if (!lim) return;
     const atual = parseInt(document.getElementById('campo-valor').value) || lim.min;
-    definirAposta(atual + direcao * lim.passo, true);
+    definirAposta(atual + direcao * lim.passoBotoes, true);
   }
 
   // Atalhos por tamanho do pote: valor = o que falta pagar + fração de (pote + o que falta pagar)
   function apostaPote(fracao) {
     const lim = limitesAposta();
     if (!lim || !(lim.max > 0)) return;
-    const passo = Math.max(1, partidaAtual.small_blind);
     const bruto = lim.falta + fracao * (partidaAtual.pote + lim.falta);
+    if (lim.passo > 1) { definirAposta(bruto, true); return; }
+    const passo = Math.max(1, partidaAtual.small_blind);
     definirAposta(Math.round(bruto / passo) * passo, true);
   }
   function aoMoverSlider() {
@@ -2452,7 +2539,13 @@
     }
     document.getElementById('btn-apostar').textContent = texto;
     const sl = document.getElementById('campo-slider');
-    if (lim) { sl.min = lim.min; sl.max = lim.max; if (valor > 0) sl.value = valor; }
+    if (lim) {
+      const passo = lim.passo > 1 ? lim.passo : 1;
+      sl.step = passo;
+      sl.min = lim.min;
+      sl.max = passo > 1 ? lim.min + Math.floor((lim.max - lim.min) / passo) * passo : lim.max;
+      if (valor > 0) sl.value = Math.min(valor, sl.max);
+    }
   }
 
   // =====================================================
@@ -2852,6 +2945,17 @@
     const eu = jogadores.find(function (j) { return j.id === meuJogadorId; }) || null;
 
     // Não está mais na sala (saiu ou foi removido): volta para as salas
+    if (meuJogadorId && !eu && modoDev) {
+      const salaDev = lerDevSala();
+      if (salaDev) {
+        salaDev.jogadores = salaDev.jogadores.filter(function (x, k) { return k === 0 || jogadores.some(function (j) { return j.id === x.id; }); });
+        salvarDevSala(salaDev);
+        htmlDevVisto = '';
+        controlarDev(0, salaDev);
+        buscarMesa(true);
+        return;
+      }
+    }
     if (meuJogadorId && !eu) {
       esquecerSegredo(partida.id);
       aviso('Você não está mais nesta sala.');
@@ -2977,12 +3081,13 @@
       if (souEu) classes += ' eu';
       if (naVez) classes += ' vez';
       if (ehProximo) classes += ' prox';
-      if (j.desistiu) classes += ' desistiu';
+      if (j.esperando) classes += ' espera'; else if (j.desistiu) classes += ' desistiu';
 
       // Rodapé do lugar: primeiro o estado (vez / próximo / fora), depois D, SB e BB
       let tags = '';
       if (partida.iniciada) {
-        if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
+        if (j.esperando) tags += '<span class="tag espera">ESPERANDO</span>';
+        else if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
         else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">SEM FICHAS</span>';
         else {
           if (naVez) {
@@ -3037,7 +3142,7 @@
     desenharHistorico(estado.historico);
 
     // ----- Painel do criador -----
-    const souCriador = !!eu && eu.criador;
+    const souCriador = (!!eu && eu.criador) || modoDev;
     document.getElementById('btn-criador').hidden = !souCriador;
     const btnSair = document.getElementById('btn-sair-mesa');
     btnSair.hidden = !eu || souCriador || modoDev;
@@ -3085,6 +3190,21 @@
       return linha + '</div>';
     }).join('');
     if (htmlOrdem !== htmlOrdemVisto) { htmlOrdemVisto = htmlOrdem; document.getElementById('lista-ordem').innerHTML = htmlOrdem; }
+    // Adicionar fichas: só antes de iniciar ou entre as mãos
+    document.getElementById('bloco-fichas').hidden = !podeRemover;
+    const sel = document.getElementById('sel-fichas-jogador');
+    const htmlSel = jogadores.map(function (j) {
+      return '<option value="' + j.id + '">' + escapar(nomeDe(j.nome)) + ' · ' + j.saldo + ' fichas</option>';
+    }).join('');
+    if (htmlSel !== htmlSelFichasVisto) {
+      const escolhido = sel.value;
+      htmlSelFichasVisto = htmlSel;
+      sel.innerHTML = htmlSel;
+      if (escolhido && jogadores.some(function (j) { return j.id === escolhido; })) sel.value = escolhido;
+    }
+    document.getElementById('btn-fichas-stack').textContent = '1 stack (' + fmtNum(partida.saldo_inicial) + ')';
+    const passoF = passoSala();
+    document.getElementById('dica-fichas').textContent = passoF > 1 ? 'Nesta sala, múltiplos de ' + fmtNum(passoF) + ' fichas.' : '';
     // Blinds editáveis só antes de iniciar a partida
     document.getElementById('bloco-blinds').hidden = partida.iniciada;
     const chaveBlinds = partida.small_blind + '/' + partida.big_blind;
@@ -3137,7 +3257,8 @@
       // O aviso da mesa (quem joga agora, blinds, showdown...) fica só na barra de baixo
       // enquanto ela está visível, para não repetir a mesma frase em dois lugares.
       let titulo = status;
-      if (eu.desistiu && emJogo && !emBlind) titulo = 'Você desistiu desta mão. ' + status;
+      if (eu.esperando) titulo = 'Você está esperando a próxima mão. ' + status;
+      else if (eu.desistiu && emJogo && !emBlind) titulo = 'Você desistiu desta mão. ' + status;
       document.getElementById('barra-titulo').textContent = titulo;
 
       const valorPagar = Math.min(falta, eu.saldo);
@@ -3166,7 +3287,7 @@
       const campoAposta = document.getElementById('campo-valor');
       if (podeAgir && eu.saldo > 0) {
         if (!apostaEditada || !(parseInt(campoAposta.value) > 0)) {
-          campoAposta.value = Math.min(falta + partida.big_blind, eu.saldo);
+          const limIni = limitesAposta(); campoAposta.value = limIni ? limIni.min : Math.min(falta + partida.big_blind, eu.saldo);
         } else if (parseInt(campoAposta.value) > eu.saldo) {
           campoAposta.value = eu.saldo;
         }
@@ -3293,6 +3414,13 @@
   // A cada 30 segundos o jogador avisa que está com a mesa aberta.
   // Salas em que ninguém dá sinal por um tempo são apagadas pelo banco.
   function enviarSinal() {
+    if (modoDev) {
+      const sala = lerDevSala();
+      if (sala) sala.jogadores.forEach(function (j) {
+        banco.rpc('ping_sala', { p_jogador: j.id, p_segredo: j.segredo }).then(function () {}, function () {});
+      });
+      return;
+    }
     if (!meuJogadorId || !meuSegredo) return;
     banco.rpc('ping_sala', { p_jogador: meuJogadorId, p_segredo: meuSegredo })
       .then(function () {}, function () {});
@@ -3359,6 +3487,16 @@
       mostrarErro('erro-barra', 'Digite um valor para apostar.');
       return;
     }
+    // Em salas com R$: valores fora do passo são ajustados e o jogador confirma de novo
+    const lim = limitesAposta();
+    if (lim && lim.passo > 1 && valor < lim.max) {
+      const aj = ajustaValor(valor, lim);
+      if (aj !== valor) {
+        definirAposta(aj, true);
+        aviso('Valor ajustado para ' + aj + ' (apostas em múltiplos de ' + lim.passo + ')');
+        return;
+      }
+    }
     const deuCerto = await executar('jogar', {
       p_jogador: meuJogadorId,
       p_segredo: meuSegredo,
@@ -3387,8 +3525,8 @@
       return;
     }
     const deuCerto = await executar('alterar_blinds', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo,
+      p_jogador: credC().id,
+      p_segredo: credC().segredo,
       p_small: small,
       p_big: big
     }, 'erro-criador');
@@ -3396,12 +3534,12 @@
   }
 
   function abrirRodada() {
-    return executar('abrir_rodada', { p_jogador: meuJogadorId, p_segredo: meuSegredo }, 'erro-faixa');
+    return executar('abrir_rodada', { p_jogador: credC().id, p_segredo: credC().segredo }, 'erro-faixa');
   }
 
   function moverJogador(id, direcao) {
     return executar('mover_jogador', {
-      p_jogador: meuJogadorId, p_segredo: meuSegredo, p_alvo: id, p_dir: direcao
+      p_jogador: credC().id, p_segredo: credC().segredo, p_alvo: id, p_dir: direcao
     }, 'erro-criador');
   }
 
@@ -3423,8 +3561,8 @@
 
   function iniciarPartida() {
     return executar('iniciar_partida', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo
+      p_jogador: credC().id,
+      p_segredo: credC().segredo
     }, 'erro-criador').then(function (ok) { if (ok) fecharFolhas(); return ok; });
   }
 
@@ -3463,14 +3601,52 @@
     voltarParaSalas();
   }
 
+  // Criador: soma fichas ao saldo de um jogador (validado no banco; a mesma operação nunca soma duas vezes)
+  function novoUuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    const b = new Uint8Array(16); crypto.getRandomValues(b);
+    b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+    const h = Array.prototype.map.call(b, function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+    return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
+  }
+  function usarStackFichas() {
+    if (partidaAtual) document.getElementById('campo-fichas-valor').value = partidaAtual.saldo_inicial;
+  }
+  function adicionarFichas() {
+    if (!partidaAtual) return;
+    const alvoId = document.getElementById('sel-fichas-jogador').value;
+    const valor = parseInt(document.getElementById('campo-fichas-valor').value);
+    const alvo = jogadoresAtuais.find(function (j) { return j.id === alvoId; });
+    if (!alvo) { mostrarErro('erro-criador', 'Escolha um jogador.'); return; }
+    if (!(valor > 0)) { mostrarErro('erro-criador', 'Informe uma quantidade de fichas maior que zero.'); return; }
+    const passo = passoSala();
+    if (passo > 1 && valor % passo !== 0) {
+      mostrarErro('erro-criador', 'Nesta sala as fichas devem ser múltiplas de ' + fmtNum(passo) + '.');
+      return;
+    }
+    if (!confirm('Adicionar ' + fmtNum(valor) + ' fichas a ' + nomeDe(alvo.nome) + '?\nSaldo: ' + fmtNum(alvo.saldo) + ' → ' + fmtNum(alvo.saldo + valor))) return;
+    const chave = alvoId + ':' + valor;
+    if (!opFichas || opFichasChave !== chave) { opFichas = novoUuid(); opFichasChave = chave; }
+    return executar('adicionar_fichas', {
+      p_jogador: credC().id, p_segredo: credC().segredo, p_alvo: alvoId, p_valor: valor, p_op: opFichas
+    }, 'erro-criador').then(function (ok) {
+      if (ok) {
+        opFichas = null; opFichasChave = '';
+        document.getElementById('campo-fichas-valor').value = '';
+        aviso('+' + fmtNum(valor) + ' fichas para ' + nomeDe(alvo.nome));
+      }
+      return ok;
+    });
+  }
+
   // Botão "Remover" na gaveta do criador
   function removerJogador(idDoJogador) {
     const alvo = jogadoresAtuais.find(function (j) { return j.id === idDoJogador; });
     const nome = alvo ? alvo.nome : 'este jogador';
-    if (!confirm('Remover ' + nome + ' da sala? As fichas dele serão perdidas.')) return;
+    if (!confirm('Remover ' + nome + ' da sala? As fichas dele ficam guardadas e ele volta com elas se entrar de novo.')) return;
     return executar('remover_jogador', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo,
+      p_jogador: credC().id,
+      p_segredo: credC().segredo,
       p_alvo: idDoJogador
     }, 'erro-criador');
   }
@@ -3479,8 +3655,8 @@
   function iniciarOuProximaMao() {
     if (partidaAtual && partidaAtual.aguardando_proxima_mao) {
       return executar('proxima_mao', {
-        p_jogador: meuJogadorId,
-        p_segredo: meuSegredo
+        p_jogador: credC().id,
+        p_segredo: credC().segredo
       }, 'erro-faixa');
     }
     return iniciarPartida();
@@ -3489,8 +3665,8 @@
   // Resetar a partida (só o criador), com confirmação
   function resetarPartida() {
     return executar('resetar_partida', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo
+      p_jogador: credC().id,
+      p_segredo: credC().segredo
     }, 'erro-criador').then(function (ok) { if (ok) { fecharFolhas(); aviso('Partida resetada'); } return ok; });
   }
 
@@ -3505,8 +3681,8 @@
   // Subir o nível: dobra os blinds (só o criador), com confirmação
   function subirNivel() {
     return executar('subir_nivel', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo
+      p_jogador: credC().id,
+      p_segredo: credC().segredo
     }, 'erro-criador').then(function (ok) {
       if (ok && partidaAtual) { fecharFolhas(); aviso('Nível ' + partidaAtual.nivel + ': blinds ' + partidaAtual.small_blind + '/' + partidaAtual.big_blind); }
       return ok;
@@ -3532,7 +3708,7 @@
     ordenados.forEach(function (j) {
       html += `
         <div class="linha-premio">
-          <div class="nome"><span class="texto">${escapar(nomeDe(j.nome))}</span>${j.desistiu ? ' <span class="voce">(desistiu)</span>' : ''}</div>
+          <div class="nome"><span class="texto">${escapar(nomeDe(j.nome))}</span>${j.esperando ? ' <span class="voce">(esperando)</span>' : j.desistiu ? ' <span class="voce">(desistiu)</span>' : ''}</div>
           <input type="number" inputmode="numeric" min="0" placeholder="0"
                  data-jogador="${j.id}" oninput="atualizarSoma()">
           <button type="button" class="secundario" data-jogador="${j.id}" data-ativo="0" onclick="alternarGanhador('${j.id}')">Ganhou</button>
@@ -3580,7 +3756,7 @@
   }
 
   // ----- Gavetas que sobem de baixo (criador, histórico, distribuir) -----
-  const FOLHAS = ['painel-criador', 'painel-distribuir', 'folha-hist', 'painel-dev', 'folha-reais'];
+  const FOLHAS = ['painel-criador', 'painel-distribuir', 'folha-hist', 'painel-dev', 'folha-reais', 'folha-guia'];
   function algumaFolhaAberta() {
     return FOLHAS.some(function (id) { return !document.getElementById(id).hidden; });
   }
@@ -3597,6 +3773,46 @@
   }
   function abrirCriador() { limparErro('erro-criador'); abrirFolha('painel-criador'); }
   function abrirHistorico() { abrirFolha('folha-hist'); }
+
+
+  // =====================================================
+  // GUIA DE MÃOS DO POKER (só interface, não usa o banco)
+  // Cartas terminadas em * não fazem parte da combinação (só desempatam)
+  // =====================================================
+  const MAOS_POKER = [
+    ['Royal Flush', 'Sequência Real', 'A, K, Q, J e 10 do mesmo naipe.', 'A♠ K♠ Q♠ J♠ 10♠'],
+    ['Straight Flush', 'Straight Flush', 'Cinco cartas em sequência, todas do mesmo naipe.', '9♥ 8♥ 7♥ 6♥ 5♥'],
+    ['Quadra', 'Four of a Kind', 'Quatro cartas do mesmo valor.', 'Q♠ Q♥ Q♦ Q♣ 7♠*'],
+    ['Full House', 'Full House', 'Uma trinca (três iguais) e um par (duas iguais).', 'K♠ K♥ K♦ 4♣ 4♠'],
+    ['Flush', 'Flush', 'Cinco cartas do mesmo naipe, sem estarem em sequência.', 'A♦ J♦ 9♦ 6♦ 3♦'],
+    ['Sequência', 'Straight', 'Cinco cartas em sequência, de naipes variados. O A também vale 1 (A-2-3-4-5).', '9♣ 8♦ 7♠ 6♥ 5♣'],
+    ['Trinca', 'Three of a Kind', 'Três cartas do mesmo valor.', '8♠ 8♥ 8♦ K♣* 3♠*'],
+    ['Dois Pares', 'Two Pair', 'Dois pares de valores diferentes.', 'J♠ J♦ 5♥ 5♣ A♠*'],
+    ['Um Par', 'One Pair', 'Duas cartas do mesmo valor.', '10♠ 10♥ A♦* 7♣* 3♠*'],
+    ['Carta Alta', 'High Card', 'Nenhuma combinação: vale a carta mais alta.', 'A♠ J♦* 8♣* 5♥* 2♦*']
+  ];
+  function cartaMiniHtml(txt) {
+    const apagada = txt.slice(-1) === '*';
+    if (apagada) txt = txt.slice(0, -1);
+    const naipe = txt.slice(-1), valor = txt.slice(0, -1);
+    const vermelha = (naipe === '♥' || naipe === '♦');
+    return '<div class="carta-mini' + (vermelha ? ' verm' : '') + (apagada ? ' apagada' : '') + '">'
+         + '<span class="cv">' + valor + '</span><span class="cn">' + naipe + '</span></div>';
+  }
+  function abrirGuia() {
+    const lista = $id('guia-lista');
+    if (!lista.firstChild) {
+      lista.innerHTML = MAOS_POKER.map(function (m, i) {
+        return '<div class="guia-item">'
+          + '<div class="guia-topo"><span class="guia-num">' + (i + 1) + '</span>'
+          + '<div><div class="guia-nome">' + m[0] + '</div><div class="guia-en">' + m[1] + '</div></div></div>'
+          + '<div class="guia-cartas">' + m[3].split(' ').map(cartaMiniHtml).join('') + '</div>'
+          + '<div class="guia-desc">' + m[2] + '</div></div>';
+      }).join('');
+    }
+    abrirFolha('folha-guia');
+    $id('folha-guia').querySelector('.folha-corpo').scrollTop = 0;
+  }
 
   // Lê os campos e devolve a lista de prêmios maiores que zero
   function lerPremios() {
@@ -3635,8 +3851,8 @@
 
   async function confirmarDistribuicao() {
     const deuCerto = await executar('distribuir_pote', {
-      p_jogador: meuJogadorId,
-      p_segredo: meuSegredo,
+      p_jogador: credC().id,
+      p_segredo: credC().segredo,
       p_premios: lerPremios()
     }, 'erro-distribuir');
     if (deuCerto) fecharDistribuicao();
@@ -3647,6 +3863,7 @@
   // =====================================================
   // Sair da mesa NÃO tira você da sala: suas fichas ficam guardadas na sua conta
   function voltarParaSalas() {
+    const eraDev = modoDev;
     desligarTempoReal();
     fecharFolhas();
     fecharDistribuicao();
@@ -3658,6 +3875,7 @@
     esquecerPartida();
     modoDev = false;
     abrirSalas();
+    if (eraDev) apagarSalaDev();   // sair da sala DEV = fechar e apagar a sala
   }
 
   // Encerrar a sala (só o criador): ela some da lista para todos
@@ -3700,11 +3918,27 @@
   }
 
   // Botão "Sala DEV" (tela de salas): abre a sala que já existe neste aparelho, ou pede para criar
-  function abrirSalaDev() {
+  async function abrirSalaDev() {
+    if (abrindoSala) return;
+    abrindoSala = true;
     limparErro('erro-salas');
-    if (lerDevSala()) { abrirMesaDev(0); return; }
-    limparErro('erro-dev-criar');
-    mostrar('tela-dev');
+    try {
+      const sala = lerDevSala();
+      if (sala) {
+        let resp;
+        try { resp = await banco.rpc('estado_mesa', { p_partida: sala.partida_id }); }
+        catch (erro) { resp = { error: erro }; }
+        if (resp.error) { mostrarErro('erro-salas', 'Não consegui abrir a sala DEV. Confira a internet.'); return; }
+        const viva = resp.data && resp.data.partida && !resp.data.partida.encerrada;
+        if (viva) { pararSalas(); await abrirMesaDev(0); return; }
+        esquecerDevSala();
+        aviso('A sala DEV anterior já tinha sido encerrada. Crie uma nova.');
+      }
+      limparErro('erro-dev-criar');
+      mostrar('tela-dev');
+    } finally {
+      abrindoSala = false;
+    }
   }
 
   // Cria a sala DEV e os jogadores fictícios (um por vez)
@@ -3888,25 +4122,35 @@
   }
 
   // Encerra a sala (como o criador) e apaga a sala DEV do banco
-  async function excluirSalaDev() {
+  // Encerra e apaga a sala DEV do banco. Só esquece os dados locais quando a sala realmente sumiu
+  // (se faltar internet, a limpeza é tentada de novo quando o site abrir).
+  let apagandoDev = false;
+  async function apagarSalaDev() {
     const sala = lerDevSala();
-    if (!sala || ocupado) return;
-    if (!confirm('Encerrar e excluir a sala DEV? Os jogadores fictícios também saem deste aparelho.')) return;
-
-    ocupado = true;
-    limparErro('erro-dev');
+    if (!sala || apagandoDev) return false;
+    apagandoDev = true;
     const criador = sala.jogadores[0];
-    let resp;
     try {
-      await banco.rpc('encerrar_sala', { p_conta: criador.conta_id, p_token: criador.token, p_partida_id: sala.partida_id });
-      resp = await banco.rpc('dev_apagar_sala', { p_partida: sala.partida_id });
+      try { await banco.rpc('encerrar_sala', { p_conta: criador.conta_id, p_token: criador.token, p_partida_id: sala.partida_id }); } catch (erro) {}
+      try { await banco.rpc('dev_apagar_sala', { p_partida: sala.partida_id }); } catch (erro) {}
+      const chk = await banco.rpc('estado_mesa', { p_partida: sala.partida_id });
+      if (!chk.error && (!chk.data || !chk.data.partida || chk.data.partida.encerrada)) {
+        esquecerDevSala();
+        return true;
+      }
     } catch (erro) {
-      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    } finally {
+      apagandoDev = false;
     }
-    ocupado = false;
+    return false;
+  }
 
-    if (resp.error) { mostrarErro('erro-dev', resp.error.message); return; }
-    esquecerDevSala();
+  async function excluirSalaDev() {
+    if (!lerDevSala() || ocupado) return;
+    if (!confirm('Encerrar e excluir a sala DEV? Os jogadores fictícios também saem deste aparelho.')) return;
+    limparErro('erro-dev');
+    const ok = await apagarSalaDev();
+    if (!ok) { mostrarErro('erro-dev', 'Não consegui excluir agora. Confira a internet e tente de novo.'); return; }
     aviso('Sala DEV excluída.');
     voltarParaSalas();
   }
@@ -3953,6 +4197,7 @@
   // 12) AO ABRIR A PÁGINA: voltar para onde a pessoa estava
   // =====================================================
   async function iniciarApp() {
+    if (lerDevSala() && !modoDev) apagarSalaDev();   // sobrou uma sala DEV de antes: fecha
     // Sem login salvo: tela de login
     if (!minhaConta) { mostrar('tela-login'); return; }
 
