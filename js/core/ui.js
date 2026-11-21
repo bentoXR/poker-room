@@ -1,5 +1,5 @@
 // Utilitários de interface: navegação entre telas, gavetas (.folha), toast, erros, formatação
-import { estado } from './estado.js';
+import { estado } from './estado.js?v=2';
 
 export const $id = (id) => document.getElementById(id);
 
@@ -26,7 +26,9 @@ export function mostrar(idDaTela) {
 
   document.body.classList.toggle('na-mesa', idDaTela === 'tela-mesa');
   if (idDaTela !== 'tela-mesa') {
-    $id('barra-acoes').classList.remove('visivel');
+    document.body.classList.remove('modo-online');
+    $id('tela-mesa').classList.remove('modo-online');
+    $id('barra-acoes').classList.remove('visivel', 'modo-online');
   }
   if (idDaTela !== 'tela-salas' && onSairDeSalas) onSairDeSalas();
   ajustarHistorico(idDaTela);

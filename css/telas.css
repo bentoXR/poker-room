@@ -226,3 +226,142 @@ button.stack.especial b { font-size: 17px; }
   .marca { margin-bottom: 20px; }
   .marca h1 { font-size: clamp(60px, 18vw, 76px); }
 }
+
+/* ----- Telas de entrada, lobby e criação no PC / Desktop ----- */
+@media (hover: hover) and (pointer: fine) {
+  button.sala:hover:not(:disabled) {
+    filter: none;
+    border-color: rgba(244, 247, 255, 0.38);
+    background: var(--feltro-700);
+    transform: translateY(-1px);
+  }
+  button.sala.minha:hover:not(:disabled) {
+    border-color: rgba(196, 52, 76, 0.85);
+  }
+  button.stack:hover:not(:disabled):not(.sel) {
+    filter: none;
+    background: var(--feltro-700);
+    box-shadow: inset 0 0 0 1.5px rgba(244, 247, 255, 0.34);
+  }
+  button.atalho:hover:not(:disabled) {
+    filter: none;
+    background: rgba(244, 247, 255, 0.18);
+  }
+}
+
+@media (min-width: 820px) {
+  /* Login em duas colunas equilibradas */
+  #tela-login.ativa {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    align-items: center;
+    gap: 52px;
+    max-width: 880px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 96px);
+  }
+  #tela-login .marca {
+    text-align: left;
+    margin-bottom: 0;
+  }
+  #tela-login .naipes {
+    justify-content: flex-start;
+    font-size: 32px;
+    gap: 18px;
+  }
+  #tela-login .marca h1 {
+    font-size: 86px;
+    margin-top: 12px;
+  }
+  #tela-login .marca p {
+    margin: 16px 0 0;
+    max-width: 340px;
+    font-size: 18px;
+    line-height: 1.45;
+  }
+  #tela-login .cartao {
+    margin-top: 0 !important;
+    padding: 26px 26px 24px;
+    background: rgba(6, 13, 36, 0.72);
+    box-shadow: 0 24px 56px -20px rgba(0, 0, 0, 0.72);
+  }
+
+  /* Lista de salas em grade de 2 colunas */
+  #tela-salas {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  #tela-salas .cabecalho-conta {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--linha);
+  }
+  #tela-salas .cabecalho-conta .ola { font-size: 16px; }
+  #tela-salas h2 {
+    margin-top: 22px !important;
+    font-size: 40px;
+  }
+  #tela-salas .linha-botoes {
+    max-width: 440px;
+    gap: 12px;
+  }
+  #tela-salas .linha-botoes > button { margin-top: 4px; }
+  #tela-salas button.botao-dev-entrada { min-width: 140px; }
+  #lista-salas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+  }
+  #lista-salas .vazio {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    padding: 46px 24px;
+    font-size: 16px;
+    border: 1px dashed var(--linha);
+  }
+  #lista-salas button.sala {
+    margin-top: 0;
+    min-height: 86px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    transition: transform 0.14s ease, border-color 0.16s ease, background-color 0.16s ease;
+  }
+  #lista-salas button.sala .sala-nome { font-size: 26px; }
+
+  /* Telas de criação de sala e Sala DEV */
+  #tela-criar, #tela-dev {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  #tela-criar .topo-criar, #tela-dev .topo-criar { gap: 8px; }
+  #tela-criar .topo-criar h2, #tela-dev .topo-criar h2 { font-size: 36px; }
+  #tela-criar .cartao, #tela-dev .cartao {
+    margin-top: 14px;
+    padding: 24px 26px;
+    background: rgba(6, 13, 36, 0.68);
+    box-shadow: 0 24px 56px -22px rgba(0, 0, 0, 0.7);
+  }
+  #tela-criar .nome-sala-linha strong, #tela-dev .nome-sala-linha strong { font-size: 28px; }
+  #tela-criar label, #tela-dev label { margin: 14px 0 6px; font-size: 14px; }
+  #tela-criar input, #tela-dev input { min-height: 48px; padding: 10px 14px; font-size: 16px; }
+  #tela-criar .stacks, #tela-dev .stacks { gap: 10px; }
+  #tela-criar button.stack, #tela-dev button.stack { min-height: 50px; }
+  #tela-criar button.stack b, #tela-dev button.stack b { font-size: 21px; }
+  #tela-criar .trio, #tela-dev .trio { gap: 12px; }
+  #tela-criar .profund, #tela-dev .profund { margin-top: 14px; padding: 12px 16px; }
+  #tela-criar #botao-criar, #tela-dev #botao-criar-dev {
+    margin-top: 16px;
+    min-height: 56px;
+    font-size: 18px;
+  }
+
+  /* Escolha de entrada */
+  #tela-escolha {
+    max-width: 500px;
+    margin: 36px auto 0;
+  }
+  #tela-escolha .cartao {
+    padding: 24px;
+    box-shadow: 0 22px 50px -20px rgba(0, 0, 0, 0.7);
+  }
+}

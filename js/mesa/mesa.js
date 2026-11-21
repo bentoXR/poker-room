@@ -1,14 +1,14 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, limparCachesMesa } from '../core/estado.js';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, fecharFolhas } from '../core/ui.js';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js';
-import { obterModo } from './modos.js';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js';
+import { banco } from '../core/supabase.js?v=2';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, limparCachesMesa } from '../core/estado.js?v=2';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=2';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, fecharFolhas } from '../core/ui.js?v=2';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=2';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=2';
+import { obterModo } from './modos.js?v=2';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=2';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=2';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -134,6 +134,10 @@ export function desenharMesa(dados) {
 
   estado.partidaAtual = partida;
   estado.modoAtual = partida.modo || 'presencial';
+  const ehModoOnline = estado.modoAtual === 'online';
+  document.body.classList.toggle('modo-online', ehModoOnline);
+  $id('tela-mesa').classList.toggle('modo-online', ehModoOnline);
+  $id('barra-acoes').classList.toggle('modo-online', ehModoOnline);
   if (Number(partida.valor_real_mil) > 0) marcarReal(partida.id, Number(partida.valor_real_mil));
   estado.jogadoresAtuais = jogadores;
   estado.ultimoEstado = dados;
@@ -308,11 +312,19 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo }) {
   }
 
   const ehOnline = partida.modo === 'online';
+  const desktopOnline = ehOnline && window.innerWidth >= 820;
   const emEsperaOnline = ehOnline && (!partida.iniciada || partida.aguardando_proxima_mao);
   const nJ = jogadores.length;
   const meuIdx = Math.max(0, jogadores.findIndex((j) => j.id === estado.meuJogadorId));
-  const larguraLugar = nJ <= 4 ? 100 : nJ <= 6 ? 94 : nJ <= 8 ? 88 : 84;
-  const escalaLugar = nJ <= 4 ? 1.05 : nJ <= 6 ? 1 : nJ <= 8 ? 0.95 : 0.92;
+  const larguraLugar = desktopOnline
+    ? (nJ <= 4 ? 156 : nJ <= 6 ? 148 : nJ <= 8 ? 138 : 130)
+    : (nJ <= 4 ? 100 : nJ <= 6 ? 94 : nJ <= 8 ? 88 : 84);
+  const escalaLugar = desktopOnline
+    ? (nJ <= 4 ? 1.08 : nJ <= 6 ? 1.04 : nJ <= 8 ? 1.0 : 0.96)
+    : (nJ <= 4 ? 1.05 : nJ <= 6 ? 1 : nJ <= 8 ? 0.95 : 0.92);
+  const raioX = desktopOnline ? 43 : 40;
+  const raioY = desktopOnline ? 40 : 39;
+  const maxVw = desktopOnline ? '18vw' : '27vw';
 
   const htmlLista = jogadores.map((j, i) => {
     const souEu = (j.id === estado.meuJogadorId);
@@ -354,10 +366,10 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo }) {
     const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
     const k = (i - meuIdx + nJ) % nJ;
     const angulo = (90 + (360 * k / Math.max(1, nJ))) * Math.PI / 180;
-    const x = 50 + 40 * Math.cos(angulo);
-    const y = 50 + 39 * Math.sin(angulo);
-    const largura = larguraLugar + (souEu ? 8 : 0);
-    const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,27vw);--escala-lugar:' + escalaLugar + ';';
+    const x = 50 + raioX * Math.cos(angulo);
+    const y = 50 + raioY * Math.sin(angulo);
+    const largura = larguraLugar + (souEu ? (desktopOnline ? 10 : 8) : 0);
+    const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVw + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
     const coroaHtml = (!ehOnline && j.criador) ? ICONE_COROA : '';
 
@@ -407,6 +419,13 @@ export function tick() {
   }
   const turno = $id('tempo-turno');
   if (turno) turno.textContent = estado.relogio.vez ? formatarTempo(agora - estado.relogio.vez) : 'VEZ';
+}
+
+export function recalcularLayoutMesa() {
+  if (!estado.ultimoEstado || !estado.partidaAtual) return;
+  if (estado.partidaAtual.modo !== 'online') return;
+  if (!$id('tela-mesa').classList.contains('ativa')) return;
+  desenharMesa(estado.ultimoEstado);
 }
 
 export function iniciarRelogio() {

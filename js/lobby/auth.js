@@ -1,10 +1,10 @@
 // Autenticação de conta (um nome e uma senha para todas as salas e modos)
-import { banco } from '../core/supabase.js';
-import { estado, limparCachesMesa } from '../core/estado.js';
-import { guardarConta, esquecerConta, esquecerPartida, lembrarNome, lerNome } from '../core/storage.js';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js';
-import { desligarTempoReal } from '../core/realtime.js';
-import { obterModo } from '../mesa/modos.js';
+import { banco } from '../core/supabase.js?v=2';
+import { estado, limparCachesMesa } from '../core/estado.js?v=2';
+import { guardarConta, esquecerConta, esquecerPartida, lembrarNome, lerNome } from '../core/storage.js?v=2';
+import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=2';
+import { desligarTempoReal } from '../core/realtime.js?v=2';
+import { obterModo } from '../mesa/modos.js?v=2';
 
 let hooksAuth = {
   abrirSalas: () => {},

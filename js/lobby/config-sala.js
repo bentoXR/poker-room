@@ -1,8 +1,8 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js';
-import { estado, marcarReal } from '../core/estado.js';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js';
+import { banco } from '../core/supabase.js?v=2';
+import { estado, marcarReal } from '../core/estado.js?v=2';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=2';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -32,7 +32,9 @@ export function escolherModoSala(modo, p) {
   const wrap = $id('seletor-modo' + s);
   if (wrap) {
     wrap.querySelectorAll('.modo-btn').forEach((b) => {
-      b.classList.toggle('sel', b.dataset.modo === cfgModo[p]);
+      const ativo = b.dataset.modo === cfgModo[p];
+      b.classList.toggle('sel', ativo);
+      b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
   }
   const op = $id('opcoes-online' + s);
@@ -45,7 +47,9 @@ export function escolherTempoTurno(seg, p) {
   const wrap = $id('chips-turno' + idsCfg(p).s);
   if (wrap) {
     wrap.querySelectorAll('.op-chip').forEach((b) => {
-      b.classList.toggle('sel', Number(b.dataset.v) === cfgTempoTurno[p]);
+      const ativo = Number(b.dataset.v) === cfgTempoTurno[p];
+      b.classList.toggle('sel', ativo);
+      b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
   }
 }
@@ -56,7 +60,9 @@ export function escolherSubirBlinds(min, p) {
   const wrap = $id('chips-blinds' + idsCfg(p).s);
   if (wrap) {
     wrap.querySelectorAll('.op-chip').forEach((b) => {
-      b.classList.toggle('sel', Number(b.dataset.v) === cfgSubirBlinds[p]);
+      const ativo = Number(b.dataset.v) === cfgSubirBlinds[p];
+      b.classList.toggle('sel', ativo);
+      b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
   }
 }

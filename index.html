@@ -14,11 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css">
-  <link rel="stylesheet" href="./css/telas.css">
-  <link rel="stylesheet" href="./css/mesa.css">
-  <link rel="stylesheet" href="./css/gavetas.css">
-  <link rel="stylesheet" href="./css/online.css">
+  <link rel="stylesheet" href="./css/base.css?v=2">
+  <link rel="stylesheet" href="./css/telas.css?v=2">
+  <link rel="stylesheet" href="./css/mesa.css?v=2">
+  <link rel="stylesheet" href="./css/gavetas.css?v=2">
+  <link rel="stylesheet" href="./css/online.css?v=2">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -39,7 +39,7 @@
     <div class="marca">
       <div class="naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
       <h1>Poker Room</h1>
-      <p>Fichas, blinds e pote da sua mesa, direto no celular.</p>
+      <p>Fichas, blinds e mesas presenciais ou online com amigos.</p>
     </div>
 
     <div class="cartao" style="margin-top:12px">
@@ -104,20 +104,24 @@
       </div>
 
       <div class="opcoes-online" id="opcoes-online" hidden>
-        <label>Tempo por jogada</label>
-        <div class="opcoes-chips" id="chips-turno">
-          <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'')">20s</button>
-          <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'')">30s</button>
-          <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'')">45s</button>
-          <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'')">60s</button>
+        <div class="opcoes-grupo">
+          <label>Tempo por jogada</label>
+          <div class="opcoes-chips" id="chips-turno">
+            <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'')">20s</button>
+            <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'')">30s</button>
+            <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'')">45s</button>
+            <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'')">60s</button>
+          </div>
         </div>
-        <label>Subir blinds automaticamente</label>
-        <div class="opcoes-chips" id="chips-blinds">
-          <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'')">Fixos</button>
-          <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
-          <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'')">15m</button>
-          <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'')">20m</button>
-          <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'')">30m</button>
+        <div class="opcoes-grupo">
+          <label>Subir blinds automaticamente</label>
+          <div class="opcoes-chips" id="chips-blinds">
+            <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'')">Fixos</button>
+            <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
+            <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'')">15m</button>
+            <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'')">20m</button>
+            <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'')">30m</button>
+          </div>
         </div>
       </div>
 
@@ -189,20 +193,24 @@
       </div>
 
       <div class="opcoes-online" id="opcoes-online-dev" hidden>
-        <label>Tempo por jogada</label>
-        <div class="opcoes-chips" id="chips-turno-dev">
-          <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'dev')">20s</button>
-          <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'dev')">30s</button>
-          <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'dev')">45s</button>
-          <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'dev')">60s</button>
+        <div class="opcoes-grupo">
+          <label>Tempo por jogada</label>
+          <div class="opcoes-chips" id="chips-turno-dev">
+            <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'dev')">20s</button>
+            <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'dev')">30s</button>
+            <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'dev')">45s</button>
+            <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'dev')">60s</button>
+          </div>
         </div>
-        <label>Subir blinds automaticamente</label>
-        <div class="opcoes-chips" id="chips-blinds-dev">
-          <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'dev')">Fixos</button>
-          <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'dev')">10m</button>
-          <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'dev')">15m</button>
-          <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'dev')">20m</button>
-          <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'dev')">30m</button>
+        <div class="opcoes-grupo">
+          <label>Subir blinds automaticamente</label>
+          <div class="opcoes-chips" id="chips-blinds-dev">
+            <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'dev')">Fixos</button>
+            <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'dev')">10m</button>
+            <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'dev')">15m</button>
+            <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'dev')">20m</button>
+            <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'dev')">30m</button>
+          </div>
         </div>
       </div>
 
@@ -508,44 +516,46 @@
 <div id="barra-acoes" class="barra-acoes">
   <div id="timer-turno-wrap" class="timer-turno-wrap" hidden><div id="timer-turno-fill" class="timer-turno-fill"></div></div>
   <div id="minha-mao-wrap" class="minha-mao-wrap" hidden></div>
-  <div id="erro-barra" class="erro" role="alert"></div>
-  <div id="barra-titulo" class="barra-titulo"></div>
+  <div class="barra-controles">
+    <div id="erro-barra" class="erro" role="alert"></div>
+    <div id="barra-titulo" class="barra-titulo"></div>
 
-  <!-- Modo blind -->
-  <div id="barra-blind" hidden>
-    <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
-  </div>
-
-  <!-- Modo normal: aparece só na sua vez -->
-  <div id="barra-normal" hidden>
-    <div id="caixa-aposta" class="caixa-aposta" hidden>
-      <div class="presets">
-        <button type="button" class="secundario" onclick="apostaPote(1/3)">⅓</button>
-        <button type="button" class="secundario" onclick="apostaPote(1/2)">½</button>
-        <button type="button" class="secundario" onclick="apostaPote(2/3)">⅔</button>
-        <button type="button" class="secundario" onclick="apostaPote(1)">Pote</button>
-        <button type="button" class="secundario allin" onclick="apostaAllIn()">All-in</button>
-      </div>
-      <input id="campo-slider" type="range" min="0" max="0" step="1" value="0" aria-label="Valor da aposta" oninput="aoMoverSlider()">
-      <div class="linha-aposta">
-        <button type="button" id="btn-menos" class="passo" onclick="ajustarAposta(-1)" aria-label="Diminuir aposta">−</button>
-        <input id="campo-valor" type="number" inputmode="numeric" aria-label="Valor da aposta" oninput="aoDigitarAposta()">
-        <button type="button" id="btn-mais" class="passo" onclick="ajustarAposta(1)" aria-label="Aumentar aposta">+</button>
-        <button id="btn-apostar" class="apostar" onclick="apostar()">Apostar</button>
-      </div>
+    <!-- Modo blind -->
+    <div id="barra-blind" hidden>
+      <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
     </div>
 
-    <div class="grade-simples">
-      <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
-      <button id="btn-check" class="positivo" onclick="agir('check')">Check</button>
-      <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
-      <button id="btn-confirmar-aposta" class="positivo" onclick="apostar()">Apostar</button>
-      <button id="btn-aumentar" onclick="alternarAposta()">Aumentar</button>
+    <!-- Modo normal: aparece só na sua vez -->
+    <div id="barra-normal" hidden>
+      <div id="caixa-aposta" class="caixa-aposta" hidden>
+        <div class="presets">
+          <button type="button" class="secundario" onclick="apostaPote(1/3)">⅓</button>
+          <button type="button" class="secundario" onclick="apostaPote(1/2)">½</button>
+          <button type="button" class="secundario" onclick="apostaPote(2/3)">⅔</button>
+          <button type="button" class="secundario" onclick="apostaPote(1)">Pote</button>
+          <button type="button" class="secundario allin" onclick="apostaAllIn()">All-in</button>
+        </div>
+        <input id="campo-slider" type="range" min="0" max="0" step="1" value="0" aria-label="Valor da aposta" oninput="aoMoverSlider()">
+        <div class="linha-aposta">
+          <button type="button" id="btn-menos" class="passo" onclick="ajustarAposta(-1)" aria-label="Diminuir aposta">−</button>
+          <input id="campo-valor" type="number" inputmode="numeric" aria-label="Valor da aposta" oninput="aoDigitarAposta()">
+          <button type="button" id="btn-mais" class="passo" onclick="ajustarAposta(1)" aria-label="Aumentar aposta">+</button>
+          <button id="btn-apostar" class="apostar" onclick="apostar()">Apostar</button>
+        </div>
+      </div>
+
+      <div class="grade-simples">
+        <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
+        <button id="btn-check" class="positivo" onclick="agir('check')">Check</button>
+        <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
+        <button id="btn-confirmar-aposta" class="positivo" onclick="apostar()">Apostar</button>
+        <button id="btn-aumentar" onclick="alternarAposta()">Aumentar</button>
+      </div>
+      <div id="dica-pagar" class="dica-barra"></div>
     </div>
-    <div id="dica-pagar" class="dica-barra"></div>
   </div>
 </div>
 
-<script type="module" src="./js/main.js"></script>
+<script type="module" src="./js/main.js?v=2"></script>
 </body>
 </html>

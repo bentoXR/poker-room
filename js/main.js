@@ -1,54 +1,54 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js';
-import { estado } from './core/estado.js';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js';
+import { banco } from './core/supabase.js?v=2';
+import { estado } from './core/estado.js?v=2';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=2';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js';
+} from './core/ui.js?v=2';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=2';
 
-import { registrarHooksAuth, fazerLogin, criarConta, sairDaConta } from './lobby/auth.js';
+import { registrarHooksAuth, fazerLogin, criarConta, sairDaConta } from './lobby/auth.js?v=2';
 import {
   abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js';
+} from './lobby/salas.js?v=2';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds
-} from './lobby/config-sala.js';
+} from './lobby/config-sala.js?v=2';
 
 import {
-  abrirMesa, buscarMesa, receberEstado, iniciarRelogio,
+  abrirMesa, buscarMesa, receberEstado, iniciarRelogio, recalcularLayoutMesa,
   sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa, registrarTickOnline
-} from './mesa/mesa.js';
+} from './mesa/mesa.js?v=2';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
   aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js';
+} from './mesa/apostas.js?v=2';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal
-} from './mesa/extras.js';
+} from './mesa/extras.js?v=2';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js';
+} from './modos/presencial/acoes.js?v=2';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js';
+} from './modos/presencial/distribuir.js?v=2';
 import {
   registrarHooksDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js';
+} from './modos/presencial/dev.js?v=2';
 import {
   virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI
-} from './modos/online/online.js';
+} from './modos/online/online.js?v=2';
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
@@ -137,11 +137,26 @@ iniciarRelogio();
 const barraEl = $id('barra-acoes');
 const mesaEl = $id('tela-mesa');
 function ajustarEspaco() {
-  const altura = barraEl.classList.contains('visivel') ? barraEl.offsetHeight : 0;
-  mesaEl.style.paddingBottom = altura ? (altura + 6) + 'px' : 'calc(10px + env(safe-area-inset-bottom))';
+  const visivel = barraEl.classList.contains('visivel');
+  const altura = visivel ? barraEl.offsetHeight : 0;
+  const margemInf = visivel ? (parseFloat(getComputedStyle(barraEl).bottom) || 0) : 0;
+  mesaEl.style.paddingBottom = altura ? (altura + margemInf + 8) + 'px' : 'calc(10px + env(safe-area-inset-bottom))';
 }
 if ('ResizeObserver' in window) new ResizeObserver(ajustarEspaco).observe(barraEl);
 new MutationObserver(ajustarEspaco).observe(barraEl, { attributes: true, attributeFilter: ['class'] });
+
+let timerResize = null;
+window.addEventListener('resize', () => {
+  clearTimeout(timerResize);
+  timerResize = setTimeout(() => {
+    recalcularLayoutMesa();
+    ajustarEspaco();
+  }, 120);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && algumaFolhaAberta()) fecharFolhas();
+});
 
 $id('campo-login-nome').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') $id('campo-login-senha').focus();

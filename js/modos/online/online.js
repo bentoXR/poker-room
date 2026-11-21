@@ -1,10 +1,10 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s
-import { banco } from '../../core/supabase.js';
-import { estado, nomeDe } from '../../core/estado.js';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js';
-import { lerDevSala } from '../../core/storage.js';
-import { registrarModo } from '../../mesa/modos.js';
-import { executar } from '../../mesa/apostas.js';
+import { banco } from '../../core/supabase.js?v=2';
+import { estado, nomeDe } from '../../core/estado.js?v=2';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=2';
+import { lerDevSala } from '../../core/storage.js?v=2';
+import { registrarModo } from '../../mesa/modos.js?v=2';
+import { executar } from '../../mesa/apostas.js?v=2';
 
 const NAIPES_SYM = { s: '♠', h: '♥', d: '♦', c: '♣' };
 
