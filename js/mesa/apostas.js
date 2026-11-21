@@ -1,9 +1,9 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=69';
-import { estado, passoSala, nomeDe } from '../core/estado.js?v=69';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=69';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=69';
+import { banco } from '../core/supabase.js?v=71';
+import { estado, passoSala, nomeDe } from '../core/estado.js?v=71';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=71';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=71';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -110,6 +110,36 @@ export function apostaAllIn() {
   tocarSom('clique');
 }
 
+export function apostaBB(mult) {
+  const lim = limitesAposta();
+  if (!lim || !(lim.max > 0) || !estado.partidaAtual) return;
+  const bb = Math.max(1, Number(estado.partidaAtual.big_blind) || 2);
+  const totalAlvo = Math.round(mult * bb);
+  const colocar = Math.max(lim.min, Math.min(lim.max, totalAlvo - lim.apostou));
+  tocarSom('clique');
+  definirAposta(colocar, true);
+}
+
+function atualizarPresetsAposta(partida) {
+  const el = document.querySelector('#caixa-aposta .presets');
+  if (!el || !partida) return;
+  const ehPreFlopAberto = Number(partida.fase) === 0 && Number(partida.aposta_atual) <= Number(partida.big_blind);
+  const modo = ehPreFlopAberto ? 'bb' : 'pote';
+  if (el.dataset.modo === modo) return;
+  el.dataset.modo = modo;
+  el.innerHTML = ehPreFlopAberto
+    ? '<button type="button" class="secundario" onclick="apostaBB(2)">2x</button>'
+      + '<button type="button" class="secundario" onclick="apostaBB(2.5)">2.5x</button>'
+      + '<button type="button" class="secundario" onclick="apostaBB(3)">3x</button>'
+      + '<button type="button" class="secundario" onclick="apostaBB(4)">4x</button>'
+      + '<button type="button" class="secundario allin" onclick="apostaAllIn()">All-in</button>'
+    : '<button type="button" class="secundario" onclick="apostaPote(1/3)" aria-label="Um terço do pote">⅓</button>'
+      + '<button type="button" class="secundario" onclick="apostaPote(1/2)" aria-label="Metade do pote">½</button>'
+      + '<button type="button" class="secundario" onclick="apostaPote(2/3)" aria-label="Dois terços do pote">⅔</button>'
+      + '<button type="button" class="secundario" onclick="apostaPote(1)" aria-label="Valor do pote">Pote</button>'
+      + '<button type="button" class="secundario allin" onclick="apostaAllIn()" aria-label="Apostar todas as fichas">All-in</button>';
+}
+
 function infoSlider(lim) {
   const passoS = lim.passo > 1 ? lim.passo : (estado.partidaAtual.big_blind >= 10 ? 10 : 1);
   const total = lim.apostou + lim.max;
@@ -158,6 +188,7 @@ export function alternarAposta() {
   $id('barra-acoes').classList.toggle('apostando', estado.apostaAberta);
   sincronizarModoAposta();
   if (estado.apostaAberta) {
+    atualizarPresetsAposta(estado.partidaAtual);
     estado.apostaEditada = false;
     const lim = limitesAposta();
     if (lim && lim.max > 0) definirAposta(lim.min, false);
@@ -268,10 +299,59 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
 
   const emBlind = partida.fase_blind > 0;
   const minhaVezBlind = emBlind && minhaVez;
-  const podeAgir = minhaVez && !emBlind && !eu.desistiu && emJogo;
+  const podeAgir = minhaVez && !emBlind && !eu.desistiu && emJogo && !partida.pausada;
 
-  $id('barra-blind').hidden = !minhaVezBlind;
-  $id('barra-normal').hidden = !(minhaVez && !emBlind && emJogo);
+  $id('barra-blind').hidden = !minhaVezBlind || !!partida.pausada;
+  $id('barra-normal').hidden = !(podeAgir);
+  atualizarPresetsAposta(partida);
+
+  const valorPagarPre = Math.min(Math.max(0, falta), eu.saldo);
+  const podePreAcao = !minhaVez && emJogo && !emBlind && !eu.desistiu && !eu.esperando
+    && eu.saldo > 0 && !partida.pausada && !estado.modoDev;
+  const pre = estado.preAcao;
+  if (pre && (
+    !emJogo || emBlind || eu.desistiu || eu.esperando || eu.saldo <= 0 || partida.pausada || estado.modoDev
+    || pre.partidaId !== partida.id || pre.mao !== partida.mao || pre.fase !== partida.fase || pre.jogadorId !== eu.id
+    || (pre.tipo === 'check' && falta > 0)
+    || (pre.tipo === 'pagar' && (falta <= 0 || valorPagarPre > pre.valorAlvo))
+  )) {
+    estado.preAcao = null;
+  }
+
+  const preEl = $id('barra-pre-acao');
+  if (podeAgir && estado.preAcao && !estado.ocupado) {
+    const acaoFila = estado.preAcao;
+    estado.preAcao = null;
+    if (preEl) { preEl.hidden = true; preEl.innerHTML = ''; }
+    const mSnap = partida.mao;
+    const fSnap = partida.fase;
+    setTimeout(() => {
+      const pAt = estado.partidaAtual;
+      if (!pAt || pAt.pausada || pAt.mao !== mSnap || pAt.fase !== fSnap) return;
+      if (pAt.vez_jogador_id !== eu.id || estado.ocupado) return;
+      const euAt = (estado.jogadoresAtuais || []).find((x) => x.id === eu.id);
+      const faltaAt = euAt ? Math.max(0, pAt.aposta_atual - euAt.apostou) : 0;
+      if (acaoFila.tipo === 'check_fold') agir(faltaAt > 0 ? 'desistir' : 'check');
+      else if (acaoFila.tipo === 'check' && faltaAt === 0) agir('check');
+      else if (acaoFila.tipo === 'pagar' && faltaAt > 0) agir('pagar');
+    }, 260);
+  } else if (preEl) {
+    if (podePreAcao) {
+      const sel = estado.preAcao ? estado.preAcao.tipo : '';
+      const b1Rot = falta > 0 ? 'Desistir' : 'Check / Desistir';
+      const b2Tipo = falta > 0 ? 'pagar' : 'check';
+      const b2Rot = falta > 0
+        ? ('Pagar ' + valorPagarPre + (valorPagarPre >= eu.saldo ? ' (all-in)' : ''))
+        : 'Check auto';
+      preEl.innerHTML =
+        '<button type="button" class="pre-btn perigo' + (sel === 'check_fold' ? ' sel' : '') + '" onclick="alternarPreAcao(\'check_fold\')" aria-pressed="' + (sel === 'check_fold') + '">' + b1Rot + '</button>'
+        + '<button type="button" class="pre-btn positivo' + (sel === b2Tipo ? ' sel' : '') + '" onclick="alternarPreAcao(\'' + b2Tipo + '\')" aria-pressed="' + (sel === b2Tipo) + '">' + b2Rot + '</button>';
+      preEl.hidden = false;
+    } else {
+      preEl.hidden = true;
+      preEl.innerHTML = '';
+    }
+  }
 
   const barraDevProx = $id('barra-dev-prox');
   const btnDevPassar = $id('btn-dev-passar');
@@ -343,4 +423,43 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
     estado.apostaEditada = false;
   }
   atualizarRotuloApostar();
+}
+
+export function alternarPreAcao(tipo) {
+  const p = estado.partidaAtual;
+  const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
+  if (!p || !eu || p.pausada || estado.modoDev) return;
+  tocarSom('clique');
+  if (estado.preAcao && estado.preAcao.tipo === tipo) {
+    estado.preAcao = null;
+  } else {
+    const falta = Math.max(0, p.aposta_atual - eu.apostou);
+    estado.preAcao = {
+      partidaId: p.id,
+      mao: p.mao,
+      fase: p.fase,
+      jogadorId: eu.id,
+      tipo,
+      valorAlvo: Math.min(falta, eu.saldo)
+    };
+  }
+  desenharSomentePreAcao(p, eu);
+}
+
+function desenharSomentePreAcao(p, eu) {
+  const preEl = $id('barra-pre-acao');
+  if (!preEl || preEl.hidden) return;
+  const sel = estado.preAcao ? estado.preAcao.tipo : '';
+  const falta = Math.max(0, p.aposta_atual - eu.apostou);
+  const valorPagar = Math.min(falta, eu.saldo);
+  const b2Tipo = falta > 0 ? 'pagar' : 'check';
+  preEl.querySelectorAll('button').forEach((btn, idx) => {
+    const t = idx === 0 ? 'check_fold' : b2Tipo;
+    const ativo = sel === t;
+    btn.classList.toggle('sel', ativo);
+    btn.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+    if (idx === 1 && falta > 0) {
+      btn.textContent = 'Pagar ' + valorPagar + (valorPagar >= eu.saldo ? ' (all-in)' : '');
+    }
+  });
 }

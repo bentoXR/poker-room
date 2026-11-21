@@ -1,5 +1,5 @@
 // Estado compartilhado da aplicação (conta, sala ativa, mesa, caches de renderização e modo)
-import { lerContaSalva, lerDevSala } from './storage.js?v=69';
+import { lerContaSalva, lerDevSala } from './storage.js?v=71';
 
 export const QUALQUER_UM_ABRE_RODADA = false;
 
@@ -15,6 +15,7 @@ export const estado = {
   versaoSalas: 0,
   htmlSalas: '',
   abrindoSala: false,
+  salaConviteId: null,
 
   // Partida e mesa ativa
   partidaAtual: null,
@@ -49,6 +50,7 @@ export const estado = {
   apostaEditada: false,
   apostaAberta: false,
   apostaAbertaEm: 0,
+  preAcao: null,
   opFichas: null,
   opFichasChave: '',
   distEstado: null,
@@ -110,6 +112,7 @@ export function passoSala() {
 
 export function limparCachesMesa() {
   estado.eraMinhaVez = false;
+  estado.preAcao = null;
   estado.ultimoPote = null;
   estado.htmlPotesVisto = '';
   estado.htmlJogadoresVisto = '';

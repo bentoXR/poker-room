@@ -1,16 +1,17 @@
 // Chat de texto simples da mesa (persistido no Supabase + entrega instantânea via Realtime)
-import { banco } from '../core/supabase.js?v=69';
-import { estado, nomeDe } from '../core/estado.js?v=69';
-import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=69';
-import { publicarChat } from '../core/realtime.js?v=69';
-import { tocarSom } from '../core/som.js?v=69';
+import { banco } from '../core/supabase.js?v=71';
+import { estado, nomeDe } from '../core/estado.js?v=71';
+import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=71';
+import { publicarChat, publicarReacao } from '../core/realtime.js?v=71';
+import { tocarSom } from '../core/som.js?v=71';
 
 const chat = {
   partidaId: null,
   mensagens: [],
   ids: new Set(),
   naoLidas: 0,
-  enviando: false
+  enviando: false,
+  ultimaReacaoEm: 0
 };
 
 function chatAberto() {
@@ -121,6 +122,9 @@ export function limparChatMesa() {
   chat.enviando = false;
   atualizarBadge();
   limparPreviewChat();
+  const pop = $id('popover-reacoes');
+  if (pop) pop.hidden = true;
+  document.querySelectorAll('.reacao-balao').forEach((el) => el.remove());
   const lista = $id('chat-lista');
   if (lista) lista.innerHTML = '';
   const campo = $id('campo-chat');
@@ -226,4 +230,63 @@ export async function enviarChat() {
     receberMensagemChat(resp.data);
     publicarChat(resp.data);
   }
+}
+
+// ----- Reações rápidas sobre os avatares -----
+export function alternarReacoes(forcarFechar) {
+  const pop = $id('popover-reacoes');
+  if (!pop) return;
+  const fechar = forcarFechar === true || !pop.hidden;
+  pop.hidden = fechar;
+  const btn = $id('btn-reacoes');
+  if (btn) btn.setAttribute('aria-expanded', fechar ? 'false' : 'true');
+}
+
+export function receberReacao(payload) {
+  if (!payload || !payload.texto) return;
+  if (payload.partida_id && estado.partidaAtual && payload.partida_id !== estado.partidaAtual.id) return;
+
+  const jid = payload.jogador_id;
+  const alvo = jid
+    ? (document.querySelector('#tela-mesa .lugar[data-jogador-id="' + jid + '"]')
+       || document.querySelector('#meu-perfil-dock[data-jogador-id="' + jid + '"]'))
+    : null;
+
+  if (!alvo) {
+    aviso(nomeDe(payload.autor_nome || 'Jogador') + ': ' + payload.texto);
+    return;
+  }
+
+  alvo.querySelectorAll('.reacao-balao').forEach((n) => n.remove());
+  const balao = document.createElement('div');
+  balao.className = 'reacao-balao' + (payload.texto.length <= 3 ? ' emoji' : '');
+  balao.textContent = payload.texto;
+  alvo.appendChild(balao);
+
+  if (!jid || jid !== estado.meuJogadorId) tocarSom('clique');
+
+  setTimeout(() => {
+    if (!balao.isConnected) return;
+    balao.classList.add('saindo');
+    setTimeout(() => { if (balao.isConnected) balao.remove(); }, 280);
+  }, 2400);
+}
+
+export function enviarReacao(texto) {
+  if (!estado.partidaAtual || !texto) return;
+  const agora = Date.now();
+  if (agora - chat.ultimaReacaoEm < 1400) return;
+  chat.ultimaReacaoEm = agora;
+
+  const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
+  const payload = {
+    partida_id: estado.partidaAtual.id,
+    jogador_id: estado.meuJogadorId || null,
+    autor_nome: eu ? eu.nome : (estado.minhaConta ? estado.minhaConta.nome : 'Jogador'),
+    texto: String(texto).slice(0, 24),
+    ts: agora
+  };
+  alternarReacoes(true);
+  receberReacao(payload);
+  publicarReacao(payload);
 }

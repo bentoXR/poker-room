@@ -921,3 +921,22 @@
     margin-bottom: 6px;
   }
 }
+
+@media (min-width: 820px) {
+  .popover-reacoes {
+    top: 68px;
+    right: 22px;
+  }
+  .barra-pre-acao {
+    max-width: 520px;
+    margin: 8px auto 0;
+  }
+  .faixa-online-acoes {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .faixa-online-acoes button {
+    width: auto;
+    min-width: 110px;
+  }
+}

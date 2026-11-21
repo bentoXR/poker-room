@@ -1,70 +1,94 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=69';
-import { estado } from './core/estado.js?v=69';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=69';
+import { banco } from './core/supabase.js?v=71';
+import { estado } from './core/estado.js?v=71';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=71';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=69';
-import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=69';
-import { iniciarSom, alternarSom } from './core/som.js?v=69';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=69';
+} from './core/ui.js?v=71';
+import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=71';
+import { iniciarSom, alternarSom } from './core/som.js?v=71';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=71';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, sairDaConta
-} from './lobby/auth.js?v=69';
+} from './lobby/auth.js?v=71';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil
-} from './lobby/perfil.js?v=69';
+} from './lobby/perfil.js?v=71';
 import {
   abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js?v=69';
+} from './lobby/salas.js?v=71';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev
-} from './lobby/config-sala.js?v=69';
+} from './lobby/config-sala.js?v=71';
 
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
-  abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa, registrarTickOnline
-} from './mesa/mesa.js?v=69';
+  abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline
+} from './mesa/mesa.js?v=71';
 import {
-  agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
-  aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=69';
+  agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
+  alternarPreAcao, aoMoverSlider, aoDigitarAposta
+} from './mesa/apostas.js?v=71';
 import {
-  abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal
-} from './mesa/extras.js?v=69';
-import { abrirChat, enviarChat } from './mesa/chat.js?v=69';
+  abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal, copiarAcertoMesa
+} from './mesa/extras.js?v=71';
+import {
+  abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao
+} from './mesa/chat.js?v=71';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=69';
+} from './modos/presencial/acoes.js?v=71';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=69';
+} from './modos/presencial/distribuir.js?v=71';
 import {
   registrarHooksDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=69';
+} from './modos/presencial/dev.js?v=71';
 import {
-  virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline,
+  virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
+  confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
+  pausarSalaOnline, ajustarTempoOnline,
+  mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=69';
+} from './modos/online/online.js?v=71';
+
+// Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
+try {
+  const params = new URLSearchParams(window.location.search);
+  const salaParam = (params.get('sala') || '').trim();
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(salaParam)) {
+    estado.salaConviteId = salaParam;
+    params.delete('sala');
+    const q = params.toString();
+    window.history.replaceState(history.state, '', window.location.pathname + (q ? '?' + q : '') + window.location.hash);
+  }
+} catch (erro) {}
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
 registrarHooksAuth({
   abrirSalas,
   pararSalas,
-  onLogout: () => { fecharPerfil(); limparCachePerfil(); }
+  onLogout: () => { fecharPerfil(); limparCachePerfil(); },
+  onPosLogin: () => {
+    if (estado.salaConviteId) {
+      const idConvite = estado.salaConviteId;
+      estado.salaConviteId = null;
+      abrirSala(idConvite);
+    }
+  }
 });
 registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, autoSeguirVezDev });
 registrarTickOnline(tickOnline);
@@ -81,7 +105,19 @@ registrarHooksDev({
 // ----- Inicialização ao abrir a página -----
 async function iniciarApp() {
   if (lerDevSala() && !estado.modoDev) apagarSalaDev();
-  if (!estado.minhaConta) { mostrar('tela-login'); return; }
+  if (!estado.minhaConta) {
+    mostrar('tela-login');
+    if (estado.salaConviteId) aviso('Entre na sua conta para abrir a sala convidada.');
+    return;
+  }
+
+  if (estado.salaConviteId) {
+    const idConvite = estado.salaConviteId;
+    estado.salaConviteId = null;
+    abrirSalas();
+    await abrirSala(idConvite);
+    return;
+  }
 
   const id = lerPartidaSalva();
   if (!id) { abrirSalas(); return; }
@@ -127,10 +163,11 @@ Object.assign(window, {
   esquecerPartida, iniciarApp,
 
   // Mesa compartilhada e apostas
-  voltarParaSalas, sairDaMesa, encerrarSala, abrirMenuOnline,
-  abrirHistorico, abrirChat, enviarChat, abrirReais, abrirGuia, abrirDetalhesPotes, fecharFolhas,
-  agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
-  aoMoverSlider, aoDigitarAposta,
+  voltarParaSalas, sairDaMesa, encerrarSala, copiarConviteSala, abrirMenuOnline,
+  abrirHistorico, abrirChat, enviarChat, alternarReacoes, enviarReacao,
+  abrirReais, copiarAcertoMesa, abrirGuia, abrirDetalhesPotes, fecharFolhas,
+  agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
+  alternarPreAcao, aoMoverSlider, aoDigitarAposta,
 
   // Modo presencial (criador, blinds, distribuição e DEV)
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
@@ -142,7 +179,9 @@ Object.assign(window, {
   abrirPainelDev, adicionarJogadorDev, devAcao, excluirSalaDev,
 
   // Modo online (baralho virtual, cartas 3D, confirmação e revanche)
-  virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline, confirmarTodosDev
+  virarMinhaCarta, alternarModoEspiar, confirmarMao, alternarAutoPronto, alternarAusenteOnline,
+  chamarRabbitHunt, pausarSalaOnline, ajustarTempoOnline,
+  mostrarCartasOnline, revancheOnline, confirmarTodosDev
 });
 
 // ----- Eventos globais e detalhes de conforto -----
@@ -182,6 +221,8 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const popReac = $id('popover-reacoes');
+    if (popReac && !popReac.hidden) { alternarReacoes(true); return; }
     if (perfilAberto()) fecharPerfil();
     else if (algumaFolhaAberta()) fecharFolhas();
     else if (window.innerWidth >= 820 && estado.apostaAberta) alternarAposta();
@@ -211,8 +252,24 @@ document.addEventListener('keydown', (e) => {
     const wrapMao = $id('minha-mao-wrap');
     if (estado.modoAtual === 'online' && wrapMao && !wrapMao.hidden) {
       e.preventDefault();
-      virarMinhaCarta(0);
+      if (ehModoEspiarSegurar()) abrirMinhasCartas(true);
+      else virarMinhaCarta(0);
     }
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.code !== 'Space' || window.innerWidth < 820) return;
+  if (estado.modoAtual === 'online' && ehModoEspiarSegurar()) {
+    abrirMinhasCartas(false);
+  }
+});
+
+document.addEventListener('click', (e) => {
+  const pop = $id('popover-reacoes');
+  const btn = $id('btn-reacoes');
+  if (pop && !pop.hidden && !pop.contains(e.target) && (!btn || !btn.contains(e.target))) {
+    alternarReacoes(true);
   }
 });
 
@@ -245,7 +302,13 @@ document.addEventListener('visibilitychange', () => {
     buscarMesa(false);
     const canal = canalAtivo();
     if (!canal || canal.state !== 'joined') {
-      ligarTempoReal({ onEstado: receberEstado, onBuscar: buscarMesa, onConectado: carregarValorReal });
+      ligarTempoReal({
+        onEstado: receberEstado,
+        onBuscar: buscarMesa,
+        onConectado: carregarValorReal,
+        onChat: receberMensagemChat,
+        onReacao: receberReacao
+      });
     }
     enviarSinal();
   } else if (nasSalas) {

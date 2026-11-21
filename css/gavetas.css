@@ -536,3 +536,26 @@ button.chat-preview-item.saindo {
     max-width: 310px;
   }
 }
+
+/* ----- Placar e Acerto Financeiro ----- */
+.placar-saldo.pos { color: #67f09a; }
+.placar-saldo.neg { color: #ff808e; }
+.placar-saldo.zero { color: var(--marfim-suave); }
+.acerto-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  margin-top: 6px;
+  border-radius: 10px;
+  background: var(--feltro-800);
+  border: 1px solid var(--linha);
+  font-size: 14.5px;
+}
+.acerto-item strong:last-child {
+  font-family: var(--fonte-numero);
+  font-size: 17px;
+  color: var(--estrela);
+  white-space: nowrap;
+}

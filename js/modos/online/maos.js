@@ -1,6 +1,6 @@
 // Avaliador local de mãos de poker: serve só de ASSISTENTE visual (luzinha + nome da mão).
 // O resultado oficial do showdown continua sendo decidido pelo servidor (avaliar_mao_online).
-import { parseCarta, NOMES_NAIPE } from './cartas.js?v=69';
+import { parseCarta, NOMES_NAIPE } from './cartas.js?v=71';
 
 const SING = { 14: 'Ás', 13: 'Rei', 12: 'Dama', 11: 'Valete', 10: '10', 9: '9', 8: '8', 7: '7', 6: '6', 5: '5', 4: '4', 3: '3', 2: '2' };
 const PLUR = { 14: 'Ases', 13: 'Reis', 12: 'Damas', 11: 'Valetes', 10: '10s', 9: '9s', 8: '8s', 7: '7s', 6: '6s', 5: '5s', 4: '4s', 3: '3s', 2: '2s' };
@@ -162,4 +162,196 @@ export function avaliarMaoLocal(cartasRaw) {
     usadas: cartasUsadas(melhor.av.cat, melhor.cinco, melhor.av.desempate),
     projeto: descobrirProjeto(cartas, melhor.av.cat)
   };
+}
+
+// ----- Cálculo rápido de Equity % no All-In (enumeração exata no Flop/Turn; Monte Carlo no Pré-Flop) -----
+const NAIPE_IDX = { s: 0, h: 1, d: 2, c: 3 };
+const RC = new Int32Array(13);
+const SC = new Int32Array(4);
+const SM = new Int32Array(4);
+
+function cardInt(raw) {
+  const c = parseCarta(raw);
+  if (!c) return -1;
+  return (c.v - 2) * 4 + (NAIPE_IDX[c.n] ?? 0);
+}
+
+function maiorSeq(mask) {
+  for (let top = 12; top >= 4; top--) {
+    const sub = 0x1f << (top - 4);
+    if ((mask & sub) === sub) return top + 2;
+  }
+  if ((mask & 0x100f) === 0x100f) return 5;
+  return 0;
+}
+
+function topBits(mask, qtd) {
+  let out = 0;
+  let k = 0;
+  for (let r = 12; r >= 0 && k < qtd; r--) {
+    if (mask & (1 << r)) {
+      out = (out << 4) | (r + 2);
+      k++;
+    }
+  }
+  while (k < qtd) { out <<= 4; k++; }
+  return out;
+}
+
+function pontuar7(a, b, c, d, e, f, g) {
+  RC.fill(0);
+  SC.fill(0);
+  SM.fill(0);
+  let mask = 0;
+  const arr = [a, b, c, d, e, f, g];
+  for (let i = 0; i < 7; i++) {
+    const x = arr[i];
+    const r = x >> 2;
+    const s = x & 3;
+    RC[r]++;
+    SC[s]++;
+    SM[s] |= (1 << r);
+    mask |= (1 << r);
+  }
+
+  let flushS = -1;
+  for (let s = 0; s < 4; s++) {
+    if (SC[s] >= 5) { flushS = s; break; }
+  }
+  if (flushS >= 0) {
+    const sf = maiorSeq(SM[flushS]);
+    if (sf > 0) return (8 << 20) | (sf << 16);
+  }
+
+  let quad = 0; let trip1 = 0; let trip2 = 0; let pair1 = 0; let pair2 = 0;
+  for (let r = 12; r >= 0; r--) {
+    const cnt = RC[r];
+    if (cnt === 4 && !quad) quad = r + 2;
+    else if (cnt === 3) {
+      if (!trip1) trip1 = r + 2;
+      else if (!trip2) trip2 = r + 2;
+    } else if (cnt === 2) {
+      if (!pair1) pair1 = r + 2;
+      else if (!pair2) pair2 = r + 2;
+    }
+  }
+
+  if (quad) {
+    let k = 0;
+    for (let r = 12; r >= 0; r--) { if (RC[r] && (r + 2) !== quad) { k = r + 2; break; } }
+    return (7 << 20) | (quad << 16) | (k << 12);
+  }
+  if (trip1 && (trip2 || pair1)) {
+    return (6 << 20) | (trip1 << 16) | ((trip2 > pair1 ? trip2 : pair1) << 12);
+  }
+  if (flushS >= 0) {
+    return (5 << 20) | topBits(SM[flushS], 5);
+  }
+  const st = maiorSeq(mask);
+  if (st > 0) return (4 << 20) | (st << 16);
+  if (trip1) {
+    return (3 << 20) | (trip1 << 16) | (topBits(mask & ~(1 << (trip1 - 2)), 2) << 8);
+  }
+  if (pair1 && pair2) {
+    let k = 0;
+    for (let r = 12; r >= 0; r--) {
+      if (RC[r] && (r + 2) !== pair1 && (r + 2) !== pair2) { k = r + 2; break; }
+    }
+    return (2 << 20) | (pair1 << 16) | (pair2 << 12) | (k << 8);
+  }
+  if (pair1) {
+    return (1 << 20) | (pair1 << 16) | (topBits(mask & ~(1 << (pair1 - 2)), 3) << 4);
+  }
+  return topBits(mask, 5);
+}
+
+export function calcularEquities(jogadoresComCartas, boardAberto) {
+  const res = {};
+  if (!Array.isArray(jogadoresComCartas) || jogadoresComCartas.length < 2) return res;
+
+  const usadas = new Uint8Array(52);
+  const hands = [];
+  for (let i = 0; i < jogadoresComCartas.length; i++) {
+    const j = jogadoresComCartas[i];
+    if (!j || !Array.isArray(j.cartas) || j.cartas.length < 2) continue;
+    const h0 = cardInt(j.cartas[0]);
+    const h1 = cardInt(j.cartas[1]);
+    if (h0 < 0 || h1 < 0) continue;
+    usadas[h0] = 1;
+    usadas[h1] = 1;
+    hands.push({ id: j.id, h0, h1 });
+  }
+  const nH = hands.length;
+  if (nH < 2) return res;
+
+  const board = [];
+  for (let i = 0; i < (boardAberto ? boardAberto.length : 0) && board.length < 5; i++) {
+    const bi = cardInt(boardAberto[i]);
+    if (bi >= 0) {
+      usadas[bi] = 1;
+      board.push(bi);
+    }
+  }
+
+  const deck = [];
+  for (let x = 0; x < 52; x++) {
+    if (!usadas[x]) deck.push(x);
+  }
+
+  const pts = new Float64Array(nH);
+  const scores = new Int32Array(nH);
+  let total = 0;
+
+  const computar = (b0, b1, b2, b3, b4) => {
+    let best = -1;
+    let ties = 0;
+    for (let i = 0; i < nH; i++) {
+      const s = pontuar7(hands[i].h0, hands[i].h1, b0, b1, b2, b3, b4);
+      scores[i] = s;
+      if (s > best) { best = s; ties = 1; }
+      else if (s === best) ties++;
+    }
+    const share = 1 / ties;
+    for (let i = 0; i < nH; i++) {
+      if (scores[i] === best) pts[i] += share;
+    }
+    total++;
+  };
+
+  const bLen = board.length;
+  const falta = 5 - bLen;
+  if (falta === 0) {
+    computar(board[0], board[1], board[2], board[3], board[4]);
+  } else if (falta === 1) {
+    for (let i = 0; i < deck.length; i++) {
+      computar(board[0], board[1], board[2], board[3], deck[i]);
+    }
+  } else if (falta === 2) {
+    for (let i = 0; i < deck.length; i++) {
+      for (let j = i + 1; j < deck.length; j++) {
+        computar(board[0], board[1], board[2], deck[i], deck[j]);
+      }
+    }
+  } else {
+    const ITER = 700;
+    const len = deck.length;
+    for (let t = 0; t < ITER; t++) {
+      for (let k = 0; k < falta; k++) {
+        const r = k + Math.floor(Math.random() * (len - k));
+        const tmp = deck[k];
+        deck[k] = deck[r];
+        deck[r] = tmp;
+      }
+      if (bLen === 2) computar(board[0], board[1], deck[0], deck[1], deck[2]);
+      else if (bLen === 1) computar(board[0], deck[0], deck[1], deck[2], deck[3]);
+      else computar(deck[0], deck[1], deck[2], deck[3], deck[4]);
+    }
+  }
+
+  if (total > 0) {
+    for (let i = 0; i < nH; i++) {
+      res[hands[i].id] = Math.round((pts[i] * 100) / total);
+    }
+  }
+  return res;
 }

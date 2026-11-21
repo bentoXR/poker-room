@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=70">
+  <link rel="manifest" href="./manifest.webmanifest?v=71">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,15 +20,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=70">
-  <link rel="stylesheet" href="./css/telas.css?v=70">
-  <link rel="stylesheet" href="./css/mesa.css?v=70">
-  <link rel="stylesheet" href="./css/gavetas.css?v=70">
-  <link rel="stylesheet" href="./css/online.css?v=70">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=70">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=70">
-  <link rel="stylesheet" href="./css/desktop.css?v=70">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=70">
+  <link rel="stylesheet" href="./css/base.css?v=71">
+  <link rel="stylesheet" href="./css/telas.css?v=71">
+  <link rel="stylesheet" href="./css/mesa.css?v=71">
+  <link rel="stylesheet" href="./css/gavetas.css?v=71">
+  <link rel="stylesheet" href="./css/online.css?v=71">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=71">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=71">
+  <link rel="stylesheet" href="./css/desktop.css?v=71">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=71">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -386,12 +386,16 @@
       <button id="btn-tema-mesa" class="icone-btn btn-tema-ico" onclick="alternarTema()" aria-label="Mudar cores da mesa" title="Trocar tema">
         <span class="amostra-dupla" aria-hidden="true"></span>
       </button>
+      <button id="btn-reacoes" class="icone-btn" style="font-size:18px" onclick="alternarReacoes()" aria-label="Reações rápidas" title="Reações rápidas" aria-expanded="false">😊</button>
       <button id="btn-chat" class="icone-btn btn-chat-ico" onclick="abrirChat()" aria-label="Chat da mesa" title="Chat da mesa" data-label="Chat">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span id="badge-chat" class="badge-chat" hidden></span>
       </button>
+      <button id="btn-convidar" class="icone-btn" onclick="copiarConviteSala()" aria-label="Copiar link de convite" title="Convidar amigos (copiar link)" data-label="Convidar">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
       <button id="btn-guia" class="icone-btn" style="font-size:19px" onclick="abrirGuia()" aria-label="Guia de mãos do poker" title="Guia de mãos do poker" data-label="Mãos">♠</button>
-      <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Valor em reais" title="Valor em reais (R$)" hidden>R$</button>
+      <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Placar e acerto" title="Placar e acerto da mesa" data-label="Placar">🏆</button>
       <button id="btn-dev" class="icone-btn" onclick="abrirPainelDev()" aria-label="Painel DEV" title="Painel DEV" hidden>DEV</button>
       <button id="btn-criador" class="icone-btn ouro" onclick="abrirCriador()" aria-label="Opções do criador" title="Opções do criador" data-label="Mesa" hidden>
         <svg class="ic cheio" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>
@@ -447,6 +451,22 @@
 
     <div id="chat-preview" class="chat-preview" aria-live="polite"></div>
 
+    <div id="popover-reacoes" class="popover-reacoes" hidden role="dialog" aria-label="Enviar reação rápida">
+      <div class="reacoes-emojis">
+        <button type="button" onclick="enviarReacao('👏')">👏</button>
+        <button type="button" onclick="enviarReacao('🔥')">🔥</button>
+        <button type="button" onclick="enviarReacao('😂')">😂</button>
+        <button type="button" onclick="enviarReacao('😰')">😰</button>
+        <button type="button" onclick="enviarReacao('💀')">💀</button>
+        <button type="button" onclick="enviarReacao('🤑')">🤑</button>
+      </div>
+      <div class="reacoes-frases">
+        <button type="button" onclick="enviarReacao('Belo blefe!')">Belo blefe!</button>
+        <button type="button" onclick="enviarReacao('Vamo!')">Vamo!</button>
+        <button type="button" onclick="enviarReacao('Boa mão!')">Boa mão!</button>
+      </div>
+    </div>
+
     <div id="fundo-folha" class="fundo-folha" onclick="fecharFolhas()" hidden></div>
 
     <!-- Gaveta: menu compacto da mesa Online (mobile) -->
@@ -475,11 +495,15 @@
           </div>
         </div>
         <div class="menu-online-acoes">
+          <button type="button" id="menu-btn-convidar" class="secundario" onclick="fecharFolhas(); copiarConviteSala()">🔗 Convidar amigos (copiar link)</button>
           <button type="button" id="menu-btn-som" class="secundario" onclick="alternarSom()" aria-pressed="true">🔊 Som: Ligado</button>
+          <button type="button" id="menu-btn-espiar" class="secundario" onclick="alternarModoEspiar()" hidden>👁 Espiar cartas: Toque p/ virar</button>
+          <button type="button" id="menu-btn-ausente" class="secundario" onclick="fecharFolhas(); alternarAusenteOnline()" hidden>⏸ Ficar ausente (Sit Out)</button>
           <button type="button" class="secundario" onclick="abrirGuia()">♠ Conferir mãos do poker</button>
           <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
-          <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()" hidden>Fichas em reais (R$)</button>
+          <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()">🏆 Placar e Acerto</button>
           <button type="button" id="menu-btn-dev" class="secundario" onclick="abrirPainelDev()" hidden>Painel DEV</button>
+          <div id="menu-anfitriao-online" class="menu-anfitriao" hidden></div>
           <button type="button" id="menu-btn-sair" class="contorno-perigo" onclick="fecharFolhas(); sairDaMesa()" hidden>Sair da mesa</button>
           <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()">Voltar para as salas</button>
         </div>
@@ -563,16 +587,20 @@
       </div>
     </div>
 
-    <!-- Gaveta: conversão das fichas em reais -->
+    <!-- Gaveta: placar e acerto financeiro -->
     <div id="folha-reais" class="folha" hidden>
       <div class="folha-topo">
-        <div class="folha-titulo">Fichas em reais</div>
+        <div class="folha-titulo">Placar e Acerto</div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div class="folha-corpo">
-        <p class="dica" id="info-real" style="margin-top:0;font-size:15px"></p>
+        <p class="dica" id="info-real" style="margin-top:0;font-size:14.5px"></p>
         <div id="lista-reais"></div>
-        <p class="dica">O valor em reais é apenas uma referência.</p>
+        <div class="acerto-bloco">
+          <div class="cartao-titulo" style="margin-top:14px">Quem paga quem</div>
+          <div id="acerto-transferencias"></div>
+          <button type="button" class="secundario" style="margin-top:10px" onclick="copiarAcertoMesa()">Copiar resumo para WhatsApp</button>
+        </div>
       </div>
     </div>
 
@@ -742,6 +770,9 @@
       <button type="button" id="btn-dev-passar" class="secundario" onclick="proximoJogadorDev()">Próximo jogador ▶</button>
     </div>
 
+    <!-- Barra de pré-ação enquanto espera a sua vez -->
+    <div id="barra-pre-acao" class="barra-pre-acao" hidden></div>
+
     <!-- Modo normal: aparece só na sua vez -->
     <div id="barra-normal" hidden>
       <div id="caixa-aposta" class="caixa-aposta" hidden>
@@ -773,11 +804,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=70"></script>
+<script type="module" src="./js/main.js?v=71"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=70').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=71').catch(() => {});
     });
   }
 </script>

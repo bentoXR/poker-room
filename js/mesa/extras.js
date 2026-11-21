@@ -1,9 +1,9 @@
 // Recursos compartilhados da mesa: histórico, conversão em R$, guia de mãos e detalhes dos potes
-import { banco } from '../core/supabase.js?v=69';
-import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=69';
-import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=69';
-import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=69';
-import { htmlCartaMini } from '../modos/online/cartas.js?v=69';
+import { banco } from '../core/supabase.js?v=71';
+import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=71';
+import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=71';
+import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=71';
+import { htmlCartaMini } from '../modos/online/cartas.js?v=71';
 
 // ----- Histórico -----
 export function abrirHistorico() {
@@ -27,7 +27,9 @@ export function desenharHistorico(linhas) {
   $id('hist-lista').innerHTML = html;
 }
 
-// ----- Conversão em reais (referência por sala) -----
+// ----- Conversão em reais + Placar e Acerto da sessão (Quem paga quem) -----
+let textoCopiaAcerto = '';
+
 export async function carregarValorReal() {
   if (!estado.partidaAtual) return;
   const id = estado.partidaAtual.id;
@@ -52,35 +54,126 @@ export function abrirReais() {
   if (estado.partidaAtual && !valorPorMil(estado.partidaAtual.id)) carregarValorReal();
 }
 
+function fmtSinalReais(fichas, vPorMil) {
+  const r = (fichas / 1000) * vPorMil;
+  const sinal = fichas > 0 ? '+' : '';
+  return sinal + fmtReais(r);
+}
+
+function fmtSinalFichas(fichas) {
+  return (fichas > 0 ? '+' : '') + fmtNum(fichas);
+}
+
 export function atualizarReais(forcar) {
-  if (!estado.partidaAtual) return;
-  $id('btn-reais').hidden = !valorPorMil(estado.partidaAtual.id);
+  const p = estado.partidaAtual;
+  if (!p) return;
+  const v = valorPorMil(p.id);
+  const btn = $id('btn-reais');
+  if (btn) {
+    btn.hidden = false;
+    btn.textContent = v ? 'R$' : '🏆';
+    btn.dataset.label = v ? 'Acerto R$' : 'Placar';
+    btn.title = v ? 'Placar e acerto em R$' : 'Placar e acerto da mesa';
+  }
   if (!forcar && $id('folha-reais').hidden) return;
 
-  const v = valorPorMil(estado.partidaAtual.id);
-  if (!v) {
-    $id('info-real').textContent = 'Esta sala não tem valor em reais definido.'
-      + (estado.erroReal ? ' (erro: ' + estado.erroReal + ')' : '');
-    $id('lista-reais').innerHTML = '';
-    return;
-  }
+  const conv = (n) => fmtReais((n / 1000) * v);
+  const ini = Number(p.saldo_inicial) || 0;
+  const semInicio = !p.iniciada && Number(p.mao) === 1;
+  $id('info-real').textContent = (v
+    ? '1.000 fichas = ' + fmtReais(v) + (ini > 0 ? ' · Stack inicial: ' + fmtNum(ini) + ' (' + conv(ini) + ')' : '')
+    : 'Stack inicial: ' + fmtNum(ini) + ' fichas'
+  ) + (p.pote > 0 ? ' · Pote na mesa: ' + fmtNum(p.pote) : '');
 
-  const conv = (n) => fmtReais(n / 1000 * v);
-  const ini = Number(estado.partidaAtual.saldo_inicial);
-  $id('info-real').textContent = '1.000 fichas = ' + fmtReais(v)
-    + (ini > 0 ? ' · Cada jogador começou com ' + fmtNum(ini) + ' fichas (' + conv(ini) + ')' : '');
+  const linhas = (estado.jogadoresAtuais || []).map((j) => {
+    const entrada = semInicio ? ini : Number(j.total_comprado || ini);
+    const atual = Number(j.saldo) || 0;
+    const liq = atual - entrada;
+    return { j, nome: nomeDe(j.nome), entrada, atual, liq };
+  });
 
-  let html = estado.jogadoresAtuais.map((j) => (
-    '<div class="linha-dev' + (j.id === estado.meuJogadorId ? ' atual' : '') + '">'
-    + '<div class="info-dev">' + escapar(nomeDe(j.nome))
-    + '<small>' + j.saldo + ' fichas</small></div><strong>' + conv(j.saldo) + '</strong></div>'
-  )).join('');
+  let html = linhas.map((l) => {
+    const cls = l.liq > 0 ? 'pos' : (l.liq < 0 ? 'neg' : 'zero');
+    const liqTxt = v ? fmtSinalReais(l.liq, v) : (fmtSinalFichas(l.liq) + ' fichas');
+    const subTxt = v
+      ? (fmtNum(l.atual) + ' fichas (' + conv(l.atual) + ') · entrou ' + fmtNum(l.entrada))
+      : ('Agora: ' + fmtNum(l.atual) + ' · entrou: ' + fmtNum(l.entrada));
+    return '<div class="linha-dev' + (l.j.id === estado.meuJogadorId ? ' atual' : '') + '">'
+      + '<div class="info-dev">' + escapar(l.nome)
+      + '<small>' + subTxt + '</small></div>'
+      + '<strong class="placar-saldo ' + cls + '">' + liqTxt + '</strong>'
+      + '</div>';
+  }).join('');
 
-  if (estado.partidaAtual.pote > 0) {
-    html += '<div class="linha-dev"><div class="info-dev">No pote<small>'
-      + estado.partidaAtual.pote + ' fichas</small></div><strong>' + conv(estado.partidaAtual.pote) + '</strong></div>';
+  if (p.pote > 0) {
+    html += '<div class="linha-dev"><div class="info-dev">No pote atual<small>'
+      + fmtNum(p.pote) + ' fichas em disputa</small></div><strong>' + (v ? conv(p.pote) : fmtNum(p.pote)) + '</strong></div>';
   }
   $id('lista-reais').innerHTML = html;
+
+  // Cálculo mínimo de transferências ("Quem paga quem")
+  const devedores = linhas.filter((l) => l.liq < 0).map((l) => ({ nome: l.nome, val: -l.liq })).sort((a, b) => b.val - a.val);
+  const credores = linhas.filter((l) => l.liq > 0).map((l) => ({ nome: l.nome, val: l.liq })).sort((a, b) => b.val - a.val);
+  const transfs = [];
+  let i = 0;
+  let j = 0;
+  while (i < devedores.length && j < credores.length) {
+    const pago = Math.min(devedores[i].val, credores[j].val);
+    if (pago > 0) transfs.push({ de: devedores[i].nome, para: credores[j].nome, fichas: pago });
+    devedores[i].val -= pago;
+    credores[j].val -= pago;
+    if (devedores[i].val <= 0) i++;
+    if (credores[j].val <= 0) j++;
+  }
+
+  const acertoEl = $id('acerto-transferencias');
+  if (acertoEl) {
+    if (transfs.length === 0) {
+      acertoEl.innerHTML = '<div class="detalhe" style="padding:4px 0">Nenhum acerto pendente no momento.</div>';
+    } else {
+      acertoEl.innerHTML = transfs.map((t) => {
+        const quantia = v ? fmtReais((t.fichas / 1000) * v) : (fmtNum(t.fichas) + ' fichas');
+        return '<div class="acerto-item">'
+          + '<span><strong>' + escapar(t.de) + '</strong> → <strong>' + escapar(t.para) + '</strong></span>'
+          + '<strong>' + quantia + '</strong>'
+          + '</div>';
+      }).join('');
+    }
+  }
+
+  const nomeSala = nomeDe(p.nome || ('Sala ' + p.codigo));
+  const corpoPlacar = linhas.map((l) => '• ' + l.nome + ': ' + (v ? fmtSinalReais(l.liq, v) : fmtSinalFichas(l.liq) + ' fichas') + ' (saldo ' + fmtNum(l.atual) + ')');
+  const corpoTransf = transfs.map((t) => '• ' + t.de + ' paga ' + (v ? fmtReais((t.fichas / 1000) * v) : fmtNum(t.fichas) + ' fichas') + ' para ' + t.para);
+  textoCopiaAcerto = '🏆 Placar — ' + nomeSala + '\n' + corpoPlacar.join('\n')
+    + (corpoTransf.length ? '\n\n💸 Acerto (quem paga quem):\n' + corpoTransf.join('\n') : '');
+}
+
+export function copiarAcertoMesa() {
+  atualizarReais(true);
+  if (!textoCopiaAcerto) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textoCopiaAcerto)
+      .then(() => aviso('Resumo do acerto copiado!'))
+      .catch(() => copiarFallbackAcerto(textoCopiaAcerto));
+  } else {
+    copiarFallbackAcerto(textoCopiaAcerto);
+  }
+}
+
+function copiarFallbackAcerto(txt) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    aviso('Resumo do acerto copiado!');
+  } catch (e) {
+    aviso('Não foi possível copiar automaticamente.');
+  }
 }
 
 // ----- Detalhes dos potes (principal e laterais) -----

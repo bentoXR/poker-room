@@ -666,6 +666,7 @@
   }
   #tela-mesa.modo-online #btn-som-mesa,
   #tela-mesa.modo-online #btn-guia,
+  #tela-mesa.modo-online #btn-reacoes,
   #tela-mesa.modo-online #btn-chat {
     display: inline-flex !important;
   }
@@ -677,6 +678,7 @@
   #tela-mesa.modo-online #btn-sair-mesa,
   #tela-mesa.modo-online #btn-hist,
   #tela-mesa.modo-online #btn-tema-mesa,
+  #tela-mesa.modo-online #btn-convidar,
   #tela-mesa.modo-online .barra-info {
     display: none !important;
   }
@@ -1337,18 +1339,44 @@
   #barra-acoes.modo-online #barra-online-espera .faixa-online-acoes,
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes {
     flex-direction: row !important;
+    flex-wrap: wrap !important;
     justify-content: center;
-    gap: 6px !important;
+    gap: 5px !important;
     margin-top: 0 !important;
   }
   #barra-acoes.modo-online #barra-online-espera .faixa-online-acoes button,
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button {
     width: auto !important;
-    max-width: 210px;
-    min-height: 34px !important;
-    font-size: 12.5px !important;
-    padding: 3px 12px !important;
+    max-width: 190px;
+    min-height: 30px !important;
+    font-size: 11.5px !important;
+    padding: 2px 9px !important;
     white-space: nowrap;
+  }
+  .barra-pre-acao {
+    margin-top: 0 !important;
+    gap: 6px !important;
+    flex: 0 0 auto;
+  }
+  .barra-pre-acao button.pre-btn {
+    min-height: 32px !important;
+    padding: 2px 8px !important;
+    font-size: 11.5px !important;
+    border-radius: 8px !important;
+    white-space: nowrap;
+  }
+  .popover-reacoes {
+    top: 36px !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    padding: 8px !important;
+  }
+  .l-equity {
+    font-size: 9.5px !important;
+    padding: 0 5px !important;
+  }
+  .l-aposta::before {
+    width: 7px !important;
+    height: 7px !important;
   }
   #barra-acoes #barra-blind button.grande,
   #barra-acoes.modo-online #barra-blind button.grande,
