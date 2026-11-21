@@ -278,6 +278,18 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 .carta-3d:active:not(:disabled) { transform: scale(0.96); box-shadow: none; }
 .carta-3d.virada { transform: rotateY(180deg) translateY(-4px); }
 .carta-3d.virada:active:not(:disabled) { transform: rotateY(180deg) translateY(-2px) scale(0.97); }
+.minha-mao-cartas.modo-segurar,
+.carta-3d.modo-segurar {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.carta-3d.modo-segurar {
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.carta-3d.modo-segurar:active:not(:disabled) { transform: rotateY(0deg); box-shadow: none; }
+.carta-3d.modo-segurar.virada:active:not(:disabled) { transform: rotateY(180deg) translateY(-4px); }
 .carta-3d.destaque .carta-face.frente .carta {
   box-shadow: 0 0 0 2.5px #ffd866, 0 8px 20px rgba(255, 216, 102, 0.45);
 }

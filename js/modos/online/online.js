@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=79';
-import { estado, nomeDe } from '../../core/estado.js?v=79';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=79';
-import { lerDevSala } from '../../core/storage.js?v=79';
-import { registrarModo } from '../../mesa/modos.js?v=79';
-import { executar } from '../../mesa/apostas.js?v=79';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=79';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=79';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=79';
-import { tocarSom } from '../../core/som.js?v=79';
+import { banco } from '../../core/supabase.js?v=80';
+import { estado, nomeDe } from '../../core/estado.js?v=80';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=80';
+import { lerDevSala } from '../../core/storage.js?v=80';
+import { registrarModo } from '../../mesa/modos.js?v=80';
+import { executar } from '../../mesa/apostas.js?v=80';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=80';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=80';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=80';
+import { tocarSom } from '../../core/som.js?v=80';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -63,6 +63,7 @@ const onlineUI = {
 
   // Preferências de usabilidade do jogador
   espiarSegurar: (() => { try { return localStorage.getItem('poker-espiar-segurar') === '1'; } catch (e) { return false; } })(),
+  segurandoPeek: false,
   autoPronto: (() => { try { return localStorage.getItem('poker-auto-pronto') === '1'; } catch (e) { return false; } })(),
   timerAutoPronto: null,
   autoProntoChave: '',
@@ -113,6 +114,7 @@ export function trocarJogadorOnlineUI() {
   onlineUI.jogadorCarregado = null;
   onlineUI.minhasCartas = null;
   onlineUI.viradas = [false, false];
+  onlineUI.segurandoPeek = false;
   onlineUI.buscandoCartas = false;
   onlineUI.htmlMaoVisto = '';
   onlineUI.faixaChave = '';
@@ -134,6 +136,7 @@ export function resetarOnlineUI() {
   onlineUI.jogadorCarregado = null;
   onlineUI.minhasCartas = null;
   onlineUI.viradas = [false, false];
+  onlineUI.segurandoPeek = false;
   onlineUI.buscandoCartas = false;
   onlineUI.htmlBoardVisto = null;
   onlineUI.boardQtdVisto = -1;
@@ -724,6 +727,23 @@ function ehMouseDesktop() {
   return !!(window.matchMedia && window.matchMedia('(min-width: 820px) and (pointer: fine)').matches);
 }
 
+let listenersHoldAtivos = false;
+function soltarHoldEspiar() {
+  if (!onlineUI.segurandoPeek) return;
+  onlineUI.segurandoPeek = false;
+  abrirMinhasCartas(false);
+}
+function garantirListenersHold() {
+  if (listenersHoldAtivos) return;
+  listenersHoldAtivos = true;
+  window.addEventListener('pointerup', soltarHoldEspiar);
+  window.addEventListener('pointercancel', soltarHoldEspiar);
+  window.addEventListener('blur', () => {
+    onlineUI.segurandoPeek = false;
+    if (onlineUI.espiarSegurar) abrirMinhasCartas(false);
+  });
+}
+
 export function ehModoEspiarSegurar() {
   return !!onlineUI.espiarSegurar;
 }
@@ -847,8 +867,8 @@ function desenharMinhaMao(partida, eu) {
     const acaoAttr = segurarModo ? '' : ' onclick="virarMinhaCarta(' + idx + ')"';
     return `
       <div class="carta-3d-slot${animarAgora ? ' animar-entrada' : ''}"${estiloSlot}>
-        <button type="button" class="carta-3d${virada ? ' virada' : ''}${dest ? ' destaque' : ''}"
-                data-idx="${idx}" data-raw="${c.raw}"${acaoAttr}
+        <button type="button" class="carta-3d${segurarModo ? ' modo-segurar' : ''}${virada ? ' virada' : ''}${dest ? ' destaque' : ''}"
+                data-idx="${idx}" data-raw="${c.raw}"${acaoAttr} draggable="false"
                 aria-label="Carta ${idx + 1}: ${segurarModo ? 'segure para espiar' : 'toque para virar'}">
           <span class="carta-face verso"></span>
           <span class="carta-face frente">${htmlCarta(c.raw)}</span>
@@ -876,22 +896,24 @@ function desenharMinhaMao(partida, eu) {
                 ? (abertas[0] || abertas[1] ? 'Clique ou Espaço p/ esconder' : 'Clique ou Espaço p/ espiar')
                 : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar'))));
 
-  wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas">' + cartasHtml + '</div></div>'
+  wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas' + (segurarModo ? ' modo-segurar' : '') + '">' + cartasHtml + '</div></div>'
     + '<div class="minha-mao-nome" id="minha-mao-nome" hidden></div>'
     + '<div class="minha-mao-dica">' + dica + '</div>'
     + revelarHtml;
   wrap.hidden = false;
   if (segurarModo) {
-    wrap.querySelectorAll('.carta-3d').forEach((btn) => {
-      btn.addEventListener('pointerdown', (e) => {
-        if (e.button > 0) return;
+    garantirListenersHold();
+    const areaCartas = wrap.querySelector('.minha-mao-cartas');
+    if (areaCartas) {
+      areaCartas.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        e.preventDefault();
+        try { if (areaCartas.setPointerCapture) areaCartas.setPointerCapture(e.pointerId); } catch (_) {}
+        onlineUI.segurandoPeek = true;
         abrirMinhasCartas(true);
       });
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => {
-        btn.addEventListener(ev, () => abrirMinhasCartas(false));
-      });
-      btn.addEventListener('contextmenu', (e) => e.preventDefault());
-    });
+      areaCartas.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
   }
   atualizarBotaoPerfilEspiar();
   // Remove a classe de entrada depois que as cartas terminam de cair,
