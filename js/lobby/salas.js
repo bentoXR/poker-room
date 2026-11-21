@@ -1,12 +1,12 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=16';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=16';
-import { guardarMeuJogador } from '../core/storage.js?v=16';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=16';
-import { tratarErroConta } from './auth.js?v=16';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=16';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=16';
-import { abrirMesa } from '../mesa/mesa.js?v=16';
+import { banco } from '../core/supabase.js?v=17';
+import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=17';
+import { guardarMeuJogador } from '../core/storage.js?v=17';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=17';
+import { tratarErroConta } from './auth.js?v=17';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=17';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=17';
+import { abrirMesa } from '../mesa/mesa.js?v=17';
 
 export function abrirSalas() {
   pararSalas();
@@ -140,13 +140,14 @@ export async function abrirSala(id) {
 
 export function abrirCriar() {
   limparErro('erro-criar');
-  $id('criar-nome-sala').textContent = 'Sala do ' + estado.minhaConta.nome;
+  $id('criar-nome-sala').value = 'Sala do ' + estado.minhaConta.nome;
   mostrar('tela-criar');
 }
 
 export async function criarSala() {
   limparErro('erro-criar');
 
+  const nomeSala = ($id('criar-nome-sala').value || '').trim().replace(/\s+/g, ' ');
   const saldo = parseInt($id('campo-saldo').value);
   const small = parseInt($id('campo-small').value);
   const big = parseInt($id('campo-big').value);
@@ -171,12 +172,14 @@ export async function criarSala() {
         p_small: small,
         p_big: big,
         p_tempo_turno: cfg.tempoTurno,
-        p_subir_blinds_min: cfg.subirBlindsMin
+        p_subir_blinds_min: cfg.subirBlindsMin,
+        p_nome: nomeSala || null
       }))
     : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
         p_saldo: saldo,
         p_small: small,
-        p_big: big
+        p_big: big,
+        p_nome: nomeSala || null
       }));
 
   if (resp.error) {

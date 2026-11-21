@@ -491,12 +491,18 @@ button.stack.especial b { font-size: 16.5px; }
   padding-bottom: 10px;
   border-bottom: 1px solid var(--linha);
 }
-#tela-criar .nome-sala-linha strong, #tela-dev .nome-sala-linha strong {
+#tela-criar .nome-sala-linha input {
+  flex: 1;
+  min-width: 180px;
   font-family: var(--fonte-numero);
-  font-size: 26px;
-  line-height: 1.05;
+  font-size: 24px;
+  font-weight: 700;
   color: #fff;
-  overflow-wrap: anywhere;
+  min-height: 44px;
+  padding: 6px 12px;
+}
+#tela-criar .nome-sala-linha label.etiqueta-sala {
+  margin: 0;
 }
 #tela-criar label, #tela-dev label { margin: 10px 0 4px; font-size: 13.5px; }
 #tela-criar input, #tela-dev input { min-height: 44px; padding: 8px 11px; font-size: 16px; }
