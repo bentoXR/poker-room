@@ -1,8 +1,8 @@
 // Modo Presencial: distribuição do pote (mão normal, modo guiado por potes laterais e edição manual)
-import { estado, nomeDe, credC } from '../../core/estado.js?v=61';
-import { $id, escapar, limparErro, abrirFolha, atualizarFundo } from '../../core/ui.js?v=61';
-import { nomePote, nomePoteLog, dividirValorPote, textoSobra, calcularPotes } from '../../core/potes.js?v=61';
-import { executar } from '../../mesa/apostas.js?v=61';
+import { estado, nomeDe, credC } from '../../core/estado.js?v=62';
+import { $id, escapar, limparErro, abrirFolha, atualizarFundo } from '../../core/ui.js?v=62';
+import { nomePote, nomePoteLog, dividirValorPote, textoSobra, calcularPotes } from '../../core/potes.js?v=62';
+import { executar } from '../../mesa/apostas.js?v=62';
 
 export function abrirDistribuicao() {
   if (!estado.partidaAtual || !(estado.partidaAtual.pote > 0)) return;

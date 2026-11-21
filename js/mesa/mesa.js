@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=61';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=61';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=61';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=61';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=61';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=61';
-import { obterModo } from './modos.js?v=61';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=61';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=61';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=61';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=61';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=61';
+import { banco } from '../core/supabase.js?v=62';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=62';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=62';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=62';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=62';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=62';
+import { obterModo } from './modos.js?v=62';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=62';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=62';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=62';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=62';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=62';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -389,14 +389,14 @@ const POSICOES_MOBILE_ONLINE = {
 };
 
 const POSICOES_DESKTOP_ONLINE = {
-  2: [[50, 91], [50, 9]],
-  3: [[50, 91], [10, 26], [90, 26]],
-  4: [[50, 91], [9, 50], [50, 9], [91, 50]],
-  5: [[50, 91], [11, 72], [13, 22], [87, 22], [89, 72]],
-  6: [[50, 91], [11, 74], [11, 26], [50, 9], [89, 26], [89, 74]],
-  7: [[50, 91], [12, 76], [9, 36], [31, 9], [69, 9], [91, 36], [88, 76]],
-  8: [[50, 91], [14, 80], [9, 50], [14, 20], [50, 9], [86, 20], [91, 50], [86, 80]],
-  9: [[50, 91], [15, 81], [9, 52], [13, 22], [34, 9], [66, 9], [87, 22], [91, 52], [85, 81]]
+  2: [[50, 90], [50, 10]],
+  3: [[50, 90], [11, 28], [89, 28]],
+  4: [[50, 90], [9, 50], [50, 10], [91, 50]],
+  5: [[50, 90], [10, 72], [13, 24], [87, 24], [90, 72]],
+  6: [[50, 90], [10, 74], [10, 27], [50, 10], [90, 27], [90, 74]],
+  7: [[50, 90], [11, 76], [8.5, 38], [31, 10], [69, 10], [91.5, 38], [89, 76]],
+  8: [[50, 90], [13, 80], [8.5, 50], [14, 21], [50, 10], [86, 21], [91.5, 50], [87, 80]],
+  9: [[50, 90], [14, 81], [8.5, 52], [13, 22], [34, 10], [66, 10], [87, 22], [91.5, 52], [86, 81]]
 };
 
 // Coordenadas (x%, y%) dos adversários (1..8) distribuídos em volta da borda da mesa vertical (você na ponta de baixo!)
@@ -413,13 +413,13 @@ const POSICOES_OPONENTES_MOBILE = {
 
 const POSICOES_OPONENTES_DESKTOP = {
   1: [[50, 11]],
-  2: [[14, 28], [86, 28]],
-  3: [[11, 52], [50, 11], [89, 52]],
-  4: [[13, 72], [14, 24], [86, 24], [87, 72]],
-  5: [[12, 74], [12, 28], [50, 11], [88, 28], [88, 74]],
-  6: [[13, 76], [10, 38], [32, 11], [68, 11], [90, 38], [87, 76]],
-  7: [[14, 78], [10, 48], [15, 20], [50, 10], [85, 20], [90, 48], [86, 78]],
-  8: [[14, 79], [10, 50], [14, 22], [35, 10], [65, 10], [86, 22], [90, 50], [86, 79]]
+  2: [[12, 30], [88, 30]],
+  3: [[9.5, 56], [50, 11], [90.5, 56]],
+  4: [[11, 74], [12, 26], [88, 26], [89, 74]],
+  5: [[10, 76], [10, 30], [50, 11], [90, 30], [90, 76]],
+  6: [[11, 78], [8.5, 40], [31, 11], [69, 11], [91.5, 40], [89, 78]],
+  7: [[11, 80], [8.5, 50], [17, 22], [50, 10], [83, 22], [91.5, 50], [89, 80]],
+  8: [[12, 81], [8.5, 52], [15, 22], [35, 10], [65, 10], [85, 22], [91.5, 52], [88, 81]]
 };
 
 function montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline }) {
@@ -550,14 +550,14 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
   const nMesa = listaMesa.length;
   const larguraLugar = ehDesktop
-    ? (nMesa <= 4 ? 156 : nMesa <= 6 ? 148 : 138)
+    ? (nMesa <= 4 ? 186 : nMesa <= 6 ? 174 : 162)
     : (nMesa <= 3 ? 102 : nMesa <= 5 ? 96 : nMesa <= 6 ? 90 : 84);
   const escalaLugar = ehDesktop
-    ? (nMesa <= 4 ? 1.04 : nMesa <= 6 ? 0.98 : 0.92)
+    ? (nMesa <= 4 ? 1.05 : nMesa <= 6 ? 0.99 : 0.93)
     : (nMesa <= 3 ? 0.96 : nMesa <= 5 ? 0.92 : nMesa <= 6 ? 0.86 : 0.82);
-  const raioX = ehDesktop ? 43.5 : 40;
+  const raioX = ehDesktop ? 44 : 40;
   const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '17vw' : (nMesa >= 7 ? '24.5vw' : nMesa >= 5 ? '27.5vw' : '29.5vw');
+  const maxVw = ehDesktop ? '18vw' : (nMesa >= 7 ? '24.5vw' : nMesa >= 5 ? '27.5vw' : '29.5vw');
 
   const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
@@ -616,7 +616,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
         <div class="l-corpo">
           <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
           <div class="l-meio">
-            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
+            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${ehDesktop ? Number(j.saldo).toLocaleString('pt-BR') : j.saldo}</div>
             ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
           </div>
           ${tags ? '<div class="l-tags">' + tags + '</div>' : ''}
@@ -704,7 +704,6 @@ export function tick() {
 
 export function recalcularLayoutMesa() {
   if (!estado.ultimoEstado || !estado.partidaAtual) return;
-  if (estado.partidaAtual.modo !== 'online') return;
   if (!$id('tela-mesa').classList.contains('ativa')) return;
   desenharMesa(estado.ultimoEstado);
 }

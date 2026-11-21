@@ -15,12 +15,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=61">
-  <link rel="stylesheet" href="./css/telas.css?v=61">
-  <link rel="stylesheet" href="./css/mesa.css?v=61">
-  <link rel="stylesheet" href="./css/gavetas.css?v=61">
-  <link rel="stylesheet" href="./css/online.css?v=61">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=61">
+  <link rel="stylesheet" href="./css/base.css?v=62">
+  <link rel="stylesheet" href="./css/telas.css?v=62">
+  <link rel="stylesheet" href="./css/mesa.css?v=62">
+  <link rel="stylesheet" href="./css/gavetas.css?v=62">
+  <link rel="stylesheet" href="./css/online.css?v=62">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=62">
+  <link rel="stylesheet" href="./css/desktop.css?v=62">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -351,7 +352,7 @@
   <section id="tela-mesa" class="tela">
 
     <div class="topo">
-      <button id="btn-voltar-mesa" class="icone-btn" onclick="voltarParaSalas()" aria-label="Voltar para as salas">
+      <button id="btn-voltar-mesa" class="icone-btn" onclick="voltarParaSalas()" aria-label="Voltar para as salas" title="Voltar para as salas">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
       </button>
       <button id="btn-menu-online" class="icone-btn" onclick="abrirMenuOnline()" aria-label="Menu da sala">
@@ -362,24 +363,24 @@
         <span class="rotulo" id="mesa-papel"></span>
       </div>
       <div class="topo-resumo-online" id="topo-resumo-online"></div>
-      <button id="btn-sair-mesa" class="icone-btn" onclick="sairDaMesa()" aria-label="Sair da mesa" hidden>
+      <button id="btn-sair-mesa" class="icone-btn" onclick="sairDaMesa()" aria-label="Sair da mesa" title="Sair da mesa" data-label="Sair" hidden>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
       </button>
-      <button id="btn-hist" class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
+      <button id="btn-hist" class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico" title="Histórico da partida" data-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
-      <button id="btn-som-mesa" class="icone-btn" style="font-size:18px" onclick="alternarSom()" aria-label="Som da mesa" aria-pressed="true">🔊</button>
-      <button id="btn-tema-mesa" class="icone-btn btn-tema-ico" onclick="alternarTema()" aria-label="Mudar cores da mesa">
+      <button id="btn-som-mesa" class="icone-btn" style="font-size:18px" onclick="alternarSom()" aria-label="Som da mesa" title="Som da mesa" aria-pressed="true">🔊</button>
+      <button id="btn-tema-mesa" class="icone-btn btn-tema-ico" onclick="alternarTema()" aria-label="Mudar cores da mesa" title="Trocar tema">
         <span class="amostra-dupla" aria-hidden="true"></span>
       </button>
-      <button id="btn-chat" class="icone-btn btn-chat-ico" onclick="abrirChat()" aria-label="Chat da mesa">
+      <button id="btn-chat" class="icone-btn btn-chat-ico" onclick="abrirChat()" aria-label="Chat da mesa" title="Chat da mesa" data-label="Chat">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span id="badge-chat" class="badge-chat" hidden></span>
       </button>
-      <button id="btn-guia" class="icone-btn" style="font-size:19px" onclick="abrirGuia()" aria-label="Guia de mãos do poker">♠</button>
-      <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Valor em reais" hidden>R$</button>
-      <button id="btn-dev" class="icone-btn" onclick="abrirPainelDev()" aria-label="Painel DEV" hidden>DEV</button>
-      <button id="btn-criador" class="icone-btn ouro" onclick="abrirCriador()" aria-label="Opções do criador" hidden>
+      <button id="btn-guia" class="icone-btn" style="font-size:19px" onclick="abrirGuia()" aria-label="Guia de mãos do poker" title="Guia de mãos do poker" data-label="Mãos">♠</button>
+      <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Valor em reais" title="Valor em reais (R$)" hidden>R$</button>
+      <button id="btn-dev" class="icone-btn" onclick="abrirPainelDev()" aria-label="Painel DEV" title="Painel DEV" hidden>DEV</button>
+      <button id="btn-criador" class="icone-btn ouro" onclick="abrirCriador()" aria-label="Opções do criador" title="Opções do criador" data-label="Mesa" hidden>
         <svg class="ic cheio" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.5-10-4.5 4-3-7-3 7-4.5-4z"/></svg>
       </button>
     </div>
@@ -756,6 +757,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=61"></script>
+<script type="module" src="./js/main.js?v=62"></script>
 </body>
 </html>
