@@ -46,7 +46,7 @@
       #b31942 28% 40%, #ffffff 40% 52%,
       #b31942 52% 64%, #ffffff 64% 76%,
       #b31942 76% 88%, #ffffff 88% 100%),
-    radial-gradient(circle at 5px 50%, #ffffff 1.1px, transparent 1.7px) 0 0 / 10px 100% repeat-x,
+    radial-gradient(circle at 12px 50%, #ffffff 1.2px, transparent 1.8px) 0 0 / 24px 100% repeat-x,
     #0a3161;
 
   --feltro-mesa: #245938;
@@ -101,10 +101,16 @@
   background-attachment: fixed, scroll, scroll;
 }
 
-/* Faixa superior um pouco mais alta para as estrelas do cantão aparecerem */
+/* Faixa superior um pouco mais alta no PC, com animação suave e menos pontinhos */
 :root[data-tema="liberdade"] body::before {
   height: calc(7px + env(safe-area-inset-top));
   box-shadow: 0 1px 0 rgba(201, 162, 75, 0.55);
+  background-size: 200% 100%, 24px 100%, auto;
+  animation: faixaCorrerUsa 18s linear infinite;
+}
+@keyframes faixaCorrerUsa {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to { background-position: 200% 0, 240px 0, 0 0; }
 }
 
 /* ----- Tipografia "varsity" em títulos e números ----- */
