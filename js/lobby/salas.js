@@ -1,16 +1,40 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=80';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=80';
-import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=80';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=80';
-import { tratarErroConta } from './auth.js?v=80';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=80';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=80';
-import { abrirMesa } from '../mesa/mesa.js?v=80';
+import { banco } from '../core/supabase.js?v=81';
+import { estado, ICONE_COROA, contaParams, ehContaDev } from '../core/estado.js?v=81';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=81';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=81';
+import { desligarTempoReal } from '../core/realtime.js?v=81';
+import { tratarErroConta } from './auth.js?v=81';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=81';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=81';
+import { abrirMesa } from '../mesa/mesa.js?v=81';
+
+let hooksSalas = {
+  cancelarCriacaoDev: () => {},
+  apagarSalaDev: () => Promise.resolve(false)
+};
+
+export function registrarHooksSalas(hooks) {
+  hooksSalas = Object.assign(hooksSalas, hooks);
+}
+
+export function atualizarVisibilidadeDev() {
+  const btnDev = $id('btn-sala-dev');
+  if (btnDev) btnDev.hidden = !ehContaDev();
+}
+
+function limparContextoDev() {
+  hooksSalas.cancelarCriacaoDev();
+  estado.modoDev = false;
+  if (lerDevSala()) hooksSalas.apagarSalaDev();
+  esquecerDevSala();
+}
 
 export function abrirSalas() {
   pararSalas();
+  hooksSalas.cancelarCriacaoDev();
   atualizarCabecalhoPerfil();
+  atualizarVisibilidadeDev();
   sincronizarMeuPerfil();
   limparErro('erro-salas');
   mostrar('tela-salas');
@@ -52,13 +76,17 @@ export async function carregarSalas() {
 }
 
 export function desenharSalas() {
+  atualizarVisibilidadeDev();
   let html;
   if (estado.salasAtuais.length === 0) {
+    const textoVazio = ehContaDev()
+      ? 'Toque em <b>+ Criar sala</b> para chamar seus amigos ou teste sozinho na <b>Sala DEV</b>.'
+      : 'Toque em <b>+ Criar sala</b> para chamar seus amigos para a mesa.';
     html = `
       <div class="vazio">
         <div class="vazio-naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
         <strong>Nenhuma sala aberta agora</strong>
-        <p>Toque em <b>+ Criar sala</b> para chamar seus amigos ou teste sozinho na <b>Sala DEV</b>.</p>
+        <p>${textoVazio}</p>
       </div>
     `;
   } else {
@@ -106,7 +134,7 @@ export function desenharSalas() {
 export async function abrirSala(id) {
   if (estado.abrindoSala) return;
   estado.abrindoSala = true;
-  estado.modoDev = false;
+  limparContextoDev();
   limparErro('erro-salas');
 
   try {
@@ -127,7 +155,7 @@ export async function abrirSala(id) {
       mostrarErro('erro-salas', 'Não consegui abrir a sala. Confira a internet.');
       return;
     }
-    if (!resp.data || resp.data.encerrada) {
+    if (!resp.data || resp.data.encerrada || resp.data.dev) {
       aviso('Essa sala não existe mais.');
       carregarSalas();
       return;
@@ -140,15 +168,17 @@ export async function abrirSala(id) {
 }
 
 export function abrirCriar() {
-  estado.modoDev = false;
+  limparContextoDev();
+  desligarTempoReal();
   limparErro('erro-criar');
   $id('criar-nome-sala').value = 'Sala do ' + estado.minhaConta.nome;
   mostrar('tela-criar');
 }
 
 export async function criarSala() {
-  estado.modoDev = false;
-  esquecerDevSala();
+  if (estado.criandoSala) return;
+  limparContextoDev();
+  desligarTempoReal();
   limparErro('erro-criar');
 
   const nomeSala = ($id('criar-nome-sala').value || '').trim().replace(/\s+/g, ' ');
@@ -165,43 +195,61 @@ export async function criarSala() {
     return;
   }
 
+  estado.criandoSala = true;
+  esquecerPartida();
+  estado.partidaAtual = null;
+  estado.ultimoEstado = null;
+
   const botao = $id('botao-criar');
   botao.disabled = true;
   botao.textContent = 'Criando...';
 
-  const cfg = obterConfigOnline('');
-  const resp = cfg.modo === 'online'
-    ? await banco.rpc('criar_sala_online', Object.assign({}, contaParams(), {
-        p_saldo: saldo,
-        p_small: small,
-        p_big: big,
-        p_tempo_turno: cfg.tempoTurno,
-        p_subir_blinds_min: cfg.subirBlindsMin,
-        p_nome: nomeSala || null
-      }))
-    : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
-        p_saldo: saldo,
-        p_small: small,
-        p_big: big,
-        p_nome: nomeSala || null
-      }));
+  try {
+    const cfg = obterConfigOnline('');
+    let resp;
+    try {
+      resp = cfg.modo === 'online'
+        ? await banco.rpc('criar_sala_online', Object.assign({}, contaParams(), {
+            p_saldo: saldo,
+            p_small: small,
+            p_big: big,
+            p_tempo_turno: cfg.tempoTurno,
+            p_subir_blinds_min: cfg.subirBlindsMin,
+            p_nome: nomeSala || null
+          }))
+        : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
+            p_saldo: saldo,
+            p_small: small,
+            p_big: big,
+            p_nome: nomeSala || null
+          }));
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
 
-  if (resp.error) {
-    if (!tratarErroConta(resp.error)) mostrarErro('erro-criar', resp.error.message);
-  } else {
-    const dados = resp.data;
-    pararSalas();
-    guardarMeuJogador(estado.minhaConta.id, dados.partida_id, dados.jogador_id, dados.segredo);
-    await registrarRealCriacao('', dados.partida_id, saldo, dados.jogador_id, dados.segredo);
-    await abrirMesa({ id: dados.partida_id });
+    if (resp.error) {
+      if (!tratarErroConta(resp.error)) mostrarErro('erro-criar', resp.error.message);
+    } else if (resp.data && resp.data.partida_id) {
+      const dados = resp.data;
+      pararSalas();
+      limparContextoDev();
+      guardarMeuJogador(estado.minhaConta.id, dados.partida_id, dados.jogador_id, dados.segredo);
+      await registrarRealCriacao('', dados.partida_id, saldo, dados.jogador_id, dados.segredo);
+      await abrirMesa({ id: dados.partida_id, modo: cfg.modo, dev: false });
+    }
+  } finally {
+    estado.criandoSala = false;
+    botao.disabled = false;
+    botao.textContent = 'Criar sala e abrir mesa';
   }
-
-  botao.disabled = false;
-  botao.textContent = 'Criar e ir para a mesa';
 }
 
 export async function conectarNaSala(partida, idDoErro) {
-  estado.modoDev = false;
+  limparContextoDev();
+  if (!partida || !partida.id || partida.dev) {
+    mostrarErro(idDoErro, 'Essa sala não está disponível.');
+    return false;
+  }
   let resp;
   try {
     resp = await banco.rpc('entrar_sala', Object.assign({}, contaParams(), { p_partida_id: partida.id }));

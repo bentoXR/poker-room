@@ -1,68 +1,68 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=80';
-import { estado } from './core/estado.js?v=80';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=80';
+import { banco } from './core/supabase.js?v=81';
+import { estado, ehContaDev } from './core/estado.js?v=81';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=81';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=80';
-import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=80';
-import { iniciarSom, alternarSom } from './core/som.js?v=80';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=80';
+} from './core/ui.js?v=81';
+import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=81';
+import { iniciarSom, alternarSom } from './core/som.js?v=81';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=81';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, sairDaConta
-} from './lobby/auth.js?v=80';
+} from './lobby/auth.js?v=81';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil
-} from './lobby/perfil.js?v=80';
+} from './lobby/perfil.js?v=81';
 import {
-  abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js?v=80';
+  registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
+} from './lobby/salas.js?v=81';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev
-} from './lobby/config-sala.js?v=80';
+} from './lobby/config-sala.js?v=81';
 
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline
-} from './mesa/mesa.js?v=80';
+} from './mesa/mesa.js?v=81';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=80';
+} from './mesa/apostas.js?v=81';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal, copiarAcertoMesa
-} from './mesa/extras.js?v=80';
+} from './mesa/extras.js?v=81';
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
   receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
-} from './mesa/chat.js?v=80';
+} from './mesa/chat.js?v=81';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=80';
+} from './modos/presencial/acoes.js?v=81';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=80';
+} from './modos/presencial/distribuir.js?v=81';
 import {
-  registrarHooksDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
+  registrarHooksDev, cancelarCriacaoDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=80';
+} from './modos/presencial/dev.js?v=81';
 import {
   virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=80';
+} from './modos/online/online.js?v=81';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {
@@ -78,10 +78,11 @@ try {
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
+registrarHooksSalas({ cancelarCriacaoDev, apagarSalaDev });
 registrarHooksAuth({
   abrirSalas,
   pararSalas,
-  onLogout: () => { fecharPerfil(); limparCachePerfil(); },
+  onLogout: () => { cancelarCriacaoDev(); fecharPerfil(); limparCachePerfil(); },
   onPosLogin: () => {
     if (estado.salaConviteId) {
       const idConvite = estado.salaConviteId;
@@ -90,7 +91,7 @@ registrarHooksAuth({
     }
   }
 });
-registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, autoSeguirVezDev });
+registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, cancelarCriacaoDev, autoSeguirVezDev });
 registrarTickOnline(tickOnline);
 registrarHooksDev({
   abrirSalas,
@@ -104,7 +105,11 @@ registrarHooksDev({
 
 // ----- Inicialização ao abrir a página -----
 async function iniciarApp() {
-  if (lerDevSala() && !estado.modoDev) apagarSalaDev();
+  atualizarVisibilidadeDev();
+  if (lerDevSala() && !estado.modoDev) {
+    if (ehContaDev()) apagarSalaDev();
+    else esquecerDevSala();
+  }
   if (!estado.minhaConta) {
     mostrar('tela-login');
     if (estado.salaConviteId) aviso('Entre na sua conta para abrir a sala convidada.');

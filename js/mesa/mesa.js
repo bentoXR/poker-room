@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=80';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=80';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=80';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=80';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=80';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=80';
-import { obterModo } from './modos.js?v=80';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=80';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=80';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=80';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=80';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=80';
+import { banco } from '../core/supabase.js?v=81';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=81';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=81';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=81';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=81';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=81';
+import { obterModo } from './modos.js?v=81';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=81';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=81';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=81';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=81';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=81';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -23,11 +23,14 @@ const somMesa = {
   ultimoHist: null
 };
 
+let versaoAbertura = 0;
+
 let hooksApp = {
   abrirSalas: () => {},
   controlarDev: () => {},
   desenharPainelDev: () => {},
   apagarSalaDev: () => {},
+  cancelarCriacaoDev: () => {},
   autoSeguirVezDev: () => {}
 };
 
@@ -43,6 +46,27 @@ registrarHooksApostas({
 });
 
 export async function abrirMesa(partida, estadoInicial) {
+  if (!partida || !partida.id) return;
+  if (estado.modoDev && !ehContaDev()) {
+    estado.modoDev = false;
+    esquecerDevSala();
+    voltarParaSalas();
+    return;
+  }
+  if (!estado.modoDev && partida.dev) {
+    esquecerPartida();
+    esquecerDevSala();
+    voltarParaSalas();
+    return;
+  }
+
+  const minhaAbertura = ++versaoAbertura;
+  desligarTempoReal();
+  limparChatMesa();
+  estado.promessaBusca = null;
+  estado.buscaSuja = false;
+  estado.forcarBusca = false;
+
   estado.partidaAtual = partida;
   estado.modoAtual = (partida && partida.modo) ? partida.modo : 'presencial';
 
@@ -70,7 +94,13 @@ export async function abrirMesa(partida, estadoInicial) {
 
   if (estadoInicial) receberEstado(estadoInicial, true);
   else await buscarMesa(true);
-  if (!estado.partidaAtual) return;
+  if (minhaAbertura !== versaoAbertura || !estado.partidaAtual || estado.partidaAtual.id !== partida.id) return;
+  if (estado.partidaAtual.dev && (!estado.modoDev || !ehContaDev())) {
+    esquecerPartida();
+    esquecerDevSala();
+    voltarParaSalas();
+    return;
+  }
 
   mostrar('tela-mesa');
   iniciarChatMesa(partida.id);
@@ -86,12 +116,17 @@ export async function abrirMesa(partida, estadoInicial) {
 
 export function buscarMesa(forcar) {
   if (!estado.partidaAtual) return Promise.resolve();
+  if (forcar) estado.forcarBusca = true;
   if (estado.promessaBusca) { estado.buscaSuja = true; return estado.promessaBusca; }
 
-  estado.promessaBusca = (async () => {
+  const minhaAbertura = versaoAbertura;
+  const promessa = (async () => {
     try {
       do {
         estado.buscaSuja = false;
+        const usarForcar = estado.forcarBusca;
+        estado.forcarBusca = false;
+        if (minhaAbertura !== versaoAbertura) break;
         const id = estado.partidaAtual && estado.partidaAtual.id;
         if (!id) break;
 
@@ -102,15 +137,16 @@ export function buscarMesa(forcar) {
           break;
         }
         if (resp.error) break;
-        if (!estado.partidaAtual || estado.partidaAtual.id !== id) break;
+        if (minhaAbertura !== versaoAbertura || !estado.partidaAtual || estado.partidaAtual.id !== id) break;
 
-        receberEstado(resp.data, forcar);
-      } while (estado.buscaSuja);
+        receberEstado(resp.data, usarForcar);
+      } while (estado.buscaSuja && minhaAbertura === versaoAbertura);
     } finally {
-      estado.promessaBusca = null;
+      if (estado.promessaBusca === promessa) estado.promessaBusca = null;
     }
   })();
-  return estado.promessaBusca;
+  estado.promessaBusca = promessa;
+  return promessa;
 }
 
 export function receberEstado(novoEstado, forcar) {
@@ -144,6 +180,13 @@ export function desenharMesa(dados) {
 
   if (partida.encerrada) {
     aviso('Essa sala foi encerrada.');
+    voltarParaSalas();
+    return;
+  }
+
+  if (partida.dev && (!estado.modoDev || !ehContaDev())) {
+    esquecerPartida();
+    esquecerDevSala();
     voltarParaSalas();
     return;
   }
@@ -862,6 +905,8 @@ export async function sairDaMesa() {
 
 export function voltarParaSalas() {
   const eraDev = estado.modoDev;
+  versaoAbertura++;
+  hooksApp.cancelarCriacaoDev();
   desligarTempoReal();
   fecharFolhas();
   limparChatMesa();
@@ -876,11 +921,14 @@ export function voltarParaSalas() {
   estado.partidaAtual = null;
   estado.meuJogadorId = null;
   estado.meuSegredo = null;
+  estado.promessaBusca = null;
+  estado.buscaSuja = false;
+  estado.forcarBusca = false;
   limparCachesMesa();
   esquecerPartida();
   estado.modoDev = false;
   hooksApp.abrirSalas();
-  if (eraDev) hooksApp.apagarSalaDev();
+  if (eraDev || lerDevSala()) hooksApp.apagarSalaDev();
 }
 
 export function encerrarSala() {

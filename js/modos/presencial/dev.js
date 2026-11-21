@@ -1,16 +1,31 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=80';
-import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=80';
-import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=80';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=80';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=80';
-import { executar } from '../../mesa/apostas.js?v=80';
+import { banco } from '../../core/supabase.js?v=81';
+import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=81';
+import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=81';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=81';
+import { desligarTempoReal } from '../../core/realtime.js?v=81';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=81';
+import { executar } from '../../mesa/apostas.js?v=81';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const MAX_DEV = 9;
-let apagandoDev = false;
+const apagandoDevIds = new Set();
+let geracaoDev = 0;
+let criandoDev = false;
 let timerAutoVez = null;
 let chaveAutoVez = '';
+
+export function cancelarCriacaoDev() {
+  geracaoDev++;
+}
+
+function garantirContaDev(mostrarAviso = true) {
+  if (ehContaDev()) return true;
+  estado.modoDev = false;
+  esquecerDevSala();
+  if (mostrarAviso) aviso('Acesso à Sala DEV restrito.');
+  return false;
+}
 
 let hooksDev = {
   abrirSalas: () => {},
@@ -37,8 +52,11 @@ function jogadorDevDe(resp) {
 }
 
 export async function abrirSalaDev() {
+  if (!garantirContaDev()) return;
   if (estado.abrindoSala) return;
   estado.abrindoSala = true;
+  cancelarCriacaoDev();
+  desligarTempoReal();
   limparErro('erro-salas');
   try {
     if (lerDevSala()) {
@@ -53,6 +71,7 @@ export async function abrirSalaDev() {
 }
 
 export async function criarSalaDev() {
+  if (!garantirContaDev() || criandoDev) return;
   limparErro('erro-dev-criar');
   const saldo = parseInt($id('campo-dev-saldo').value);
   const small = parseInt($id('campo-dev-small').value);
@@ -72,67 +91,115 @@ export async function criarSalaDev() {
     return;
   }
 
+  criandoDev = true;
+  const minhaGeracao = ++geracaoDev;
   const botao = $id('botao-criar-dev');
   botao.disabled = true;
   botao.textContent = 'Criando sala DEV...';
 
-  const cfg = obterConfigOnline('dev');
-  let resp;
+  const cancelado = () => (
+    minhaGeracao !== geracaoDev
+    || !ehContaDev()
+    || !$id('tela-dev').classList.contains('ativa')
+  );
+
   try {
-    resp = cfg.modo === 'online'
-      ? await banco.rpc('dev_criar_sala_online', {
-          p_nome: NOMES_DEV[0],
-          p_saldo: saldo,
-          p_small: small,
-          p_big: big,
-          p_tempo_turno: cfg.tempoTurno,
-          p_subir_blinds_min: cfg.subirBlindsMin
-        })
-      : await banco.rpc('dev_criar_sala', { p_nome: NOMES_DEV[0], p_saldo: saldo, p_small: small, p_big: big });
-  } catch (erro) {
-    resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
-  }
-  if (resp.error) {
+    desligarTempoReal();
+    esquecerPartida();
+    if (lerDevSala()) {
+      await apagarSalaDev();
+    }
+    if (cancelado()) return;
+
+    const cfg = obterConfigOnline('dev');
+    let resp;
+    try {
+      resp = cfg.modo === 'online'
+        ? await banco.rpc('dev_criar_sala_online', Object.assign({}, contaParams(), {
+            p_nome: NOMES_DEV[0],
+            p_saldo: saldo,
+            p_small: small,
+            p_big: big,
+            p_tempo_turno: cfg.tempoTurno,
+            p_subir_blinds_min: cfg.subirBlindsMin
+          }))
+        : await banco.rpc('dev_criar_sala', Object.assign({}, contaParams(), {
+            p_nome: NOMES_DEV[0],
+            p_saldo: saldo,
+            p_small: small,
+            p_big: big
+          }));
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+    if (resp.error) {
+      if (!cancelado()) mostrarErro('erro-dev-criar', resp.error.message);
+      return;
+    }
+
+    const sala = { partida_id: resp.data.partida_id, jogadores: [jogadorDevDe(resp.data)] };
+    if (cancelado()) {
+      await apagarSalaDev(sala);
+      return;
+    }
+
+    await registrarRealCriacao('dev', sala.partida_id, saldo, sala.jogadores[0].id, sala.jogadores[0].segredo);
+    if (cancelado()) {
+      await apagarSalaDev(sala);
+      return;
+    }
+
+    let falhou = null;
+    for (let i = 1; i < qtd && !falhou; i++) {
+      if (cancelado()) {
+        await apagarSalaDev(sala);
+        return;
+      }
+      botao.textContent = 'Adicionando jogador ' + (i + 1) + ' de ' + qtd + '...';
+      let r;
+      try {
+        r = await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
+          p_partida: sala.partida_id,
+          p_nome: NOMES_DEV[i]
+        }));
+      } catch (erro) {
+        r = { error: { message: 'Não consegui falar com o servidor.' } };
+      }
+      if (cancelado()) {
+        await apagarSalaDev(sala);
+        return;
+      }
+      if (r.error) {
+        falhou = r.error.message;
+      } else {
+        sala.jogadores.push(jogadorDevDe(r.data));
+      }
+    }
+
+    if (cancelado()) {
+      await apagarSalaDev(sala);
+      return;
+    }
+
+    salvarDevSala(sala);
+    esquecerPartida();
+    hooksDev.pararSalas();
+    if (falhou) aviso('Sala criada com ' + sala.jogadores.length + ' jogadores. ' + falhou);
+    abrirMesaDev(0);
+  } finally {
+    criandoDev = false;
     botao.disabled = false;
     botao.textContent = 'Criar sala DEV';
-    mostrarErro('erro-dev-criar', resp.error.message);
-    return;
   }
-
-  const sala = { partida_id: resp.data.partida_id, jogadores: [jogadorDevDe(resp.data)] };
-  salvarDevSala(sala);
-  esquecerPartida();
-  await registrarRealCriacao('dev', sala.partida_id, saldo, sala.jogadores[0].id, sala.jogadores[0].segredo);
-
-  let falhou = null;
-  for (let i = 1; i < qtd && !falhou; i++) {
-    botao.textContent = 'Adicionando jogador ' + (i + 1) + ' de ' + qtd + '...';
-    let r;
-    try {
-      r = await banco.rpc('dev_adicionar_jogador', { p_partida: sala.partida_id, p_nome: NOMES_DEV[i] });
-    } catch (erro) {
-      r = { error: { message: 'Não consegui falar com o servidor.' } };
-    }
-    if (r.error) {
-      falhou = r.error.message;
-    } else {
-      sala.jogadores.push(jogadorDevDe(r.data));
-      salvarDevSala(sala);
-    }
-  }
-
-  botao.disabled = false;
-  botao.textContent = 'Criar sala DEV';
-  if (falhou) aviso('Sala criada com ' + sala.jogadores.length + ' jogadores. ' + falhou);
-  abrirMesaDev(0);
 }
 
 export function abrirMesaDev(indice) {
+  if (!garantirContaDev(false)) { hooksDev.abrirSalas(); return; }
   const sala = lerDevSala();
   if (!sala) { hooksDev.abrirSalas(); return; }
   estado.modoDev = true;
   controlarDev(indice, sala);
-  hooksDev.abrirMesa({ id: sala.partida_id });
+  hooksDev.abrirMesa({ id: sala.partida_id, dev: true });
 }
 
 export function controlarDev(indice, sala) {
@@ -175,6 +242,7 @@ export function proximoJogadorDev() {
 }
 
 export function abrirPainelDev() {
+  if (!garantirContaDev()) return;
   desenharPainelDev();
   abrirFolha('painel-dev');
 }
@@ -222,6 +290,7 @@ export function desenharPainelDev() {
 }
 
 export async function adicionarJogadorDev() {
+  if (!garantirContaDev()) return;
   const sala = lerDevSala();
   if (!sala || sala.jogadores.length >= MAX_DEV) return;
   limparErro('erro-dev');
@@ -230,10 +299,10 @@ export async function adicionarJogadorDev() {
   botao.disabled = true;
   let resp;
   try {
-    resp = await banco.rpc('dev_adicionar_jogador', {
+    resp = await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
       p_partida: sala.partida_id,
       p_nome: NOMES_DEV[sala.jogadores.length]
-    });
+    }));
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
@@ -248,6 +317,7 @@ export async function adicionarJogadorDev() {
 }
 
 export function devAcao(funcao, extra, mensagem) {
+  if (!garantirContaDev()) return Promise.resolve(false);
   const sala = lerDevSala();
   if (!sala) return Promise.resolve(false);
   const criador = sala.jogadores[0];
@@ -259,26 +329,37 @@ export function devAcao(funcao, extra, mensagem) {
   });
 }
 
-export async function apagarSalaDev() {
-  const sala = lerDevSala();
-  if (!sala || apagandoDev) return false;
-  apagandoDev = true;
-  esquecerDevSala();
-  const criador = sala.jogadores[0];
+export async function apagarSalaDev(salaAlvo) {
+  const salaSalva = lerDevSala();
+  const sala = salaAlvo || salaSalva;
+  if (!salaAlvo || (salaSalva && sala && salaSalva.partida_id === sala.partida_id)) {
+    esquecerDevSala();
+  }
+  if (!sala || !sala.partida_id || apagandoDevIds.has(sala.partida_id)) return false;
+  apagandoDevIds.add(sala.partida_id);
+  const criador = sala.jogadores && sala.jogadores[0];
   try {
-    try {
-      await banco.rpc('encerrar_sala', {
-        p_conta: criador.conta_id,
-        p_token: criador.token,
-        p_partida_id: sala.partida_id
-      });
-    } catch (erro) {}
-    try { await banco.rpc('dev_apagar_sala', { p_partida: sala.partida_id }); } catch (erro) {}
+    if (criador && criador.conta_id && criador.token) {
+      try {
+        await banco.rpc('encerrar_sala', {
+          p_conta: criador.conta_id,
+          p_token: criador.token,
+          p_partida_id: sala.partida_id
+        });
+      } catch (erro) {}
+    }
+    if (ehContaDev() && estado.minhaConta && estado.minhaConta.token) {
+      try {
+        await banco.rpc('dev_apagar_sala', Object.assign({}, contaParams(), {
+          p_partida: sala.partida_id
+        }));
+      } catch (erro) {}
+    }
     return true;
   } catch (erro) {
     return true;
   } finally {
-    apagandoDev = false;
+    apagandoDevIds.delete(sala.partida_id);
   }
 }
 

@@ -1,10 +1,10 @@
 // Autenticação de conta (nome único, senha protegida, criação com confirmação e sessão)
-import { banco } from '../core/supabase.js?v=80';
-import { estado, limparCachesMesa } from '../core/estado.js?v=80';
-import { guardarConta, esquecerConta, esquecerPartida, lembrarNome, lerNome } from '../core/storage.js?v=80';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=80';
-import { desligarTempoReal } from '../core/realtime.js?v=80';
-import { obterModo } from '../mesa/modos.js?v=80';
+import { banco } from '../core/supabase.js?v=81';
+import { estado, limparCachesMesa } from '../core/estado.js?v=81';
+import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=81';
+import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=81';
+import { desligarTempoReal } from '../core/realtime.js?v=81';
+import { obterModo } from '../mesa/modos.js?v=81';
 
 let modoLoginAtual = 'entrar';
 let hooksAuth = {
@@ -155,9 +155,12 @@ export function encerrarSessaoLocal() {
   estado.salasAtuais = [];
   estado.htmlSalas = '';
   esquecerPartida();
+  esquecerDevSala();
   estado.modoDev = false;
   esquecerConta();
   estado.minhaConta = null;
+  const btnDev = $id('btn-sala-dev');
+  if (btnDev) btnDev.hidden = true;
 
   $id('campo-login-nome').value = lerNome();
   $id('campo-login-senha').value = '';

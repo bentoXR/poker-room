@@ -1,7 +1,8 @@
 // Estado compartilhado da aplicação (conta, sala ativa, mesa, caches de renderização e modo)
-import { lerContaSalva, lerDevSala } from './storage.js?v=80';
+import { lerContaSalva, lerDevSala } from './storage.js?v=81';
 
 export const QUALQUER_UM_ABRE_RODADA = false;
+export const CONTA_DEV_ID = 'ee2c172a-6865-4d19-b5eb-edbcf81c8790';
 
 export const ICONE_COROA =
   '<svg class="ic cheio coroa" viewBox="0 0 24 24" aria-label="Criador">' +
@@ -15,6 +16,7 @@ export const estado = {
   versaoSalas: 0,
   htmlSalas: '',
   abrindoSala: false,
+  criandoSala: false,
   salaConviteId: null,
 
   // Partida e mesa ativa
@@ -30,6 +32,7 @@ export const estado = {
   ultimaVersao: -1,
   promessaBusca: null,
   buscaSuja: false,
+  forcarBusca: false,
   ocupado: false,
 
   // Caches de UI (evitam redesenho desnecessário)
@@ -67,6 +70,10 @@ export const estado = {
 
 export function contaParams() {
   return { p_conta: estado.minhaConta.id, p_token: estado.minhaConta.token };
+}
+
+export function ehContaDev(conta = estado.minhaConta) {
+  return !!(conta && conta.id === CONTA_DEV_ID);
 }
 
 // Na sala DEV os nomes vêm com um sufixo técnico ("Ana DEV 1946"): na tela mostramos só "Ana"
