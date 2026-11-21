@@ -7,7 +7,6 @@ const CHAVE_SOM = 'poker-som';
 const ARQUIVOS_MP3 = {
   'carta-dar':    { url: './sons/card-slide-1.mp3',   vol: 0.62, jitter: 0.04 },
   'carta-virar':  { url: './sons/card-shove-1.mp3',   vol: 0.65, jitter: 0.03 },
-  'desistir':     { url: './sons/card-slide-6.mp3',   vol: 0.58, jitter: 0.03 },
   'embaralhar':   { url: './sons/card-fan-1.mp3',     vol: 0.54, jitter: 0 },
   'ficha':        { url: './sons/chip-lay-1.mp3',     vol: 0.68, jitter: 0.05 },
   'allin':        { url: './sons/chips-stack-4.mp3',  vol: 0.82, jitter: 0 },
@@ -304,8 +303,54 @@ function synthClique(audioCtx, t0) {
   osc.stop(t0 + 0.035);
 }
 
+// 7) desistir: swoosh rápido descendente + duas notas graves suaves caindo (bem diferente de dar carta)
+function synthDesistir(audioCtx, t0) {
+  // Ruído filtrado simulando jogar as cartas no monte
+  const tam = Math.floor(audioCtx.sampleRate * 0.16);
+  const buf = audioCtx.createBuffer(1, tam, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < tam; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / tam);
+
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buf;
+  const filtro = audioCtx.createBiquadFilter();
+  filtro.type = 'bandpass';
+  filtro.Q.setValueAtTime(1.4, t0);
+  filtro.frequency.setValueAtTime(1400, t0);
+  filtro.frequency.exponentialRampToValueAtTime(320, t0 + 0.16);
+  const gNoise = audioCtx.createGain();
+  gNoise.gain.setValueAtTime(0.001, t0);
+  gNoise.gain.linearRampToValueAtTime(0.18, t0 + 0.015);
+  gNoise.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.16);
+  noise.connect(filtro);
+  filtro.connect(gNoise);
+  gNoise.connect(audioCtx.destination);
+  noise.start(t0);
+
+  // Tom descendente suave (sinal claro de "fora da mão")
+  [
+    { dt: 0.02, freq: 311.13, dur: 0.14, gain: 0.14 }, // Eb4
+    { dt: 0.10, freq: 220.00, dur: 0.22, gain: 0.15 }  // A3
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(n.freq, t);
+    osc.frequency.exponentialRampToValueAtTime(n.freq * 0.92, t + n.dur);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(n.gain, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + n.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + n.dur + 0.02);
+  });
+}
+
 const SINTETIZADORES = {
   'check':         synthCheck,
+  'desistir':      synthDesistir,
   'sua-vez':       synthSuaVez,
   'showdown':      synthShowdown,
   'tempo-urgente': synthTempoUrgente,
