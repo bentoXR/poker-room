@@ -178,7 +178,7 @@
     0 0 0 7.5px var(--borda-aro) !important;
 }
 @media (min-width: 820px) {
-  #tela-mesa.modo-online .centro-roda {
+  #tela-mesa .centro-roda {
     border: 11px solid var(--borda-mesa) !important;
     box-shadow:
       inset 0 0 0 1.5px var(--feltro-trilha),

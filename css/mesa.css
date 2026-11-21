@@ -363,11 +363,14 @@ button.dev-prox {
   display: flex;
   flex-direction: column;
   text-align: left;
-  background: var(--feltro-800);
-  border: 2px solid var(--linha);
+  background: linear-gradient(180deg, var(--assento-bg), var(--assento-bg-2));
+  border: 2px solid rgba(255, 255, 255, 0.26);
   transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
-.lugar.eu { background: var(--feltro-700); border-color: rgba(244, 247, 255, 0.55); }
+.lugar.eu {
+  background: linear-gradient(180deg, var(--assento-eu-bg), var(--assento-eu-bg-2));
+  border-color: #ffffff;
+}
 .lugar.desistiu { opacity: 0.45; }
 .lugar.espera { opacity: 0.78; }
 .lugar.prox { border-style: dashed; border-color: rgba(244, 247, 255, 0.85); }
@@ -614,4 +617,121 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
 @media (min-width: 700px) {
   .mesa-wrap { max-width: 560px; }
   .lugar.assento-redondo { padding: 7px 8px 6px; }
+}
+
+/* ----- Experiência PC / Desktop também no Modo Presencial (baralho físico) ----- */
+@media (min-width: 820px) {
+  body.na-mesa main {
+    max-width: min(1560px, 98vw);
+    padding: 12px 24px 0;
+  }
+  #tela-mesa .topo { gap: 10px; }
+  #tela-mesa .sala-pill strong { font-size: 28px; }
+  #tela-mesa .sala-pill .rotulo { font-size: 14.5px; }
+  #tela-mesa button.icone-btn {
+    width: 46px;
+    height: 46px;
+    min-height: 46px;
+    border-radius: 13px;
+  }
+  #tela-mesa button.icone-btn .ic { width: 22px; height: 22px; }
+  #tela-mesa #btn-guia { font-size: 23px !important; }
+  #tela-mesa #btn-som-mesa { font-size: 20px !important; }
+  #tela-mesa .topo #btn-reais,
+  #tela-mesa .topo #btn-dev { font-size: 15px !important; }
+  #tela-mesa .barra-info { margin-top: 5px; }
+  #tela-mesa .barra-info .pilula { padding: 0 14px; font-size: 15px; }
+  #tela-mesa .status,
+  #tela-mesa .faixa-fase,
+  #tela-mesa #btn-iniciar-rapido {
+    max-width: 760px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #tela-mesa .linha-ultima {
+    max-width: 920px;
+    width: 100%;
+    margin: 5px auto 0;
+  }
+  #tela-mesa .ultima { font-size: 15px; }
+
+  #tela-mesa .mesa-wrap {
+    max-width: min(1340px, 96vw);
+    width: 100%;
+    min-height: 0;
+    margin: 8px auto 0;
+  }
+  #tela-mesa .centro-roda {
+    top: 49%;
+    width: 62%;
+    height: 60%;
+    border-radius: 999px;
+    padding: 12px 32px;
+    gap: 6px;
+  }
+  #tela-mesa .lugar.assento-redondo {
+    top: clamp(44px, var(--y, 50%), calc(100% - 48px));
+    padding: 6px 11px 6px;
+    border-radius: 16px;
+    gap: 3px;
+  }
+  #tela-mesa .l-topo { gap: 7px; }
+  #tela-mesa .l-avatar { width: 40px; height: 40px; border-width: 2.5px; }
+  #tela-mesa .lugar.eu .l-avatar { width: 44px; height: 44px; }
+
+  /* Barra de ações flutuante em 1 linha no PC */
+  #barra-acoes {
+    bottom: 10px;
+    max-width: min(1100px, 96vw);
+    padding: 12px 22px;
+    border: 1.5px solid var(--cartao-borda);
+    border-radius: 20px;
+    box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.72);
+  }
+  #barra-acoes .caixa-aposta {
+    display: grid;
+    grid-template-columns: auto minmax(120px, 1fr) 196px;
+    gap: 12px;
+    align-items: center;
+    padding: 7px 12px;
+    margin-bottom: 8px;
+  }
+  #barra-acoes .caixa-aposta .presets {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 0;
+  }
+  #barra-acoes .caixa-aposta .presets button {
+    width: auto;
+    min-width: 44px;
+    min-height: 38px;
+    padding: 4px 10px;
+    font-size: 14px;
+  }
+  #barra-acoes .caixa-aposta input[type=range] { margin-bottom: 0; }
+  #barra-acoes .caixa-aposta .linha-aposta { grid-template-columns: 40px 1fr 40px; }
+  #barra-acoes .caixa-aposta .linha-aposta button,
+  #barra-acoes .caixa-aposta input { min-height: 38px; font-size: 20px; }
+
+  /* Gavetas (.folha) centralizadas como modais no PC também no Presencial */
+  body.na-mesa .fundo-folha {
+    background: rgba(0, 0, 0, 0.68);
+    backdrop-filter: blur(4px);
+  }
+  body.na-mesa .folha {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(560px, 92vw);
+    max-width: 560px;
+    max-height: 84dvh;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    border: 1.5px solid var(--cartao-borda);
+    border-radius: 22px;
+    box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.85);
+    padding-bottom: 0;
+  }
 }
