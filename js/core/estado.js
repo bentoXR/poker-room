@@ -1,5 +1,5 @@
 // Estado compartilhado da aplicação (conta, sala ativa, mesa, caches de renderização e modo)
-import { lerContaSalva, lerDevSala } from './storage.js?v=29';
+import { lerContaSalva, lerDevSala } from './storage.js?v=30';
 
 export const QUALQUER_UM_ABRE_RODADA = false;
 

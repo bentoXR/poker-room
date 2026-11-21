@@ -3,7 +3,7 @@ const CHAVE_TEMA = 'poker-tema';
 const ORDEM_TEMAS = ['azul', 'classico', 'preto'];
 const CORES_META = {
   azul: '#0c1d45',
-  classico: '#12100e',
+  classico: '#1b130e',
   preto: '#14161c'
 };
 const TITULOS_TEMA = {

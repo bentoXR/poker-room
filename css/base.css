@@ -90,11 +90,11 @@
 
 /* Tema 2: Cassino (Mesa de Sinuca Clássica — feltro natural, madeira mogno e latão dourado) */
 :root[data-tema="classico"] {
-  --feltro-950: #0c0a09;
-  --feltro-900: #12100e;
-  --feltro-800: #1e1a17;
-  --feltro-700: #2b2520;
-  --feltro-600: #3a312b;
+  --feltro-950: #120c09;
+  --feltro-900: #1b130e;
+  --feltro-800: #291d16;
+  --feltro-700: #38281e;
+  --feltro-600: #4a3528;
   --linha: rgba(243, 239, 234, 0.16);
 
   --marfim: #f3efea;
@@ -119,7 +119,7 @@
   --luz-cor: #c59b27;
   --luz-sombra: rgba(197, 155, 39, 0.72);
 
-  --bg-topo: rgba(36, 89, 56, 0.16);
+  --bg-topo: rgba(112, 62, 30, 0.34);
   --faixa-topo: linear-gradient(
     90deg,
     #4a2511 0 30%,
