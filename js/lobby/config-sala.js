@@ -1,8 +1,8 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=9';
-import { estado, marcarReal } from '../core/estado.js?v=9';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=9';
+import { banco } from '../core/supabase.js?v=10';
+import { estado, marcarReal } from '../core/estado.js?v=10';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=10';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -61,6 +61,20 @@ export function escolherSubirBlinds(min, p) {
   if (wrap) {
     wrap.querySelectorAll('.op-chip').forEach((b) => {
       const ativo = Number(b.dataset.v) === cfgSubirBlinds[p];
+      b.classList.toggle('sel', ativo);
+      b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+    });
+  }
+}
+
+export function escolherQtdDev(qtd) {
+  const v = Math.max(2, Math.min(9, parseInt(qtd) || 4));
+  const campo = $id('campo-dev-qtd');
+  if (campo) campo.value = v;
+  const wrap = $id('chips-dev-qtd');
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      const ativo = Number(b.dataset.q) === v;
       b.classList.toggle('sel', ativo);
       b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
@@ -136,8 +150,15 @@ export function atualizarProfundidade(p) {
     ? fmtNum(s) + ' fichas = ' + fmtReais(reais) + ' · 1.000 fichas = ' + fmtReais(reais / s * 1000) + '. Apenas referência.'
     : '';
   const ok = s > 0 && bb > 0;
-  $id('prof-val' + i.s).textContent = ok ? (Math.round(s / bb * 10) / 10).toLocaleString('pt-BR') + ' BB' : '—';
-  $id('prof-det' + i.s).textContent = ok ? 'Stack ' + fmtNum(s) + ' · Big blind ' + fmtNum(bb) : 'Informe stack e blinds';
+  const bbs = ok ? (Math.round(s / bb * 10) / 10) : 0;
+  const ritmo = !ok ? 'Ritmo da mesa'
+    : (bbs < 40 ? 'Jogo rápido' : bbs <= 120 ? 'Equilibrado (padrão)' : 'Jogo longo');
+  const rotuloEl = $id('prof-rotulo' + i.s);
+  if (rotuloEl) rotuloEl.textContent = ritmo;
+  $id('prof-val' + i.s).textContent = ok ? bbs.toLocaleString('pt-BR') + ' BB' : '—';
+  $id('prof-det' + i.s).innerHTML = ok
+    ? '<b>' + fmtNum(s) + '</b> fichas · Blinds <b>' + fmtNum(sb) + '/' + fmtNum(bb) + '</b>'
+    : 'Informe fichas e blinds válidos';
 }
 
 export async function registrarRealCriacao(p, id, saldo, jid, seg) {
@@ -171,4 +192,5 @@ export function iniciarConfigSala() {
   escolherTempoTurno(30, 'dev');
   escolherSubirBlinds(0, '');
   escolherSubirBlinds(0, 'dev');
+  escolherQtdDev(4);
 }

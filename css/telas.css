@@ -6,30 +6,79 @@
 #tela-login.ativa {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: calc(100dvh - 40px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height: calc(100dvh - 44px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
-.marca { text-align: center; margin-bottom: 26px; }
-.naipes {
+.topo-tema-login {
   display: flex;
-  justify-content: center;
-  gap: 14px;
-  font-size: 26px;
-  line-height: 1;
-  color: var(--marfim);
+  justify-content: flex-end;
+  margin-bottom: 14px;
 }
-.naipes .r { color: #ff6b78; }
+.login-grade {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.marca { text-align: center; margin-bottom: 22px; }
+.naipes {
+  display: inline-flex;
+  justify-content: center;
+  gap: 8px;
+}
+.n-emblema {
+  width: 36px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 9px;
+  background: linear-gradient(165deg, #ffffff 0%, #e7eef9 100%);
+  color: #111524;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.n-emblema.r { color: #d61c33; }
+.n-emblema:nth-child(1) { transform: rotate(-6deg); }
+.n-emblema:nth-child(2) { transform: translateY(-3px) rotate(-2deg); }
+.n-emblema:nth-child(3) { transform: translateY(-3px) rotate(2deg); }
+.n-emblema:nth-child(4) { transform: rotate(6deg); }
+
 .marca h1 {
-  margin-top: 10px;
-  font-size: 76px;
+  margin-top: 14px;
+  font-size: 72px;
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: 0.01em;
   color: #fff;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
 }
 .marca p {
   margin: 12px auto 0;
-  max-width: 270px;
+  max-width: 300px;
+  font-size: 15.5px;
+  line-height: 1.45;
+  color: var(--marfim-suave);
+}
+.marca p strong { color: #fff; }
+
+.cartao-login { margin-top: 0; }
+.cartao-cabecalho {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--linha);
+}
+.cartao-cabecalho strong {
+  display: block;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+}
+.cartao-cabecalho span {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
   color: var(--marfim-suave);
 }
 
@@ -38,65 +87,183 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--linha);
 }
-.cabecalho-conta .ola { font-size: 15px; color: var(--marfim-suave); }
-.cabecalho-conta .ola strong { color: var(--marfim); font-weight: 600; }
+.ola-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.avatar-conta {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fonte-numero);
+  font-size: 21px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--verde), var(--ouro));
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+}
+.cabecalho-conta .ola {
+  font-size: 15.5px;
+  color: var(--marfim-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cabecalho-conta .ola strong { color: #fff; font-weight: 800; }
+.conta-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
 button.sair-conta {
   width: auto;
-  min-height: 44px;
+  min-height: 38px;
   margin: 0;
-  padding: 8px 12px;
+  padding: 6px 12px;
   font-size: 14px;
-  font-weight: 500;
-  background: transparent;
+  font-weight: 700;
+  background: rgba(244, 247, 255, 0.08);
   color: var(--marfim-suave);
+  border-radius: 999px;
   box-shadow: none;
 }
-.linha-botoes { display: flex; gap: 10px; align-items: stretch; }
-.linha-botoes > button:first-child { flex: 1; width: auto; }
-button.botao-dev-entrada { width: auto; min-width: 118px; padding: 12px; font-size: 15px; }
 
-#lista-salas { margin-top: 6px; }
+.salas-topo {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.salas-topo h2 { margin: 0; }
+.subtitulo-tela {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  color: var(--marfim-suave);
+}
+.subtitulo-tela strong { color: #fff; }
+.linha-botoes { display: flex; gap: 10px; align-items: stretch; }
+.linha-botoes > button { margin-top: 0; }
+.linha-botoes > button:first-child { flex: 1; width: auto; }
+button.botao-dev-entrada { width: auto; min-width: 112px; padding: 12px 16px; font-size: 15px; }
+
+#lista-salas { margin-top: 12px; }
 button.sala {
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  min-height: 72px;
+  min-height: 82px;
   margin-top: 10px;
   padding: 14px 16px;
   text-align: left;
   background: var(--feltro-800);
   color: var(--marfim);
   border: 1.5px solid var(--linha);
-  box-shadow: none;
+  border-left: 4px solid var(--acento);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.7);
 }
+button.sala.eh-online { border-left-color: var(--verde); }
 button.sala:active:not(:disabled) { transform: scale(0.99); box-shadow: none; }
-button.sala.minha { background: var(--feltro-700); border-color: rgba(155, 28, 49, 0.55); }
+button.sala.minha {
+  background: var(--feltro-700);
+  border-color: var(--ouro-borda);
+  border-left-color: var(--ouro);
+}
 button.sala .sala-info { flex: 1; min-width: 0; }
+.sala-topo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 button.sala .sala-nome {
   font-family: var(--fonte-numero);
   font-size: 25px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.1;
+  color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sala-nome .coroa { color: var(--estrela); vertical-align: -2px; margin-right: 2px; }
-button.sala .sala-detalhe { margin-top: 4px; font-size: 14px; font-weight: 500; color: var(--marfim-suave); }
-button.sala .sala-seta { color: var(--marfim-suave); }
+.sala-nome .coroa { color: var(--acento); vertical-align: -2px; margin-right: 3px; }
+.sala-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.26);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--marfim-suave);
+}
+.meta-chip b { color: #fff; font-weight: 700; }
+.meta-chip.vivo {
+  background: var(--verde-suave);
+  color: var(--verde-texto);
+}
+.meta-chip.vivo i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--acento);
+  box-shadow: 0 0 8px var(--acento);
+}
+button.sala .sala-seta { color: var(--marfim-suave); flex-shrink: 0; }
+
 .vazio {
   margin-top: 14px;
-  padding: 24px 16px;
+  padding: 32px 20px;
   text-align: center;
   color: var(--marfim-suave);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--cartao-bg);
+  border: 1.5px dashed var(--linha);
   border-radius: var(--raio-lg);
 }
+.vazio-naipes {
+  display: inline-flex;
+  gap: 8px;
+  font-size: 22px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+.vazio-naipes .r { color: #ff6b78; }
+.vazio strong {
+  display: block;
+  font-size: 19px;
+  font-weight: 800;
+  color: #fff;
+}
+.vazio p {
+  margin: 6px auto 0;
+  max-width: 360px;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.vazio p b { color: #fff; }
 
-/* ----- Criar sala e Sala DEV (layout compacto para celular) ----- */
+/* ----- Criar sala e Sala DEV ----- */
 .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .duas label { margin-top: 16px; }
 .atalhos { display: flex; gap: 8px; margin-top: 8px; }
@@ -108,11 +275,66 @@ button.atalho {
   padding: 6px 4px;
   font-size: 15px;
   font-family: var(--fonte-numero);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.03em;
-  background: rgba(244, 247, 255, 0.1);
+  background: rgba(244, 247, 255, 0.11);
   color: var(--marfim);
   box-shadow: none;
+}
+
+.etiqueta-sala {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--verde-suave);
+  color: var(--verde-texto);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.aviso-dev {
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--verde-suave);
+  border-left: 3px solid var(--verde);
+  color: var(--marfim);
+  font-size: 13.5px;
+}
+.secao-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.passo-num {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fonte-numero);
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--verde);
+}
+
+.chips-qtd {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.chips-qtd button.op-chip {
+  min-width: 0;
+  min-height: 40px;
+  font-family: var(--fonte-numero);
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .stacks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
@@ -130,73 +352,104 @@ button.stack {
   color: var(--marfim);
   box-shadow: inset 0 0 0 1.5px var(--linha);
 }
-button.stack b { font-family: var(--fonte-numero); font-size: 19px; font-weight: 700; line-height: 1; }
+button.stack b { font-family: var(--fonte-numero); font-size: 20px; font-weight: 700; line-height: 1; }
 button.stack small { font-size: 12px; font-weight: 500; color: var(--marfim-suave); }
+button.stack small strong { color: #fff; }
 button.stack.sel { background: var(--ouro); color: #fff; box-shadow: 0 3px 0 var(--ouro-escuro); }
-button.stack.sel small { color: rgba(255, 255, 255, 0.85); }
+button.stack.sel small { color: rgba(255, 255, 255, 0.9); }
 button.stack.especial { margin-top: 8px; min-height: 44px; flex-direction: row; gap: 8px; }
-button.stack.especial b { font-size: 17px; }
+button.stack.especial b { font-size: 16.5px; }
 
 .painel-real {
   margin-top: 8px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.24);
   border: 1px solid var(--linha);
   border-radius: var(--raio-md);
 }
 .painel-real label { margin-top: 8px; }
 .painel-real .atalhos { margin-top: 0; }
 .painel-real button.atalho { min-height: 38px; }
-.painel-real .dica { margin-top: 4px; font-size: 12px; }
+.painel-real .dica { margin-top: 6px; font-size: 12.5px; }
 
 .profund {
-  margin-top: 10px;
-  padding: 8px 12px;
+  margin-top: 12px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.25);
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.28);
   border: 1px solid var(--linha);
   border-radius: var(--raio-md);
 }
-.profund span { display: block; font-size: 14px; font-weight: 600; }
+.profund span { display: block; font-size: 14.5px; font-weight: 700; color: #fff; }
 .profund small { font-size: 13px; color: var(--marfim-suave); }
-.profund strong { font-family: var(--fonte-numero); font-size: 26px; line-height: 1; color: var(--estrela); white-space: nowrap; }
+.profund small b { color: #fff; font-weight: 700; }
+.profund strong {
+  font-family: var(--fonte-numero);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--acento);
+  white-space: nowrap;
+}
 
-#tela-criar .topo-criar, #tela-dev .topo-criar { display: flex; align-items: center; gap: 4px; }
-#tela-criar .topo-criar h2, #tela-dev .topo-criar h2 { margin: 0; font-size: 28px; }
+#tela-criar .topo-criar, #tela-dev .topo-criar { display: flex; align-items: center; gap: 6px; }
+#tela-criar .topo-criar h2, #tela-dev .topo-criar h2 { margin: 0; font-size: 30px; }
 #tela-criar .topo-criar button.voltar, #tela-dev .topo-criar button.voltar { margin: 0 0 0 -6px; }
-#tela-criar .cartao, #tela-dev .cartao { margin-top: 6px; padding: 12px; }
-#tela-criar .nome-sala-linha, #tela-dev .nome-sala-linha { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+#tela-criar .cartao, #tela-dev .cartao { margin-top: 8px; padding: 14px; }
+#tela-criar .nome-sala-linha, #tela-dev .nome-sala-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--linha);
+}
 #tela-criar .nome-sala-linha strong, #tela-dev .nome-sala-linha strong {
   font-family: var(--fonte-numero);
-  font-size: 24px;
-  line-height: 1.1;
+  font-size: 26px;
+  line-height: 1.05;
   color: #fff;
   overflow-wrap: anywhere;
 }
-#tela-criar label, #tela-dev label { margin: 10px 0 4px; font-size: 13px; }
-#tela-criar input, #tela-dev input { min-height: 44px; padding: 8px 10px; font-size: 16px; }
+#tela-criar label, #tela-dev label { margin: 10px 0 4px; font-size: 13.5px; }
+#tela-criar input, #tela-dev input { min-height: 44px; padding: 8px 11px; font-size: 16px; }
 #tela-criar .trio, #tela-dev .trio { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 8px; }
 #tela-criar .trio label, #tela-dev .trio label { white-space: nowrap; }
-#tela-criar #botao-criar, #tela-dev #botao-criar-dev { margin-top: 10px; min-height: 50px; }
+#tela-criar #botao-criar, #tela-dev #botao-criar-dev { margin-top: 12px; min-height: 54px; }
 #tela-criar .erro, #tela-dev .erro { margin-top: 8px; }
 
 /* ----- Escolha de entrada ----- */
-.convite { text-align: center; padding: 8px 0 4px; }
-.convite .rotulo { font-size: 14px; color: var(--marfim-suave); }
+.cartao-convite { text-align: center; }
+.convite { text-align: center; padding: 6px 0 6px; }
+.convite-selo {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--verde-suave);
+  color: var(--verde-texto);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 .grande-sala {
+  margin-top: 10px;
   font-family: var(--fonte-numero);
   font-size: 46px;
   font-weight: 700;
   line-height: 1.05;
-  color: var(--estrela);
+  color: #fff;
   overflow-wrap: anywhere;
 }
-.grande-sala.menor { font-size: 34px; margin-top: 2px; }
-.convite p { margin: 8px 0 0; color: var(--marfim-suave); }
-.convite strong { color: var(--marfim); }
+.grande-sala.menor { font-size: 34px; margin-top: 4px; }
+.convite-fichas {
+  margin: 10px 0 4px;
+  font-size: 15.5px;
+  color: var(--marfim-suave);
+}
+.convite-fichas strong { color: var(--acento); font-weight: 800; }
 
 /* ----- Tela de carregando (recarregamento) ----- */
 .restaurando #tela-login { display: none !important; }
@@ -210,7 +463,7 @@ button.stack.especial b { font-size: 17px; }
   text-align: center;
   gap: 18px;
 }
-.carregando p { margin: 0; max-width: 280px; color: var(--marfim-suave); }
+.carregando p { margin: 0; max-width: 280px; font-weight: 600; color: var(--marfim-suave); }
 .carregando-acoes { width: 100%; max-width: 320px; }
 .ficha-giro {
   width: 72px;
@@ -223,20 +476,29 @@ button.stack.especial b { font-size: 17px; }
 @keyframes giro { to { transform: rotate(360deg); } }
 
 @media (max-width: 600px) and (orientation: portrait) {
-  .marca { margin-bottom: 20px; }
-  .marca h1 { font-size: clamp(60px, 18vw, 76px); }
+  .marca { margin-bottom: 18px; }
+  .marca h1 { font-size: clamp(56px, 16vw, 72px); }
+}
+
+@media (min-width: 480px) {
+  .chips-qtd { grid-template-columns: repeat(8, 1fr); }
 }
 
 /* ----- Telas de entrada, lobby e criação no PC / Desktop ----- */
 @media (hover: hover) and (pointer: fine) {
   button.sala:hover:not(:disabled) {
     filter: none;
-    border-color: rgba(244, 247, 255, 0.38);
+    border-color: rgba(244, 247, 255, 0.4);
+    border-left-color: var(--acento);
     background: var(--feltro-700);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+  }
+  button.sala.eh-online:hover:not(:disabled) {
+    border-left-color: var(--verde);
   }
   button.sala.minha:hover:not(:disabled) {
-    border-color: rgba(196, 52, 76, 0.85);
+    border-color: var(--ouro);
+    border-left-color: var(--ouro);
   }
   button.stack:hover:not(:disabled):not(.sel) {
     filter: none;
@@ -250,103 +512,105 @@ button.stack.especial b { font-size: 17px; }
 }
 
 @media (min-width: 820px) {
-  /* Login em duas colunas equilibradas */
+  /* Login em duas colunas equilibradas com seletor de cores no topo direito */
   #tela-login.ativa {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 420px;
-    align-items: center;
-    gap: 52px;
-    max-width: 880px;
+    max-width: 920px;
     margin: 0 auto;
-    min-height: calc(100dvh - 96px);
+    min-height: calc(100dvh - 80px);
+  }
+  .topo-tema-login { margin-bottom: 0; }
+  .login-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 430px;
+    align-items: center;
+    gap: 54px;
+    padding: 20px 0;
   }
   #tela-login .marca {
     text-align: left;
     margin-bottom: 0;
   }
-  #tela-login .naipes {
-    justify-content: flex-start;
-    font-size: 32px;
-    gap: 18px;
-  }
+  #tela-login .n-emblema { width: 42px; height: 52px; font-size: 26px; }
   #tela-login .marca h1 {
-    font-size: 86px;
-    margin-top: 12px;
+    font-size: 88px;
+    margin-top: 16px;
   }
   #tela-login .marca p {
     margin: 16px 0 0;
-    max-width: 340px;
+    max-width: 360px;
     font-size: 18px;
-    line-height: 1.45;
+    line-height: 1.5;
   }
   #tela-login .cartao {
     margin-top: 0 !important;
-    padding: 26px 26px 24px;
-    background: rgba(6, 13, 36, 0.72);
+    padding: 28px 28px 24px;
+    background: var(--cartao-bg-pc);
     box-shadow: 0 24px 56px -20px rgba(0, 0, 0, 0.72);
   }
 
   /* Lista de salas em grade de 2 colunas */
   #tela-salas {
-    max-width: 900px;
+    max-width: 920px;
     margin: 0 auto;
   }
-  #tela-salas .cabecalho-conta {
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--linha);
+  #tela-salas .cabecalho-conta .ola { font-size: 16.5px; }
+  .salas-topo {
+    margin-top: 24px;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
   }
-  #tela-salas .cabecalho-conta .ola { font-size: 16px; }
-  #tela-salas h2 {
-    margin-top: 22px !important;
-    font-size: 40px;
-  }
+  #tela-salas h2 { font-size: 42px; }
   #tela-salas .linha-botoes {
-    max-width: 440px;
-    gap: 12px;
+    flex-shrink: 0;
+    gap: 10px;
   }
-  #tela-salas .linha-botoes > button { margin-top: 4px; }
-  #tela-salas button.botao-dev-entrada { min-width: 140px; }
+  #tela-salas .linha-botoes > button {
+    min-height: 50px;
+    padding: 10px 22px;
+    white-space: nowrap;
+  }
+  #tela-salas button.botao-dev-entrada { min-width: 132px; }
   #lista-salas {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin-top: 18px;
+    margin-top: 22px;
   }
   #lista-salas .vazio {
     grid-column: 1 / -1;
     margin-top: 4px;
-    padding: 46px 24px;
+    padding: 50px 24px;
     font-size: 16px;
-    border: 1px dashed var(--linha);
   }
   #lista-salas button.sala {
     margin-top: 0;
-    min-height: 86px;
+    min-height: 92px;
     padding: 16px 18px;
-    border-radius: 16px;
     transition: transform 0.14s ease, border-color 0.16s ease, background-color 0.16s ease;
   }
   #lista-salas button.sala .sala-nome { font-size: 26px; }
 
   /* Telas de criação de sala e Sala DEV */
   #tela-criar, #tela-dev {
-    max-width: 680px;
+    max-width: 700px;
     margin: 0 auto;
   }
   #tela-criar .topo-criar, #tela-dev .topo-criar { gap: 8px; }
-  #tela-criar .topo-criar h2, #tela-dev .topo-criar h2 { font-size: 36px; }
+  #tela-criar .topo-criar h2, #tela-dev .topo-criar h2 { font-size: 38px; }
   #tela-criar .cartao, #tela-dev .cartao {
     margin-top: 14px;
     padding: 24px 26px;
-    background: rgba(6, 13, 36, 0.68);
+    background: var(--cartao-bg-pc);
     box-shadow: 0 24px 56px -22px rgba(0, 0, 0, 0.7);
   }
   #tela-criar .nome-sala-linha strong, #tela-dev .nome-sala-linha strong { font-size: 28px; }
   #tela-criar label, #tela-dev label { margin: 14px 0 6px; font-size: 14px; }
   #tela-criar input, #tela-dev input { min-height: 48px; padding: 10px 14px; font-size: 16px; }
   #tela-criar .stacks, #tela-dev .stacks { gap: 10px; }
-  #tela-criar button.stack, #tela-dev button.stack { min-height: 50px; }
-  #tela-criar button.stack b, #tela-dev button.stack b { font-size: 21px; }
+  #tela-criar button.stack, #tela-dev button.stack { min-height: 52px; }
+  #tela-criar button.stack b, #tela-dev button.stack b { font-size: 22px; }
   #tela-criar .trio, #tela-dev .trio { gap: 12px; }
   #tela-criar .profund, #tela-dev .profund { margin-top: 14px; padding: 12px 16px; }
   #tela-criar #botao-criar, #tela-dev #botao-criar-dev {
@@ -361,7 +625,8 @@ button.stack.especial b { font-size: 17px; }
     margin: 36px auto 0;
   }
   #tela-escolha .cartao {
-    padding: 24px;
+    padding: 28px;
+    background: var(--cartao-bg-pc);
     box-shadow: 0 22px 50px -20px rgba(0, 0, 0, 0.7);
   }
 }

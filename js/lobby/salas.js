@@ -1,17 +1,23 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=9';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=9';
-import { guardarMeuJogador } from '../core/storage.js?v=9';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=9';
-import { tratarErroConta } from './auth.js?v=9';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=9';
-import { abrirMesa } from '../mesa/mesa.js?v=9';
+import { banco } from '../core/supabase.js?v=10';
+import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=10';
+import { guardarMeuJogador } from '../core/storage.js?v=10';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=10';
+import { tratarErroConta } from './auth.js?v=10';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=10';
+import { abrirMesa } from '../mesa/mesa.js?v=10';
 
 export function abrirSalas() {
   pararSalas();
-  $id('salas-nome').textContent = estado.minhaConta.nome;
+  const nome = estado.minhaConta.nome || '';
+  $id('salas-nome').textContent = nome;
+  const av = $id('salas-avatar');
+  if (av) av.textContent = nome.trim().charAt(0).toUpperCase() || '♠';
   limparErro('erro-salas');
   mostrar('tela-salas');
+  if (!estado.htmlSalas) {
+    $id('lista-salas').innerHTML = '<div class="vazio"><p>Buscando salas abertas…</p></div>';
+  }
   carregarSalas();
   estado.temporizadorSalas = setInterval(carregarSalas, 4000);
 }
@@ -49,27 +55,45 @@ export async function carregarSalas() {
 export function desenharSalas() {
   let html;
   if (estado.salasAtuais.length === 0) {
-    html = '<div class="vazio">Nenhuma sala aberta ainda.<br>Toque em "Criar sala" para começar.</div>';
+    html = `
+      <div class="vazio">
+        <div class="vazio-naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
+        <strong>Nenhuma sala aberta agora</strong>
+        <p>Toque em <b>+ Criar sala</b> para chamar seus amigos ou teste sozinho na <b>Sala DEV</b>.</p>
+      </div>
+    `;
   } else {
     html = estado.salasAtuais.map((s) => {
       const ehOnline = s.modo === 'online';
-      const estadoTxt = s.iniciada ? 'Em andamento · Mão ' + s.mao : 'Aguardando início';
-      const extras = ehOnline
-        ? ' · ' + (Number(s.tempo_turno) === 0 ? 'Sem limite de tempo' : 'Turno ' + (s.tempo_turno || 30) + 's') + (s.subir_blinds_min > 0 ? ' · ↑' + s.subir_blinds_min + 'm' : '')
+      const statusChip = s.iniciada
+        ? '<span class="meta-chip vivo"><i></i><b>Mão ' + s.mao + '</b></span>'
+        : '<span class="meta-chip">Aguardando</span>';
+      const jogTxt = '<b>' + s.n_jogadores + '</b> ' + (s.n_jogadores === 1 ? 'jogador' : 'jogadores');
+      const blindsTxt = 'Blinds <b>' + s.small_blind + '/' + s.big_blind + '</b>';
+      const tempoChip = ehOnline
+        ? '<span class="meta-chip">' + (Number(s.tempo_turno) === 0 ? '<b>Sem limite</b>' : 'Turno <b>' + (s.tempo_turno || 30) + 's</b>') + '</span>'
         : '';
-      const detalhe = estadoTxt + ' · ' + s.n_jogadores + (s.n_jogadores === 1 ? ' jogador' : ' jogadores')
-        + ' · Blinds ' + s.small_blind + '/' + s.big_blind + extras;
+      const subirChip = (ehOnline && s.subir_blinds_min > 0)
+        ? '<span class="meta-chip">↑ <b>' + s.subir_blinds_min + 'm</b></span>'
+        : '';
       const modoTag = ehOnline
-        ? '<span class="tag modo-online">Online</span>'
-        : '<span class="tag modo-presencial">Presencial</span>';
+        ? '<span class="tag modo-online">🃏 Online</span>'
+        : '<span class="tag modo-presencial">🪙 Presencial</span>';
       const tag = s.sou_jogador ? '<span class="tag vez">Continuar</span>' : '';
       return `
-        <button type="button" class="sala ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
+        <button type="button" class="sala ${ehOnline ? 'eh-online' : 'eh-presencial'} ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
           <div class="sala-info">
-            <div class="sala-nome">${!ehOnline && s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
-            <div class="sala-detalhe">${escapar(detalhe)}</div>
+            <div class="sala-topo-linha">
+              <div class="sala-nome">${!ehOnline && s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
+              <div class="sala-badges">${modoTag}${tag}</div>
+            </div>
+            <div class="sala-meta">
+              ${statusChip}
+              <span class="meta-chip">${jogTxt}</span>
+              <span class="meta-chip">${blindsTxt}</span>
+              ${tempoChip}${subirChip}
+            </div>
           </div>
-          <div class="sala-badges">${modoTag}${tag}</div>
           <svg class="ic sala-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
         </button>
       `;

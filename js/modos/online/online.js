@@ -1,15 +1,15 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=9';
-import { estado, nomeDe } from '../../core/estado.js?v=9';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=9';
-import { lerDevSala } from '../../core/storage.js?v=9';
-import { registrarModo } from '../../mesa/modos.js?v=9';
-import { executar } from '../../mesa/apostas.js?v=9';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=9';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=9';
-import { avaliarMaoLocal } from './maos.js?v=9';
+import { banco } from '../../core/supabase.js?v=10';
+import { estado, nomeDe } from '../../core/estado.js?v=10';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=10';
+import { lerDevSala } from '../../core/storage.js?v=10';
+import { registrarModo } from '../../mesa/modos.js?v=10';
+import { executar } from '../../mesa/apostas.js?v=10';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=10';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=10';
+import { avaliarMaoLocal } from './maos.js?v=10';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -29,10 +29,7 @@ const SUBTITULOS_RUA = {
 
 const ICONE_LUZ = '<svg class="ic-luz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21h6M10 17h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg>';
 
-function lerAssistente() {
-  try { return localStorage.getItem('poker-assistente') !== '0'; } catch (erro) { return true; }
-}
-
+// Dicas de mão sempre ativadas (luzinha + nome da jogada atual)
 // Estado local efêmero (nada daqui é enviado ao servidor)
 const onlineUI = {
   maoCarregada: null,
@@ -43,10 +40,12 @@ const onlineUI = {
   htmlBoardVisto: '',
   boardQtdVisto: -1,
   htmlMaoVisto: '',
+  maoAnimada: '',           // controla para a animação de distribuição tocar só 1x por mão
+  faixaChave: '',           // evita reconstruir o botão da faixa durante a contagem regressiva
   avancandoTempo: false,
   ultimoAvancoEm: 0,
   mostrouDica: false,
-  assistente: lerAssistente(),
+  assistente: true,
 
   // Cena de revelação (flop, turn, river e showdown em câmera lenta)
   partidaId: null,
@@ -87,6 +86,8 @@ export function resetarOnlineUI() {
   onlineUI.htmlBoardVisto = '';
   onlineUI.boardQtdVisto = -1;
   onlineUI.htmlMaoVisto = '';
+  onlineUI.maoAnimada = '';
+  onlineUI.faixaChave = '';
   onlineUI.partidaId = null;
   onlineUI.boardMostrado = -1;
   onlineUI.resultadoVisto = null;
@@ -522,13 +523,17 @@ function desenharMinhaMao(partida, eu) {
     onlineUI.viradas[1] || c2Vis
   ];
 
+  const chaveMao = onlineUI.maoCarregada + ':' + onlineUI.jogadorCarregado + ':' + onlineUI.minhasCartas.join(',');
+  const animarAgora = chaveMao !== onlineUI.maoAnimada;
+  if (animarAgora) onlineUI.maoAnimada = chaveMao;
+
   const cartasHtml = onlineUI.minhasCartas.map((raw, idx) => {
     const c = parseCartaLocal(raw);
     if (!c) return '';
     const virada = abertas[idx];
     const dest = !!melhores[c.raw];
     return `
-      <div class="carta-3d-slot">
+      <div class="carta-3d-slot${animarAgora ? ' animar-entrada' : ''}">
         <button type="button" class="carta-3d${virada ? ' virada' : ''}${dest ? ' destaque' : ''}"
                 data-idx="${idx}" data-raw="${c.raw}" onclick="virarMinhaCarta(${idx})"
                 aria-label="Carta ${idx + 1}: toque para virar">
@@ -559,6 +564,11 @@ function desenharMinhaMao(partida, eu) {
     + '<div class="minha-mao-dica">' + dica + '</div>'
     + revelarHtml;
   wrap.hidden = false;
+  // Remove a classe de entrada depois que as cartas terminam de cair,
+  // evitando que a animação repita ao abrir/fechar "Aumentar" no celular!
+  setTimeout(() => {
+    wrap.querySelectorAll('.carta-3d-slot.animar-entrada').forEach((el) => el.classList.remove('animar-entrada'));
+  }, 1150);
   atualizarLuzes();
 }
 
@@ -783,6 +793,7 @@ registrarModo('online', {
     if (!emEspera || onlineUI.segurando) {
       faixa.hidden = true;
       faixa.innerHTML = '';
+      onlineUI.faixaChave = '';
       return;
     }
 
@@ -811,6 +822,28 @@ registrarModo('online', {
       }
     }
 
+    const restanteSeg = partida.proxima_mao_em
+      ? Math.max(0, Math.ceil((Date.parse(partida.proxima_mao_em) - (Date.now() + estado.relogio.offset)) / 1000))
+      : null;
+
+    const faixaChave = [
+      fimTorneio ? 'F' : 'E',
+      partida.iniciada ? 'I' : 'L',
+      comFichas.length,
+      confirmados.length,
+      eu ? (eu.id + ':' + (eu.saldo > 0 ? '1' : '0') + ':' + (eu.confirmado ? '1' : '0')) : 'spec',
+      restanteSeg !== null ? 'T' : 'N',
+      resHtml
+    ].join('|');
+
+    if (faixaChave === onlineUI.faixaChave && !faixa.hidden) {
+      if (restanteSeg !== null) {
+        faixa.querySelectorAll('[data-contagem-online]').forEach((el) => { el.textContent = restanteSeg + 's'; });
+      }
+      return;
+    }
+    onlineUI.faixaChave = faixaChave;
+
     faixa.classList.toggle('campeao', fimTorneio);
 
     // 1) Fim da partida (Campeão!)
@@ -829,19 +862,15 @@ registrarModo('online', {
     }
 
     // 2) Lobby antes da 1ª mão OU pausa de 30s entre mãos
-    const restanteSeg = partida.proxima_mao_em
-      ? Math.max(0, Math.ceil((Date.parse(partida.proxima_mao_em) - (Date.now() + estado.relogio.offset)) / 1000))
-      : null;
-
     let sub = '';
     if (comFichas.length < 2) {
-      sub = 'Aguardando pelo menos 2 jogadores entrarem na sala…';
+      sub = 'Aguardando pelo menos <strong>2 jogadores</strong> entrarem na sala…';
     } else if (restanteSeg !== null) {
-      sub = 'Confirmados: ' + confirmados.length + ' de ' + comFichas.length
-        + ' · inicia em <strong data-contagem-online>' + restanteSeg + 's</strong> (ou quando todos confirmarem)';
+      sub = '<strong>' + confirmados.length + ' de ' + comFichas.length + ' prontos</strong>'
+        + ' · inicia em <strong data-contagem-online>' + restanteSeg + 's</strong>';
     } else {
-      sub = 'Confirmados: ' + confirmados.length + ' de ' + comFichas.length
-        + ' · precisa de pelo menos 2 para começar';
+      sub = '<strong>' + confirmados.length + ' de ' + comFichas.length + ' prontos</strong>'
+        + ' · precisa de <strong>2 jogadores</strong> para começar';
     }
 
     let acaoHtml = '';
@@ -857,7 +886,7 @@ registrarModo('online', {
           + '</button></div>';
       }
     } else if (eu && eu.saldo <= 0) {
-      sub = 'Você ficou sem fichas · assistindo a mesa como espectador';
+      sub = 'Você ficou <strong>sem fichas</strong> · assistindo a mesa como espectador';
     }
 
     faixa.innerHTML = (resHtml ? '<div class="faixa-online-res">' + resHtml + '</div>' : '')

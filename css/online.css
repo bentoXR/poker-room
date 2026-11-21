@@ -7,58 +7,60 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 button.modo-btn {
   width: 100%;
-  min-height: 52px;
+  min-height: 68px;
   margin: 0;
-  padding: 6px 8px;
+  padding: 9px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: 2px;
   background: var(--feltro-800);
   color: var(--marfim);
   box-shadow: inset 0 0 0 1.5px var(--linha);
   border-radius: var(--raio-md);
 }
-button.modo-btn b { font-size: 15px; font-weight: 700; line-height: 1.15; }
-button.modo-btn small { font-size: 11px; font-weight: 500; color: var(--marfim-suave); }
-button.modo-btn.sel { background: var(--verde); color: #fff; box-shadow: 0 3px 0 #1a478f; }
-button.modo-btn.sel small { color: rgba(255, 255, 255, 0.88); }
+.modo-icone { font-size: 20px; line-height: 1; margin-bottom: 1px; }
+button.modo-btn b { font-size: 16px; font-weight: 800; line-height: 1.15; }
+button.modo-btn small { font-size: 11.5px; font-weight: 500; color: var(--marfim-suave); }
+button.modo-btn small strong { color: #fff; font-weight: 700; }
+button.modo-btn.sel { background: var(--verde); color: #fff; box-shadow: 0 3px 0 var(--verde-escuro); }
+button.modo-btn.sel small { color: rgba(255, 255, 255, 0.92); }
 
 .opcoes-online {
-  margin-top: 8px;
-  padding: 8px 10px;
-  background: rgba(47, 111, 208, 0.12);
-  border: 1px solid rgba(47, 111, 208, 0.35);
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-borda);
   border-radius: var(--raio-md);
 }
-.opcoes-online label { margin: 6px 0 4px !important; font-size: 12.5px !important; }
+.opcoes-online label { margin: 8px 0 5px !important; font-size: 13px !important; }
 .opcoes-online label:first-child { margin-top: 0 !important; }
-.opcoes-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.opcoes-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 button.op-chip {
   flex: 1 1 auto;
   width: auto;
   min-width: 48px;
-  min-height: 34px;
+  min-height: 36px;
   margin: 0;
-  padding: 4px 6px;
-  font-size: 13px;
-  font-weight: 600;
-  background: rgba(6, 13, 36, 0.48);
+  padding: 4px 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  background: var(--cartao-bg);
   color: var(--marfim);
   box-shadow: inset 0 0 0 1px var(--linha);
-  border-radius: 9px;
+  border-radius: 10px;
 }
-button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
+button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 var(--verde-escuro); }
 
 /* Selo do modo na lista de salas */
 .sala-badges { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; }
-.tag.modo-online { background: rgba(47, 111, 208, 0.32); color: #cfe2ff; }
-.tag.modo-presencial { background: rgba(244, 247, 255, 0.11); color: var(--marfim-suave); }
+.tag.modo-online { background: var(--verde-suave); color: var(--verde-texto); }
+.tag.modo-presencial { background: var(--acento-suave); color: var(--acento); }
 
 /* ----- Cartas (desenho único em SVG, usado na mão, na mesa, nos assentos e no guia) ----- */
 .carta {
@@ -142,7 +144,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 .carta-board.luz::after {
   opacity: 1;
-  box-shadow: 0 0 0 2.5px #8fd8ff, 0 0 18px 4px rgba(120, 205, 255, 0.75);
+  box-shadow: 0 0 0 2.5px var(--luz-cor), 0 0 18px 4px var(--luz-sombra);
   animation: luzPulso 1.9s ease-in-out infinite;
 }
 @keyframes luzPulso { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
@@ -173,8 +175,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   margin-top: 2px;
   padding: 1px 5px;
   border-radius: 6px;
-  background: rgba(47, 111, 208, 0.38);
-  color: #e4f0ff;
+  background: var(--verde-suave);
+  color: var(--verde-texto);
   font-size: 9.5px;
   font-weight: 700;
   text-align: center;
@@ -186,8 +188,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   border-color: #ffd866 !important;
   box-shadow: 0 0 0 2px rgba(255, 216, 102, 0.7), 0 0 20px rgba(255, 216, 102, 0.45) !important;
 }
-.lugar .tag.pronto { background: rgba(47, 111, 208, 0.5); color: #fff; }
-.lugar.vez .tag.vez.urgente { background: #9b1c31; color: #fff; animation: piscaUrgente 0.65s ease-in-out infinite; }
+.lugar .tag.pronto { background: var(--verde); color: #fff; }
+.lugar.vez .tag.vez.urgente { background: var(--ouro); color: #fff; animation: piscaUrgente 0.65s ease-in-out infinite; }
 @keyframes piscaUrgente { 50% { opacity: 0.6; } }
 
 /* ----- Suas 2 cartas privadas (3D flip interativo — toque para espiar) ----- */
@@ -214,9 +216,11 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 .carta-3d-slot {
   perspective: 900px;
+}
+.carta-3d-slot.animar-entrada {
   animation: distribuirCarta 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.carta-3d-slot:nth-child(2) { animation-delay: 240ms; }
+.carta-3d-slot.animar-entrada:nth-child(2) { animation-delay: 220ms; }
 .carta-3d {
   position: relative;
   display: block;
@@ -298,7 +302,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 .carta-3d.luz .carta-face.frente::after {
   opacity: 1;
-  box-shadow: 0 0 0 3px #8fd8ff, 0 0 20px 5px rgba(120, 205, 255, 0.8);
+  box-shadow: 0 0 0 3px var(--luz-cor), 0 0 20px 5px var(--luz-sombra);
   animation: luzPulso 1.9s ease-in-out infinite;
 }
 
@@ -335,15 +339,15 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   max-width: 100%;
   padding: 5px 14px 5px 9px;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(143, 216, 255, 0.2), rgba(47, 111, 208, 0.24));
-  border: 1px solid rgba(143, 216, 255, 0.55);
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-borda);
   animation: entrarFaixa 0.35s ease;
 }
-.mm-ico { display: inline-flex; color: #9fe0ff; }
+.mm-ico { display: inline-flex; color: var(--luz-cor); }
 .mm-ico .ic-luz { width: 18px; height: 18px; }
 .mm-txt { display: flex; flex-direction: column; line-height: 1.15; text-align: left; }
 .mm-txt b { font-size: 14.5px; color: #fff; }
-.mm-txt small { font-size: 11.5px; font-weight: 600; color: #bfe9ff; }
+.mm-txt small { font-size: 11.5px; font-weight: 600; color: var(--verde-texto); }
 .minha-mao-wrap.com-nome .minha-mao-dica { display: none; }
 
 
@@ -397,8 +401,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   margin-top: 6px;
   padding: 10px 12px;
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(26, 58, 122, 0.92), rgba(11, 27, 58, 0.95));
-  border: 1.5px solid rgba(47, 111, 208, 0.55);
+  background: linear-gradient(180deg, var(--faixa-1), var(--faixa-2));
+  border: 1.5px solid var(--faixa-borda);
   text-align: center;
   animation: entrarFaixa 0.28s ease;
 }
@@ -407,8 +411,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 .faixa-online.campeao {
-  background: linear-gradient(180deg, rgba(155, 28, 49, 0.92), rgba(94, 15, 29, 0.96));
-  border-color: rgba(255, 216, 102, 0.8);
+  background: linear-gradient(180deg, var(--vez-1), var(--vez-2));
+  border-color: rgba(255, 216, 102, 0.85);
 }
 .faixa-online-res {
   font-size: 14.5px;
@@ -454,9 +458,9 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 .faixa-online-acoes button.confirmado,
 .faixa-online-acoes button.confirmado:disabled {
   opacity: 0.94;
-  background: rgba(47, 111, 208, 0.32);
-  color: #e8f2ff;
-  box-shadow: inset 0 0 0 1.5px rgba(105, 162, 255, 0.7);
+  background: var(--verde-suave);
+  color: var(--verde-texto);
+  box-shadow: inset 0 0 0 1.5px var(--verde-borda);
 }
 
 
@@ -499,12 +503,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   min-width: 148px;
   padding: 6px 16px 6px;
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(14, 33, 72, 0.96), rgba(6, 13, 36, 0.98));
+  background: linear-gradient(180deg, var(--dock-1), var(--dock-2));
   border: 1.5px solid rgba(244, 247, 255, 0.65);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.72), 0 0 0 3px rgba(47, 111, 208, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.72), 0 0 0 3px var(--verde-suave);
 }
 .anuncio-mesa.showdown {
-  background: linear-gradient(180deg, rgba(155, 28, 49, 0.98), rgba(94, 15, 29, 0.98));
+  background: linear-gradient(180deg, var(--vez-1), var(--vez-2));
   border-color: #ffd866;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.72), 0 0 0 3px rgba(255, 216, 102, 0.3);
 }
@@ -535,7 +539,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   font-weight: 700;
   letter-spacing: 0.14em;
   color: #fff;
-  background: linear-gradient(180deg, #b3263d, #7d1626);
+  background: linear-gradient(180deg, var(--vez-1), var(--vez-2));
   border: 2px solid #fff;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 255, 255, 0.25);
   white-space: nowrap;
@@ -568,24 +572,24 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 
 /* ----- Visual da mesa Online: feltro, assentos e ritmo mais lento ----- */
 #tela-mesa.modo-online .centro-roda {
-  background: radial-gradient(ellipse at 50% 40%, #2a5cb5 0%, #173a7a 58%, #0d2250 100%);
+  background: radial-gradient(ellipse at 50% 40%, var(--feltro-centro-1) 0%, var(--feltro-centro-2) 58%, var(--feltro-centro-3) 100%);
   box-shadow:
     inset 0 0 0 2px rgba(244, 247, 255, 0.2),
     inset 0 0 34px rgba(0, 0, 0, 0.4),
     0 10px 26px -8px rgba(0, 0, 0, 0.7),
-    0 0 0 4px #08132c,
+    0 0 0 4px var(--borda-mesa),
     0 0 0 5.5px rgba(244, 247, 255, 0.16);
 }
 #tela-mesa.modo-online .lugar {
-  background: linear-gradient(180deg, #1b3f86, #12295c);
+  background: linear-gradient(180deg, var(--assento-1), var(--assento-2));
   transition: box-shadow 0.5s ease, border-color 0.5s ease, background 0.5s ease, opacity 0.5s ease;
 }
 #tela-mesa.modo-online .lugar.eu {
-  background: linear-gradient(180deg, #2557b0, #173a7a);
+  background: linear-gradient(180deg, var(--assento-eu-1), var(--assento-eu-2));
   border-color: rgba(244, 247, 255, 0.7);
 }
 #tela-mesa.modo-online .lugar.vez {
-  background: linear-gradient(180deg, #b3263d, #7d1626);
+  background: linear-gradient(180deg, var(--vez-1), var(--vez-2));
   animation: vezPulso 1.8s ease-in-out infinite;
 }
 @keyframes vezPulso {
@@ -595,7 +599,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 #tela-mesa.modo-online.em-showdown .lugar:not(.vencedor) { opacity: 0.56; }
 #tela-mesa.modo-online .lugar.vencedor {
   z-index: 7;
-  background: linear-gradient(180deg, #2753a6, #16336d);
+  background: linear-gradient(180deg, var(--assento-eu-1), var(--assento-eu-2));
   animation: vencedorBrilho 1.6s ease-in-out infinite;
 }
 #tela-mesa.modo-online .lugar.vencedor .l-mao-nome {
@@ -630,8 +634,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   height: 24px;
   border-radius: 50%;
   pointer-events: none;
-  background: repeating-conic-gradient(#ffd866 0deg 18deg, #9b1c31 18deg 36deg);
-  box-shadow: inset 0 0 0 5px #11295c, inset 0 0 0 6.5px #ffd866, 0 6px 14px rgba(0, 0, 0, 0.65);
+  background: repeating-conic-gradient(#ffd866 0deg 18deg, var(--ouro) 18deg 36deg);
+  box-shadow: inset 0 0 0 5px var(--feltro-800), inset 0 0 0 6.5px #ffd866, 0 6px 14px rgba(0, 0, 0, 0.65);
 }
 
 /* Cartas fechadas dos oponentes no canto superior direito do assento (não aumentam a altura do perfil!) */
@@ -671,12 +675,26 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 #tela-mesa.modo-online .ultima.nova { animation: ultimaNova 2s ease; }
 @keyframes ultimaNova {
-  0% { background: rgba(47, 111, 208, 0.85); transform: scale(1.05); }
+  0% { background: var(--verde); transform: scale(1.05); }
   100% { background: rgba(0, 0, 0, 0.28); transform: scale(1); }
 }
 
 /* Gaveta de menu compacto (Mobile Online — oculto no PC e no Presencial) */
 #btn-menu-online, #topo-resumo-online { display: none; }
+.menu-tema-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid var(--linha);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--marfim);
+}
 .menu-online-acoes {
   display: flex;
   flex-direction: column;
@@ -700,6 +718,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   #tela-mesa.modo-online .sala-pill,
   #tela-mesa.modo-online #btn-sair-mesa,
   #tela-mesa.modo-online #btn-hist,
+  #tela-mesa.modo-online #btn-tema-mesa,
   #tela-mesa.modo-online #btn-reais,
   #tela-mesa.modo-online #btn-dev,
   #tela-mesa.modo-online .barra-info { display: none !important; }
@@ -783,6 +802,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   #tela-mesa.modo-online .lugar.assento-redondo {
     top: clamp(28px, var(--y, 50%), calc(100% - 28px));
   }
+  /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
+  #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
+  #tela-mesa.modo-online .l-cartas.fechadas { top: -14px; right: 6px; }
+  #tela-mesa.modo-online .l-cartas.fechadas .carta { width: 12.5px; border-radius: 2.5px; }
   #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 21px; border-radius: 3.5px; }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     padding: 3.5px 5px 3px;
@@ -817,7 +840,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   }
   button.op-chip:hover:not(:disabled):not(.sel) {
     filter: none;
-    background: rgba(47, 111, 208, 0.25);
+    background: var(--verde-suave);
     box-shadow: inset 0 0 0 1px rgba(244, 247, 255, 0.32);
   }
   .carta-3d:hover:not(.virada) {
@@ -832,26 +855,26 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 
 @media (min-width: 820px) {
   /* Seletor de modo e opções online na criação de sala */
-  .seletor-modo { gap: 12px; margin-top: 8px; }
-  button.modo-btn { min-height: 62px; padding: 10px 14px; gap: 2px; }
+  .seletor-modo { gap: 12px; margin-top: 6px; }
+  button.modo-btn { min-height: 76px; padding: 12px 14px; gap: 3px; }
   button.modo-btn b { font-size: 17px; }
   button.modo-btn small { font-size: 12.5px; }
   .opcoes-online {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 16px;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 14px;
     align-items: start;
     margin-top: 12px;
     padding: 14px 16px;
   }
-  .opcoes-grupo label { margin: 0 0 6px !important; font-size: 13px !important; }
-  button.op-chip { min-height: 38px; font-size: 14px; }
+  .opcoes-grupo label { margin: 0 0 6px !important; font-size: 13.5px !important; }
+  button.op-chip { min-height: 38px; min-width: 0; padding: 4px 7px; font-size: 13.5px; }
 
   /* ----- Mesa Online em paisagem (widescreen) ----- */
   body.na-mesa.modo-online {
     background:
-      radial-gradient(75% 55% at 50% 42%, rgba(36, 80, 160, 0.28) 0%, rgba(6, 13, 36, 0) 70%),
-      linear-gradient(180deg, #0b1b3a 0%, #060d24 100%);
+      radial-gradient(75% 55% at 50% 42%, var(--bg-brilho-1) 0%, rgba(0, 0, 0, 0) 70%),
+      linear-gradient(180deg, var(--feltro-900) 0%, var(--feltro-950) 100%);
   }
   body.na-mesa.modo-online main {
     max-width: min(1560px, 98vw);
@@ -932,8 +955,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     border-radius: 999px;
     padding: 10px 32px;
     gap: 5px;
-    background: radial-gradient(ellipse at 50% 42%, #2455ab 0%, #143370 60%, #0c204a 100%);
-    border: 10px solid #08132c;
+    background: radial-gradient(ellipse at 50% 42%, var(--feltro-centro-1) 0%, var(--feltro-centro-2) 60%, var(--feltro-centro-3) 100%);
+    border: 10px solid var(--borda-mesa);
     box-shadow:
       inset 0 0 0 1.5px rgba(244, 247, 255, 0.22),
       inset 0 0 42px rgba(0, 0, 0, 0.35),
@@ -1001,12 +1024,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     padding: 12px 22px;
     border: 1px solid rgba(244, 247, 255, 0.18);
     border-radius: 20px;
-    background: linear-gradient(180deg, rgba(14, 33, 72, 0.96), rgba(6, 13, 36, 0.98));
+    background: linear-gradient(180deg, var(--dock-1), var(--dock-2));
     box-shadow: 0 18px 44px -10px rgba(0, 0, 0, 0.82);
   }
   #barra-acoes.modo-online.minha-vez {
-    border-color: rgba(155, 28, 49, 0.7);
-    border-top: 3px solid #9b1c31;
+    border-color: var(--ouro-borda);
+    border-top: 3px solid var(--ouro);
   }
   #barra-acoes.modo-online.visivel {
     display: grid;
@@ -1097,7 +1120,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 
   /* Gavetas (.folha) viram modais centralizados no PC (Modo Online) */
   body.modo-online .fundo-folha {
-    background: rgba(3, 8, 22, 0.68);
+    background: rgba(0, 0, 0, 0.68);
     backdrop-filter: blur(4px);
   }
   body.modo-online .folha {

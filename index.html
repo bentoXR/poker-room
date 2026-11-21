@@ -11,14 +11,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://lymawbmtdalvjvgclnpd.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=9">
-  <link rel="stylesheet" href="./css/telas.css?v=9">
-  <link rel="stylesheet" href="./css/mesa.css?v=9">
-  <link rel="stylesheet" href="./css/gavetas.css?v=9">
-  <link rel="stylesheet" href="./css/online.css?v=9">
+  <link rel="stylesheet" href="./css/base.css?v=10">
+  <link rel="stylesheet" href="./css/telas.css?v=10">
+  <link rel="stylesheet" href="./css/mesa.css?v=10">
+  <link rel="stylesheet" href="./css/gavetas.css?v=10">
+  <link rel="stylesheet" href="./css/online.css?v=10">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -34,8 +34,13 @@
   </defs>
 </svg>
 <script>
-  // Se já existe um login salvo, esconde a tela de login para ela não "piscar" ao recarregar
+  // Aplica tema salvo e evita "piscar" a tela de login ao recarregar
   try {
+    if (localStorage.getItem('poker-tema') === 'classico') {
+      document.documentElement.setAttribute('data-tema', 'classico');
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.setAttribute('content', '#0d1612');
+    }
     if (localStorage.getItem('poker-conta')) {
       document.documentElement.classList.add('restaurando');
     }
@@ -45,45 +50,82 @@
 
   <!-- ===== TELA 1: LOGIN ===== -->
   <section id="tela-login" class="tela ativa">
-    <div class="marca">
-      <div class="naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
-      <h1>Poker Room</h1>
-      <p>Fichas, blinds e mesas presenciais ou online com amigos.</p>
+    <div class="topo-tema-login">
+      <div class="seletor-tema" role="group" aria-label="Escolher cores do site">
+        <button type="button" class="tema-btn sel" data-tema="azul" onclick="escolherTema('azul')" aria-pressed="true">
+          <span class="amostra amostra-azul" aria-hidden="true"></span>Azul
+        </button>
+        <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
+          <span class="amostra amostra-classico" aria-hidden="true"></span>Cassino
+        </button>
+      </div>
     </div>
 
-    <div class="cartao" style="margin-top:12px">
-      <label for="campo-login-nome">Seu nome</label>
-      <input id="campo-login-nome" type="text" placeholder="Ex.: Pedro" maxlength="20"
-             name="poker-apelido" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
-             data-lpignore="true" data-1p-ignore="true" enterkeyhint="next">
-
-      <label for="campo-login-senha">Sua senha</label>
-      <div class="campo-senha">
-        <input id="campo-login-senha" class="senha" type="text" placeholder="Mínimo 3 caracteres" maxlength="30"
-               name="poker-acesso" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
-               data-lpignore="true" data-1p-ignore="true" enterkeyhint="go">
-        <button type="button" class="olho" onclick="alternarSenha('campo-login-senha', this)">Mostrar</button>
+    <div class="login-grade">
+      <div class="marca">
+        <div class="naipes" aria-hidden="true">
+          <span class="n-emblema">♠</span><span class="n-emblema r">♥</span><span class="n-emblema">♣</span><span class="n-emblema r">♦</span>
+        </div>
+        <h1>Poker Room</h1>
+        <p>Jogue com amigos <strong>online</strong> ou controle <strong>fichas e blinds</strong> na mesa presencial.</p>
       </div>
 
-      <button id="botao-login" onclick="fazerLogin()">Entrar</button>
-      <button id="botao-criar-conta" class="secundario" onclick="criarConta()">Criar conta</button>
-      <p class="dica">Primeira vez aqui? Escolha um nome e uma senha e toque em "Criar conta". Depois é só entrar com eles quando quiser.</p>
-      <div id="erro-login" class="erro" role="alert"></div>
+      <div class="cartao cartao-login">
+        <div class="cartao-cabecalho">
+          <strong>Entre na sua conta</strong>
+          <span>Use o mesmo nome e senha sempre que voltar</span>
+        </div>
+
+        <label for="campo-login-nome">Seu nome</label>
+        <input id="campo-login-nome" type="text" placeholder="Ex.: Pedro" maxlength="20"
+               name="poker-apelido" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
+               data-lpignore="true" data-1p-ignore="true" enterkeyhint="next">
+
+        <label for="campo-login-senha">Sua senha</label>
+        <div class="campo-senha">
+          <input id="campo-login-senha" class="senha" type="text" placeholder="Mínimo 3 caracteres" maxlength="30"
+                 name="poker-acesso" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                 data-lpignore="true" data-1p-ignore="true" enterkeyhint="go">
+          <button type="button" class="olho" onclick="alternarSenha('campo-login-senha', this)">Mostrar</button>
+        </div>
+
+        <button id="botao-login" onclick="fazerLogin()">Entrar</button>
+        <button id="botao-criar-conta" class="secundario" onclick="criarConta()">Criar conta nova</button>
+        <p class="dica">Primeira vez por aqui? Escolha um <strong>nome</strong> e uma <strong>senha</strong> e toque em <strong>Criar conta nova</strong>.</p>
+        <div id="erro-login" class="erro" role="alert"></div>
+      </div>
     </div>
   </section>
 
   <!-- ===== TELA 2: SALAS ===== -->
   <section id="tela-salas" class="tela">
     <div class="cabecalho-conta">
-      <div class="ola">Olá, <strong id="salas-nome"></strong></div>
-      <button class="sair-conta" onclick="sairDaConta()">Sair da conta</button>
+      <div class="ola-wrap">
+        <span class="avatar-conta" id="salas-avatar" aria-hidden="true">P</span>
+        <div class="ola">Olá, <strong id="salas-nome"></strong></div>
+      </div>
+      <div class="conta-acoes">
+        <div class="seletor-tema compacto" role="group" aria-label="Escolher cores do site">
+          <button type="button" class="tema-btn sel" data-tema="azul" onclick="escolherTema('azul')" aria-pressed="true">
+            <span class="amostra amostra-azul" aria-hidden="true"></span>Azul
+          </button>
+          <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
+            <span class="amostra amostra-classico" aria-hidden="true"></span>Cassino
+          </button>
+        </div>
+        <button class="sair-conta" onclick="sairDaConta()">Sair</button>
+      </div>
     </div>
 
-    <h2 style="margin-top:10px">Salas</h2>
-
-    <div class="linha-botoes">
-      <button onclick="abrirCriar()">Criar sala</button>
-      <button type="button" class="secundario botao-dev-entrada" onclick="abrirSalaDev()">Sala DEV</button>
+    <div class="salas-topo">
+      <div>
+        <h2>Salas abertas</h2>
+        <p class="subtitulo-tela">Entre em uma mesa ou <strong>crie a sua</strong> em segundos.</p>
+      </div>
+      <div class="linha-botoes">
+        <button onclick="abrirCriar()">+ Criar sala</button>
+        <button type="button" class="secundario botao-dev-entrada" onclick="abrirSalaDev()">Sala DEV</button>
+      </div>
     </div>
     <div id="erro-salas" class="erro" role="alert"></div>
 
@@ -100,15 +142,22 @@
     </div>
 
     <div class="cartao">
-      <div class="nome-sala-linha"><span class="detalhe">Sua sala:</span> <strong id="criar-nome-sala"></strong></div>
+      <div class="nome-sala-linha">
+        <span class="etiqueta-sala">Sua sala</span>
+        <strong id="criar-nome-sala"></strong>
+      </div>
 
-      <label>Modo de jogo</label>
+      <div class="secao-titulo"><span class="passo-num">1</span> Escolha o modo de jogo</div>
       <div class="seletor-modo" id="seletor-modo">
         <button type="button" class="modo-btn sel" data-modo="presencial" onclick="escolherModoSala('presencial','')">
-          <b>Presencial</b><small>baralho físico</small>
+          <span class="modo-icone" aria-hidden="true">🪙</span>
+          <b>Presencial</b>
+          <small><strong>Baralho físico</strong> · só fichas e pote</small>
         </button>
         <button type="button" class="modo-btn" data-modo="online" onclick="escolherModoSala('online','')">
-          <b>Online</b><small>baralho virtual</small>
+          <span class="modo-icone" aria-hidden="true">🃏</span>
+          <b>Online</b>
+          <small><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
       </div>
 
@@ -135,14 +184,17 @@
         </div>
       </div>
 
-      <label>Fichas iniciais</label>
+      <div class="secao-titulo"><span class="passo-num">2</span> Fichas iniciais e blinds</div>
       <div class="stacks" id="stacks">
         <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
         <button type="button" class="stack" data-s="5000" onclick="escolherStack(5000)"><b>5.000</b></button>
         <button type="button" class="stack" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
       </div>
-      <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')"><b>Referência em R$</b><small>mantém 100 BB</small></button>
+      <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')">
+        <b>Referência em R$</b>
+        <small>opcional · mantém <strong>100 BB</strong></small>
+      </button>
       <div class="painel-real" id="painel-real" hidden>
         <div class="atalhos">
           <button type="button" class="atalho" onclick="definirReais(0.5,'')">R$ 0,50</button>
@@ -171,12 +223,12 @@
       </div>
 
       <div class="profund">
-        <div><span>Profundidade do stack</span><small id="prof-det"></small></div>
+        <div><span id="prof-rotulo">Ritmo da mesa</span><small id="prof-det"></small></div>
         <strong id="prof-val"></strong>
       </div>
     </div>
 
-    <button id="botao-criar" onclick="criarSala()">Criar e ir para a mesa</button>
+    <button id="botao-criar" onclick="criarSala()">Criar sala e abrir mesa</button>
     <div id="erro-criar" class="erro" role="alert"></div>
   </section>
 
@@ -190,15 +242,19 @@
     </div>
 
     <div class="cartao">
-      <p class="dica" style="margin-top:0">Sala de teste só neste aparelho, com jogadores fictícios que você controla.</p>
+      <p class="dica aviso-dev" style="margin-top:0">Sala de teste <strong>só neste aparelho</strong>, com jogadores fictícios controlados automaticamente.</p>
 
-      <label>Modo de jogo</label>
+      <div class="secao-titulo"><span class="passo-num">1</span> Escolha o modo de jogo</div>
       <div class="seletor-modo" id="seletor-modo-dev">
         <button type="button" class="modo-btn sel" data-modo="presencial" onclick="escolherModoSala('presencial','dev')">
-          <b>Presencial</b><small>baralho físico</small>
+          <span class="modo-icone" aria-hidden="true">🪙</span>
+          <b>Presencial</b>
+          <small><strong>Baralho físico</strong> · só fichas e pote</small>
         </button>
         <button type="button" class="modo-btn" data-modo="online" onclick="escolherModoSala('online','dev')">
-          <b>Online</b><small>baralho virtual</small>
+          <span class="modo-icone" aria-hidden="true">🃏</span>
+          <b>Online</b>
+          <small><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
       </div>
 
@@ -225,14 +281,30 @@
         </div>
       </div>
 
-      <label>Fichas iniciais</label>
+      <div class="secao-titulo"><span class="passo-num">2</span> Quantidade de jogadores</div>
+      <div class="opcoes-chips chips-qtd" id="chips-dev-qtd">
+        <button type="button" class="op-chip" data-q="2" onclick="escolherQtdDev(2)">2</button>
+        <button type="button" class="op-chip" data-q="3" onclick="escolherQtdDev(3)">3</button>
+        <button type="button" class="op-chip sel" data-q="4" onclick="escolherQtdDev(4)">4</button>
+        <button type="button" class="op-chip" data-q="5" onclick="escolherQtdDev(5)">5</button>
+        <button type="button" class="op-chip" data-q="6" onclick="escolherQtdDev(6)">6</button>
+        <button type="button" class="op-chip" data-q="7" onclick="escolherQtdDev(7)">7</button>
+        <button type="button" class="op-chip" data-q="8" onclick="escolherQtdDev(8)">8</button>
+        <button type="button" class="op-chip" data-q="9" onclick="escolherQtdDev(9)">9</button>
+      </div>
+      <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4" hidden>
+
+      <div class="secao-titulo"><span class="passo-num">3</span> Fichas iniciais e blinds</div>
       <div class="stacks" id="stacks-dev">
         <button type="button" class="stack" data-s="1000" onclick="escolherStackDev(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStackDev(2000)"><b>2.000</b></button>
         <button type="button" class="stack" data-s="5000" onclick="escolherStackDev(5000)"><b>5.000</b></button>
         <button type="button" class="stack" data-s="10000" onclick="escolherStackDev(10000)"><b>10.000</b></button>
       </div>
-      <button type="button" class="stack especial" id="stack-real-dev" onclick="alternarReal('dev')"><b>Referência em R$</b><small>mantém 100 BB</small></button>
+      <button type="button" class="stack especial" id="stack-real-dev" onclick="alternarReal('dev')">
+        <b>Referência em R$</b>
+        <small>opcional · mantém <strong>100 BB</strong></small>
+      </button>
       <div class="painel-real" id="painel-real-dev" hidden>
         <div class="atalhos">
           <button type="button" class="atalho" onclick="definirReais(0.5,'dev')">R$ 0,50</button>
@@ -260,11 +332,8 @@
         </div>
       </div>
 
-      <label for="campo-dev-qtd">Jogadores fictícios (2 a 9)</label>
-      <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4">
-
       <div class="profund">
-        <div><span>Profundidade do stack</span><small id="prof-det-dev"></small></div>
+        <div><span id="prof-rotulo-dev">Ritmo da mesa</span><small id="prof-det-dev"></small></div>
         <strong id="prof-val-dev"></strong>
       </div>
     </div>
@@ -279,15 +348,14 @@
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
     </button>
 
-    <div class="convite">
-      <div class="rotulo">Você vai entrar na</div>
-      <div class="grande-sala" id="escolha-sala"></div>
-      <p>Cada jogador começa com <strong id="escolha-saldo"></strong> fichas.</p>
-    </div>
-
-    <div class="cartao">
-      <button id="botao-jogar" onclick="entrarComoJogador()">Entrar como jogador</button>
-      <p class="dica">Como jogador, você pode sair e voltar quando quiser: suas fichas ficam guardadas na sua conta.</p>
+    <div class="cartao cartao-convite">
+      <div class="convite">
+        <span class="convite-selo">Convite para a mesa</span>
+        <div class="grande-sala" id="escolha-sala"></div>
+        <p class="convite-fichas">Cada jogador começa com <strong id="escolha-saldo"></strong> fichas</p>
+      </div>
+      <button id="botao-jogar" onclick="entrarComoJogador()">Entrar na mesa</button>
+      <p class="dica">Você pode sair e voltar quando quiser: <strong>suas fichas ficam guardadas</strong> na sua conta.</p>
       <div id="erro-escolha" class="erro" role="alert"></div>
     </div>
   </section>
@@ -312,6 +380,9 @@
       </button>
       <button id="btn-hist" class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </button>
+      <button id="btn-tema-mesa" class="icone-btn btn-tema-ico" onclick="alternarTema()" aria-label="Mudar cores da mesa">
+        <span class="amostra-dupla" aria-hidden="true"></span>
       </button>
       <button id="btn-guia" class="icone-btn" style="font-size:19px" onclick="abrirGuia()" aria-label="Guia de mãos do poker">♠</button>
       <button id="btn-reais" class="icone-btn ouro" style="font-size:15px;font-weight:700" onclick="abrirReais()" aria-label="Valor em reais" hidden>R$</button>
@@ -378,6 +449,17 @@
       </div>
       <div class="folha-corpo">
         <p class="dica" id="menu-online-info" style="margin-top:0"></p>
+        <div class="menu-tema-linha">
+          <span>Cores da mesa</span>
+          <div class="seletor-tema compacto" role="group" aria-label="Escolher cores do site">
+            <button type="button" class="tema-btn sel" data-tema="azul" onclick="escolherTema('azul')" aria-pressed="true">
+              <span class="amostra amostra-azul" aria-hidden="true"></span>Azul
+            </button>
+            <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
+              <span class="amostra amostra-classico" aria-hidden="true"></span>Cassino
+            </button>
+          </div>
+        </div>
         <div class="menu-online-acoes">
           <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
           <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()" hidden>Fichas em reais (R$)</button>
@@ -592,6 +674,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=9"></script>
+<script type="module" src="./js/main.js?v=10"></script>
 </body>
 </html>

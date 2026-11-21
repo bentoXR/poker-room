@@ -176,7 +176,7 @@
   background: rgba(0, 0, 0, 0.25);
   border-radius: var(--raio-sm);
 }
-.soma.ok { background: rgba(59, 130, 246, 0.25); color: #bcd4ff; }
+.soma.ok { background: var(--verde-suave); color: var(--verde-texto); }
 
 .pote-card {
   margin-top: 10px;
@@ -186,9 +186,9 @@
   border-radius: var(--raio-md);
 }
 .pote-card:first-child { margin-top: 2px; }
-.pote-card.pendente { border-color: rgba(155, 28, 49, 0.85); }
-.pote-card.ok { border-color: rgba(47, 111, 208, 0.8); }
-.pote-card.auto { background: rgba(47, 111, 208, 0.16); border-color: rgba(47, 111, 208, 0.5); }
+.pote-card.pendente { border-color: var(--ouro-borda); }
+.pote-card.ok { border-color: var(--verde-borda); }
+.pote-card.auto { background: var(--verde-suave); border-color: var(--verde-borda); }
 
 .pote-card-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pote-card-titulo { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 16px; font-weight: 700; color: #fff; }
@@ -203,8 +203,8 @@
   background: rgba(244, 247, 255, 0.14);
   color: var(--marfim);
 }
-.pote-badge.pendente { background: rgba(155, 28, 49, 0.45); color: #ffd4db; }
-.pote-badge.ok { background: rgba(47, 111, 208, 0.4); color: #d6e6ff; }
+.pote-badge.pendente { background: var(--ouro-suave); color: #ffd4db; }
+.pote-badge.ok { background: var(--verde-suave); color: var(--verde-texto); }
 .pote-card-sub { margin-top: 4px; font-size: 13px; color: var(--marfim-suave); }
 
 .pote-escolhas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
@@ -232,13 +232,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: rgba(6, 13, 36, 0.35);
+  background: rgba(0, 0, 0, 0.28);
   border-radius: var(--raio-sm);
   font-size: 15px;
   font-weight: 600;
 }
-.pote-auto-box strong { font-family: var(--fonte-numero); font-size: 20px; color: #bcd4ff; }
-.pote-nota { margin-top: 7px; font-size: 12.5px; color: #bcd4ff; }
+.pote-auto-box strong { font-family: var(--fonte-numero); font-size: 20px; color: var(--verde-texto); }
+.pote-nota { margin-top: 7px; font-size: 12.5px; color: var(--verde-texto); }
 
 .pote-jogadores-lista { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .pote-jogadores-lista .tag { padding: 3px 10px; font-size: 13px; color: var(--marfim); background: rgba(244, 247, 255, 0.13); }
@@ -257,8 +257,8 @@ button.dist-modo-btn {
 .dist-resumo-chip {
   padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(47, 111, 208, 0.25);
-  color: #dbe8ff;
+  background: var(--verde-suave);
+  color: var(--verde-texto);
   font-size: 13.5px;
   font-weight: 600;
 }

@@ -1,10 +1,10 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=9';
-import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=9';
-import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=9';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=9';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=9';
-import { executar } from '../../mesa/apostas.js?v=9';
+import { banco } from '../../core/supabase.js?v=10';
+import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=10';
+import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=10';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=10';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=10';
+import { executar } from '../../mesa/apostas.js?v=10';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const MAX_DEV = 9;
