@@ -216,8 +216,8 @@ button.dev-prox {
   justify-content: space-evenly;
   gap: 8px;
   text-align: center;
-  background: radial-gradient(ellipse at 50% 42%, var(--feltro-600), var(--feltro-800) 82%);
-  box-shadow: inset 0 0 0 2px var(--linha);
+  background: var(--feltro-mesa);
+  box-shadow: inset 0 0 0 2px var(--feltro-trilha);
 }
 .centro-roda .fase-nome {
   padding: 2px 12px;
@@ -251,9 +251,9 @@ button.dev-prox {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 35% 28%, var(--pote-1), var(--pote-2) 72%);
+  background: var(--pote-bg);
   border: 2px solid var(--marfim);
-  box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 0 0 4px rgba(0, 0, 0, 0.22);
 }
 .pote-rotulo { font-size: 11px; font-weight: 500; line-height: 1; color: var(--marfim-suave); }
 .pote-valor {
@@ -354,9 +354,9 @@ button.dev-prox {
 .lugar.prox { border-style: dashed; border-color: rgba(244, 247, 255, 0.85); }
 .lugar.vez {
   color: #fff;
-  background: linear-gradient(180deg, var(--vez-1), var(--vez-2));
+  background: var(--vez-bg);
   border-color: #ffffff;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
 }
 
 .lugar.assento-redondo {
@@ -450,8 +450,8 @@ button.dev-prox {
   margin: 0 auto;
   padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
   display: none;
-  background: linear-gradient(var(--feltro-900), var(--feltro-950));
-  border-top: 1px solid var(--linha);
+  background: var(--dock-bg);
+  border-top: 1.5px solid var(--linha);
   border-radius: 18px 18px 0 0;
   box-shadow: 0 -14px 30px -12px rgba(0, 0, 0, 0.7);
 }

@@ -34,9 +34,9 @@
   font-size: 22px;
   line-height: 1;
   border-radius: 9px;
-  background: linear-gradient(165deg, #ffffff 0%, #e7eef9 100%);
+  background: #ffffff;
   color: #111524;
-  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 .n-emblema.r { color: #d61c33; }
 .n-emblema:nth-child(1) { transform: rotate(-6deg); }
@@ -51,7 +51,16 @@
   line-height: 0.9;
   letter-spacing: 0.01em;
   color: #fff;
-  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+.marca h1::after {
+  content: var(--marca-selo);
+  display: block;
+  margin-top: 10px;
+  font-family: var(--fonte-texto);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--acento);
 }
 .marca p {
   margin: 12px auto 0;
@@ -62,7 +71,18 @@
 }
 .marca p strong { color: #fff; }
 
-.cartao-login { margin-top: 0; }
+.cartao-login {
+  position: relative;
+  overflow: hidden;
+  margin-top: 0;
+}
+.cartao-login::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--faixa-topo);
+}
 .cartao-cabecalho {
   margin-bottom: 16px;
   padding-bottom: 12px;
@@ -110,8 +130,8 @@
   font-size: 21px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, var(--verde), var(--ouro));
-  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+  background: var(--ouro);
+  box-shadow: 0 3px 0 var(--ouro-escuro), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
 }
 .cabecalho-conta .ola {
   font-size: 15.5px;

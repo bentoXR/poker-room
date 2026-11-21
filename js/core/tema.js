@@ -2,14 +2,14 @@
 const CHAVE_TEMA = 'poker-tema';
 const ORDEM_TEMAS = ['azul', 'classico', 'preto'];
 const CORES_META = {
-  azul: '#0b1b3a',
-  classico: '#0d3322',
-  preto: '#16181e'
+  azul: '#11285c',
+  classico: '#13402a',
+  preto: '#14161c'
 };
 const TITULOS_TEMA = {
-  azul: 'Tema: Azul (clique para trocar para Cassino)',
+  azul: 'Tema: Azul Americano (clique para trocar para Cassino)',
   classico: 'Tema: Cassino (clique para trocar para Preto e Vermelho)',
-  preto: 'Tema: Preto e Vermelho (clique para trocar para Azul)'
+  preto: 'Tema: Preto e Vermelho (clique para trocar para Azul Americano)'
 };
 
 function normalizarTema(tema) {
