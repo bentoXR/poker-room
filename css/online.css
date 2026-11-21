@@ -985,26 +985,24 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online .linha-ultima { margin-top: 4px; gap: 8px; }
   #tela-mesa.modo-online .ultima { font-size: 14px; padding: 2px 12px; }
 
-  /* Feltro oval dimensionado para os perfis ficarem na borda externa sem invadir a mesa nem a barra superior */
-  #tela-mesa.modo-online .mesa-wrap { margin-top: 8px; min-height: 0; }
+  /* Mesa estilo PokerStars vertical: grande estádio de feltro verde com você na ponta inferior e perfis na borda! */
+  #tela-mesa.modo-online .mesa-wrap { margin-top: 6px; min-height: 0; }
   #tela-mesa.modo-online .centro-roda {
-    top: 54%;
-    width: 68%;
-    height: 60%;
+    top: 52%;
+    width: 72%;
+    height: 78%;
+    border-radius: 999px;
     justify-content: center;
-    gap: 5px;
-    padding: 8px 6px;
+    gap: 6px;
+    padding: 14px 8px;
     overflow: visible;
   }
-  #tela-mesa.modo-online.hero-no-dock .centro-roda {
-    top: 52%;
-    width: 62%;
-    height: 48%;
-  }
+  #tela-mesa.modo-online.hero-no-dock .centro-roda,
   #tela-mesa.modo-online.hero-no-dock.poucos-op .centro-roda {
-    top: 63%;
-    width: 68%;
-    height: 58%;
+    top: 53%;
+    width: 76%;
+    height: 84%;
+    border-radius: 999px;
   }
   #tela-mesa.modo-online .pote-ficha {
     width: 56px;
@@ -1209,20 +1207,15 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 }
 
 @media (max-width: 374px) {
-  #tela-mesa.modo-online:not(.poucos-op) .centro-roda {
-    width: 60%;
-    height: 48%;
-    padding: 6px 4px;
-    gap: 4px;
+  #tela-mesa.modo-online.hero-no-dock .centro-roda,
+  #tela-mesa.modo-online.hero-no-dock.poucos-op .centro-roda {
+    top: 53%;
+    width: 76%;
+    height: 84%;
+    padding: 10px 6px;
+    gap: 5px;
   }
-  #tela-mesa.modo-online.poucos-op .centro-roda {
-    width: 72%;
-    height: 56%;
-    top: 63%;
-    padding: 6px 5px;
-    gap: 4px;
-  }
-  #tela-mesa.modo-online .centro-roda .board { max-width: 162px; }
+  #tela-mesa.modo-online .centro-roda .board { max-width: 158px; }
 }
 
 @media (max-width: 359px) {
@@ -1235,19 +1228,20 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   }
   .opcoes-online button.op-chip { min-width: 48px; }
   #tela-mesa.modo-online .linha-ultima { display: none; }
-  #tela-mesa.modo-online:not(.poucos-op) .centro-roda,
+  #tela-mesa.modo-online.hero-no-dock .centro-roda,
   #tela-mesa.modo-online.cheia .centro-roda {
-    width: 56%;
-    height: 46%;
-    padding: 4px;
-    gap: 3px;
+    top: 53%;
+    width: 72%;
+    height: 82%;
+    padding: 8px 5px;
+    gap: 4px;
   }
   #tela-mesa.modo-online.cheia .pote-ficha { width: 42px; height: 42px; padding: 3px; }
   #tela-mesa.modo-online .centro-roda .board,
-  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 144px; }
+  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 142px; }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     top: clamp(28px, var(--y, 50%), calc(100% - 28px));
-    padding: 3px 5px 3px 26px;
+    padding: 3px 5px 3px 25px;
   }
   #barra-acoes.modo-online .minha-mao-dica { display: none; }
 }

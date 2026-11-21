@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=56';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=56';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=56';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=56';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=56';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=56';
-import { obterModo } from './modos.js?v=56';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=56';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=56';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=56';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=56';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=56';
+import { banco } from '../core/supabase.js?v=58';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=58';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=58';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=58';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=58';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=58';
+import { obterModo } from './modos.js?v=58';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=58';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=58';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=58';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=58';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=58';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -399,16 +399,16 @@ const POSICOES_DESKTOP_ONLINE = {
   9: [[50, 91], [15, 81], [9, 52], [13, 22], [34, 9], [66, 9], [87, 22], [91, 52], [85, 81]]
 };
 
-// Coordenadas (x%, y%) APENAS dos adversários (1..8) no Modo Online (mesa centrada sem sobrepor os cards!)
+// Coordenadas (x%, y%) dos adversários (1..8) distribuídos em volta da borda da mesa vertical (você na ponta de baixo!)
 const POSICOES_OPONENTES_MOBILE = {
-  1: [[50, 14]],
-  2: [[22, 18], [78, 18]],
-  3: [[20, 27], [50, 10], [80, 27]],
-  4: [[21, 86], [21, 16], [79, 16], [79, 86]],
-  5: [[21, 87], [18, 28], [50, 10], [82, 28], [79, 87]],
-  6: [[21, 88], [16, 48], [26, 12], [74, 12], [84, 48], [79, 88]],
-  7: [[21, 88], [15, 54], [18, 23], [50, 9], [82, 23], [85, 54], [79, 88]],
-  8: [[21, 88], [15, 56], [17, 27], [34, 9], [66, 9], [83, 27], [85, 56], [79, 88]]
+  1: [[50, 9]],
+  2: [[16, 26], [84, 26]],
+  3: [[15, 34], [50, 9], [85, 34]],
+  4: [[15, 83], [15, 25], [85, 25], [85, 83]],
+  5: [[15, 83], [15, 29], [50, 9], [85, 29], [85, 83]],
+  6: [[15, 84], [14, 42], [25, 10], [75, 10], [86, 42], [85, 84]],
+  7: [[15, 85], [13, 52], [17, 23], [50, 9], [83, 23], [87, 52], [85, 85]],
+  8: [[15, 85], [13, 54], [16, 26], [34, 9], [66, 9], [84, 26], [87, 54], [85, 85]]
 };
 
 const POSICOES_OPONENTES_DESKTOP = {
@@ -554,14 +554,14 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
   const nMesa = listaMesa.length;
   const larguraLugar = ehDesktop
-    ? (nMesa <= 4 ? 182 : nMesa <= 6 ? 168 : 154)
-    : (nMesa <= 3 ? 128 : nMesa <= 5 ? 118 : nMesa <= 6 ? 108 : 98);
+    ? (nMesa <= 4 ? 174 : nMesa <= 6 ? 162 : 148)
+    : (nMesa <= 3 ? 104 : nMesa <= 5 ? 98 : nMesa <= 6 ? 94 : 88);
   const escalaLugar = ehDesktop
     ? (nMesa <= 4 ? 1.04 : nMesa <= 6 ? 0.98 : 0.92)
-    : (nMesa <= 3 ? 0.96 : nMesa <= 5 ? 0.9 : nMesa <= 6 ? 0.84 : 0.8);
+    : (nMesa <= 3 ? 0.94 : nMesa <= 5 ? 0.9 : nMesa <= 6 ? 0.84 : 0.8);
   const raioX = ehDesktop ? 43.5 : 40;
   const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '19vw' : (nMesa >= 7 ? '27vw' : nMesa >= 5 ? '30vw' : '34vw');
+  const maxVw = ehDesktop ? '18vw' : (nMesa >= 7 ? '25vw' : nMesa >= 5 ? '27.5vw' : '29.5vw');
 
   const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
