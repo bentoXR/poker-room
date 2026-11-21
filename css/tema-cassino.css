@@ -6,22 +6,22 @@
    ===================================================================== */
 
 :root[data-tema="cassino"] {
-  --feltro-950: #220409;
-  --feltro-900: #380710;
-  --feltro-800: #4c0b17;
-  --feltro-700: #631120;
-  --feltro-600: #7d182b;
+  --feltro-950: #0c0d10;
+  --feltro-900: #13151a;
+  --feltro-800: #1b1e26;
+  --feltro-700: #262a35;
+  --feltro-600: #343947;
   --linha: rgba(235, 192, 86, 0.28);
 
   --marfim: #fdf6e6;
   --estrela: #ffe69c;
   --marfim-suave: rgba(250, 236, 206, 0.86);
-  --texto-escuro: #1d0509;
+  --texto-escuro: #12100e;
 
-  /* Ação principal: Rubi Carmesim com borda em ouro */
+  /* Ação principal: Dourado/Ébano + Rubi apenas nos botões de aposta */
   --ouro: #b8192b;
   --ouro-escuro: #6e0b16;
-  --ouro-suave: rgba(184, 25, 43, 0.34);
+  --ouro-suave: rgba(184, 25, 43, 0.30);
   --ouro-borda: rgba(235, 192, 86, 0.84);
 
   --vermelho: #c81e32;
@@ -37,45 +37,44 @@
   --luz-cor: #ffe082;
   --luz-sombra: rgba(235, 192, 86, 0.82);
 
-  --bg-topo: rgba(184, 25, 43, 0.34);
+  --bg-topo: rgba(18, 20, 26, 0.72);
   --faixa-topo: linear-gradient(
     90deg,
-    #4d0914 0 22%,
-    #ebc056 22% 38%,
-    #b8192b 38% 62%,
-    #147a49 62% 84%,
-    #ebc056 84% 100%
+    #16181f 0 25%,
+    #ebc056 25% 50%,
+    #0d5e37 50% 75%,
+    #16181f 75% 100%
   );
 
-  /* Mesa esmeralda clássica com borda acolchoada carmesim escura e aro dourado */
+  /* Mesa esmeralda clássica com borda acolchoada escura e aro dourado */
   --feltro-mesa: #0d5e37;
   --feltro-mesa-borda: #06331e;
   --feltro-trilha: rgba(235, 192, 86, 0.76);
-  --borda-mesa: #470a15;
-  --borda-interna: #1d0308;
+  --borda-mesa: #1f1712;
+  --borda-interna: #0d0a08;
   --borda-aro: #ebc056;
 
-  --pote-bg: #3b0812;
-  --pote-bg-2: #190207;
-  --assento-bg: #360812;
-  --assento-bg-2: #22040a;
-  --assento-eu-bg: #520d1b;
-  --assento-eu-bg-2: #340710;
+  --pote-bg: #1b1d23;
+  --pote-bg-2: #101216;
+  --assento-bg: #17191f;
+  --assento-bg-2: #101217;
+  --assento-eu-bg: #22252e;
+  --assento-eu-bg-2: #16181f;
   --vez-bg: #ebc056;
   --vez-bg-2: #bd8f20;
-  --vez-tag-bg: #220409;
+  --vez-tag-bg: #14120e;
 
-  --dock-bg: rgba(42, 6, 13, 0.92);
-  --dock-bg-2: rgba(24, 3, 7, 0.96);
-  --faixa-bg: rgba(56, 8, 17, 0.92);
-  --faixa-bg-2: rgba(34, 4, 10, 0.96);
+  --dock-bg: rgba(19, 21, 27, 0.94);
+  --dock-bg-2: rgba(12, 13, 17, 0.97);
+  --faixa-bg: rgba(21, 24, 31, 0.94);
+  --faixa-bg-2: rgba(14, 16, 21, 0.97);
   --faixa-borda: rgba(235, 192, 86, 0.82);
 
-  --cartao-bg: rgba(44, 6, 14, 0.90);
-  --cartao-bg-pc: rgba(44, 6, 14, 0.92);
+  --cartao-bg: rgba(19, 21, 27, 0.94);
+  --cartao-bg-pc: rgba(19, 21, 27, 0.95);
   --cartao-borda: rgba(235, 192, 86, 0.36);
 
-  --verso-bg: #870e21;
+  --verso-bg: #24262e;
   --verso-simbolo: "7";
   --marca-selo: "♠   ♥   ♣   ♦";
   --mesa-orn-esq: "♠  ♥";
@@ -117,23 +116,24 @@
   text-shadow: 0 2px 0 #7a0d1b, 0 4px 12px rgba(0, 0, 0, 0.65);
 }
 
-/* ----- Botões com borda fina de ouro ----- */
-:root[data-tema="cassino"] button:not([class]),
+/* ----- Botões com borda fina de ouro (sem forçar tudo vermelho) ----- */
+:root[data-tema="cassino"] button:not([class]) {
+  background: linear-gradient(180deg, #2b2f3b, #1d2029);
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.82), 0 3px 0 #0d0e12;
+}
+:root[data-tema="cassino"] button:not([class]):active:not(:disabled) {
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.82), 0 1px 0 #0d0e12;
+}
+:root[data-tema="cassino"] button.positivo,
 :root[data-tema="cassino"] .faixa-online-acoes button.positivo,
 :root[data-tema="cassino"] #btn-iniciar-rapido {
-  background: linear-gradient(180deg, #cf2134, #b8192b 55%, #8f101e);
-  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.86), 0 3px 0 #570811;
+  background: linear-gradient(180deg, #178a52, #147a49 60%, #0d5431);
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.72), 0 3px 0 #093d24;
 }
-:root[data-tema="cassino"] button:not([class]):active:not(:disabled),
+:root[data-tema="cassino"] button.positivo:active:not(:disabled),
 :root[data-tema="cassino"] .faixa-online-acoes button.positivo:active:not(:disabled),
 :root[data-tema="cassino"] #btn-iniciar-rapido:active:not(:disabled) {
-  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.86), 0 1px 0 #570811;
-}
-:root[data-tema="cassino"] button.positivo {
-  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.68), 0 3px 0 #093d24;
-}
-:root[data-tema="cassino"] button.positivo:active:not(:disabled) {
-  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.68), 0 1px 0 #093d24;
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.72), 0 1px 0 #093d24;
 }
 
 /* ----- Pote central: Ficha de Cassino clássica (rubi, ouro, marfim e preto) ----- */
@@ -178,6 +178,9 @@
 :root[data-tema="cassino"] .anuncio-vez .anuncio-titulo {
   color: #1d0509;
   border-color: #fdf6e6;
+}
+:root[data-tema="cassino"] .meu-perfil-dock.vez .tag.vez {
+  color: #1d0509;
 }
 :root[data-tema="cassino"] .barra-acoes.minha-vez {
   border-top-color: #ebc056;

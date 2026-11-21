@@ -4,7 +4,7 @@ const ORDEM_TEMAS = ['preto', 'classico', 'cassino', 'liberdade', 'tropical'];
 const CORES_META = {
   classico: '#140c08',
   cassino: '#2e040c',
-  preto: '#14161c',
+  preto: '#0b0c0e',
   liberdade: '#0a3161',
   tropical: '#04384f'
 };

@@ -197,18 +197,12 @@
   );
 }
 
-/* Fundo com textura aveludada / tapete escuro no tema Preto & Vermelho */
+/* Fundo escuro sólido e limpo no tema Preto (padrão) */
 :root[data-tema="preto"] body,
 :root[data-tema="preto"] body:not(.na-mesa),
 :root[data-tema="preto"] body.na-mesa.modo-online {
-  background-color: #14161c;
-  background-image:
-    radial-gradient(85% 48% at 50% 0%, rgba(62, 66, 82, 0.28) 0%, transparent 70%),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 4px),
-    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 4px),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 12px, transparent 12px 24px),
-    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.12) 0 12px, transparent 12px 24px);
-  background-repeat: no-repeat, repeat, repeat, repeat, repeat;
+  background-color: #0b0c0e;
+  background-image: none;
 }
 
 /* Fundo com textura de madeira mogno escura no tema Sinuca */
@@ -283,86 +277,86 @@
 :root[data-tema="classico"] .n-h,
 :root[data-tema="classico"] .n-d { --cn: #b91c1c; }
 
-/* Tema 3: Preto & Vermelho (Alto contraste — preto carbono, grafite e vermelho vivo) */
+/* Tema 3: Preto (Escuro e básico — padrão do site) */
 :root[data-tema="preto"] {
-  --feltro-950: #0c0d11;
-  --feltro-900: #14161c;
-  --feltro-800: #222530;
-  --feltro-700: #313545;
-  --feltro-600: #42485c;
-  --linha: rgba(255, 255, 255, 0.2);
+  --feltro-950: #07080a;
+  --feltro-900: #0b0c0e;
+  --feltro-800: #131519;
+  --feltro-700: #1c1f26;
+  --feltro-600: #282c36;
+  --linha: rgba(255, 255, 255, 0.12);
 
-  --marfim: #f8f8fb;
+  --marfim: #f2f4f8;
   --estrela: #ffffff;
-  --marfim-suave: rgba(244, 245, 250, 0.82);
-  --texto-escuro: #14161c;
+  --marfim-suave: rgba(214, 219, 228, 0.75);
+  --texto-escuro: #0b0c0e;
 
-  --ouro: #de2339;
-  --ouro-escuro: #941122;
-  --ouro-suave: rgba(222, 35, 57, 0.26);
-  --ouro-borda: rgba(222, 35, 57, 0.82);
+  --ouro: #c41e32;
+  --ouro-escuro: #821120;
+  --ouro-suave: rgba(196, 30, 50, 0.22);
+  --ouro-borda: rgba(196, 30, 50, 0.72);
 
   --vermelho: #d41d34;
-  --verde: #de2339;
-  --verde-escuro: #941122;
-  --verde-suave: rgba(222, 35, 57, 0.24);
-  --verde-borda: rgba(245, 80, 100, 0.7);
-  --verde-texto: #ffd9df;
+  --verde: #1f7a4c;
+  --verde-escuro: #134e30;
+  --verde-suave: rgba(31, 122, 76, 0.24);
+  --verde-borda: rgba(68, 168, 116, 0.55);
+  --verde-texto: #d8f5e5;
 
-  --acento: #ffd54f;
-  --acento-suave: rgba(255, 213, 79, 0.2);
-  --luz-cor: #ff7a8a;
-  --luz-sombra: rgba(255, 110, 128, 0.78);
+  --acento: #e2e6f0;
+  --acento-suave: rgba(226, 230, 240, 0.16);
+  --luz-cor: #ffffff;
+  --luz-sombra: rgba(255, 255, 255, 0.48);
 
-  --bg-topo: rgba(54, 58, 74, 0.34);
+  --bg-topo: rgba(18, 20, 25, 0.78);
   --faixa-topo: linear-gradient(
     90deg,
-    #de2339 0 42%,
-    #ffffff 42% 58%,
-    #de2339 58% 100%
+    #14161b 0%,
+    #282c36 50%,
+    #14161b 100%
   );
 
-  --feltro-mesa: #245938;
-  --feltro-mesa-borda: #163823;
-  --feltro-trilha: rgba(222, 35, 57, 0.55);
-  --borda-mesa: #a61527;
-  --borda-interna: #4d0912;
-  --borda-aro: rgba(255, 255, 255, 0.45);
+  --feltro-mesa: #173825;
+  --feltro-mesa-borda: #0e2216;
+  --feltro-trilha: rgba(255, 255, 255, 0.16);
+  --borda-mesa: #1b1e24;
+  --borda-interna: #0a0c0f;
+  --borda-aro: rgba(255, 255, 255, 0.22);
 
-  --pote-bg: #232631;
-  --pote-bg-2: #13151b;
-  --assento-bg: #1e212b;
-  --assento-bg-2: #15171e;
-  --assento-eu-bg: #323747;
-  --assento-eu-bg-2: #242834;
-  --vez-bg: #de2339;
-  --vez-bg-2: #a81527;
-  --vez-tag-bg: #14161c;
+  --pote-bg: #15181e;
+  --pote-bg-2: #0c0e12;
+  --assento-bg: #121419;
+  --assento-bg-2: #0c0d11;
+  --assento-eu-bg: #1a1d24;
+  --assento-eu-bg-2: #121419;
+  --vez-bg: #262b36;
+  --vez-bg-2: #1a1e26;
+  --vez-tag-bg: #0b0c0e;
 
-  --dock-bg: #1e202a;
-  --dock-bg-2: #14161c;
-  --faixa-bg: #291b22;
-  --faixa-bg-2: #1b1318;
-  --faixa-borda: #de2339;
+  --dock-bg: #101217;
+  --dock-bg-2: #0a0b0e;
+  --faixa-bg: #13161c;
+  --faixa-bg-2: #0c0e12;
+  --faixa-borda: rgba(255, 255, 255, 0.18);
 
-  --cartao-bg: #1d2029;
-  --cartao-bg-pc: #1d2029;
-  --cartao-borda: rgba(255, 255, 255, 0.22);
+  --cartao-bg: #111318;
+  --cartao-bg-pc: #111318;
+  --cartao-borda: rgba(255, 255, 255, 0.14);
 
-  --verso-bg: #cf1d33;
-  --verso-simbolo: "♦";
-  --marca-selo: "♦   ♠   ♦";
-  --mesa-orn-esq: "♦  ♠";
-  --mesa-orn-dir: "♠  ♦";
-  --mesa-orn-cor: rgba(222, 35, 57, 0.34);
+  --verso-bg: #222630;
+  --verso-simbolo: "♠";
+  --marca-selo: "♠   ♥   ♣   ♦";
+  --mesa-orn-esq: "♠  ♣";
+  --mesa-orn-dir: "♥  ♦";
+  --mesa-orn-cor: rgba(255, 255, 255, 0.16);
 }
 
-/* No tema Preto & Vermelho, diferencia "Check/Pagar" (grafite) de "Aumentar" (vermelho) */
+/* No tema Preto, diferencia "Check/Pagar" (grafite escuro) e texto escuro na vez */
 :root[data-tema="preto"] .barra-acoes .grade-simples button#btn-check,
 :root[data-tema="preto"] .barra-acoes .grade-simples button#btn-pagar {
-  background: #383d4d;
+  background: #232732;
   color: #fff;
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.28), 0 3px 0 #1c1f28;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.22), 0 3px 0 #0e1014;
 }
 
 * {

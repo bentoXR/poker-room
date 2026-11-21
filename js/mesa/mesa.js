@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=82';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=82';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=82';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=82';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=82';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=82';
-import { obterModo } from './modos.js?v=82';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=82';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=82';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=82';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=82';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=82';
+import { banco } from '../core/supabase.js?v=83';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=83';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=83';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=83';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=83';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=83';
+import { obterModo } from './modos.js?v=83';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=83';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=83';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=83';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=83';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=83';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -499,27 +499,37 @@ const POSICOES_OPONENTES_LANDSCAPE = {
   8: [[25, 82], [7.5, 50], [20, 14], [40, 13], [60, 13], [80, 14], [92.5, 50], [75, 82]]
 };
 
-function montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline }) {
+function estadoAssentoJogador(j, partida, ehOnline) {
+  const emMaoAtiva = !!(partida && partida.iniciada && !partida.aguardando_proxima_mao);
+  const estaAllInNaMao = emMaoAtiva && j.saldo <= 0 && !j.desistiu && (ehOnline ? !!j.tem_cartas : j.total_mao > 0);
+  const semFichas = j.saldo <= 0 && !estaAllInNaMao;
+  const desistiuNaMao = emMaoAtiva && !!j.desistiu && !j.esperando && !j.ausente && !semFichas && (ehOnline ? !!j.tem_cartas : (j.total_mao > 0 || j.falou));
+  return { emMaoAtiva, estaAllInNaMao, semFichas, desistiuNaMao };
+}
+
+function montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline, st }) {
+  const s = st || estadoAssentoJogador(j, partida, ehOnline);
   let tags = '';
   if (premioVencedor > 0) {
     tags += '<span class="tag ganhou">🏆 +' + premioVencedor + '</span>';
   }
-  if (ehOnline && j.ausente) {
+  if (s.semFichas) {
+    tags += '<span class="tag fora">SEM FICHAS</span>';
+  } else if (ehOnline && j.ausente) {
     tags += '<span class="tag espera">AUSENTE</span>';
+  } else if (emEsperaOnline) {
+    if (j.confirmado) tags += '<span class="tag pronto">✓ PRONTO</span>';
+    else if (j.esperando) tags += '<span class="tag espera">ESPERANDO</span>';
+  } else if (partida.iniciada) {
+    if (j.esperando) tags += '<span class="tag espera">ESPERANDO</span>';
+    else if (s.desistiuNaMao) tags += '<span class="tag fora">DESISTIU</span>';
+    else if (s.estaAllInNaMao) tags += '<span class="tag allin">ALL-IN</span>';
+    else if (naVez && partida.fase_blind === 1) tags += '<span class="tag vez">PAGAR SB</span>';
+    else if (naVez && partida.fase_blind === 2) tags += '<span class="tag vez">PAGAR BB</span>';
   }
   if (emEsperaOnline) {
-    if (j.saldo === 0) tags += '<span class="tag fora">ELIMINADO</span>';
-    else if (j.confirmado && !j.ausente) tags += '<span class="tag pronto">✓ PRONTO</span>';
     if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
   } else if (partida.iniciada) {
-    if (j.esperando && !j.ausente) tags += '<span class="tag espera">ESPERANDO</span>';
-    else if (j.desistiu && !j.ausente) tags += '<span class="tag fora">DESISTIU</span>';
-    else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">' + (ehOnline ? 'ELIMINADO' : 'SEM FICHAS') + '</span>';
-    else {
-      if (naVez && partida.fase_blind === 1) tags += '<span class="tag vez">PAGAR SB</span>';
-      else if (naVez && partida.fase_blind === 2) tags += '<span class="tag vez">PAGAR BB</span>';
-      if (j.saldo === 0 && !j.desistiu) tags += '<span class="tag allin">ALL-IN</span>';
-    }
     if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
     if (j.id === partida.sb_jogador_id && j.id !== partida.dealer_jogador_id) tags += '<span class="tag sb" title="Small Blind">SB</span>';
     if (j.id === partida.bb_jogador_id) tags += '<span class="tag bb" title="Big Blind">BB</span>';
@@ -549,12 +559,13 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   const ehVencedor = !!(modo && modo.ehVencedorAssento && modo.ehVencedorAssento(eu, partida));
   const premioVencedor = (modo && modo.premioVencedorAssento) ? modo.premioVencedorAssento(eu, partida) : 0;
 
+  const st = estadoAssentoJogador(eu, partida, true);
   let classes = 'meu-perfil-dock';
   if (naVez) classes += ' vez';
   if (ehProximo) classes += ' prox';
   if (ehVencedor) classes += ' vencedor';
-  if (eu.esperando) classes += ' espera';
-  else if (eu.desistiu) classes += ' desistiu';
+  if (eu.esperando || eu.ausente) classes += ' espera';
+  else if (st.desistiuNaMao || (st.semFichas && !ehVencedor)) classes += ' desistiu';
 
   const corFicha = 'c' + (((Number(eu.ordem) || 1) - 1) % 8 + 1);
   const posBorda = classePosicaoBorda(eu, partida);
@@ -570,7 +581,8 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
     ehProximo,
     emEsperaOnline,
     premioVencedor,
-    ehOnline: true
+    ehOnline: true,
+    st
   });
 
   dock.className = classes;
@@ -656,14 +668,15 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const ehVencedor = !!(modo && modo.ehVencedorAssento && modo.ehVencedorAssento(j, partida));
     const premioVencedor = (modo && modo.premioVencedorAssento) ? modo.premioVencedorAssento(j, partida) : 0;
 
+    const st = estadoAssentoJogador(j, partida, ehOnline);
     let classes = 'lugar assento-redondo';
     if (souEu) classes += ' eu';
     if (naVez) classes += ' vez';
     if (ehVencedor) classes += ' vencedor';
-    if (j.esperando) classes += ' espera';
-    else if (j.desistiu) classes += ' desistiu';
+    if (j.esperando || (ehOnline && j.ausente)) classes += ' espera';
+    else if (st.desistiuNaMao || (st.semFichas && !ehVencedor)) classes += ' desistiu';
 
-    const tags = montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline });
+    const tags = montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline, st });
 
     const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
     let x;
