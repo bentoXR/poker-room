@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=49';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=49';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=49';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=49';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=49';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=49';
-import { obterModo } from './modos.js?v=49';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=49';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=49';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=49';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=49';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=49';
+import { banco } from '../core/supabase.js?v=51';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=51';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=51';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=51';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=51';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=51';
+import { obterModo } from './modos.js?v=51';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=51';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=51';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=51';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=51';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=51';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -184,7 +184,7 @@ export function desenharMesa(dados) {
   const poteVis = (congelado && congelado.pote !== null && congelado.pote !== undefined) ? congelado.pote : partida.pote;
 
   const jogadorDaVez = jogadores.find((j) => j.id === partida.vez_jogador_id) || null;
-  const emJogo = partida.iniciada && !partida.aguardando_cartas && partida.fase < 4;
+  const emJogo = partida.iniciada && !partida.aguardando_cartas && !partida.aguardando_proxima_mao && partida.fase < 4;
   const vezAtivaId = emJogo ? partida.vez_jogador_id : null;
   const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id;
   const falta = eu ? Math.max(0, partida.aposta_atual - eu.apostou) : 0;
@@ -376,8 +376,7 @@ function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez })
   return 'Fim da partida: só resta um jogador com fichas.';
 }
 
-// Coordenadas (x%, y%) dos assentos no Modo Online para 2 a 9 jogadores:
-// k=0 é sempre você (embaixo); os demais assentos ficam na borda externa sem invadir o centro do feltro!
+// Coordenadas (x%, y%) dos assentos quando TODOS ficam na elipse (Presencial / espectador)
 const POSICOES_MOBILE_ONLINE = {
   2: [[50, 91], [50, 9]],
   3: [[50, 91], [14, 24], [86, 24]],
@@ -400,6 +399,109 @@ const POSICOES_DESKTOP_ONLINE = {
   9: [[50, 91], [15, 81], [9, 52], [13, 22], [34, 9], [66, 9], [87, 22], [91, 52], [85, 81]]
 };
 
+// Coordenadas (x%, y%) APENAS dos adversários (1..8) no Modo Online quando seu perfil está mesclado ao dock inferior!
+const POSICOES_OPONENTES_MOBILE = {
+  1: [[50, 12]],
+  2: [[18, 18], [82, 18]],
+  3: [[14, 48], [50, 10], [86, 48]],
+  4: [[15, 76], [17, 17], [83, 17], [85, 76]],
+  5: [[15, 76], [15, 24], [50, 10], [85, 24], [85, 76]],
+  6: [[15, 76], [13, 36], [33, 10], [67, 10], [87, 36], [85, 76]],
+  7: [[15, 78], [12, 46], [18, 18], [50, 10], [82, 18], [88, 46], [85, 78]],
+  8: [[15, 79], [12, 48], [17, 21], [35, 10], [65, 10], [83, 21], [88, 48], [85, 79]]
+};
+
+const POSICOES_OPONENTES_DESKTOP = {
+  1: [[50, 11]],
+  2: [[14, 28], [86, 28]],
+  3: [[11, 52], [50, 11], [89, 52]],
+  4: [[13, 72], [14, 24], [86, 24], [87, 72]],
+  5: [[12, 74], [12, 28], [50, 11], [88, 28], [88, 74]],
+  6: [[13, 76], [10, 38], [32, 11], [68, 11], [90, 38], [87, 76]],
+  7: [[14, 78], [10, 48], [15, 20], [50, 10], [85, 20], [90, 48], [86, 78]],
+  8: [[14, 79], [10, 50], [14, 22], [35, 10], [65, 10], [86, 22], [90, 50], [86, 79]]
+};
+
+function montarTagsAssento({ j, partida, naVez, ehProximo, emEsperaOnline, premioVencedor, ehOnline }) {
+  let tags = '';
+  if (premioVencedor > 0) {
+    tags += '<span class="tag ganhou">🏆 +' + premioVencedor + '</span>';
+  }
+  if (emEsperaOnline) {
+    if (j.saldo === 0) tags += '<span class="tag fora">ELIMINADO</span>';
+    else if (j.confirmado) tags += '<span class="tag pronto">✓ PRONTO</span>';
+    if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
+  } else if (partida.iniciada) {
+    if (j.esperando) tags += '<span class="tag espera">ESPERANDO</span>';
+    else if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
+    else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">' + (ehOnline ? 'ELIMINADO' : 'SEM FICHAS') + '</span>';
+    else {
+      if (naVez) {
+        const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
+        tags += '<span class="tag vez">▶ ' + (rotulo === 'VEZ' ? '<span id="tempo-turno">VEZ</span>' : rotulo) + '</span>';
+      } else if (ehProximo) {
+        tags += '<span class="tag prox">PRÓX ▸</span>';
+      }
+      if (j.saldo === 0) tags += '<span class="tag allin">ALL-IN</span>';
+    }
+    if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
+  }
+  return tags;
+}
+
+function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnline, modo }) {
+  const dock = $id('meu-perfil-dock');
+  if (!dock) return;
+  if (!eu || partida.modo !== 'online') {
+    dock.hidden = true;
+    dock.innerHTML = '';
+    return;
+  }
+
+  const naVez = !!vezAtivaId && eu.id === vezAtivaId;
+  const ehProximo = !naVez && !eu.desistiu && eu.id === proximoId;
+  const ehVencedor = !!(modo && modo.ehVencedorAssento && modo.ehVencedorAssento(eu, partida));
+  const premioVencedor = (modo && modo.premioVencedorAssento) ? modo.premioVencedorAssento(eu, partida) : 0;
+
+  let classes = 'meu-perfil-dock';
+  if (naVez) classes += ' vez';
+  if (ehProximo) classes += ' prox';
+  if (ehVencedor) classes += ' vencedor';
+  if (eu.esperando) classes += ' espera';
+  else if (eu.desistiu) classes += ' desistiu';
+
+  const corFicha = 'c' + (((Number(eu.ordem) || 1) - 1) % 8 + 1);
+  const avatarUrl = obterAvatarUrl(eu.conta_id);
+  const badgePerfilHtml = avatarUrl
+    ? '<div class="l-avatar ' + corFicha + '"><img src="' + avatarUrl + '" alt=""></div>'
+    : '<div class="ficha ' + corFicha + '">' + eu.ordem + '</div>';
+
+  const tags = montarTagsAssento({
+    j: eu,
+    partida,
+    naVez,
+    ehProximo,
+    emEsperaOnline,
+    premioVencedor,
+    ehOnline: true
+  });
+
+  dock.className = classes;
+  dock.dataset.jogadorId = eu.id;
+  dock.innerHTML = `
+    <div class="mp-topo">
+      ${badgePerfilHtml}
+      <span class="mp-nome">${escapar(nomeDe(eu.nome))}</span>
+    </div>
+    <div class="mp-meio">
+      <span class="mp-saldo">${eu.saldo}</span>
+      ${eu.apostou > 0 ? '<span class="l-aposta">+' + eu.apostou + '</span>' : ''}
+    </div>
+    ${tags ? '<div class="l-tags mp-tags">' + tags + '</div>' : ''}
+  `;
+  dock.hidden = false;
+}
+
 function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   let proximoId = null;
   if (partida.iniciada && partida.fase_blind === 1) proximoId = partida.bb_jogador_id;
@@ -421,18 +523,35 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   const ehMobile = !ehDesktop;
   const emEsperaOnline = ehOnline && (!partida.iniciada || partida.aguardando_proxima_mao) && !congelado;
   const nJ = jogadores.length;
-  const meuIdx = Math.max(0, jogadores.findIndex((j) => j.id === estado.meuJogadorId));
+  const meuIdx = jogadores.findIndex((j) => j.id === estado.meuJogadorId);
+  const eu = meuIdx >= 0 ? jogadores[meuIdx] : null;
+  const heroNoDock = ehOnline && !!eu;
+
+  // Atualiza meu perfil integrado ao dock inferior no modo Online
+  desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnline, modo });
+  $id('tela-mesa').classList.toggle('hero-no-dock', heroNoDock);
+
+  // Lista exibida ao redor da mesa (no Online com jogador sentado, apenas adversários!)
+  let listaMesa = jogadores;
+  if (heroNoDock) {
+    listaMesa = [];
+    for (let k = 1; k < nJ; k++) {
+      listaMesa.push(jogadores[(meuIdx + k) % nJ]);
+    }
+  }
+
+  const nMesa = listaMesa.length;
   const larguraLugar = ehDesktop
-    ? (nJ <= 4 ? 156 : nJ <= 6 ? 148 : nJ <= 8 ? 138 : 130)
-    : (nJ <= 4 ? 82 : nJ <= 6 ? 78 : nJ <= 8 ? 70 : 68);
+    ? (nMesa <= 4 ? 168 : nMesa <= 6 ? 156 : 144)
+    : (nMesa <= 3 ? 112 : nMesa <= 5 ? 104 : nMesa <= 6 ? 96 : 88);
   const escalaLugar = ehDesktop
-    ? (nJ <= 4 ? 1.06 : nJ <= 6 ? 1.02 : nJ <= 8 ? 0.96 : 0.92)
-    : (nJ <= 4 ? 0.94 : nJ <= 6 ? 0.88 : nJ <= 8 ? 0.8 : 0.76);
+    ? (nMesa <= 4 ? 1.04 : nMesa <= 6 ? 0.98 : 0.92)
+    : (nMesa <= 3 ? 0.94 : nMesa <= 5 ? 0.88 : nMesa <= 6 ? 0.82 : 0.78);
   const raioX = ehDesktop ? 43.5 : 40;
   const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '16vw' : (nJ >= 7 ? '19.5vw' : '21.5vw');
+  const maxVw = ehDesktop ? '18vw' : (nMesa >= 7 ? '24vw' : nMesa >= 5 ? '26.5vw' : '29vw');
 
-  const htmlLista = jogadores.map((j, i) => {
+  const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
     const naVez = !!vezAtivaId && j.id === vezAtivaId;
     const ehProximo = !naVez && !j.desistiu && j.id === proximoId;
@@ -447,49 +566,36 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     if (j.esperando) classes += ' espera';
     else if (j.desistiu) classes += ' desistiu';
 
-    let tags = '';
-    if (premioVencedor > 0) {
-      tags += '<span class="tag ganhou">🏆 +' + premioVencedor + '</span>';
-    }
-    if (emEsperaOnline) {
-      if (j.saldo === 0) tags += '<span class="tag fora">ELIMINADO</span>';
-      else if (j.confirmado) tags += '<span class="tag pronto">✓ PRONTO</span>';
-      if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
-    } else if (partida.iniciada) {
-      if (j.esperando) tags += '<span class="tag espera">ESPERANDO</span>';
-      else if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
-      else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">' + (ehOnline ? 'ELIMINADO' : 'SEM FICHAS') + '</span>';
-      else {
-        if (naVez) {
-          const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
-          tags += '<span class="tag vez">▶ ' + (rotulo === 'VEZ' ? '<span id="tempo-turno">VEZ</span>' : rotulo) + '</span>';
-        } else if (ehProximo) {
-          tags += '<span class="tag prox">PRÓX ▸</span>';
-        }
-        if (j.saldo === 0) tags += '<span class="tag allin">ALL-IN</span>';
-      }
-      if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
-      if (j.id === partida.sb_jogador_id) tags += '<span class="tag blind">SB</span>';
-      if (j.id === partida.bb_jogador_id) tags += '<span class="tag blind">BB</span>';
-    }
+    const tags = montarTagsAssento({ j, partida, naVez, ehProximo, emEsperaOnline, premioVencedor, ehOnline });
 
     const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
-    const k = (i - meuIdx + nJ) % nJ;
-    const mapaPos = ehMobile
-      ? POSICOES_MOBILE_ONLINE[nJ]
-      : POSICOES_DESKTOP_ONLINE[nJ];
     let x;
     let y;
-    if (mapaPos && mapaPos[k]) {
-      x = mapaPos[k][0];
-      y = mapaPos[k][1];
+    if (heroNoDock) {
+      const mapaOp = ehMobile ? POSICOES_OPONENTES_MOBILE[nMesa] : POSICOES_OPONENTES_DESKTOP[nMesa];
+      if (mapaOp && mapaOp[idxLista]) {
+        x = mapaOp[idxLista][0];
+        y = mapaOp[idxLista][1];
+      } else {
+        const angulo = (165 + (210 * idxLista / Math.max(1, nMesa - 1))) * Math.PI / 180;
+        x = 50 + raioX * Math.cos(angulo);
+        y = 48 + raioY * Math.sin(angulo);
+      }
     } else {
-      const angulo = (90 + (360 * k / Math.max(1, nJ))) * Math.PI / 180;
-      x = 50 + raioX * Math.cos(angulo);
-      y = 50 + raioY * Math.sin(angulo);
+      const k = (idxLista - Math.max(0, meuIdx) + nJ) % nJ;
+      const mapaPos = ehMobile ? POSICOES_MOBILE_ONLINE[nJ] : POSICOES_DESKTOP_ONLINE[nJ];
+      if (mapaPos && mapaPos[k]) {
+        x = mapaPos[k][0];
+        y = mapaPos[k][1];
+      } else {
+        const angulo = (90 + (360 * k / Math.max(1, nJ))) * Math.PI / 180;
+        x = 50 + raioX * Math.cos(angulo);
+        y = 50 + raioY * Math.sin(angulo);
+      }
     }
-    const largura = larguraLugar + (souEu ? (ehDesktop ? 8 : 18) : 0);
-    const maxVwAssento = (ehMobile && souEu) ? '27vw' : maxVw;
+
+    const largura = larguraLugar + (souEu ? (ehDesktop ? 8 : 14) : 0);
+    const maxVwAssento = (ehMobile && souEu) ? '30vw' : maxVw;
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVwAssento + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
     const coroaHtml = (!ehOnline && j.criador) ? ICONE_COROA : '';
@@ -632,6 +738,11 @@ export function voltarParaSalas() {
   desligarTempoReal();
   fecharFolhas();
   limparChatMesa();
+  const dock = $id('meu-perfil-dock');
+  if (dock) { dock.hidden = true; dock.innerHTML = ''; }
+  const espera = $id('barra-online-espera');
+  if (espera) { espera.hidden = true; espera.innerHTML = ''; }
+  $id('tela-mesa').classList.remove('hero-no-dock');
   const modo = obterModo(estado.modoAtual);
   if (modo && modo.aoSairDaMesa) modo.aoSairDaMesa();
 

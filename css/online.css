@@ -373,6 +373,121 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 #tela-mesa.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 46px; height: 64px; }
 #tela-mesa.apostando ~ #barra-acoes .minha-mao-dica { display: none; }
 
+/* ----- Perfil próprio integrado ao dock inferior (estilo mesa real / PokerStars) ----- */
+.meu-perfil-dock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 9px 5px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, var(--assento-eu-bg), var(--assento-eu-bg-2));
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.72);
+  color: var(--marfim);
+  min-width: 122px;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+.meu-perfil-dock.vez {
+  background: linear-gradient(180deg, var(--vez-bg), var(--vez-bg-2));
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45), 0 6px 18px -4px rgba(0, 0, 0, 0.75);
+}
+.meu-perfil-dock.vencedor {
+  border-color: #ffd866;
+  box-shadow: 0 0 0 2px rgba(255, 216, 102, 0.75), 0 0 20px rgba(255, 216, 102, 0.45);
+}
+.meu-perfil-dock.desistiu { opacity: 0.58; }
+.meu-perfil-dock.espera { opacity: 0.82; }
+.mp-topo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.meu-perfil-dock .l-avatar {
+  width: 24px;
+  height: 24px;
+  border-width: 1.5px;
+}
+.meu-perfil-dock .ficha {
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+}
+.mp-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mp-meio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.mp-saldo {
+  font-family: var(--fonte-numero);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #fff;
+  white-space: nowrap;
+}
+.meu-perfil-dock .mp-tags {
+  min-height: 0;
+  gap: 4px;
+  margin-top: 1px;
+}
+.meu-perfil-dock .tag {
+  padding: 0 6px;
+  font-size: 10.5px;
+  line-height: 16px;
+}
+.meu-perfil-dock .tag.d {
+  width: 16px;
+  padding: 0;
+  text-align: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+}
+.meu-perfil-dock.vez .tag.vez {
+  background: var(--vez-tag-bg);
+  color: var(--estrela);
+}
+.meu-perfil-dock.vez .l-aposta {
+  background: var(--vez-tag-bg);
+  color: var(--estrela);
+}
+:root[data-tema="classico"] .meu-perfil-dock.vez,
+:root[data-tema="classico"] .meu-perfil-dock.vez .mp-nome,
+:root[data-tema="classico"] .meu-perfil-dock.vez .mp-saldo {
+  color: #12100e;
+}
+
+.barra-online-espera .faixa-online-acoes {
+  margin-top: 0;
+  gap: 8px;
+}
+.barra-online-espera .faixa-online-acoes button {
+  min-height: 52px;
+  font-size: 16.5px;
+}
+
+/* Quando o perfil próprio sai da elipse e vai pro dock, o feltro fica maior e melhor centralizado */
+#tela-mesa.modo-online.hero-no-dock .centro-roda {
+  top: 56%;
+  width: 72%;
+  height: 64%;
+}
+
 /* ----- Barra de progresso do timer de turno ----- */
 .timer-turno-wrap {
   height: 4px;
@@ -849,13 +964,18 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   /* Feltro oval dimensionado para os perfis ficarem na borda externa sem invadir a mesa nem a barra superior */
   #tela-mesa.modo-online .mesa-wrap { margin-top: 8px; min-height: 0; }
   #tela-mesa.modo-online .centro-roda {
-    top: 50%;
-    width: 63%;
-    height: 56%;
+    top: 54%;
+    width: 68%;
+    height: 60%;
     justify-content: center;
     gap: 5px;
     padding: 8px 6px;
     overflow: visible;
+  }
+  #tela-mesa.modo-online.hero-no-dock .centro-roda {
+    top: 56%;
+    width: 62%;
+    height: 60%;
   }
   #tela-mesa.modo-online .pote-ficha {
     width: 56px;
@@ -910,46 +1030,58 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online.cheia .lugar .tag { font-size: 8.5px; line-height: 13px; padding: 0 4px; }
   #tela-mesa.modo-online.cheia .lugar .tag.d { width: 13px; height: 13px; padding: 0; }
 
-  /* Dock inferior: cartas à esquerda + dica da mão e "Sua vez" ao lado delas, abrindo +55px para a mesa! */
+  /* Dock inferior: estilo mesa real — cartas + seu perfil acoplados à esquerda, dica/vez à direita, ações embaixo! */
   #barra-acoes.modo-online { padding: 6px 10px calc(8px + env(safe-area-inset-bottom)); }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) {
+  #barra-acoes.modo-online.visivel:not(.apostando) {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     column-gap: 10px;
     row-gap: 4px;
     align-items: center;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #timer-turno-wrap {
+  #barra-acoes.modo-online.visivel:not(.apostando) #timer-turno-wrap {
     grid-column: 1 / -1;
     grid-row: 1;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #minha-mao-wrap,
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .barra-controles {
+  #barra-acoes.modo-online.visivel:not(.apostando) #minha-mao-wrap,
+  #barra-acoes.modo-online.visivel:not(.apostando) .barra-controles {
     display: contents;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-linha {
+  #barra-acoes.modo-online.visivel:not(.apostando) .minha-mao-linha {
     position: static;
     grid-column: 1;
-    grid-row: 2 / span 2;
+    grid-row: 2;
     width: auto;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 6px;
-    margin-bottom: 4px;
+    margin-bottom: -10px;
+    z-index: 2;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-cartas {
-    gap: 8px;
+  #barra-acoes.modo-online.visivel:not(.apostando) .minha-mao-cartas {
+    gap: 6px;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-linha .btn-luz {
+  #barra-acoes.modo-online.visivel:not(.apostando) #meu-perfil-dock {
+    grid-column: 1;
+    grid-row: 3;
+    z-index: 3;
+    min-width: 118px;
+    max-width: 44vw;
+    padding: 5px 8px 4px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap[hidden]) #meu-perfil-dock {
+    grid-row: 2 / span 2;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) .minha-mao-linha .btn-luz {
     position: absolute;
     right: 10px;
-    top: 14px;
+    top: 12px;
     width: 44px;
     height: 44px;
     min-height: 44px;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-nome,
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-dica {
+  #barra-acoes.modo-online.visivel:not(.apostando) .minha-mao-nome,
+  #barra-acoes.modo-online.visivel:not(.apostando) .minha-mao-dica {
     grid-column: 2;
     grid-row: 2;
     align-self: end;
@@ -957,23 +1089,49 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     text-align: left;
     max-width: calc(100% - 48px);
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-titulo {
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-titulo {
     grid-column: 2;
     grid-row: 3;
     align-self: start;
     text-align: left;
-    margin: 0 0 4px;
+    margin: 0;
     max-width: calc(100% - 48px);
   }
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-revelar,
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #erro-barra,
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-blind,
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-dev-prox,
-  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-normal {
-    grid-column: 1 / -1;
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap[hidden]) #barra-titulo {
+    grid-row: 2 / span 2;
+    align-self: center;
+    max-width: 100%;
   }
+  #barra-acoes.modo-online.visivel:not(.apostando) .minha-mao-revelar {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 2px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) #erro-barra {
+    grid-column: 1 / -1;
+    grid-row: 5;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera,
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-blind,
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-dev-prox,
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-normal {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    margin-top: 4px;
+  }
+  #barra-acoes.modo-online.apostando #meu-perfil-dock {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 10px;
+    margin-bottom: 6px;
+    min-width: 0;
+  }
+  #barra-acoes.modo-online.apostando #meu-perfil-dock .mp-tags { display: none; }
+  #barra-acoes.modo-online.apostando #meu-perfil-dock .mp-saldo { font-size: 18px; }
   #barra-acoes.modo-online .minha-mao-wrap { gap: 4px; margin-bottom: 5px; }
-  #barra-acoes.modo-online .carta-3d { width: clamp(46px, 9.5dvh, 58px); height: clamp(64px, 13.2dvh, 81px); }
+  #barra-acoes.modo-online .carta-3d { width: clamp(46px, 8.8dvh, 56px); height: clamp(64px, 12.2dvh, 78px); }
   #barra-acoes.modo-online .grade-simples { gap: 8px; }
   #barra-acoes.modo-online .grade-simples button { min-height: clamp(48px, 8.2dvh, 58px); font-size: 16px; }
   #barra-acoes.modo-online .presets { gap: 6px; margin-bottom: 6px; }
@@ -1054,16 +1212,34 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   }
   #barra-acoes.modo-online.visivel:not(.apostando) {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 10px;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 8px;
     align-items: center;
   }
   #barra-acoes.modo-online .timer-turno-wrap { grid-column: 1 / -1; margin-bottom: 2px; }
-  #barra-acoes.modo-online .minha-mao-wrap { margin-bottom: 0; gap: 2px; }
+  #barra-acoes.modo-online.visivel:not(.apostando) #minha-mao-wrap {
+    display: flex;
+    grid-column: 1;
+    grid-row: 2;
+    margin-bottom: 0;
+    gap: 2px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) #meu-perfil-dock {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 112px;
+    padding: 4px 8px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) .barra-controles {
+    display: block;
+    grid-column: 3;
+    grid-row: 2;
+  }
   #barra-acoes.modo-online .minha-mao-dica,
   #barra-acoes.modo-online .minha-mao-nome,
   #barra-acoes.modo-online .barra-titulo { display: none !important; }
   #barra-acoes.modo-online .carta-3d { width: 38px; height: 52px; }
+  #barra-acoes.modo-online .minha-mao-linha { margin-bottom: 0; }
   #barra-acoes.modo-online .minha-mao-linha .btn-luz { position: static; width: 44px; height: 44px; min-height: 44px; margin-left: 6px; }
   #barra-acoes.modo-online .grade-simples button,
   #barra-acoes.modo-online button.grande { min-height: 48px; font-size: 15px; }
@@ -1322,14 +1498,22 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     border-color: var(--ouro-borda);
     border-top: 3px solid var(--ouro);
   }
+  #tela-mesa.modo-online.hero-no-dock .centro-roda {
+    top: 54%;
+    width: 66%;
+    height: 64%;
+  }
   #barra-acoes.modo-online.visivel {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
     align-items: center;
-    column-gap: 24px;
+    column-gap: 18px;
     row-gap: 6px;
   }
   #barra-acoes.modo-online.visivel:has(#minha-mao-wrap[hidden]) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  #barra-acoes.modo-online.visivel:has(#minha-mao-wrap[hidden]):has(#meu-perfil-dock[hidden]) {
     grid-template-columns: 1fr;
   }
   #barra-acoes.modo-online .timer-turno-wrap {
@@ -1339,8 +1523,23 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   }
   #barra-acoes.modo-online .minha-mao-wrap {
     margin-bottom: 0;
-    padding-right: 22px;
-    border-right: 1px solid rgba(244, 247, 255, 0.14);
+    padding-right: 0;
+    border-right: 0;
+  }
+  #barra-acoes.modo-online #meu-perfil-dock {
+    min-width: 158px;
+    padding: 8px 12px;
+    margin-right: 4px;
+  }
+  #barra-acoes.modo-online #meu-perfil-dock .l-avatar {
+    width: 34px;
+    height: 34px;
+  }
+  #barra-acoes.modo-online #meu-perfil-dock .mp-nome { font-size: 15px; }
+  #barra-acoes.modo-online #meu-perfil-dock .mp-saldo { font-size: 24px; }
+  #barra-acoes.modo-online .barra-controles {
+    padding-left: 18px;
+    border-left: 1px solid rgba(244, 247, 255, 0.14);
   }
   #barra-acoes.modo-online .minha-mao-cartas { gap: 12px; }
   #barra-acoes.modo-online .carta-3d {

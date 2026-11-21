@@ -420,25 +420,40 @@ button.dev-prox {
 .l-nome .coroa { width: 10px; height: 10px; flex-shrink: 0; color: var(--estrela); }
 .l-voce { flex-shrink: 0; font-size: calc(10px * var(--escala-lugar, 1)); font-weight: 600; color: var(--marfim-suave); }
 
-.l-meio { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 4px; }
-.l-saldo { font-family: var(--fonte-numero); font-size: calc(21px * var(--escala-lugar, 1)); font-weight: 700; line-height: 1.05; }
-.l-saldo.longo { font-size: calc(18px * var(--escala-lugar, 1)); }
-.lugar.assento-redondo.eu .l-saldo { font-size: calc(23px * var(--escala-lugar, 1)); }
-.lugar.assento-redondo.eu .l-saldo.longo { font-size: calc(20px * var(--escala-lugar, 1)); }
+.l-meio {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+}
+.l-saldo {
+  font-family: var(--fonte-numero);
+  font-size: calc(19.5px * var(--escala-lugar, 1));
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+.l-saldo.longo { font-size: calc(17px * var(--escala-lugar, 1)); }
+.lugar.assento-redondo.eu .l-saldo { font-size: calc(21px * var(--escala-lugar, 1)); }
+.lugar.assento-redondo.eu .l-saldo.longo { font-size: calc(18.5px * var(--escala-lugar, 1)); }
 
 .l-aposta {
   flex-shrink: 0;
-  padding: 0 5px;
+  padding: 1px 6px;
   font-family: var(--fonte-numero);
   font-size: calc(11.5px * var(--escala-lugar, 1));
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
+  white-space: nowrap;
   color: #fff;
   background: var(--ouro);
   border-radius: 99px;
 }
 
 .l-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; min-height: 16px; }
+.l-tags:empty { display: none; min-height: 0; }
 .lugar .tag {
   padding: 0 5px;
   font-size: calc(10.5px * var(--escala-lugar, 1));

@@ -1,9 +1,9 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=49';
-import { estado, passoSala, nomeDe } from '../core/estado.js?v=49';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=49';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=49';
+import { banco } from '../core/supabase.js?v=51';
+import { estado, passoSala, nomeDe } from '../core/estado.js?v=51';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=51';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=51';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -255,12 +255,16 @@ export async function apostar() {
 
 export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, falta, status }) {
   const barra = $id('barra-acoes');
-  const mostrarBarra = !!eu && partida.iniciada;
+  const mostrarBarra = !!eu && (partida.iniciada || partida.modo === 'online');
   $id('mesa-status').hidden = mostrarBarra;
   barra.classList.toggle('visivel', mostrarBarra);
   barra.classList.toggle('minha-vez', mostrarBarra && minhaVez);
 
-  if (!mostrarBarra) return;
+  if (!mostrarBarra) {
+    const esperaEl = $id('barra-online-espera');
+    if (esperaEl) { esperaEl.hidden = true; esperaEl.innerHTML = ''; }
+    return;
+  }
 
   const emBlind = partida.fase_blind > 0;
   const minhaVezBlind = emBlind && minhaVez;

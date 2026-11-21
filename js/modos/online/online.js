@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=49';
-import { estado, nomeDe } from '../../core/estado.js?v=49';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=49';
-import { lerDevSala } from '../../core/storage.js?v=49';
-import { registrarModo } from '../../mesa/modos.js?v=49';
-import { executar } from '../../mesa/apostas.js?v=49';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=49';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=49';
-import { avaliarMaoLocal } from './maos.js?v=49';
-import { tocarSom } from '../../core/som.js?v=49';
+import { banco } from '../../core/supabase.js?v=51';
+import { estado, nomeDe } from '../../core/estado.js?v=51';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=51';
+import { lerDevSala } from '../../core/storage.js?v=51';
+import { registrarModo } from '../../mesa/modos.js?v=51';
+import { executar } from '../../mesa/apostas.js?v=51';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=51';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=51';
+import { avaliarMaoLocal } from './maos.js?v=51';
+import { tocarSom } from '../../core/som.js?v=51';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -104,6 +104,8 @@ export function resetarOnlineUI() {
   if (wrap) { wrap.innerHTML = ''; wrap.hidden = true; }
   const faixa = $id('faixa-online');
   if (faixa) { faixa.innerHTML = ''; faixa.hidden = true; }
+  const espera = $id('barra-online-espera');
+  if (espera) { espera.innerHTML = ''; espera.hidden = true; }
   const timerWrap = $id('timer-turno-wrap');
   if (timerWrap) timerWrap.hidden = true;
 }
@@ -206,7 +208,8 @@ function animarPoteParaVencedor(partida) {
     const oy = (pRect.top - wRect.top) + pRect.height / 2;
 
     const destinos = idsVencedores
-      .map((id) => wrap.querySelector('.lugar[data-jogador-id="' + id + '"]'))
+      .map((id) => wrap.querySelector('.lugar[data-jogador-id="' + id + '"]')
+        || document.querySelector('#meu-perfil-dock[data-jogador-id="' + id + '"]'))
       .filter(Boolean);
     if (!destinos.length) return;
     tocarSom('ganhar-pote');
@@ -842,38 +845,64 @@ registrarModo('online', {
     $id('faixa-fase').hidden = true;
 
     const faixa = $id('faixa-online');
+    const esperaDock = $id('barra-online-espera');
     if (!faixa) return;
 
     const emEspera = !partida.iniciada || partida.aguardando_proxima_mao;
     if (!emEspera || onlineUI.segurando) {
       faixa.hidden = true;
       faixa.innerHTML = '';
+      if (esperaDock) { esperaDock.hidden = true; esperaDock.innerHTML = ''; }
       onlineUI.faixaChave = '';
       return;
     }
+
+    const fraseComMao = (maoNome) => {
+      const m = String(maoNome || '').trim();
+      if (!m) return '';
+      if (/^par\b/i.test(m)) return 'com um ' + m;
+      if (/^dois pares\b/i.test(m)) return 'com ' + m;
+      if (/^(trinca|sequência|quadra)\b/i.test(m)) return 'com uma ' + m;
+      if (/^(flush|full house|straight flush|royal flush)\b/i.test(m)) return 'com um ' + m;
+      if (/^carta alta\b/i.test(m)) return 'com ' + m;
+      return 'com ' + m;
+    };
 
     const comFichas = jogadores.filter((j) => j.saldo > 0);
     const confirmados = comFichas.filter((j) => j.confirmado);
     const fimTorneio = partida.iniciada && comFichas.length < 2;
     const res = partida.ultimo_resultado;
 
-    // Monta resumo do resultado da mão anterior (showdown ou desistência)
+    // Monta frase elaborada do vencedor da mão anterior (showdown ou desistência)
     let resHtml = '';
     if (res && partida.aguardando_proxima_mao) {
       if (res.tipo === 'showdown' && Array.isArray(res.potes)) {
         resHtml = res.potes.map((p) => {
-          const vs = (p.vencedores || []).map((v) => (
-            '<span class="res-nome">' + escapar(nomeDe(v.nome)) + '</span>'
-            + ' <span class="res-valor">+' + Number(v.valor).toLocaleString('pt-BR') + '</span>'
-            + (v.mao_nome ? ' <span class="res-mao">' + escapar(v.mao_nome) + '</span>' : '')
-          )).join(' · ');
+          const vs = p.vencedores || [];
           const pref = res.potes.length > 1 ? '<span class="res-pote">' + escapar(p.nome) + ':</span> ' : '';
-          return '<div class="res-linha">🏆 ' + pref + vs + '</div>';
-        }).join('');
+          if (vs.length === 1) {
+            const v = vs[0];
+            const maoTxt = fraseComMao(v.mao_nome);
+            return '<div class="res-linha">🏆 ' + pref
+              + '<span class="res-nome">' + escapar(nomeDe(v.nome)) + '</span> ganhou '
+              + '<span class="res-valor">+' + Number(v.valor).toLocaleString('pt-BR') + '</span>'
+              + (maoTxt ? ' <span class="res-mao">' + escapar(maoTxt) + '</span>' : '')
+              + '!</div>';
+          }
+          if (vs.length > 1) {
+            const nomes = vs.map((v) => '<span class="res-nome">' + escapar(nomeDe(v.nome)) + '</span>').join(' e ');
+            const maoTxt = fraseComMao(vs[0].mao_nome);
+            return '<div class="res-linha">🏆 ' + pref
+              + nomes + ' dividiram o pote (<span class="res-valor">+' + Number(vs[0].valor).toLocaleString('pt-BR') + '</span>)'
+              + (maoTxt ? ' <span class="res-mao">' + escapar(maoTxt) + '</span>' : '')
+              + '!</div>';
+          }
+          return '';
+        }).filter(Boolean).join('');
       } else if (res.tipo === 'desistencia' && res.vencedor_nome) {
-        resHtml = '<div class="res-linha">🏆 <span class="res-nome">' + escapar(nomeDe(res.vencedor_nome)) + '</span>'
-          + ' <span class="res-valor">+' + Number(res.valor).toLocaleString('pt-BR') + '</span>'
-          + ' <span class="res-mao">Todos desistiram</span></div>';
+        resHtml = '<div class="res-linha">🏆 <span class="res-nome">' + escapar(nomeDe(res.vencedor_nome)) + '</span> ganhou '
+          + '<span class="res-valor">+' + Number(res.valor).toLocaleString('pt-BR') + '</span> '
+          + '<span class="res-mao">todos desistiram!</span></div>';
       }
     }
 
@@ -884,6 +913,7 @@ registrarModo('online', {
     const faixaChave = [
       fimTorneio ? 'F' : 'E',
       partida.iniciada ? 'I' : 'L',
+      estado.modoDev ? 'D' : 'R',
       comFichas.length,
       confirmados.length,
       eu ? (eu.id + ':' + (eu.saldo > 0 ? '1' : '0') + ':' + (eu.confirmado ? '1' : '0')) : 'spec',
@@ -893,7 +923,7 @@ registrarModo('online', {
 
     if (faixaChave === onlineUI.faixaChave && !faixa.hidden) {
       if (restanteSeg !== null) {
-        faixa.querySelectorAll('[data-contagem-online]').forEach((el) => { el.textContent = restanteSeg + 's'; });
+        document.querySelectorAll('[data-contagem-online]').forEach((el) => { el.textContent = restanteSeg + 's'; });
       }
       return;
     }
@@ -912,12 +942,17 @@ registrarModo('online', {
       faixa.innerHTML = `
         <div class="faixa-online-res">🏆 Campeão: ${escapar(camp)}!</div>
         ${resHtml ? '<div class="faixa-online-sub">' + resHtml + '</div>' : ''}
-        <div class="faixa-online-acoes">
-          ${eu && jogadores.length >= 2 ? '<button class="positivo" onclick="revancheOnline()">Jogar revanche</button>' : ''}
-          <button class="secundario" onclick="voltarParaSalas()">Voltar às salas</button>
-        </div>
       `;
       faixa.hidden = false;
+
+      const botoesFim = (eu && jogadores.length >= 2 ? '<button class="positivo" onclick="revancheOnline()">Jogar revanche</button>' : '')
+        + '<button class="secundario" onclick="voltarParaSalas()">Voltar às salas</button>';
+      if (esperaDock && eu) {
+        esperaDock.innerHTML = '<div class="faixa-online-acoes">' + botoesFim + '</div>';
+        esperaDock.hidden = false;
+      } else {
+        faixa.innerHTML += '<div class="faixa-online-acoes">' + botoesFim + '</div>';
+      }
       return;
     }
 
@@ -935,24 +970,40 @@ registrarModo('online', {
 
     let acaoHtml = '';
     if (eu && eu.saldo > 0 && comFichas.length >= 2) {
+      let btnEu = '';
       if (eu.confirmado) {
-        acaoHtml = '<div class="faixa-online-acoes"><button type="button" class="confirmado" disabled>✓ Confirmado'
+        btnEu = '<button type="button" class="confirmado" disabled>✓ Pronto'
           + (restanteSeg !== null ? ' · <span data-contagem-online>' + restanteSeg + 's</span>' : ' · aguardando…')
-          + '</button></div>';
+          + '</button>';
       } else {
         const rot = partida.iniciada ? 'Entrar na próxima mão' : 'Estou pronto';
-        acaoHtml = '<div class="faixa-online-acoes"><button type="button" class="positivo" onclick="confirmarMao()">'
+        btnEu = '<button type="button" class="positivo" onclick="confirmarMao()">'
           + rot + (restanteSeg !== null ? ' (<span data-contagem-online>' + restanteSeg + 's</span>)' : '')
-          + '</button></div>';
+          + '</button>';
       }
+      const btnDevTodos = (estado.modoDev && confirmados.length < comFichas.length)
+        ? '<button type="button" class="secundario" onclick="confirmarTodosDev()">Todos prontos</button>'
+        : '';
+      acaoHtml = '<div class="faixa-online-acoes">' + btnEu + btnDevTodos + '</div>';
     } else if (eu && eu.saldo <= 0) {
       sub = 'Você ficou <strong>sem fichas</strong> · assistindo a mesa como espectador';
     }
 
+    // Topo exibe apenas o aviso elaborado do vencedor + contador de prontos
     faixa.innerHTML = (resHtml ? '<div class="faixa-online-res">' + resHtml + '</div>' : '')
-      + '<div class="faixa-online-sub">' + sub + '</div>'
-      + acaoHtml;
+      + '<div class="faixa-online-sub">' + sub + '</div>';
     faixa.hidden = false;
+
+    // Botão de dar pronto vai para o menu inferior (#barra-acoes), na zona do polegar!
+    if (esperaDock) {
+      if (acaoHtml) {
+        esperaDock.innerHTML = acaoHtml;
+        esperaDock.hidden = false;
+      } else {
+        esperaDock.innerHTML = '';
+        esperaDock.hidden = true;
+      }
+    }
   },
 
   desenharCriador(partida, _jogadores, { eu }) {

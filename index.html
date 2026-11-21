@@ -15,12 +15,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=49">
-  <link rel="stylesheet" href="./css/telas.css?v=49">
-  <link rel="stylesheet" href="./css/mesa.css?v=49">
-  <link rel="stylesheet" href="./css/gavetas.css?v=49">
-  <link rel="stylesheet" href="./css/online.css?v=49">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=49">
+  <link rel="stylesheet" href="./css/base.css?v=51">
+  <link rel="stylesheet" href="./css/telas.css?v=51">
+  <link rel="stylesheet" href="./css/mesa.css?v=51">
+  <link rel="stylesheet" href="./css/gavetas.css?v=51">
+  <link rel="stylesheet" href="./css/online.css?v=51">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=51">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -707,9 +707,13 @@
 <div id="barra-acoes" class="barra-acoes">
   <div id="timer-turno-wrap" class="timer-turno-wrap" hidden><div id="timer-turno-fill" class="timer-turno-fill"></div></div>
   <div id="minha-mao-wrap" class="minha-mao-wrap" hidden></div>
+  <div id="meu-perfil-dock" class="meu-perfil-dock" hidden></div>
   <div class="barra-controles">
     <div id="erro-barra" class="erro" role="alert"></div>
     <div id="barra-titulo" class="barra-titulo"></div>
+
+    <!-- Modo espera / pronto entre mãos (Online) -->
+    <div id="barra-online-espera" class="barra-online-espera" hidden></div>
 
     <!-- Modo blind -->
     <div id="barra-blind" hidden>
@@ -752,6 +756,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=49"></script>
+<script type="module" src="./js/main.js?v=51"></script>
 </body>
 </html>
