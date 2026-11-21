@@ -1,0 +1,228 @@
+/* =====================================================
+   TELAS DE ENTRADA, SALAS, CRIAÇÃO E CARREGANDO
+   ===================================================== */
+
+/* ----- Login ----- */
+#tela-login.ativa {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100dvh - 40px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+.marca { text-align: center; margin-bottom: 26px; }
+.naipes {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--marfim);
+}
+.naipes .r { color: #ff6b78; }
+.marca h1 {
+  margin-top: 10px;
+  font-size: 76px;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+.marca p {
+  margin: 12px auto 0;
+  max-width: 270px;
+  color: var(--marfim-suave);
+}
+
+/* ----- Lista de salas ----- */
+.cabecalho-conta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cabecalho-conta .ola { font-size: 15px; color: var(--marfim-suave); }
+.cabecalho-conta .ola strong { color: var(--marfim); font-weight: 600; }
+button.sair-conta {
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--marfim-suave);
+  box-shadow: none;
+}
+.linha-botoes { display: flex; gap: 10px; align-items: stretch; }
+.linha-botoes > button:first-child { flex: 1; width: auto; }
+button.botao-dev-entrada { width: auto; min-width: 118px; padding: 12px; font-size: 15px; }
+
+#lista-salas { margin-top: 6px; }
+button.sala {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  text-align: left;
+  background: var(--feltro-800);
+  color: var(--marfim);
+  border: 1.5px solid var(--linha);
+  box-shadow: none;
+}
+button.sala:active:not(:disabled) { transform: scale(0.99); box-shadow: none; }
+button.sala.minha { background: var(--feltro-700); border-color: rgba(155, 28, 49, 0.55); }
+button.sala .sala-info { flex: 1; min-width: 0; }
+button.sala .sala-nome {
+  font-family: var(--fonte-numero);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sala-nome .coroa { color: var(--estrela); vertical-align: -2px; margin-right: 2px; }
+button.sala .sala-detalhe { margin-top: 4px; font-size: 14px; font-weight: 500; color: var(--marfim-suave); }
+button.sala .sala-seta { color: var(--marfim-suave); }
+.vazio {
+  margin-top: 14px;
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--marfim-suave);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--raio-lg);
+}
+
+/* ----- Criar sala e Sala DEV (layout compacto para celular) ----- */
+.duas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.duas label { margin-top: 16px; }
+.atalhos { display: flex; gap: 8px; margin-top: 8px; }
+button.atalho {
+  flex: 1;
+  width: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 6px 4px;
+  font-size: 15px;
+  font-family: var(--fonte-numero);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background: rgba(244, 247, 255, 0.1);
+  color: var(--marfim);
+  box-shadow: none;
+}
+
+.stacks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+button.stack {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--feltro-800);
+  color: var(--marfim);
+  box-shadow: inset 0 0 0 1.5px var(--linha);
+}
+button.stack b { font-family: var(--fonte-numero); font-size: 19px; font-weight: 700; line-height: 1; }
+button.stack small { font-size: 12px; font-weight: 500; color: var(--marfim-suave); }
+button.stack.sel { background: var(--ouro); color: #fff; box-shadow: 0 3px 0 var(--ouro-escuro); }
+button.stack.sel small { color: rgba(255, 255, 255, 0.85); }
+button.stack.especial { margin-top: 8px; min-height: 44px; flex-direction: row; gap: 8px; }
+button.stack.especial b { font-size: 17px; }
+
+.painel-real {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-md);
+}
+.painel-real label { margin-top: 8px; }
+.painel-real .atalhos { margin-top: 0; }
+.painel-real button.atalho { min-height: 38px; }
+.painel-real .dica { margin-top: 4px; font-size: 12px; }
+
+.profund {
+  margin-top: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-md);
+}
+.profund span { display: block; font-size: 14px; font-weight: 600; }
+.profund small { font-size: 13px; color: var(--marfim-suave); }
+.profund strong { font-family: var(--fonte-numero); font-size: 26px; line-height: 1; color: var(--estrela); white-space: nowrap; }
+
+#tela-criar .topo-criar, #tela-dev .topo-criar { display: flex; align-items: center; gap: 4px; }
+#tela-criar .topo-criar h2, #tela-dev .topo-criar h2 { margin: 0; font-size: 28px; }
+#tela-criar .topo-criar button.voltar, #tela-dev .topo-criar button.voltar { margin: 0 0 0 -6px; }
+#tela-criar .cartao, #tela-dev .cartao { margin-top: 6px; padding: 12px; }
+#tela-criar .nome-sala-linha, #tela-dev .nome-sala-linha { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+#tela-criar .nome-sala-linha strong, #tela-dev .nome-sala-linha strong {
+  font-family: var(--fonte-numero);
+  font-size: 24px;
+  line-height: 1.1;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+#tela-criar label, #tela-dev label { margin: 10px 0 4px; font-size: 13px; }
+#tela-criar input, #tela-dev input { min-height: 44px; padding: 8px 10px; font-size: 16px; }
+#tela-criar .trio, #tela-dev .trio { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 8px; }
+#tela-criar .trio label, #tela-dev .trio label { white-space: nowrap; }
+#tela-criar #botao-criar, #tela-dev #botao-criar-dev { margin-top: 10px; min-height: 50px; }
+#tela-criar .erro, #tela-dev .erro { margin-top: 8px; }
+
+/* ----- Escolha de entrada ----- */
+.convite { text-align: center; padding: 8px 0 4px; }
+.convite .rotulo { font-size: 14px; color: var(--marfim-suave); }
+.grande-sala {
+  font-family: var(--fonte-numero);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--estrela);
+  overflow-wrap: anywhere;
+}
+.grande-sala.menor { font-size: 34px; margin-top: 2px; }
+.convite p { margin: 8px 0 0; color: var(--marfim-suave); }
+.convite strong { color: var(--marfim); }
+
+/* ----- Tela de carregando (recarregamento) ----- */
+.restaurando #tela-login { display: none !important; }
+.restaurando #tela-carregando { display: block; }
+.carregando {
+  min-height: 70dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
+}
+.carregando p { margin: 0; max-width: 280px; color: var(--marfim-suave); }
+.carregando-acoes { width: 100%; max-width: 320px; }
+.ficha-giro {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--marfim) 0deg 12deg, var(--vermelho) 12deg 30deg);
+  box-shadow: inset 0 0 0 14px var(--feltro-800), 0 10px 22px -8px rgba(0, 0, 0, 0.6);
+  animation: giro 1.4s linear infinite;
+}
+@keyframes giro { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) and (orientation: portrait) {
+  .marca { margin-bottom: 20px; }
+  .marca h1 { font-size: clamp(60px, 18vw, 76px); }
+}

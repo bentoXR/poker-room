@@ -1,0 +1,261 @@
+/* =====================================================
+   GAVETAS (.folha): HISTÓRICO, CRIADOR, POTES, GUIA, DEV
+   ===================================================== */
+
+.fundo-folha {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.55);
+}
+.folha {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 41;
+  max-width: 560px;
+  max-height: 88dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--feltro-900);
+  border-top: 2px solid var(--linha);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -20px 40px -10px rgba(0, 0, 0, 0.7);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: subir 0.2s ease;
+}
+@keyframes subir { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.folha-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 4px 18px;
+}
+.folha-titulo { display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 600; }
+.folha-titulo .ic { color: var(--estrela); }
+.folha button.fechar {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  background: rgba(244, 247, 255, 0.12);
+  color: var(--marfim);
+  box-shadow: none;
+  border-radius: 50%;
+}
+.folha-corpo {
+  overflow-y: auto;
+  padding: 4px 16px 16px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.folha-rodape { padding: 10px 16px 12px; border-top: 1px solid var(--linha); }
+.folha-rodape button { margin-top: 10px; }
+.folha .cartao-titulo { margin-bottom: 0; }
+
+.grade-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grade-2 button { margin-top: 10px; }
+
+/* ----- Histórico ----- */
+#hist-lista { max-height: none; padding: 0 16px 16px; }
+.hist-linha {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 15px;
+  border-top: 1px solid rgba(244, 247, 255, 0.1);
+}
+.hist-mao {
+  flex-shrink: 0;
+  min-width: 52px;
+  padding-top: 1px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--estrela);
+}
+
+/* ----- Criador: ordem e fichas ----- */
+.linha-ordem { display: flex; align-items: center; gap: 8px; margin-top: 6px; text-align: left; }
+.linha-ordem span { flex: 1; font-weight: 600; }
+.linha-ordem button { width: 48px; min-height: 40px; margin: 0; padding: 0; }
+.linha-ordem button.remover { width: auto; padding: 0 12px; font-size: 14px; }
+#bloco-fichas { margin-top: 4px; }
+
+/* ----- Lista de linhas (DEV e Reais) ----- */
+.linha-dev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--feltro-800);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-md);
+}
+.linha-dev.atual { border-color: var(--ouro); background: var(--feltro-700); }
+.linha-dev .info-dev { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.linha-dev .info-dev small { display: block; font-size: 13px; font-weight: 500; color: var(--marfim-suave); }
+.linha-dev button { width: auto; min-height: 44px; margin: 0; padding: 8px 14px; font-size: 15px; }
+
+/* ----- Guia de mãos ----- */
+.guia-item { padding: 12px 0; border-top: 1px solid var(--linha); }
+.guia-item:first-child { border-top: 0; }
+.guia-topo { display: flex; align-items: center; gap: 10px; }
+.guia-num {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fonte-numero);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--ouro);
+  border-radius: 50%;
+}
+.guia-nome { font-size: 18px; font-weight: 600; line-height: 1.15; }
+.guia-en { font-size: 12.5px; color: var(--marfim-suave); }
+.guia-cartas { display: flex; gap: 6px; margin: 10px 0 8px; }
+.guia-desc { font-size: 14px; color: var(--marfim-suave); }
+.carta-mini {
+  position: relative;
+  width: 42px;
+  aspect-ratio: 5 / 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--marfim);
+  color: #0b1b3a;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+.carta-mini.verm { color: #8f1d2c; }
+.carta-mini .cv { font-family: var(--fonte-numero); font-size: 19px; font-weight: 700; line-height: 1; }
+.carta-mini .cn { font-size: 18px; line-height: 1; }
+.carta-mini.apagada { opacity: 0.35; box-shadow: none; }
+
+/* ----- Distribuição do pote (simples e potes laterais) ----- */
+.linha-premio {
+  display: grid;
+  grid-template-columns: 1fr 84px 96px;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.linha-premio .nome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  min-width: 0;
+}
+.linha-premio .nome .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.linha-premio .nome .voce { font-size: 13px; font-weight: 500; color: var(--marfim-suave); flex-shrink: 0; }
+.linha-premio input { min-height: 52px; padding: 8px 12px; text-align: right; }
+.linha-premio button { min-height: 52px; margin-top: 0; padding: 0; font-size: 15px; }
+
+.soma {
+  margin-top: 14px;
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--raio-sm);
+}
+.soma.ok { background: rgba(59, 130, 246, 0.25); color: #bcd4ff; }
+
+.pote-card {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--feltro-800);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-md);
+}
+.pote-card:first-child { margin-top: 2px; }
+.pote-card.pendente { border-color: rgba(155, 28, 49, 0.85); }
+.pote-card.ok { border-color: rgba(47, 111, 208, 0.8); }
+.pote-card.auto { background: rgba(47, 111, 208, 0.16); border-color: rgba(47, 111, 208, 0.5); }
+
+.pote-card-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pote-card-titulo { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 16px; font-weight: 700; color: #fff; }
+.pote-card-valor { font-family: var(--fonte-numero); font-size: 26px; font-weight: 700; line-height: 1; color: #fff; white-space: nowrap; }
+
+.pote-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba(244, 247, 255, 0.14);
+  color: var(--marfim);
+}
+.pote-badge.pendente { background: rgba(155, 28, 49, 0.45); color: #ffd4db; }
+.pote-badge.ok { background: rgba(47, 111, 208, 0.4); color: #d6e6ff; }
+.pote-card-sub { margin-top: 4px; font-size: 13px; color: var(--marfim-suave); }
+
+.pote-escolhas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.pote-escolhas.um { grid-template-columns: 1fr; }
+.pote-escolhas button.pote-opcao {
+  width: 100%;
+  min-height: 50px;
+  margin: 0;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+}
+.pote-escolhas button.pote-opcao .op-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pote-escolhas button.pote-opcao .op-valor { flex-shrink: 0; font-family: var(--fonte-numero); font-size: 18px; font-weight: 700; }
+
+.pote-auto-box {
+  margin-top: 8px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(6, 13, 36, 0.35);
+  border-radius: var(--raio-sm);
+  font-size: 15px;
+  font-weight: 600;
+}
+.pote-auto-box strong { font-family: var(--fonte-numero); font-size: 20px; color: #bcd4ff; }
+.pote-nota { margin-top: 7px; font-size: 12.5px; color: #bcd4ff; }
+
+.pote-jogadores-lista { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pote-jogadores-lista .tag { padding: 3px 10px; font-size: 13px; color: var(--marfim); background: rgba(244, 247, 255, 0.13); }
+
+button.dist-modo-btn {
+  margin-top: 12px;
+  min-height: 42px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--marfim-suave);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--linha);
+}
+
+.dist-resumo-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 6px; }
+.dist-resumo-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(47, 111, 208, 0.25);
+  color: #dbe8ff;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.dist-resumo-chip b { font-family: var(--fonte-numero); font-size: 16px; margin-left: 3px; color: #fff; }
