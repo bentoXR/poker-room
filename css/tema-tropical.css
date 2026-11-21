@@ -91,11 +91,11 @@
   background-image:
     linear-gradient(
       180deg,
-      rgba(2, 34, 50, 0.42) 0%,
-      rgba(3, 52, 70, 0.28) 45%,
-      rgba(5, 32, 44, 0.56) 100%
+      rgba(2, 30, 48, 0.26) 0%,
+      rgba(2, 44, 62, 0.18) 48%,
+      rgba(3, 28, 42, 0.38) 100%
     ),
-    url("../img/fundo-tropical.jpg") !important;
+    url("../img/fundo-tropical.jpg?v=66") !important;
   background-repeat: no-repeat, no-repeat !important;
   background-position: center center, center center !important;
   background-size: cover, cover !important;
