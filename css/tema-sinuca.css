@@ -1,8 +1,8 @@
 /* =====================================================================
    TEMA SINUCA  (data-tema="classico")
-   Mantém o fundo clássico de madeira mogno envernizada do base.css
-   e traz pano de bilhar esmeralda com caçapas, filetes de latão,
-   cartas Bola 8 e pote em formato de Bola 8.
+   Clima aconchegante de madeira mogno, latão envelhecido e pano verde
+   natural; os detalhes de sinuca ficam concentrados apenas na mesa
+   (pano de bilhar com caçapas nos cantos/lados e pote em Bola 8).
    ===================================================================== */
 
 :root[data-tema="classico"] {
@@ -14,47 +14,43 @@
   --linha: rgba(243, 239, 234, 0.16);
 
   --marfim: #f3efea;
-  --estrela: #f5f2ea;
+  --estrela: #f3efea;
   --marfim-suave: #b8afa6;
   --texto-escuro: #12100e;
 
-  --ouro: #b82525;
-  --ouro-escuro: #731414;
-  --ouro-suave: rgba(184, 37, 37, 0.24);
-  --ouro-borda: rgba(212, 68, 68, 0.72);
+  --ouro: #a62626;
+  --ouro-escuro: #6b1515;
+  --ouro-suave: rgba(166, 38, 38, 0.24);
+  --ouro-borda: rgba(166, 38, 38, 0.72);
 
-  --vermelho: #b82525;
-  --verde: #127a4b;
-  --verde-escuro: #0a4d2f;
-  --verde-suave: rgba(18, 122, 75, 0.28);
+  --vermelho: #a62626;
+  --verde: #2e6f40;
+  --verde-escuro: #1b4728;
+  --verde-suave: rgba(46, 111, 64, 0.28);
   --verde-borda: rgba(197, 155, 39, 0.65);
-  --verde-texto: #e4f8ed;
+  --verde-texto: #e8f5ec;
 
-  --acento: #d9ab3a;
-  --acento-suave: rgba(217, 171, 58, 0.22);
-  --luz-cor: #ebc258;
-  --luz-sombra: rgba(217, 171, 58, 0.75);
+  --acento: #c59b27;
+  --acento-suave: rgba(197, 155, 39, 0.22);
+  --luz-cor: #c59b27;
+  --luz-sombra: rgba(197, 155, 39, 0.72);
 
   --bg-topo: rgba(112, 62, 30, 0.34);
-  /* Faixa superior com as cores clássicas das bolas de sinuca */
   --faixa-topo: linear-gradient(
     90deg,
-    #141418 0 14%,
-    #eab308 14% 28%,
-    #1d4ed8 28% 42%,
-    #c62828 42% 56%,
-    #7e22ce 56% 70%,
-    #ea580c 70% 84%,
-    #10824f 84% 100%
+    #4a2511 0 32%,
+    #c59b27 32% 46%,
+    #1f4f33 46% 78%,
+    #7a2020 78% 100%
   );
 
-  /* Mesa de sinuca: pano esmeralda vivo, borda mogno com caçapas e aro latão */
-  --feltro-mesa: #10824f;
-  --feltro-mesa-borda: #07462a;
-  --feltro-trilha: rgba(217, 171, 58, 0.56);
-  --borda-mesa: #5a2b12;
-  --borda-interna: #261106;
-  --borda-aro: #d9ab3a;
+  /* Mesa de sinuca aconchegante: feltro verde natural, madeira mogno e latão */
+  --feltro-mesa: #1d5736;
+  --feltro-mesa-borda: #103520;
+  --feltro-trilha: rgba(197, 155, 39, 0.48);
+  --borda-mesa: #4e2712;
+  --borda-interna: #261207;
+  --borda-aro: #c59b27;
 
   --pote-bg: #ffffff;
   --pote-bg-2: #e7e3d8;
@@ -62,50 +58,50 @@
   --assento-bg-2: #161311;
   --assento-eu-bg: #362216;
   --assento-eu-bg-2: #24160e;
-  --vez-bg: #d9ab3a;
-  --vez-bg-2: #a87e1b;
+  --vez-bg: #c59b27;
+  --vez-bg-2: #9c791b;
   --vez-tag-bg: #12100e;
 
   --dock-bg: #1b1714;
   --dock-bg-2: #12100e;
   --faixa-bg: #221d19;
   --faixa-bg-2: #171411;
-  --faixa-borda: #d9ab3a;
+  --faixa-borda: #c59b27;
 
   --cartao-bg: #1a1613;
   --cartao-bg-pc: #1a1613;
-  --cartao-borda: rgba(217, 171, 58, 0.34);
+  --cartao-borda: rgba(197, 155, 39, 0.34);
 
-  --verso-bg: #16161a;
-  --verso-simbolo: "🎱";
-  --marca-selo: "🎱  ●  ▲  ●  🎱";
-  --mesa-orn-esq: "🎱  ▲";
-  --mesa-orn-dir: "▲  🎱";
-  --mesa-orn-cor: rgba(245, 242, 234, 0.28);
+  --verso-bg: #7f2020;
+  --verso-simbolo: "♠";
+  --marca-selo: "♠  ♥  ♣  ♦";
+  --mesa-orn-esq: "♠  ♣";
+  --mesa-orn-dir: "♥  ♦";
+  --mesa-orn-cor: rgba(197, 155, 39, 0.28);
 }
 
-/* ----- Pano da mesa com caçapas nos cantos e laterais ----- */
+/* ----- Detalhes da sinuca apenas na mesa: caçapas nos cantos/laterais e pano aconchegante ----- */
 :root[data-tema="classico"] #tela-mesa .centro-roda {
   background-image:
-    radial-gradient(circle at 13% 11%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
-    radial-gradient(circle at 87% 11%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
-    radial-gradient(circle at 13% 89%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
-    radial-gradient(circle at 87% 89%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
-    radial-gradient(circle at 50% 1.5%, #050506 0 9px, #2b1a0c 9.5px 12px, transparent 13px),
-    radial-gradient(circle at 50% 98.5%, #050506 0 9px, #2b1a0c 9.5px 12px, transparent 13px),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 3px),
+    radial-gradient(circle at 13% 11%, #090604 0 10.5px, #2b170b 11px 13.5px, transparent 14.5px),
+    radial-gradient(circle at 87% 11%, #090604 0 10.5px, #2b170b 11px 13.5px, transparent 14.5px),
+    radial-gradient(circle at 13% 89%, #090604 0 10.5px, #2b170b 11px 13.5px, transparent 14.5px),
+    radial-gradient(circle at 87% 89%, #090604 0 10.5px, #2b170b 11px 13.5px, transparent 14.5px),
+    radial-gradient(circle at 50% 1.5%, #090604 0 8.5px, #2b170b 9px 11.5px, transparent 12.5px),
+    radial-gradient(circle at 50% 98.5%, #090604 0 8.5px, #2b170b 9px 11.5px, transparent 12.5px),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0 1px, transparent 1px 3px),
     repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 3px),
     radial-gradient(ellipse at 50% 44%, var(--feltro-mesa) 0%, var(--feltro-mesa-borda) 100%) !important;
 }
 
-/* ----- Pote central em formato de Bola 8 brilhante ----- */
+/* ----- Pote central em formato de Bola 8 sob medida na mesa ----- */
 :root[data-tema="classico"] .pote-ficha {
   padding: 8px;
-  background: radial-gradient(circle at 28% 24%, #555560 0%, #1d1d22 30%, #070709 74%, #000000 100%);
+  background: radial-gradient(circle at 28% 24%, #4f4f58 0%, #1d1d22 30%, #070709 74%, #000000 100%);
   box-shadow:
     inset -3px -4px 8px rgba(0, 0, 0, 0.72),
-    0 14px 28px -10px rgba(0, 0, 0, 0.88),
-    0 0 0 2px rgba(255, 255, 255, 0.14);
+    0 14px 28px -10px rgba(0, 0, 0, 0.85),
+    0 0 0 2px rgba(197, 155, 39, 0.25);
 }
 :root[data-tema="classico"] #tela-mesa.cheia .pote-ficha,
 :root[data-tema="classico"] #tela-mesa.modo-online.cheia .pote-ficha,
@@ -113,30 +109,16 @@
   padding: 5px;
 }
 :root[data-tema="classico"] .pote-ficha .miolo {
-  background: radial-gradient(circle at 36% 32%, #ffffff 0%, #f4f1ea 76%, #dbd5c7 100%);
-  border: 1.5px solid #0e0e11;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.18);
+  background: radial-gradient(circle at 36% 32%, #ffffff 0%, #f3f0e8 76%, #dad3c5 100%);
+  border: 1.5px solid #101013;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.16);
 }
 :root[data-tema="classico"] .pote-rotulo {
-  color: #42424a;
-  opacity: 0.92;
+  color: #46423d;
+  opacity: 0.9;
   font-weight: 800;
 }
 :root[data-tema="classico"] .pote-valor {
-  color: #111114;
+  color: #12100e;
   font-weight: 800;
-}
-
-/* ----- Cartas: verso preto estilo Bola 8 com filete de latão ----- */
-:root[data-tema="classico"] .carta.verso,
-:root[data-tema="classico"] .carta-mini.verso,
-:root[data-tema="classico"] .carta-3d-verso {
-  border-color: rgba(217, 171, 58, 0.52);
-  box-shadow: inset 0 0 0 2px rgba(245, 242, 234, 0.16), 0 4px 10px rgba(0, 0, 0, 0.45);
-}
-
-/* ----- Amostra no seletor (mini Bola 8 no pano verde) ----- */
-.amostra-classico,
-:root[data-tema="classico"] .amostra-dupla {
-  background: radial-gradient(circle at 44% 44%, #ffffff 0 27%, #141418 29% 63%, #10824f 65% 100%) !important;
 }
