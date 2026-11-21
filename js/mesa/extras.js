@@ -1,9 +1,9 @@
 // Recursos compartilhados da mesa: histórico, conversão em R$, guia de mãos e detalhes dos potes
-import { banco } from '../core/supabase.js?v=75';
-import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=75';
-import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=75';
-import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=75';
-import { htmlCartaMini } from '../modos/online/cartas.js?v=75';
+import { banco } from '../core/supabase.js?v=76';
+import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=76';
+import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=76';
+import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=76';
+import { htmlCartaMini } from '../modos/online/cartas.js?v=76';
 
 // ----- Histórico -----
 export function abrirHistorico() {
@@ -49,9 +49,9 @@ export async function carregarValorReal() {
 }
 
 export function abrirReais() {
+  if (!estado.partidaAtual || !(Number(valorPorMil(estado.partidaAtual.id)) > 0)) return;
   atualizarReais(true);
   abrirFolha('folha-reais');
-  if (estado.partidaAtual && !valorPorMil(estado.partidaAtual.id)) carregarValorReal();
 }
 
 function fmtSinalReais(fichas, vPorMil) {
@@ -68,13 +68,20 @@ export function atualizarReais(forcar) {
   const p = estado.partidaAtual;
   if (!p) return;
   const v = valorPorMil(p.id);
+  const temReal = Number(v) > 0;
   const btn = $id('btn-reais');
   if (btn) {
-    btn.hidden = false;
-    btn.textContent = v ? 'R$' : '🏆';
-    btn.dataset.label = v ? 'Acerto R$' : 'Placar';
-    btn.title = v ? 'Placar e acerto em R$' : 'Placar e acerto da mesa';
+    btn.hidden = !temReal;
+    btn.textContent = 'R$';
+    btn.dataset.label = 'Acerto R$';
+    btn.title = 'Placar e acerto em R$';
   }
+  const btnMenu = $id('menu-btn-reais');
+  if (btnMenu) {
+    btnMenu.hidden = !temReal;
+    btnMenu.textContent = '🏆 Placar (R$)';
+  }
+  if (!temReal) return;
   if (!forcar && $id('folha-reais').hidden) return;
 
   const conv = (n) => fmtReais((n / 1000) * v);
