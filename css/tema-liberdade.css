@@ -168,7 +168,7 @@
 :root[data-tema="liberdade"] .pote-valor { color: #e8c872; }
 
 /* ----- Cartas: marfim, naipes vermelho Old Glory / azul-marinho ----- */
-:root[data-tema="liberdade"] .carta { background: #fbf8ef; }
+:root[data-tema="liberdade"] .carta:not(.verso) { background: #fbf8ef; }
 :root[data-tema="liberdade"] .n-s,
 :root[data-tema="liberdade"] .n-c { --cn: #0a1a38; }
 :root[data-tema="liberdade"] .n-h,

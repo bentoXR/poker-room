@@ -8,8 +8,8 @@ const CORES_META = {
 };
 const TITULOS_TEMA = {
   classico: 'Tema: Sinuca (clique para trocar para Preto)',
-  preto: 'Tema: Preto (clique para trocar para EUA)',
-  liberdade: 'Tema: EUA (clique para trocar para Sinuca)'
+  preto: 'Tema: Preto (clique para trocar para USA)',
+  liberdade: 'Tema: USA (clique para trocar para Sinuca)'
 };
 
 function normalizarTema(tema) {
