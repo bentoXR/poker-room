@@ -654,19 +654,16 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 .menu-online-acoes button { margin-top: 0; min-height: 48px; font-size: 16px; }
 
-/* ----- Visual minimalista, limpo e polido para Mobile no Modo Online (sem mexer no Presencial!) ----- */
+/* ----- Ajustes de espaço para Mobile no Modo Online (mesmo estilo de arte do PC e Presencial!) ----- */
 @media (max-width: 819px) {
-  body.na-mesa.modo-online {
-    background: radial-gradient(110% 55% at 50% 35%, #16336e 0%, #091534 65%, #050c20 100%);
-  }
   body.na-mesa.modo-online main {
     padding: calc(6px + env(safe-area-inset-top)) 8px 0;
   }
 
-  /* Topo simétrico e minimalista: [☰]   Mão 1 · 50/100 · 01:49   [♠] */
+  /* Topo enxuto em 1 linha com o mesmo estilo visual da mesa: [☰]  Mão · Blinds · Tempo  [♠] */
   #tela-mesa.modo-online .topo {
     gap: 8px;
-    min-height: 34px;
+    min-height: 36px;
   }
   #tela-mesa.modo-online #btn-voltar-mesa,
   #tela-mesa.modo-online .sala-pill,
@@ -680,53 +677,38 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     display: block !important;
     flex: 1;
     min-width: 0;
-    padding: 5px 12px;
+    padding: 6px 12px;
     border-radius: 999px;
-    background: rgba(6, 13, 36, 0.48);
-    border: 1px solid rgba(244, 247, 255, 0.12);
-    font-size: 12.5px;
+    background: rgba(0, 0, 0, 0.26);
+    font-size: 13px;
     font-weight: 600;
-    letter-spacing: 0.01em;
     text-align: center;
-    color: rgba(244, 247, 255, 0.9);
+    color: var(--marfim);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-variant-numeric: tabular-nums;
   }
   #tela-mesa.modo-online button.icone-btn {
-    width: 34px;
-    height: 34px;
-    min-height: 34px;
-    border-radius: 10px;
-    background: rgba(244, 247, 255, 0.09);
-    border: 1px solid rgba(244, 247, 255, 0.12);
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
   }
-  #tela-mesa.modo-online button.icone-btn .ic { width: 17px; height: 17px; }
-  #tela-mesa.modo-online #btn-guia { font-size: 16px !important; }
 
-  /* Faixa de resultado/confirmação mais enxuta e elegante */
+  /* Faixa de resultado/confirmação com o mesmo estilo de arte do PC, apenas mais enxuta */
   #tela-mesa.modo-online .faixa-online {
     margin-top: 5px;
     padding: 8px 10px;
-    border-radius: 13px;
-    background: rgba(11, 25, 58, 0.92);
-    border: 1px solid rgba(90, 148, 245, 0.45);
   }
   #tela-mesa.modo-online .faixa-online-res { font-size: 13.5px; }
   #tela-mesa.modo-online .faixa-online-sub { margin-top: 2px; font-size: 11.5px; }
   #tela-mesa.modo-online .faixa-online-acoes { margin-top: 6px; gap: 6px; }
-  #tela-mesa.modo-online .faixa-online-acoes button { min-height: 38px; padding: 6px 10px; font-size: 14px; border-radius: 10px; }
+  #tela-mesa.modo-online .faixa-online-acoes button { min-height: 38px; padding: 6px 10px; font-size: 14px; }
 
   #tela-mesa.modo-online .linha-ultima { margin-top: 4px; gap: 6px; }
-  #tela-mesa.modo-online .ultima {
-    font-size: 11.5px;
-    padding: 2px 11px;
-    background: rgba(6, 13, 36, 0.36);
-    color: rgba(244, 247, 255, 0.78);
-  }
+  #tela-mesa.modo-online .ultima { font-size: 12px; padding: 2px 12px; }
 
-  /* Feltro oval fiel ao estilo do Poker Room (mesma identidade do PC e do Presencial) */
+  /* Feltro oval, ficha redonda clássica do pote e 5 cartas sempre 100% visíveis */
   #tela-mesa.modo-online .mesa-wrap { margin-top: 4px; }
   #tela-mesa.modo-online .centro-roda {
     width: 72%;
@@ -735,22 +717,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     gap: 6px;
     padding: 8px 6px;
     overflow: visible;
-    background: radial-gradient(ellipse at 50% 40%, #2a5cb5 0%, #173a7a 58%, #0d2250 100%);
-    box-shadow:
-      inset 0 0 0 2px rgba(244, 247, 255, 0.2),
-      inset 0 0 32px rgba(0, 0, 0, 0.38),
-      0 14px 32px -10px rgba(0, 0, 0, 0.78),
-      0 0 0 5px #08132c,
-      0 0 0 6.5px rgba(244, 247, 255, 0.16);
   }
-  #tela-mesa.modo-online .centro-roda .fase-nome {
-    font-size: 9.5px;
-    padding: 2px 10px;
-    letter-spacing: 0.15em;
-    background: rgba(0, 0, 0, 0.28);
-    color: var(--estrela);
-  }
-  /* Ficha clássica redonda do Pote (mesmo design icônico do PC e do Presencial, em escala ideal pro mobile) */
   #tela-mesa.modo-online .pote-ficha {
     width: 66px;
     height: 66px;
@@ -778,92 +745,26 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   }
   #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 186px; }
   #tela-mesa.modo-online #board.online .slots { gap: 3.5px; }
-  #tela-mesa.modo-online .carta-slot-vazio {
-    border: 1px dashed rgba(244, 247, 255, 0.22);
-    background: rgba(6, 13, 36, 0.24);
-  }
-  #tela-mesa.modo-online .centro-roda .pilula.destaque {
-    font-size: 10.5px;
-    padding: 2px 10px;
-  }
 
-  /* Assentos no Mobile Online: mesma identidade do PC/Presencial, com cartas fechadas em leque no canto */
-  #tela-mesa.modo-online .lugar.assento-redondo {
-    padding: 5px 7px 4px;
-    border-radius: 14px;
-    border-width: 1.5px;
-    border-color: rgba(244, 247, 255, 0.24);
-    background: linear-gradient(180deg, #1d448f, #122a5e);
-    gap: 2px;
-    box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.74), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  }
-  #tela-mesa.modo-online .lugar.assento-redondo.eu {
-    border-color: rgba(244, 247, 255, 0.65);
-    background: linear-gradient(180deg, #275bb8, #183c82);
-  }
-  #tela-mesa.modo-online .lugar.assento-redondo.vez {
-    border-width: 1.5px;
-    border-color: #fff;
-    background: linear-gradient(180deg, #a82238, #701322);
-  }
-  /* Cartas fechadas dos oponentes: par levemente aberto em leque no canto superior direito do assento! */
-  #tela-mesa.modo-online .l-cartas.fechadas {
-    position: absolute;
-    top: -6px;
-    right: 5px;
-    margin: 0;
-    gap: 0;
-    pointer-events: none;
-  }
-  #tela-mesa.modo-online .l-cartas.fechadas .carta {
-    width: 13px;
-    border-radius: 2.5px;
-    border-width: 1px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.55);
-  }
-  #tela-mesa.modo-online .l-cartas.fechadas .carta:first-child { transform: rotate(-7deg); }
-  #tela-mesa.modo-online .l-cartas.fechadas .carta:last-child { margin-left: -4px; transform: rotate(7deg); }
-
-  /* No Showdown, as cartas reveladas aparecem abertas e legíveis dentro do assento */
-  #tela-mesa.modo-online .l-cartas.reveladas { gap: 2.5px; margin-top: 2px; }
+  /* Assentos com exatamente a mesma arte do PC/Presencial, apenas proporcionais para caber até 9 jogadores */
+  #tela-mesa.modo-online .l-cartas .carta { width: 19px; border-radius: 3px; }
   #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 23px; border-radius: 3.5px; }
-
-  /* Assentos ainda mais enxutos quando a mesa tem 7 a 9 jogadores */
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     padding: 3.5px 5px 3px;
-    border-radius: 11px;
+    border-radius: 12px;
     gap: 1px;
   }
+  #tela-mesa.modo-online.cheia .l-cartas .carta { width: 17px; border-radius: 2.5px; }
   #tela-mesa.modo-online.cheia .l-cartas.reveladas .carta { width: 20px; border-radius: 3px; }
   #tela-mesa.modo-online.cheia .l-mao-nome { font-size: 8.5px; padding: 1px 3px; margin-top: 1px; }
   #tela-mesa.modo-online.cheia .l-tags { min-height: 13px; gap: 2px; }
   #tela-mesa.modo-online.cheia .lugar .tag { font-size: 8.5px; line-height: 13px; padding: 0 4px; }
   #tela-mesa.modo-online.cheia .lugar .tag.d { width: 13px; height: 13px; padding: 0; }
 
-  /* Dock inferior minimalista e polido no celular */
-  #barra-acoes.modo-online {
-    padding: 7px 12px calc(9px + env(safe-area-inset-bottom));
-    background: linear-gradient(180deg, rgba(11, 24, 54, 0.96), rgba(5, 11, 28, 0.99));
-    border-top: 1px solid rgba(244, 247, 255, 0.14);
-    border-radius: 20px 20px 0 0;
-  }
-  #barra-acoes.modo-online.minha-vez {
-    border-top: 2px solid #b3263d;
-  }
-  #barra-acoes.modo-online .minha-mao-wrap { gap: 3px; margin-bottom: 4px; }
-  #barra-acoes.modo-online .carta-3d { width: 56px; height: 78px; }
-  #barra-acoes.modo-online .minha-mao-nome { padding: 3px 11px; border-radius: 999px; }
-  #barra-acoes.modo-online .mm-txt { text-align: center; }
-  #barra-acoes.modo-online .mm-txt b { font-size: 12.5px; }
-  #barra-acoes.modo-online .mm-txt small { font-size: 10.5px; }
-  #barra-acoes.modo-online .minha-mao-dica { font-size: 11px; opacity: 0.72; }
-  #barra-acoes.modo-online .barra-titulo { font-size: 13px; margin-bottom: 5px; }
-  #barra-acoes.modo-online .grade-simples { gap: 7px; }
-  #barra-acoes.modo-online .grade-simples button {
-    min-height: 48px;
-    font-size: 16px;
-    border-radius: 12px;
-  }
+  /* Dock inferior com o mesmo estilo da mesa */
+  #barra-acoes.modo-online { padding: 7px 10px calc(9px + env(safe-area-inset-bottom)); }
+  #barra-acoes.modo-online .minha-mao-wrap { gap: 4px; margin-bottom: 5px; }
+  #barra-acoes.modo-online .carta-3d { width: 58px; height: 81px; }
 }
 
 
