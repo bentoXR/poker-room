@@ -1,15 +1,15 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=13';
-import { estado, nomeDe } from '../../core/estado.js?v=13';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=13';
-import { lerDevSala } from '../../core/storage.js?v=13';
-import { registrarModo } from '../../mesa/modos.js?v=13';
-import { executar } from '../../mesa/apostas.js?v=13';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=13';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=13';
-import { avaliarMaoLocal } from './maos.js?v=13';
+import { banco } from '../../core/supabase.js?v=14';
+import { estado, nomeDe } from '../../core/estado.js?v=14';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=14';
+import { lerDevSala } from '../../core/storage.js?v=14';
+import { registrarModo } from '../../mesa/modos.js?v=14';
+import { executar } from '../../mesa/apostas.js?v=14';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=14';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=14';
+import { avaliarMaoLocal } from './maos.js?v=14';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -466,15 +466,17 @@ async function sincronizarMinhasCartas(partida, eu) {
   }
 }
 
-export function virarMinhaCarta(indice) {
-  if (!onlineUI.minhasCartas || indice < 0 || indice > 1) return;
-  onlineUI.viradas[indice] = !onlineUI.viradas[indice];
+export function virarMinhaCarta(_indice) {
+  if (!onlineUI.minhasCartas) return;
+  const abrir = !(onlineUI.viradas[0] && onlineUI.viradas[1]);
+  onlineUI.viradas = [abrir, abrir];
   onlineUI.mostrouDica = true;
   try { if (navigator.vibrate) navigator.vibrate(10); } catch (erro) {}
-  const btn = document.querySelector('#minha-mao-wrap .carta-3d[data-idx="' + indice + '"]');
-  if (btn) btn.classList.toggle('virada', onlineUI.viradas[indice]);
+  document.querySelectorAll('#minha-mao-wrap .carta-3d').forEach((btn) => {
+    btn.classList.toggle('virada', abrir);
+  });
   const dica = document.querySelector('#minha-mao-wrap .minha-mao-dica');
-  if (dica) dica.textContent = (onlineUI.viradas[0] || onlineUI.viradas[1]) ? 'Toque novamente para esconder' : 'Toque na carta para espiar';
+  if (dica) dica.textContent = abrir ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar';
   atualizarLuzes();
 }
 
@@ -557,7 +559,7 @@ function desenharMinhaMao(partida, eu) {
     ? 'Quer mostrar seu blefe ou sua mão para a mesa?'
     : (eu.mao_nome && emPausa
         ? 'Sua mão: ' + escapar(eu.mao_nome)
-        : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque na carta para espiar'));
+        : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar'));
 
   wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas">' + cartasHtml + '</div></div>'
     + '<div class="minha-mao-nome" id="minha-mao-nome" hidden></div>'

@@ -1,55 +1,55 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=13';
-import { estado } from './core/estado.js?v=13';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=13';
+import { banco } from './core/supabase.js?v=14';
+import { estado } from './core/estado.js?v=14';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=14';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=13';
-import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=13';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=13';
+} from './core/ui.js?v=14';
+import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=14';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=14';
 
-import { registrarHooksAuth, fazerLogin, criarConta, sairDaConta } from './lobby/auth.js?v=13';
+import { registrarHooksAuth, fazerLogin, criarConta, sairDaConta } from './lobby/auth.js?v=14';
 import {
   abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js?v=13';
+} from './lobby/salas.js?v=14';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev
-} from './lobby/config-sala.js?v=13';
+} from './lobby/config-sala.js?v=14';
 
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa, registrarTickOnline
-} from './mesa/mesa.js?v=13';
+} from './mesa/mesa.js?v=14';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
   aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=13';
+} from './mesa/apostas.js?v=14';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal
-} from './mesa/extras.js?v=13';
+} from './mesa/extras.js?v=14';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=13';
+} from './modos/presencial/acoes.js?v=14';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=13';
+} from './modos/presencial/distribuir.js?v=14';
 import {
   registrarHooksDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=13';
+} from './modos/presencial/dev.js?v=14';
 import {
   virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI
-} from './modos/online/online.js?v=13';
+} from './modos/online/online.js?v=14';
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
