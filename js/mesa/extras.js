@@ -1,9 +1,9 @@
 // Recursos compartilhados da mesa: histórico, conversão em R$, guia de mãos e detalhes dos potes
-import { banco } from '../core/supabase.js?v=54';
-import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=54';
-import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=54';
-import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=54';
-import { htmlCartaMini } from '../modos/online/cartas.js?v=54';
+import { banco } from '../core/supabase.js?v=56';
+import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=56';
+import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=56';
+import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=56';
+import { htmlCartaMini } from '../modos/online/cartas.js?v=56';
 
 // ----- Histórico -----
 export function abrirHistorico() {

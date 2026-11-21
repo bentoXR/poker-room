@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=54';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=54';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=54';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=54';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=54';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=54';
-import { obterModo } from './modos.js?v=54';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=54';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=54';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=54';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=54';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=54';
+import { banco } from '../core/supabase.js?v=56';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=56';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=56';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=56';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=56';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=56';
+import { obterModo } from './modos.js?v=56';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=56';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=56';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=56';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=56';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=56';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -399,16 +399,16 @@ const POSICOES_DESKTOP_ONLINE = {
   9: [[50, 91], [15, 81], [9, 52], [13, 22], [34, 9], [66, 9], [87, 22], [91, 52], [85, 81]]
 };
 
-// Coordenadas (x%, y%) APENAS dos adversários (1..8) no Modo Online quando seu perfil está mesclado ao dock inferior!
+// Coordenadas (x%, y%) APENAS dos adversários (1..8) no Modo Online (mesa centrada sem sobrepor os cards!)
 const POSICOES_OPONENTES_MOBILE = {
-  1: [[50, 12]],
-  2: [[18, 18], [82, 18]],
-  3: [[14, 48], [50, 10], [86, 48]],
-  4: [[15, 76], [17, 17], [83, 17], [85, 76]],
-  5: [[15, 76], [15, 24], [50, 10], [85, 24], [85, 76]],
-  6: [[15, 76], [13, 36], [33, 10], [67, 10], [87, 36], [85, 76]],
-  7: [[15, 78], [12, 46], [18, 18], [50, 10], [82, 18], [88, 46], [85, 78]],
-  8: [[15, 79], [12, 48], [17, 21], [35, 10], [65, 10], [83, 21], [88, 48], [85, 79]]
+  1: [[50, 14]],
+  2: [[22, 18], [78, 18]],
+  3: [[20, 27], [50, 10], [80, 27]],
+  4: [[21, 86], [21, 16], [79, 16], [79, 86]],
+  5: [[21, 87], [18, 28], [50, 10], [82, 28], [79, 87]],
+  6: [[21, 88], [16, 48], [26, 12], [74, 12], [84, 48], [79, 88]],
+  7: [[21, 88], [15, 54], [18, 23], [50, 9], [82, 23], [85, 54], [79, 88]],
+  8: [[21, 88], [15, 56], [17, 27], [34, 9], [66, 9], [83, 27], [85, 56], [79, 88]]
 };
 
 const POSICOES_OPONENTES_DESKTOP = {
@@ -449,6 +449,14 @@ function montarTagsAssento({ j, partida, naVez, ehProximo, emEsperaOnline, premi
   return tags;
 }
 
+function classePosicaoBorda(j, partida) {
+  if (!partida || !partida.iniciada || !j) return 'pos-none';
+  if (j.id === partida.dealer_jogador_id) return 'pos-d';
+  if (j.id === partida.bb_jogador_id) return 'pos-bb';
+  if (j.id === partida.sb_jogador_id) return 'pos-sb';
+  return 'pos-none';
+}
+
 function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnline, modo }) {
   const dock = $id('meu-perfil-dock');
   if (!dock) return;
@@ -471,10 +479,11 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   else if (eu.desistiu) classes += ' desistiu';
 
   const corFicha = 'c' + (((Number(eu.ordem) || 1) - 1) % 8 + 1);
+  const posBorda = classePosicaoBorda(eu, partida);
   const avatarUrl = obterAvatarUrl(eu.conta_id);
   const badgePerfilHtml = avatarUrl
-    ? '<div class="l-avatar ' + corFicha + '"><img src="' + avatarUrl + '" alt=""></div>'
-    : '<div class="ficha ' + corFicha + '">' + eu.ordem + '</div>';
+    ? '<div class="l-avatar ' + corFicha + ' ' + posBorda + '"><img src="' + avatarUrl + '" alt=""></div>'
+    : '<div class="ficha ' + corFicha + ' ' + posBorda + '">' + eu.ordem + '</div>';
 
   const tags = montarTagsAssento({
     j: eu,
@@ -602,25 +611,24 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVwAssento + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
     const coroaHtml = (!ehOnline && j.criador) ? ICONE_COROA : '';
+    const posBorda = classePosicaoBorda(j, partida);
     const avatarUrl = obterAvatarUrl(j.conta_id);
     const badgePerfilHtml = avatarUrl
-      ? '<div class="l-avatar ' + corFicha + '"><img src="' + avatarUrl + '" alt=""></div>'
-      : '<div class="ficha ' + corFicha + '">' + j.ordem + '</div>';
+      ? '<div class="l-avatar ' + corFicha + ' ' + posBorda + '"><img src="' + avatarUrl + '" alt=""></div>'
+      : '<div class="ficha ' + corFicha + ' ' + posBorda + '">' + j.ordem + '</div>';
+    const linha2TemConteudo = !!(tags || j.apostou > 0);
 
     return `
       <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
-        <div class="l-cab">
-          ${badgePerfilHtml}
-          <div class="l-info">
+        ${badgePerfilHtml}
+        <div class="l-corpo">
+          <div class="l-linha1">
             <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
-            <div class="l-meio">
-              <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
-              ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
-            </div>
+            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
           </div>
+          ${linha2TemConteudo ? '<div class="l-linha2"><div class="l-tags">' + tags + '</div>' + (j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : '') + '</div>' : ''}
         </div>
         ${cartasHtml}
-        <div class="l-tags">${tags}</div>
         ${(naVez && ehOnline && Number(partida.tempo_turno) > 0) ? '<div class="l-timer"><i></i></div>' : ''}
       </div>
     `;
@@ -628,6 +636,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
   $id('tela-mesa').classList.toggle('muitos', nJ > 5);
   $id('tela-mesa').classList.toggle('cheia', nJ >= 7);
+  $id('tela-mesa').classList.toggle('poucos-op', heroNoDock && nMesa <= 3);
   if (htmlLista !== estado.htmlJogadoresVisto) {
     estado.htmlJogadoresVisto = htmlLista;
     $id('lista-jogadores').innerHTML = htmlLista;

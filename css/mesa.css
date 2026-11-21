@@ -340,14 +340,15 @@ button.dev-prox {
 
 .l-avatar {
   --cor: #ffffff;
-  width: calc(36px * var(--escala-lugar, 1));
-  height: calc(36px * var(--escala-lugar, 1));
+  width: calc(40px * var(--escala-lugar, 1));
+  height: calc(40px * var(--escala-lugar, 1));
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid var(--cor);
+  border: 0;
   background: var(--feltro-950);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 0.25s ease;
 }
 .l-avatar img {
   display: block;
@@ -355,7 +356,31 @@ button.dev-prox {
   height: 100%;
   object-fit: cover;
 }
-.lugar.vez .l-avatar { border-color: #ffffff; }
+/* Borda fina automática por posição na rodada: Branca (D), Dourada (BB), Prateada (SB), nenhuma nas demais */
+.l-avatar.pos-none,
+.lugar .ficha.pos-none,
+.meu-perfil-dock .ficha.pos-none {
+  border: 0;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.68);
+}
+.l-avatar.pos-d,
+.lugar .ficha.pos-d,
+.meu-perfil-dock .ficha.pos-d {
+  border: 0;
+  box-shadow: 0 0 0 2px #ffffff, 0 5px 14px rgba(0, 0, 0, 0.72);
+}
+.l-avatar.pos-bb,
+.lugar .ficha.pos-bb,
+.meu-perfil-dock .ficha.pos-bb {
+  border: 0;
+  box-shadow: 0 0 0 2px #f5c542, 0 5px 14px rgba(0, 0, 0, 0.72);
+}
+.l-avatar.pos-sb,
+.lugar .ficha.pos-sb,
+.meu-perfil-dock .ficha.pos-sb {
+  border: 0;
+  box-shadow: 0 0 0 2px #cbd5e1, 0 5px 14px rgba(0, 0, 0, 0.72);
+}
 
 /* ----- Assentos dos jogadores ----- */
 .lugar {
@@ -383,42 +408,59 @@ button.dev-prox {
 
 .lugar.assento-redondo {
   position: absolute;
-  width: var(--w, 90px);
-  left: clamp(calc(var(--w, 90px) / 2 + 2px), var(--x, 50%), calc(100% - var(--w, 90px) / 2 - 2px));
-  top: clamp(38px, var(--y, 50%), calc(100% - 38px));
+  width: var(--w, 120px);
+  left: clamp(calc(var(--w, 120px) / 2 + 14px), var(--x, 50%), calc(100% - var(--w, 120px) / 2 - 4px));
+  top: clamp(36px, var(--y, 50%), calc(100% - 34px));
   min-width: 0;
-  min-height: 0;
-  padding: 5px 6px 4px;
+  min-height: 36px;
+  padding: 6px 8px 6px 34px;
   transform: translate(-50%, -50%);
-  border-radius: 17px;
+  border-radius: 15px;
   gap: 2px;
+  overflow: visible;
   pointer-events: auto;
   z-index: 2;
   font-size: calc(12px * var(--escala-lugar, 1));
   box-shadow: 0 5px 14px -6px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .lugar.assento-redondo.eu { z-index: 4; }
-.lugar.assento-redondo.vez { z-index: 5; border-radius: 19px; }
+.lugar.assento-redondo.vez { z-index: 5; border-radius: 17px; }
 
-.l-cab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
+/* Foto / ficha parcialmente saltada para fora do canto superior esquerdo do card */
+.lugar.assento-redondo > .l-avatar,
+.lugar.assento-redondo > .ficha {
+  position: absolute;
+  top: -10px;
+  left: -12px;
+  z-index: 4;
+  width: calc(40px * var(--escala-lugar, 1));
+  height: calc(40px * var(--escala-lugar, 1));
 }
-.l-info {
-  flex: 1;
-  min-width: 0;
+.lugar.assento-redondo > .ficha {
+  font-size: calc(15px * var(--escala-lugar, 1));
+}
+.l-corpo {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
+  min-width: 0;
 }
+.l-linha1 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+}
+.l-linha2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+}
+.l-linha2 .l-aposta { margin-left: auto; }
 .l-topo { display: flex; align-items: center; gap: 3px; min-width: 0; }
-.lugar.assento-redondo .ficha {
-  width: calc(26px * var(--escala-lugar, 1));
-  height: calc(26px * var(--escala-lugar, 1));
-  font-size: calc(13px * var(--escala-lugar, 1));
-}
 .l-nome {
   flex: 1;
   min-width: 0;
@@ -619,13 +661,13 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
   .centro-roda { width: 70%; height: 69%; padding: 9px 7px; gap: 7px; }
   .centro-roda .pote-ficha { width: clamp(58px, 18vw, 82px); height: clamp(58px, 18vw, 82px); }
   .centro-roda .board { width: 88%; max-width: 190px; }
-  .lugar.assento-redondo { padding: 4px 5px 3px; border-width: 1.5px; border-radius: 15px; }
+  .lugar.assento-redondo { padding: 5px 7px 5px 32px; border-width: 1.5px; border-radius: 14px; }
   .barra-acoes { padding-left: 12px; padding-right: 12px; }
   .barra-acoes .presets button { min-height: 44px; }
 }
 @media (max-width: 360px) {
   .centro-roda { width: 68%; height: 67%; padding-left: 5px; padding-right: 5px; }
-  .lugar.assento-redondo { padding: 3px 4px; }
+  .lugar.assento-redondo { padding: 5px 6px 5px 30px; }
 }
 @media (max-height: 700px) {
   .centro-roda { gap: 7px; padding-top: 8px; padding-bottom: 8px; }
@@ -699,15 +741,20 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
     gap: 6px;
   }
   #tela-mesa .lugar.assento-redondo {
-    top: clamp(44px, var(--y, 50%), calc(100% - 48px));
-    padding: 6px 11px 6px;
+    top: clamp(46px, var(--y, 50%), calc(100% - 48px));
+    padding: 8px 12px 8px 44px;
     border-radius: 16px;
     gap: 3px;
   }
-  #tela-mesa .l-cab { gap: 9px; }
+  #tela-mesa .lugar.assento-redondo > .l-avatar,
+  #tela-mesa .lugar.assento-redondo > .ficha {
+    top: -12px;
+    left: -14px;
+    width: 48px;
+    height: 48px;
+  }
+  #tela-mesa .lugar.assento-redondo > .ficha { font-size: 18px; }
   #tela-mesa .l-topo { gap: 7px; }
-  #tela-mesa .l-avatar { width: 46px; height: 46px; border-width: 2.5px; }
-  #tela-mesa .lugar.eu .l-avatar { width: 48px; height: 48px; }
 
   /* Barra de ações flutuante em 1 linha no PC */
   #barra-acoes {

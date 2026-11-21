@@ -997,9 +997,14 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     overflow: visible;
   }
   #tela-mesa.modo-online.hero-no-dock .centro-roda {
-    top: 56%;
+    top: 52%;
     width: 62%;
-    height: 60%;
+    height: 48%;
+  }
+  #tela-mesa.modo-online.hero-no-dock.poucos-op .centro-roda {
+    top: 63%;
+    width: 68%;
+    height: 58%;
   }
   #tela-mesa.modo-online .pote-ficha {
     width: 56px;
@@ -1030,23 +1035,36 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online #board.online .slots { gap: 3px; }
   #tela-mesa.modo-online .centro-roda .pilula.destaque { font-size: 10px; padding: 2px 8px; }
 
-  /* Assentos com exatamente a mesma arte do PC/Presencial, sem sobrepor a linha de última jogada no topo */
+  /* Aviso "SUA VEZ" centralizado no vão livre inferior para nunca cobrir assento da direita */
+  #tela-mesa.modo-online .anuncio-vez {
+    left: 50%;
+    right: auto;
+    bottom: 6px;
+    transform: translateX(-50%);
+  }
+
+  /* Assentos com foto saltada para fora: margens seguras no topo e nas bordas */
   #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(50px, var(--y, 50%), calc(100% - 40px));
+    top: clamp(36px, var(--y, 50%), calc(100% - 34px));
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    top: clamp(40px, var(--y, 50%), calc(100% - 34px));
+    top: clamp(34px, var(--y, 50%), calc(100% - 30px));
+    padding: 4px 6px 4px 28px;
+    border-radius: 12px;
+    gap: 1px;
+  }
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo > .l-avatar,
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo > .ficha {
+    top: -8px;
+    left: -10px;
+    width: 34px;
+    height: 34px;
   }
   /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
   #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
   #tela-mesa.modo-online .l-cartas.fechadas { top: -14px; right: 6px; }
   #tela-mesa.modo-online .l-cartas.fechadas .carta { width: 12.5px; border-radius: 2.5px; }
   #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 21px; border-radius: 3.5px; }
-  #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    padding: 3.5px 5px 3px;
-    border-radius: 12px;
-    gap: 1px;
-  }
   #tela-mesa.modo-online.cheia .l-cartas.fechadas .carta { width: 13px; border-radius: 2.5px; }
   #tela-mesa.modo-online.cheia .l-cartas.reveladas .carta { width: 19px; border-radius: 3px; }
   #tela-mesa.modo-online.cheia .l-mao-nome { font-size: 8.5px; padding: 1px 3px; margin-top: 1px; }
@@ -1191,13 +1209,20 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 }
 
 @media (max-width: 374px) {
-  #tela-mesa.modo-online .centro-roda {
-    width: 56%;
-    height: 54%;
+  #tela-mesa.modo-online:not(.poucos-op) .centro-roda {
+    width: 60%;
+    height: 48%;
     padding: 6px 4px;
     gap: 4px;
   }
-  #tela-mesa.modo-online .centro-roda .board { max-width: 156px; }
+  #tela-mesa.modo-online.poucos-op .centro-roda {
+    width: 72%;
+    height: 56%;
+    top: 63%;
+    padding: 6px 5px;
+    gap: 4px;
+  }
+  #tela-mesa.modo-online .centro-roda .board { max-width: 162px; }
 }
 
 @media (max-width: 359px) {
@@ -1210,19 +1235,19 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   }
   .opcoes-online button.op-chip { min-width: 48px; }
   #tela-mesa.modo-online .linha-ultima { display: none; }
-  #tela-mesa.modo-online .centro-roda,
+  #tela-mesa.modo-online:not(.poucos-op) .centro-roda,
   #tela-mesa.modo-online.cheia .centro-roda {
-    width: 54%;
-    height: 50%;
+    width: 56%;
+    height: 46%;
     padding: 4px;
     gap: 3px;
   }
   #tela-mesa.modo-online.cheia .pote-ficha { width: 42px; height: 42px; padding: 3px; }
   #tela-mesa.modo-online .centro-roda .board,
-  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 136px; }
+  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 144px; }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    top: clamp(22px, var(--y, 50%), calc(100% - 28px));
-    padding: 2px 4px;
+    top: clamp(28px, var(--y, 50%), calc(100% - 28px));
+    padding: 3px 5px 3px 26px;
   }
   #barra-acoes.modo-online .minha-mao-dica { display: none; }
 }
