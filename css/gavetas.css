@@ -334,6 +334,11 @@ button.dist-modo-btn {
 #folha-perfil #btn-encerrar-sessoes { min-height: 46px; font-size: 15.5px; }
 
 @media (min-width: 820px) {
+  .perfil-avatar-grande {
+    width: 96px !important;
+    height: 96px !important;
+    font-size: 42px !important;
+  }
   #fundo-perfil {
     background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(4px);

@@ -644,6 +644,7 @@ button.stack.especial b { font-size: 16.5px; }
     max-width: 920px;
     margin: 0 auto;
   }
+  #tela-salas .avatar-conta { width: 48px; height: 48px; font-size: 24px; }
   #tela-salas .cabecalho-conta .ola { font-size: 16.5px; }
   .salas-topo {
     margin-top: 24px;

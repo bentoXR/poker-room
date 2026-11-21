@@ -992,15 +992,21 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
   /* Assentos ao redor do feltro horizontal (sem invadir o interior da mesa) */
   #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(44px, var(--y, 50%), calc(100% - 42px));
-    padding: 7px 11px 6px;
+    top: clamp(44px, var(--y, 50%), calc(100% - 48px));
+    padding: 6px 11px 6px;
     border-radius: 16px;
     gap: 3px;
     box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
+  #tela-mesa.modo-online .l-topo { gap: 7px; }
   #tela-mesa.modo-online .l-avatar {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
+    border-width: 2.5px;
+  }
+  #tela-mesa.modo-online .lugar.eu .l-avatar {
+    width: 44px;
+    height: 44px;
   }
   #tela-mesa.modo-online .lugar .tag {
     padding: 0 6px;

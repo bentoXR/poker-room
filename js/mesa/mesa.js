@@ -1,15 +1,15 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=17';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=17';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=17';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=17';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=17';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=17';
-import { obterModo } from './modos.js?v=17';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=17';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=17';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=17';
+import { banco } from '../core/supabase.js?v=18';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=18';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=18';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=18';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=18';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=18';
+import { obterModo } from './modos.js?v=18';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=18';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=18';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=18';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
