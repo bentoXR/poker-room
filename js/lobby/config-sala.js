@@ -1,8 +1,8 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=15';
-import { estado, marcarReal } from '../core/estado.js?v=15';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=15';
+import { banco } from '../core/supabase.js?v=16';
+import { estado, marcarReal } from '../core/estado.js?v=16';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=16';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -114,10 +114,10 @@ export function definirReais(v, p) {
   atualizarProfundidade(p);
 }
 
-function ajustarReal(p) {
+function ajustarBlinds(p) {
   const i = idsCfg(p);
   const s = parseInt($id(i.saldo).value);
-  if (cfgReal[p] && s > 0) {
+  if (s > 0) {
     const b = blinds100(s);
     $id(i.small).value = b[0];
     $id(i.big).value = b[1];
@@ -125,8 +125,8 @@ function ajustarReal(p) {
   atualizarProfundidade(p);
 }
 
-export function aoEditarConfig() { setTimeout(() => ajustarReal(''), 0); }
-export function aoEditarConfigDev() { setTimeout(() => ajustarReal('dev'), 0); }
+export function aoEditarConfig() { setTimeout(() => ajustarBlinds(''), 0); }
+export function aoEditarConfigDev() { setTimeout(() => ajustarBlinds('dev'), 0); }
 
 export function atualizarProfundidade(p) {
   p = p || '';

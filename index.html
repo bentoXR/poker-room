@@ -14,11 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=15">
-  <link rel="stylesheet" href="./css/telas.css?v=15">
-  <link rel="stylesheet" href="./css/mesa.css?v=15">
-  <link rel="stylesheet" href="./css/gavetas.css?v=15">
-  <link rel="stylesheet" href="./css/online.css?v=15">
+  <link rel="stylesheet" href="./css/base.css?v=16">
+  <link rel="stylesheet" href="./css/telas.css?v=16">
+  <link rel="stylesheet" href="./css/mesa.css?v=16">
+  <link rel="stylesheet" href="./css/gavetas.css?v=16">
+  <link rel="stylesheet" href="./css/online.css?v=16">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -203,7 +203,7 @@
         </div>
       </div>
 
-      <div class="secao-titulo"><span class="passo-num">2</span> Fichas iniciais e blinds</div>
+      <div class="secao-titulo"><span class="passo-num">2</span> Fichas iniciais</div>
       <div class="stacks" id="stacks">
         <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
@@ -212,34 +212,18 @@
       </div>
       <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')">
         <b>Referência em R$</b>
-        <small>opcional · mantém <strong>100 BB</strong></small>
+        <small>opcional</small>
       </button>
       <div class="painel-real" id="painel-real" hidden>
-        <div class="atalhos">
-          <button type="button" class="atalho" onclick="definirReais(0.5,'')">R$ 0,50</button>
-          <button type="button" class="atalho" onclick="definirReais(1,'')">R$ 1</button>
-          <button type="button" class="atalho" onclick="definirReais(2,'')">R$ 2</button>
-          <button type="button" class="atalho" onclick="definirReais(5,'')">R$ 5</button>
-        </div>
         <label for="campo-reais">Valor por jogador (R$)</label>
         <input id="campo-reais" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('')">
         <p class="dica" id="reais-res"></p>
       </div>
 
-      <div class="trio">
-        <div>
-          <label for="campo-saldo">Fichas</label>
-          <input id="campo-saldo" type="number" inputmode="numeric" value="10000" oninput="aoEditarConfig()">
-        </div>
-        <div>
-          <label for="campo-small">Small blind</label>
-          <input id="campo-small" type="number" inputmode="numeric" value="50" oninput="aoEditarConfig()">
-        </div>
-        <div>
-          <label for="campo-big">Big blind</label>
-          <input id="campo-big" type="number" inputmode="numeric" value="100" oninput="aoEditarConfig()">
-        </div>
-      </div>
+      <label for="campo-saldo">Fichas</label>
+      <input id="campo-saldo" type="number" inputmode="numeric" value="10000" oninput="aoEditarConfig()">
+      <input id="campo-small" type="number" value="50" hidden>
+      <input id="campo-big" type="number" value="100" hidden>
 
       <div class="profund">
         <div><span id="prof-rotulo">Ritmo da mesa</span><small id="prof-det"></small></div>
@@ -313,7 +297,7 @@
       </div>
       <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4" hidden>
 
-      <div class="secao-titulo"><span class="passo-num">3</span> Fichas iniciais e blinds</div>
+      <div class="secao-titulo"><span class="passo-num">3</span> Fichas iniciais</div>
       <div class="stacks" id="stacks-dev">
         <button type="button" class="stack" data-s="1000" onclick="escolherStackDev(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStackDev(2000)"><b>2.000</b></button>
@@ -322,34 +306,18 @@
       </div>
       <button type="button" class="stack especial" id="stack-real-dev" onclick="alternarReal('dev')">
         <b>Referência em R$</b>
-        <small>opcional · mantém <strong>100 BB</strong></small>
+        <small>opcional</small>
       </button>
       <div class="painel-real" id="painel-real-dev" hidden>
-        <div class="atalhos">
-          <button type="button" class="atalho" onclick="definirReais(0.5,'dev')">R$ 0,50</button>
-          <button type="button" class="atalho" onclick="definirReais(1,'dev')">R$ 1</button>
-          <button type="button" class="atalho" onclick="definirReais(2,'dev')">R$ 2</button>
-          <button type="button" class="atalho" onclick="definirReais(5,'dev')">R$ 5</button>
-        </div>
         <label for="campo-reais-dev">Valor por jogador (R$)</label>
         <input id="campo-reais-dev" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('dev')">
         <p class="dica" id="reais-res-dev"></p>
       </div>
 
-      <div class="trio">
-        <div>
-          <label for="campo-dev-saldo">Fichas</label>
-          <input id="campo-dev-saldo" type="number" inputmode="numeric" value="10000" oninput="aoEditarConfigDev()">
-        </div>
-        <div>
-          <label for="campo-dev-small">Small blind</label>
-          <input id="campo-dev-small" type="number" inputmode="numeric" value="50" oninput="aoEditarConfigDev()">
-        </div>
-        <div>
-          <label for="campo-dev-big">Big blind</label>
-          <input id="campo-dev-big" type="number" inputmode="numeric" value="100" oninput="aoEditarConfigDev()">
-        </div>
-      </div>
+      <label for="campo-dev-saldo">Fichas</label>
+      <input id="campo-dev-saldo" type="number" inputmode="numeric" value="10000" oninput="aoEditarConfigDev()">
+      <input id="campo-dev-small" type="number" value="50" hidden>
+      <input id="campo-dev-big" type="number" value="100" hidden>
 
       <div class="profund">
         <div><span id="prof-rotulo-dev">Ritmo da mesa</span><small id="prof-det-dev"></small></div>
@@ -753,6 +721,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=15"></script>
+<script type="module" src="./js/main.js?v=16"></script>
 </body>
 </html>
