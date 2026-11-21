@@ -83,6 +83,34 @@
   height: 4px;
   background: var(--faixa-topo);
 }
+.auth-abas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--linha);
+}
+button.auth-aba {
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--marfim-suave);
+  box-shadow: none;
+}
+button.auth-aba.sel {
+  background: var(--feltro-700);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+button.auth-aba:active:not(:disabled) { transform: scale(0.98); box-shadow: none; }
 .cartao-cabecalho {
   margin-bottom: 16px;
   padding-bottom: 12px;
@@ -112,17 +140,44 @@
   padding-bottom: 14px;
   border-bottom: 1px solid var(--linha);
 }
-.ola-wrap {
-  display: flex;
+button.perfil-atalho {
+  width: auto;
+  min-height: 46px;
+  margin: 0;
+  padding: 4px 12px 4px 4px;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  color: var(--marfim);
+  box-shadow: none;
+}
+button.perfil-atalho:active:not(:disabled) { transform: scale(0.98); box-shadow: none; }
+.ola-txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+.perfil-sub {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--marfim-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .avatar-conta {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   border-radius: 50%;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -131,7 +186,17 @@
   font-weight: 700;
   color: #fff;
   background: var(--ouro);
-  box-shadow: 0 3px 0 var(--ouro-escuro), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+  box-shadow: 0 3px 0 var(--ouro-escuro), inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+.avatar-conta.com-foto {
+  background: var(--feltro-950);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.72);
+}
+.avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .cabecalho-conta .ola {
   font-size: 15.5px;

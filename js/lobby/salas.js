@@ -1,18 +1,17 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=14';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=14';
-import { guardarMeuJogador } from '../core/storage.js?v=14';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=14';
-import { tratarErroConta } from './auth.js?v=14';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=14';
-import { abrirMesa } from '../mesa/mesa.js?v=14';
+import { banco } from '../core/supabase.js?v=15';
+import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=15';
+import { guardarMeuJogador } from '../core/storage.js?v=15';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=15';
+import { tratarErroConta } from './auth.js?v=15';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=15';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=15';
+import { abrirMesa } from '../mesa/mesa.js?v=15';
 
 export function abrirSalas() {
   pararSalas();
-  const nome = estado.minhaConta.nome || '';
-  $id('salas-nome').textContent = nome;
-  const av = $id('salas-avatar');
-  if (av) av.textContent = nome.trim().charAt(0).toUpperCase() || '♠';
+  atualizarCabecalhoPerfil();
+  sincronizarMeuPerfil();
   limparErro('erro-salas');
   mostrar('tela-salas');
   if (!estado.htmlSalas) {

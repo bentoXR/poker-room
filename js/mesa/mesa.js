@@ -1,14 +1,15 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=14';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=14';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=14';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=14';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=14';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=14';
-import { obterModo } from './modos.js?v=14';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=14';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=14';
+import { banco } from '../core/supabase.js?v=15';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=15';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=15';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=15';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=15';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=15';
+import { obterModo } from './modos.js?v=15';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=15';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=15';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=15';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -253,6 +254,12 @@ export function desenharMesa(dados) {
 
   // ----- Assentos em elipse 360° -----
   desenharAssentos({ partida, jogadores: jogadoresVis, vezAtivaId, modo, congelado: !!congelado });
+  sincronizarAvataresMesa(jogadores, () => {
+    if (estado.ultimoEstado) {
+      estado.htmlJogadoresVisto = '';
+      desenharMesa(estado.ultimoEstado);
+    }
+  });
 
   // ----- Cronômetros e histórico -----
   estado.relogio.offset = dados.agora ? Date.parse(dados.agora) - Date.now() : 0;
@@ -438,11 +445,15 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVwAssento + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
     const coroaHtml = (!ehOnline && j.criador) ? ICONE_COROA : '';
+    const avatarUrl = obterAvatarUrl(j.conta_id);
+    const badgePerfilHtml = avatarUrl
+      ? '<div class="l-avatar ' + corFicha + '"><img src="' + avatarUrl + '" alt=""></div>'
+      : '<div class="ficha ' + corFicha + '">' + j.ordem + '</div>';
 
     return `
       <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
         <div class="l-topo">
-          <div class="ficha ${corFicha}">${j.ordem}</div>
+          ${badgePerfilHtml}
           <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
         </div>
         <div class="l-meio">

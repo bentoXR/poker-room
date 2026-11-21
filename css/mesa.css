@@ -329,14 +329,33 @@ button.dev-prox {
   border: 2px dashed rgba(255, 255, 255, 0.85);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
-.ficha.c1 { --cor: #9b1c31; }
-.ficha.c2 { --cor: #2f6fd0; }
-.ficha.c3 { --cor: #e9eefc; --txt: #0a1a3f; }
-.ficha.c4 { --cor: #1b3d94; }
-.ficha.c5 { --cor: #8aa9ff; --txt: #0a1a3f; }
-.ficha.c6 { --cor: #6b7a99; }
-.ficha.c7 { --cor: #c9d3ee; --txt: #0a1a3f; }
-.ficha.c8 { --cor: #3b4a6b; }
+.ficha.c1, .l-avatar.c1 { --cor: #9b1c31; }
+.ficha.c2, .l-avatar.c2 { --cor: #2f6fd0; }
+.ficha.c3, .l-avatar.c3 { --cor: #e9eefc; --txt: #0a1a3f; }
+.ficha.c4, .l-avatar.c4 { --cor: #1b3d94; }
+.ficha.c5, .l-avatar.c5 { --cor: #8aa9ff; --txt: #0a1a3f; }
+.ficha.c6, .l-avatar.c6 { --cor: #6b7a99; }
+.ficha.c7, .l-avatar.c7 { --cor: #c9d3ee; --txt: #0a1a3f; }
+.ficha.c8, .l-avatar.c8 { --cor: #3b4a6b; }
+
+.l-avatar {
+  --cor: #ffffff;
+  width: calc(22px * var(--escala-lugar, 1));
+  height: calc(22px * var(--escala-lugar, 1));
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--cor);
+  background: var(--feltro-950);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+}
+.l-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lugar.vez .l-avatar { border-color: #ffffff; }
 
 /* ----- Assentos dos jogadores ----- */
 .lugar {

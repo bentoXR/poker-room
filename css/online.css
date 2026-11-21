@@ -998,6 +998,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     gap: 3px;
     box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
+  #tela-mesa.modo-online .l-avatar {
+    width: 28px;
+    height: 28px;
+  }
   #tela-mesa.modo-online .lugar .tag {
     padding: 0 6px;
     line-height: 18px;
