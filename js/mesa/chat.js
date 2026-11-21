@@ -1,9 +1,9 @@
 // Chat de texto simples da mesa (persistido no Supabase + entrega instantânea via Realtime)
-import { banco } from '../core/supabase.js?v=52';
-import { estado, nomeDe } from '../core/estado.js?v=52';
-import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=52';
-import { publicarChat } from '../core/realtime.js?v=52';
-import { tocarSom } from '../core/som.js?v=52';
+import { banco } from '../core/supabase.js?v=54';
+import { estado, nomeDe } from '../core/estado.js?v=54';
+import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=54';
+import { publicarChat } from '../core/realtime.js?v=54';
+import { tocarSom } from '../core/som.js?v=54';
 
 const chat = {
   partidaId: null,

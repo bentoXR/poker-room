@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=52';
-import { estado, nomeDe } from '../../core/estado.js?v=52';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=52';
-import { lerDevSala } from '../../core/storage.js?v=52';
-import { registrarModo } from '../../mesa/modos.js?v=52';
-import { executar } from '../../mesa/apostas.js?v=52';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=52';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=52';
-import { avaliarMaoLocal } from './maos.js?v=52';
-import { tocarSom } from '../../core/som.js?v=52';
+import { banco } from '../../core/supabase.js?v=54';
+import { estado, nomeDe } from '../../core/estado.js?v=54';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=54';
+import { lerDevSala } from '../../core/storage.js?v=54';
+import { registrarModo } from '../../mesa/modos.js?v=54';
+import { executar } from '../../mesa/apostas.js?v=54';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=54';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=54';
+import { avaliarMaoLocal } from './maos.js?v=54';
+import { tocarSom } from '../../core/som.js?v=54';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -426,8 +426,10 @@ function atualizarLuzes() {
   if (wrap) wrap.querySelectorAll('.carta-3d').forEach((b) => b.classList.remove('luz'));
   if (boardEl) boardEl.querySelectorAll('.carta-board').forEach((el) => el.classList.remove('luz', 'apagada'));
   const nomeEl = $id('minha-mao-nome');
+  const mpDica = $id('mp-dica');
   const esconderNome = () => {
     if (nomeEl) { nomeEl.hidden = true; nomeEl.innerHTML = ''; }
+    if (mpDica) { mpDica.hidden = true; mpDica.innerHTML = ''; }
     if (wrap) wrap.classList.remove('com-nome');
   };
 
@@ -460,6 +462,10 @@ function atualizarLuzes() {
     nomeEl.innerHTML = '<span class="mm-txt"><b>' + escapar(av.detalhe) + '</b>'
       + (av.projeto ? '<small>' + escapar(av.projeto) + '</small>' : '') + '</span>';
     nomeEl.hidden = false;
+  }
+  if (mpDica) {
+    mpDica.innerHTML = '<span class="mp-dica-pill">' + escapar(av.nome || av.detalhe) + '</span>';
+    mpDica.hidden = false;
   }
   if (wrap) wrap.classList.add('com-nome');
 }

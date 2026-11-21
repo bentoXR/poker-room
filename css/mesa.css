@@ -340,14 +340,14 @@ button.dev-prox {
 
 .l-avatar {
   --cor: #ffffff;
-  width: calc(22px * var(--escala-lugar, 1));
-  height: calc(22px * var(--escala-lugar, 1));
+  width: calc(36px * var(--escala-lugar, 1));
+  height: calc(36px * var(--escala-lugar, 1));
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid var(--cor);
   background: var(--feltro-950);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.55);
 }
 .l-avatar img {
   display: block;
@@ -400,11 +400,24 @@ button.dev-prox {
 .lugar.assento-redondo.eu { z-index: 4; }
 .lugar.assento-redondo.vez { z-index: 5; border-radius: 19px; }
 
+.l-cab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.l-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
 .l-topo { display: flex; align-items: center; gap: 3px; min-width: 0; }
 .lugar.assento-redondo .ficha {
-  width: calc(18px * var(--escala-lugar, 1));
-  height: calc(18px * var(--escala-lugar, 1));
-  font-size: calc(11px * var(--escala-lugar, 1));
+  width: calc(26px * var(--escala-lugar, 1));
+  height: calc(26px * var(--escala-lugar, 1));
+  font-size: calc(13px * var(--escala-lugar, 1));
 }
 .l-nome {
   flex: 1;
@@ -691,9 +704,10 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
     border-radius: 16px;
     gap: 3px;
   }
+  #tela-mesa .l-cab { gap: 9px; }
   #tela-mesa .l-topo { gap: 7px; }
-  #tela-mesa .l-avatar { width: 40px; height: 40px; border-width: 2.5px; }
-  #tela-mesa .lugar.eu .l-avatar { width: 44px; height: 44px; }
+  #tela-mesa .l-avatar { width: 46px; height: 46px; border-width: 2.5px; }
+  #tela-mesa .lugar.eu .l-avatar { width: 48px; height: 48px; }
 
   /* Barra de ações flutuante em 1 linha no PC */
   #barra-acoes {

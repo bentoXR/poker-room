@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=52';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=52';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=52';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=52';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=52';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=52';
-import { obterModo } from './modos.js?v=52';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=52';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=52';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=52';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=52';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=52';
+import { banco } from '../core/supabase.js?v=54';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=54';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=54';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=54';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=54';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=54';
+import { obterModo } from './modos.js?v=54';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=54';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=54';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=54';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=54';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=54';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -488,12 +488,15 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
 
   dock.className = classes;
   dock.dataset.jogadorId = eu.id;
+  const dicaAtual = $id('mp-dica') ? $id('mp-dica').innerHTML : '';
+  const dicaOculta = $id('mp-dica') ? $id('mp-dica').hidden : true;
   dock.innerHTML = `
     <div class="mp-esq">
       ${badgePerfilHtml}
       <span class="mp-nome">${escapar(nomeDe(eu.nome))}</span>
       ${tags ? '<div class="l-tags mp-tags">' + tags + '</div>' : ''}
     </div>
+    <div id="mp-dica" class="mp-dica"${dicaOculta ? ' hidden' : ''}>${dicaAtual}</div>
     <div class="mp-dir">
       <span class="mp-saldo">${Number(eu.saldo).toLocaleString('pt-BR')}</span>
       ${eu.apostou > 0 ? '<span class="l-aposta">+' + eu.apostou + '</span>' : ''}
@@ -542,14 +545,14 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
   const nMesa = listaMesa.length;
   const larguraLugar = ehDesktop
-    ? (nMesa <= 4 ? 168 : nMesa <= 6 ? 156 : 144)
-    : (nMesa <= 3 ? 112 : nMesa <= 5 ? 104 : nMesa <= 6 ? 96 : 88);
+    ? (nMesa <= 4 ? 182 : nMesa <= 6 ? 168 : 154)
+    : (nMesa <= 3 ? 128 : nMesa <= 5 ? 118 : nMesa <= 6 ? 108 : 98);
   const escalaLugar = ehDesktop
     ? (nMesa <= 4 ? 1.04 : nMesa <= 6 ? 0.98 : 0.92)
-    : (nMesa <= 3 ? 0.94 : nMesa <= 5 ? 0.88 : nMesa <= 6 ? 0.82 : 0.78);
+    : (nMesa <= 3 ? 0.96 : nMesa <= 5 ? 0.9 : nMesa <= 6 ? 0.84 : 0.8);
   const raioX = ehDesktop ? 43.5 : 40;
   const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '18vw' : (nMesa >= 7 ? '24vw' : nMesa >= 5 ? '26.5vw' : '29vw');
+  const maxVw = ehDesktop ? '19vw' : (nMesa >= 7 ? '27vw' : nMesa >= 5 ? '30vw' : '34vw');
 
   const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
@@ -606,13 +609,15 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
     return `
       <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
-        <div class="l-topo">
+        <div class="l-cab">
           ${badgePerfilHtml}
-          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
-        </div>
-        <div class="l-meio">
-          <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
-          ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
+          <div class="l-info">
+            <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+            <div class="l-meio">
+              <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
+              ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
+            </div>
+          </div>
         </div>
         ${cartasHtml}
         <div class="l-tags">${tags}</div>
