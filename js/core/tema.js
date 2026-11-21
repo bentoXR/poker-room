@@ -1,30 +1,23 @@
-// Gerenciamento de tema visual ('classico' = Sinuca [padrão] | 'cassino' = Cassino | 'preto' = Preto & Vermelho | 'liberdade' = EUA | 'tropical' = Praia Tropical)
+// Gerenciamento de tema visual ('preto' = Preto & Vermelho [padrão] | 'classico' = Sinuca | 'cassino' = Cassino | 'liberdade' = EUA | 'tropical' = Praia Tropical)
 const CHAVE_TEMA = 'poker-tema';
-const ORDEM_TEMAS = ['classico', 'cassino', 'preto', 'liberdade', 'tropical'];
+const ORDEM_TEMAS = ['preto', 'classico', 'cassino', 'liberdade', 'tropical'];
 const CORES_META = {
-  classico: '#1b130e',
-  cassino: '#480814',
+  classico: '#140c08',
+  cassino: '#2e040c',
   preto: '#14161c',
   liberdade: '#0a3161',
   tropical: '#04384f'
 };
-const TITULOS_TEMA = {
-  classico: 'Tema: Sinuca (clique para trocar para Cassino)',
-  cassino: 'Tema: Cassino (clique para trocar para Preto)',
-  preto: 'Tema: Preto (clique para trocar para USA)',
-  liberdade: 'Tema: USA (clique para trocar para Tropical)',
-  tropical: 'Tema: Tropical (clique para trocar para Sinuca)'
-};
 
 function normalizarTema(tema) {
-  return ORDEM_TEMAS.includes(tema) ? tema : 'classico';
+  return ORDEM_TEMAS.includes(tema) ? tema : 'preto';
 }
 
 export function lerTemaSalvo() {
   try {
     return normalizarTema(localStorage.getItem(CHAVE_TEMA));
   } catch (erro) {
-    return 'classico';
+    return 'preto';
   }
 }
 
@@ -40,9 +33,6 @@ function aplicarTemaDOM(tema) {
     btn.classList.toggle('sel', sel);
     btn.setAttribute('aria-pressed', sel ? 'true' : 'false');
   });
-
-  const btnTopo = document.getElementById('btn-tema-mesa');
-  if (btnTopo) btnTopo.title = TITULOS_TEMA[ativo];
 }
 
 export function escolherTema(tema) {

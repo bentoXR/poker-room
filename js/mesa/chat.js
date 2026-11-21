@@ -1,10 +1,10 @@
 // Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
-import { banco } from '../core/supabase.js?v=81';
-import { estado, nomeDe } from '../core/estado.js?v=81';
-import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=81';
-import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=81';
-import { tocarSom } from '../core/som.js?v=81';
-import { executar } from './apostas.js?v=81';
+import { banco } from '../core/supabase.js?v=82';
+import { estado, nomeDe } from '../core/estado.js?v=82';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=82';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=82';
+import { tocarSom } from '../core/som.js?v=82';
+import { executar } from './apostas.js?v=82';
 
 const JANELA_DIGITANDO_MS = 3400;
 
@@ -66,6 +66,8 @@ function descreverVotacao(v) {
   if (!v) return '';
   if (v.tipo === 'pausar') return 'Pausar a mesa';
   if (v.tipo === 'retomar') return 'Retomar a mesa';
+  if (v.tipo === 'rabbit_on') return 'Ativar Rabbit Hunt (ver cartas)';
+  if (v.tipo === 'rabbit_off') return 'Desativar Rabbit Hunt (ver cartas)';
   if (v.tipo === 'expulsar') return 'Remover ' + nomeDe(v.alvo_nome || 'jogador');
   return 'Votação da mesa';
 }
@@ -171,19 +173,19 @@ function limparPreviewChat() {
   if (wrap) wrap.innerHTML = '';
 }
 
-function adicionarBannerPreview({ textoHtml, ariaLabel, classeExtra, onClick, duracaoMs = 4600 }) {
+function adicionarBannerPreview({ textoHtml, ariaLabel, classeExtra, onClick, duracaoMs = 3600 }) {
   const wrap = $id('chat-preview');
   if (!wrap) return;
 
-  const item = document.createElement('button');
-  item.type = 'button';
+  const item = document.createElement(onClick ? 'button' : 'div');
+  if (onClick) item.type = 'button';
   item.className = 'chat-preview-item' + (classeExtra ? ' ' + classeExtra : '');
-  item.setAttribute('aria-label', ariaLabel);
+  if (ariaLabel) item.setAttribute('aria-label', ariaLabel);
   item.innerHTML = textoHtml;
-  item.addEventListener('click', onClick);
+  if (onClick) item.addEventListener('click', onClick);
 
   wrap.appendChild(item);
-  while (wrap.children.length > 2) {
+  while (wrap.children.length > 4) {
     wrap.removeChild(wrap.firstElementChild);
   }
 
@@ -192,7 +194,7 @@ function adicionarBannerPreview({ textoHtml, ariaLabel, classeExtra, onClick, du
     item.classList.add('saindo');
     setTimeout(() => {
       if (item.isConnected) item.remove();
-    }, 260);
+    }, 520);
   }, duracaoMs);
 }
 
@@ -203,7 +205,23 @@ function mostrarPreviewChat(msg) {
   adicionarBannerPreview({
     textoHtml: '<strong class="chat-preview-autor">' + autor + '</strong> <span class="chat-preview-txt">' + texto + '</span>',
     ariaLabel: 'Abrir chat: ' + nomeDe(msg.autor_nome || 'Jogador') + ' disse ' + (msg.texto || ''),
-    onClick: () => abrirChat('chat')
+    onClick: () => abrirChat('chat'),
+    duracaoMs: 3800
+  });
+}
+
+function mostrarPreviewReacao(payload) {
+  if (!payload || !payload.texto) return;
+  const autor = escapar(nomeDe(payload.autor_nome || 'Jogador'));
+  const texto = escapar(payload.texto);
+  const ehEmoji = payload.texto.length <= 3;
+  adicionarBannerPreview({
+    classeExtra: 'reacao' + (ehEmoji ? ' emoji' : ''),
+    textoHtml: (ehEmoji ? '<span class="chat-preview-emoji">' + texto + '</span>' : '') +
+      '<strong class="chat-preview-autor">' + autor + '</strong>' +
+      (ehEmoji ? '' : ' <span class="chat-preview-txt">' + texto + '</span>'),
+    ariaLabel: nomeDe(payload.autor_nome || 'Jogador') + ' reagiu: ' + payload.texto,
+    duracaoMs: 2800
   });
 }
 
@@ -400,6 +418,12 @@ function desenharPainelVotacao() {
   const rotuloMesa = p.pausada ? '▶ Propor retomar a mesa' : '⏸ Propor pausar a mesa';
   const classeMesa = p.pausada ? 'positivo' : 'secundario';
 
+  const rabbitAtivo = !!p.rabbit_hunt_ativo;
+  const tipoRabbit = rabbitAtivo ? 'rabbit_off' : 'rabbit_on';
+  const rotuloRabbit = rabbitAtivo
+    ? '🐰 Desativar Rabbit Hunt (ver cartas)'
+    : '🐰 Ativar Rabbit Hunt (ver cartas)';
+
   const listaJog = outros.length
     ? outros.map((j) => (
         '<div class="votacao-jogador">'
@@ -419,6 +443,8 @@ function desenharPainelVotacao() {
     + '<div class="votacao-bloco">'
     +   '<div class="votacao-sec-titulo">Controle da partida</div>'
     +   '<button type="button" class="' + classeMesa + '" onclick="iniciarVotacao(\'' + tipoMesa + '\')"' + (bloqueado ? ' disabled' : '') + '>' + rotuloMesa + '</button>'
+    +   '<button type="button" class="secundario" onclick="iniciarVotacao(\'' + tipoRabbit + '\')"' + (bloqueado ? ' disabled' : '') + '>' + rotuloRabbit + '</button>'
+    +   '<div class="votacao-nota">Rabbit Hunt (ver cartas seguintes): <strong>' + (rabbitAtivo ? 'Ativado' : 'Desativado') + '</strong></div>'
     + '</div>'
     + '<div class="votacao-bloco">'
     +   '<div class="votacao-sec-titulo">Remover jogador' + (podeExpulsarQtd ? '' : ' <small>(mín. 3 na mesa)</small>') + '</div>'
@@ -671,24 +697,22 @@ export function receberReacao(payload) {
   if (!payload || !payload.texto) return;
   if (payload.partida_id && estado.partidaAtual && payload.partida_id !== estado.partidaAtual.id) return;
 
+  mostrarPreviewReacao(payload);
+
   const jid = payload.jogador_id;
   const alvo = jid
     ? (document.querySelector('#tela-mesa .lugar[data-jogador-id="' + jid + '"]')
        || document.querySelector('#meu-perfil-dock[data-jogador-id="' + jid + '"]'))
     : null;
 
-  if (!alvo) {
-    aviso(nomeDe(payload.autor_nome || 'Jogador') + ': ' + payload.texto);
-    return;
-  }
+  if (!jid || jid !== estado.meuJogadorId) tocarSom('clique');
+  if (!alvo) return;
 
   alvo.querySelectorAll('.reacao-balao').forEach((n) => n.remove());
   const balao = document.createElement('div');
   balao.className = 'reacao-balao' + (payload.texto.length <= 3 ? ' emoji' : '');
   balao.textContent = payload.texto;
   alvo.appendChild(balao);
-
-  if (!jid || jid !== estado.meuJogadorId) tocarSom('clique');
 
   setTimeout(() => {
     if (!balao.isConnected) return;

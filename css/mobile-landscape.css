@@ -677,8 +677,6 @@
   }
   #tela-mesa.modo-online #btn-voltar-mesa,
   #tela-mesa.modo-online #btn-sair-mesa,
-  #tela-mesa.modo-online #btn-hist,
-  #tela-mesa.modo-online #btn-tema-mesa,
   #tela-mesa.modo-online #btn-convidar,
   #tela-mesa.modo-online .barra-info {
     display: none !important;

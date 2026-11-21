@@ -794,7 +794,7 @@ button.chat-chip {
   }
 }
 
-/* ----- Prévia flutuante de mensagens recentes (canto superior direito, sem atrapalhar a mesa) ----- */
+/* ----- Feed flutuante estilo live (mensagens e reações sobem e somem no canto) ----- */
 .chat-preview {
   position: fixed;
   top: calc(58px + env(safe-area-inset-top));
@@ -807,19 +807,18 @@ button.chat-chip {
   max-width: min(260px, 72vw);
   pointer-events: none;
 }
-button.chat-preview-item {
-  pointer-events: auto;
+.chat-preview-item {
   width: auto;
   max-width: 100%;
   min-height: 0;
   margin: 0;
-  padding: 7px 11px;
+  padding: 6px 11px;
   text-align: left;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1.3;
   color: var(--marfim);
-  background: color-mix(in srgb, var(--dock-bg) 58%, transparent);
+  background: color-mix(in srgb, var(--dock-bg) 56%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -830,16 +829,36 @@ button.chat-preview-item {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  animation: chatPreviewEntrar 0.22s ease both;
-  transition: opacity 0.24s ease, transform 0.24s ease;
+  animation: chatPreviewEntrar 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+button.chat-preview-item {
+  pointer-events: auto;
 }
 button.chat-preview-item:active:not(:disabled) {
   transform: scale(0.98);
   box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.72);
 }
-button.chat-preview-item.saindo {
+.chat-preview-item.reacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-left-width: 1px;
+  border-color: rgba(255, 216, 102, 0.42);
+  border-radius: 999px;
+  padding: 5px 11px;
+  pointer-events: none;
+}
+.chat-preview-item.reacao.emoji {
+  padding: 4px 10px;
+}
+.chat-preview-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+.chat-preview-item.saindo {
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-28px) scale(0.95);
 }
 button.chat-preview-item.voto {
   border-left-color: #d97706;
@@ -850,11 +869,14 @@ button.chat-preview-item.voto {
   font-weight: 700;
   margin-right: 4px;
 }
+.chat-preview-item.reacao.emoji .chat-preview-autor {
+  margin-right: 0;
+}
 .chat-preview-txt {
   color: var(--marfim);
 }
 @keyframes chatPreviewEntrar {
-  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  from { opacity: 0; transform: translateY(16px) scale(0.94); }
   to   { opacity: 1; transform: none; }
 }
 @media (min-width: 820px) {

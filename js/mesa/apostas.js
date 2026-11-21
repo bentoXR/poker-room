@@ -1,9 +1,9 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=81';
-import { estado, passoSala, nomeDe } from '../core/estado.js?v=81';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=81';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=81';
+import { banco } from '../core/supabase.js?v=82';
+import { estado, passoSala, nomeDe } from '../core/estado.js?v=82';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=82';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=82';
 
 let hooksMesa = {
   publicarEstado: () => {},

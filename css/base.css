@@ -211,13 +211,12 @@
   background-repeat: no-repeat, repeat, repeat, repeat, repeat;
 }
 
-/* Fundo com textura real de madeira mogno envernizada (veios + tábuas sutis) no tema Cassino */
+/* Fundo com textura de madeira mogno escura no tema Sinuca */
 :root[data-tema="classico"] body,
 :root[data-tema="classico"] body:not(.na-mesa),
 :root[data-tema="classico"] body.na-mesa.modo-online {
-  background-color: #1f140d;
+  background-color: #140c08;
   background-image:
-    radial-gradient(90% 55% at 50% 0%, rgba(138, 76, 36, 0.34) 0%, transparent 72%),
     repeating-linear-gradient(
       90deg,
       rgba(0, 0, 0, 0.22) 0px,
@@ -242,9 +241,8 @@
       transparent 6px,
       rgba(12, 6, 3, 0.16) 13px,
       transparent 19px
-    ),
-    linear-gradient(180deg, #2d1b11 0%, #1c110b 55%, #140c08 100%);
-  background-repeat: no-repeat, repeat, repeat, repeat, no-repeat;
+    );
+  background-repeat: repeat, repeat, repeat;
 }
 
 :root[data-tema="classico"] .pote-ficha {

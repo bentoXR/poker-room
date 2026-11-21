@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=81';
-import { estado, nomeDe } from '../../core/estado.js?v=81';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=81';
-import { lerDevSala } from '../../core/storage.js?v=81';
-import { registrarModo } from '../../mesa/modos.js?v=81';
-import { executar } from '../../mesa/apostas.js?v=81';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=81';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=81';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=81';
-import { tocarSom } from '../../core/som.js?v=81';
+import { banco } from '../../core/supabase.js?v=82';
+import { estado, nomeDe } from '../../core/estado.js?v=82';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=82';
+import { lerDevSala } from '../../core/storage.js?v=82';
+import { registrarModo } from '../../mesa/modos.js?v=82';
+import { executar } from '../../mesa/apostas.js?v=82';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=82';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=82';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=82';
+import { tocarSom } from '../../core/som.js?v=82';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -1244,7 +1244,7 @@ registrarModo('online', {
     const confirmados = elegiveis.filter((j) => j.confirmado);
     const fimTorneio = partida.iniciada && comFichas.length < 2;
     const res = partida.ultimo_resultado;
-    const podeRabbit = !fimTorneio && partida.aguardando_proxima_mao && !onlineUI.segurando
+    const podeRabbit = !fimTorneio && !!partida.rabbit_hunt_ativo && partida.aguardando_proxima_mao && !onlineUI.segurando
       && res && res.tipo === 'desistencia' && (partida.board || []).length < 5
       && !Array.isArray(res.rabbit_board);
 

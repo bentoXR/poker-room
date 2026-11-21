@@ -85,21 +85,18 @@
   --fonte-numero: "Oswald", "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
 }
 
-/* ----- Carpete carmesim luxuoso com trama tecida e ornamentos damasco em ouro ----- */
+/* ----- Carpete carmesim escuro com trama tecida e ornamentos damasco em ouro ----- */
 :root[data-tema="cassino"] body,
 :root[data-tema="cassino"] body:not(.na-mesa),
 :root[data-tema="cassino"] body.na-mesa,
 :root[data-tema="cassino"] body.na-mesa.modo-online {
-  background-color: #460813;
+  background-color: #2e040c;
   background-image:
-    radial-gradient(95% 58% at 50% 0%, rgba(214, 44, 66, 0.36) 0%, transparent 72%),
-    radial-gradient(115% 100% at 50% 50%, transparent 46%, rgba(16, 2, 5, 0.62) 100%),
     repeating-linear-gradient(45deg, rgba(255, 220, 200, 0.025) 0 1px, transparent 1px 3px),
     repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px),
-    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22 viewBox=%220 0 140 140%22%3E%3Cg fill=%22none%22%3E%3Cpath d=%22M70 8 C84 26 98 38 118 46 C98 54 84 66 70 84 C56 66 42 54 22 46 C42 38 56 26 70 8 Z%22 stroke=%22%23ebc056%22 stroke-opacity=%220.16%22 stroke-width=%221.1%22 fill=%22%237a1022%22 fill-opacity=%220.28%22/%3E%3Cpath d=%22M70 56 C84 74 98 86 118 94 C98 102 84 114 70 132 C56 114 42 102 22 94 C42 86 56 74 70 56 Z%22 stroke=%22%23ebc056%22 stroke-opacity=%220.16%22 stroke-width=%221.1%22 fill=%22%237a1022%22 fill-opacity=%220.28%22/%3E%3Cpath d=%22M0 8 C12 22 18 32 18 46 C18 60 12 70 0 84 M140 8 C128 22 122 32 122 46 C122 60 128 70 140 84 M0 56 C12 70 18 80 18 94 C18 108 12 118 0 132 M140 56 C128 70 122 80 122 94 C122 108 128 118 140 132%22 stroke=%22%23ebc056%22 stroke-opacity=%220.14%22 stroke-width=%221%22/%3E%3Cpolygon points=%2270,34 80,46 70,58 60,46%22 stroke=%22%23ebc056%22 stroke-opacity=%220.24%22 stroke-width=%221%22 fill=%22%23ebc056%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%2270,82 80,94 70,106 60,94%22 stroke=%22%23ebc056%22 stroke-opacity=%220.24%22 stroke-width=%221%22 fill=%22%23ebc056%22 fill-opacity=%220.06%22/%3E%3Ccircle cx=%2270%22 cy=%2270%22 r=%225.5%22 fill=%22%23ebc056%22 fill-opacity=%220.14%22/%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(180deg, #620d1c 0%, #480814 52%, #2e040c 100%);
-  background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, no-repeat;
-  background-size: auto, auto, auto, auto, 140px 140px, auto;
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22 viewBox=%220 0 140 140%22%3E%3Cg fill=%22none%22%3E%3Cpath d=%22M70 8 C84 26 98 38 118 46 C98 54 84 66 70 84 C56 66 42 54 22 46 C42 38 56 26 70 8 Z%22 stroke=%22%23ebc056%22 stroke-opacity=%220.16%22 stroke-width=%221.1%22 fill=%22%237a1022%22 fill-opacity=%220.28%22/%3E%3Cpath d=%22M70 56 C84 74 98 86 118 94 C98 102 84 114 70 132 C56 114 42 102 22 94 C42 86 56 74 70 56 Z%22 stroke=%22%23ebc056%22 stroke-opacity=%220.16%22 stroke-width=%221.1%22 fill=%22%237a1022%22 fill-opacity=%220.28%22/%3E%3Cpath d=%22M0 8 C12 22 18 32 18 46 C18 60 12 70 0 84 M140 8 C128 22 122 32 122 46 C122 60 128 70 140 84 M0 56 C12 70 18 80 18 94 C18 108 12 118 0 132 M140 56 C128 70 122 80 122 94 C122 108 128 118 140 132%22 stroke=%22%23ebc056%22 stroke-opacity=%220.14%22 stroke-width=%221%22/%3E%3Cpolygon points=%2270,34 80,46 70,58 60,46%22 stroke=%22%23ebc056%22 stroke-opacity=%220.24%22 stroke-width=%221%22 fill=%22%23ebc056%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%2270,82 80,94 70,106 60,94%22 stroke=%22%23ebc056%22 stroke-opacity=%220.24%22 stroke-width=%221%22 fill=%22%23ebc056%22 fill-opacity=%220.06%22/%3E%3Ccircle cx=%2270%22 cy=%2270%22 r=%225.5%22 fill=%22%23ebc056%22 fill-opacity=%220.14%22/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat, repeat, repeat;
+  background-size: auto, auto, 140px 140px;
 }
 
 /* ----- Linha dourada interna de apostas na mesa ----- */
