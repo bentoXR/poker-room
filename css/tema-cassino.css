@@ -1,102 +1,105 @@
 /* =====================================================================
    TEMA CASSINO  (data-tema="cassino")
-   Clima autêntico de cassino clássico (Bellagio / Monte Carlo):
-   veludo bordô escuro, pano esmeralda com filete duplo em ouro,
-   ficha de cassino listrada no pote e botões rubi & dourado.
+   Clima autêntico de cassino luxuoso (Bellagio / Monte Carlo):
+   carpete carmesim bordado em estilo damasco, pano esmeralda com filete
+   duplo em ouro, ficha de cassino listrada e acabamento rubi & dourado.
    ===================================================================== */
 
 :root[data-tema="cassino"] {
-  --feltro-950: #0d0205;
-  --feltro-900: #18060a;
-  --feltro-800: #280a12;
-  --feltro-700: #3b101b;
-  --feltro-600: #521727;
-  --linha: rgba(229, 184, 75, 0.24);
+  --feltro-950: #220409;
+  --feltro-900: #380710;
+  --feltro-800: #4c0b17;
+  --feltro-700: #631120;
+  --feltro-600: #7d182b;
+  --linha: rgba(235, 192, 86, 0.28);
 
-  --marfim: #faf3e1;
+  --marfim: #fdf6e6;
   --estrela: #ffe69c;
-  --marfim-suave: rgba(247, 232, 198, 0.82);
-  --texto-escuro: #16070a;
+  --marfim-suave: rgba(250, 236, 206, 0.86);
+  --texto-escuro: #1d0509;
 
-  /* Ação principal: Rubi Cassino com brilho dourado */
-  --ouro: #b81d2c;
-  --ouro-escuro: #730e19;
-  --ouro-suave: rgba(184, 29, 44, 0.30);
-  --ouro-borda: rgba(229, 184, 75, 0.80);
+  /* Ação principal: Rubi Carmesim com borda em ouro */
+  --ouro: #b8192b;
+  --ouro-escuro: #6e0b16;
+  --ouro-suave: rgba(184, 25, 43, 0.34);
+  --ouro-borda: rgba(235, 192, 86, 0.84);
 
-  --vermelho: #c41e30;
+  --vermelho: #c81e32;
   --verde: #147a49;
   --verde-escuro: #0b4a2b;
-  --verde-suave: rgba(20, 122, 73, 0.32);
-  --verde-borda: rgba(229, 184, 75, 0.68);
+  --verde-suave: rgba(20, 122, 73, 0.34);
+  --verde-borda: rgba(235, 192, 86, 0.72);
   --verde-texto: #e5ffef;
 
   /* Acento = Ouro de Cassino */
-  --acento: #e5b84b;
-  --acento-suave: rgba(229, 184, 75, 0.22);
-  --luz-cor: #ffd978;
-  --luz-sombra: rgba(229, 184, 75, 0.80);
+  --acento: #ebc056;
+  --acento-suave: rgba(235, 192, 86, 0.24);
+  --luz-cor: #ffe082;
+  --luz-sombra: rgba(235, 192, 86, 0.82);
 
-  --bg-topo: rgba(184, 29, 44, 0.32);
+  --bg-topo: rgba(184, 25, 43, 0.34);
   --faixa-topo: linear-gradient(
     90deg,
-    #3d0c16 0 22%,
-    #e5b84b 22% 38%,
-    #b81d2c 38% 62%,
+    #4d0914 0 22%,
+    #ebc056 22% 38%,
+    #b8192b 38% 62%,
     #147a49 62% 84%,
-    #e5b84b 84% 100%
+    #ebc056 84% 100%
   );
 
-  /* Mesa esmeralda clássica com borda acolchoada bordô e aro dourado */
+  /* Mesa esmeralda clássica com borda acolchoada carmesim escura e aro dourado */
   --feltro-mesa: #0d5e37;
   --feltro-mesa-borda: #06331e;
-  --feltro-trilha: rgba(229, 184, 75, 0.72);
-  --borda-mesa: #3d0c16;
-  --borda-interna: #1a0408;
-  --borda-aro: #e5b84b;
+  --feltro-trilha: rgba(235, 192, 86, 0.76);
+  --borda-mesa: #470a15;
+  --borda-interna: #1d0308;
+  --borda-aro: #ebc056;
 
-  --pote-bg: #3b0914;
-  --pote-bg-2: #190308;
-  --assento-bg: #240910;
-  --assento-bg-2: #150509;
-  --assento-eu-bg: #390e19;
-  --assento-eu-bg-2: #240810;
-  --vez-bg: #e5b84b;
-  --vez-bg-2: #b88a1e;
-  --vez-tag-bg: #18060a;
+  --pote-bg: #3b0812;
+  --pote-bg-2: #190207;
+  --assento-bg: #360812;
+  --assento-bg-2: #22040a;
+  --assento-eu-bg: #520d1b;
+  --assento-eu-bg-2: #340710;
+  --vez-bg: #ebc056;
+  --vez-bg-2: #bd8f20;
+  --vez-tag-bg: #220409;
 
-  --dock-bg: #19060b;
-  --dock-bg-2: #0f0306;
-  --faixa-bg: #260a12;
-  --faixa-bg-2: #18060a;
-  --faixa-borda: rgba(229, 184, 75, 0.76);
+  --dock-bg: rgba(42, 6, 13, 0.92);
+  --dock-bg-2: rgba(24, 3, 7, 0.96);
+  --faixa-bg: rgba(56, 8, 17, 0.92);
+  --faixa-bg-2: rgba(34, 4, 10, 0.96);
+  --faixa-borda: rgba(235, 192, 86, 0.82);
 
-  --cartao-bg: #16050a;
-  --cartao-bg-pc: #16050a;
-  --cartao-borda: rgba(229, 184, 75, 0.34);
+  --cartao-bg: rgba(44, 6, 14, 0.90);
+  --cartao-bg-pc: rgba(44, 6, 14, 0.92);
+  --cartao-borda: rgba(235, 192, 86, 0.36);
 
-  --verso-bg: #7a0f21;
+  --verso-bg: #870e21;
   --verso-simbolo: "♦";
   --marca-selo: "♠   ♥   ♣   ♦";
   --mesa-orn-esq: "♠  ♥";
   --mesa-orn-dir: "♦  ♣";
-  --mesa-orn-cor: rgba(229, 184, 75, 0.48);
+  --mesa-orn-cor: rgba(235, 192, 86, 0.50);
 
   --fonte-numero: "Oswald", "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
 }
 
-/* ----- Carpete de veludo bordô com padrão Art Déco de naipes em ouro ----- */
+/* ----- Carpete carmesim luxuoso com trama tecida e ornamentos damasco em ouro ----- */
 :root[data-tema="cassino"] body,
 :root[data-tema="cassino"] body:not(.na-mesa),
 :root[data-tema="cassino"] body.na-mesa,
 :root[data-tema="cassino"] body.na-mesa.modo-online {
-  background-color: #18060a;
+  background-color: #460813;
   background-image:
-    radial-gradient(88% 50% at 50% 0%, rgba(184, 29, 44, 0.28) 0%, transparent 72%),
-    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22 viewBox=%220 0 160 160%22%3E%3Cg fill=%22none%22 stroke=%22%23e5b84b%22 stroke-opacity=%220.14%22 stroke-width=%221%22%3E%3Cpolygon points=%2280,10 150,80 80,150 10,80%22/%3E%3Cpolygon points=%2280,30 130,80 80,130 30,80%22/%3E%3C/g%3E%3Cg fill=%22%23e5b84b%22 fill-opacity=%220.16%22 font-family=%22serif%22 font-size=%2218%22 text-anchor=%22middle%22%3E%3Ctext x=%2280%22 y=%2286%22%3E%E2%99%A6%3C/text%3E%3Ctext x=%2216%22 y=%2222%22%3E%E2%99%A0%3C/text%3E%3Ctext x=%22144%22 y=%2222%22%3E%E2%99%A5%3C/text%3E%3Ctext x=%2216%22 y=%22148%22%3E%E2%99%A3%3C/text%3E%3Ctext x=%22144%22 y=%22148%22%3E%E2%99%A6%3C/text%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(180deg, #240810 0%, #16050a 56%, #0c0205 100%);
-  background-repeat: no-repeat, repeat, no-repeat;
-  background-size: auto, 160px 160px, auto;
+    radial-gradient(95% 58% at 50% 0%, rgba(214, 44, 66, 0.36) 0%, transparent 72%),
+    radial-gradient(115% 100% at 50% 50%, transparent 46%, rgba(16, 2, 5, 0.62) 100%),
+    repeating-linear-gradient(45deg, rgba(255, 220, 200, 0.025) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px),
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22 viewBox=%220 0 140 140%22%3E%3Cg fill=%22none%22%3E%3Cpath d=%22M70 8 C84 26 98 38 118 46 C98 54 84 66 70 84 C56 66 42 54 22 46 C42 38 56 26 70 8 Z%22 stroke=%22%23ebc056%22 stroke-opacity=%220.16%22 stroke-width=%221.1%22 fill=%22%237a1022%22 fill-opacity=%220.28%22/%3E%3Cpath d=%22M70 56 C84 74 98 86 118 94 C98 102 84 114 70 132 C56 114 42 102 22 94 C42 86 56 74 70 56 Z%22 stroke=%22%23ebc056%22 stroke-opacity=%220.16%22 stroke-width=%221.1%22 fill=%22%237a1022%22 fill-opacity=%220.28%22/%3E%3Cpath d=%22M0 8 C12 22 18 32 18 46 C18 60 12 70 0 84 M140 8 C128 22 122 32 122 46 C122 60 128 70 140 84 M0 56 C12 70 18 80 18 94 C18 108 12 118 0 132 M140 56 C128 70 122 80 122 94 C122 108 128 118 140 132%22 stroke=%22%23ebc056%22 stroke-opacity=%220.14%22 stroke-width=%221%22/%3E%3Cpolygon points=%2270,34 80,46 70,58 60,46%22 stroke=%22%23ebc056%22 stroke-opacity=%220.24%22 stroke-width=%221%22 fill=%22%23ebc056%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%2270,82 80,94 70,106 60,94%22 stroke=%22%23ebc056%22 stroke-opacity=%220.24%22 stroke-width=%221%22 fill=%22%23ebc056%22 fill-opacity=%220.06%22/%3E%3Ccircle cx=%2270%22 cy=%2270%22 r=%225.5%22 fill=%22%23ebc056%22 fill-opacity=%220.14%22/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(180deg, #620d1c 0%, #480814 52%, #2e040c 100%);
+  background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, no-repeat;
+  background-size: auto, auto, auto, auto, 140px 140px, auto;
 }
 
 /* ----- Linha dourada interna de apostas na mesa ----- */
@@ -104,7 +107,7 @@
   box-shadow:
     inset 0 0 0 1.5px var(--feltro-trilha),
     inset 0 0 0 7px var(--borda-interna),
-    inset 0 0 0 15px rgba(229, 184, 75, 0.16),
+    inset 0 0 0 15px rgba(235, 192, 86, 0.18),
     inset 0 12px 30px rgba(0, 0, 0, 0.52),
     0 14px 32px -8px rgba(0, 0, 0, 0.85),
     0 0 0 6px var(--borda-mesa),
@@ -113,95 +116,95 @@
 
 /* ----- Marca e títulos em ouro elegante ----- */
 :root[data-tema="cassino"] .marca h1 {
-  color: #faf3e1;
-  text-shadow: 0 2px 0 #730e19, 0 4px 12px rgba(0, 0, 0, 0.65);
+  color: #fdf6e6;
+  text-shadow: 0 2px 0 #7a0d1b, 0 4px 12px rgba(0, 0, 0, 0.65);
 }
 
-/* ----- Botões com borda fina de latão/ouro ----- */
+/* ----- Botões com borda fina de ouro ----- */
 :root[data-tema="cassino"] button:not([class]),
 :root[data-tema="cassino"] .faixa-online-acoes button.positivo,
 :root[data-tema="cassino"] #btn-iniciar-rapido {
-  background: linear-gradient(180deg, #cb2233, #b81d2c 55%, #8f121f);
-  box-shadow: inset 0 0 0 1.5px rgba(229, 184, 75, 0.86), 0 3px 0 #590a12;
+  background: linear-gradient(180deg, #cf2134, #b8192b 55%, #8f101e);
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.86), 0 3px 0 #570811;
 }
 :root[data-tema="cassino"] button:not([class]):active:not(:disabled),
 :root[data-tema="cassino"] .faixa-online-acoes button.positivo:active:not(:disabled),
 :root[data-tema="cassino"] #btn-iniciar-rapido:active:not(:disabled) {
-  box-shadow: inset 0 0 0 1.5px rgba(229, 184, 75, 0.86), 0 1px 0 #590a12;
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.86), 0 1px 0 #570811;
 }
 :root[data-tema="cassino"] button.positivo {
-  box-shadow: inset 0 0 0 1.5px rgba(229, 184, 75, 0.68), 0 3px 0 #093d24;
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.68), 0 3px 0 #093d24;
 }
 :root[data-tema="cassino"] button.positivo:active:not(:disabled) {
-  box-shadow: inset 0 0 0 1.5px rgba(229, 184, 75, 0.68), 0 1px 0 #093d24;
+  box-shadow: inset 0 0 0 1.5px rgba(235, 192, 86, 0.68), 0 1px 0 #093d24;
 }
 
 /* ----- Pote central: Ficha de Cassino clássica (rubi, ouro, marfim e preto) ----- */
 :root[data-tema="cassino"] .pote-ficha {
   background: repeating-conic-gradient(
-    #c41e30 0deg 15deg,
-    #faf3e1 15deg 22deg,
-    #181014 22deg 37deg,
-    #e5b84b 37deg 45deg
+    #c81e32 0deg 15deg,
+    #fdf6e6 15deg 22deg,
+    #180d11 22deg 37deg,
+    #ebc056 37deg 45deg
   );
-  box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.82), 0 0 0 2px rgba(229, 184, 75, 0.55);
+  box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.82), 0 0 0 2px rgba(235, 192, 86, 0.58);
 }
 :root[data-tema="cassino"] .pote-ficha .miolo {
-  border: 2px dashed rgba(245, 224, 152, 0.9);
+  border: 2px dashed rgba(248, 228, 160, 0.92);
   box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.45);
 }
 :root[data-tema="cassino"] .pote-rotulo {
-  color: rgba(250, 243, 225, 0.86);
+  color: rgba(253, 246, 230, 0.88);
 }
 :root[data-tema="cassino"] .pote-valor {
-  color: #ffe184;
+  color: #ffe388;
 }
 
 /* ----- Assentos dourados de mesa VIP ----- */
 :root[data-tema="cassino"] .lugar {
-  border-color: rgba(229, 184, 75, 0.54);
+  border-color: rgba(235, 192, 86, 0.54);
 }
 :root[data-tema="cassino"] .lugar.eu {
-  border-color: #e5b84b;
-  box-shadow: 0 0 0 1px rgba(229, 184, 75, 0.38), 0 6px 18px -6px rgba(0, 0, 0, 0.72);
+  border-color: #ebc056;
+  box-shadow: 0 0 0 1px rgba(235, 192, 86, 0.38), 0 6px 18px -6px rgba(0, 0, 0, 0.72);
 }
 :root[data-tema="cassino"] .lugar.vez {
-  color: #16070a;
-  border-color: #faf3e1;
+  color: #1d0509;
+  border-color: #fdf6e6;
 }
 :root[data-tema="cassino"] .lugar.vez .l-nome .coroa,
-:root[data-tema="cassino"] .lugar.vez .l-voce { color: #16070a; }
+:root[data-tema="cassino"] .lugar.vez .l-voce { color: #1d0509; }
 :root[data-tema="cassino"] .lugar.vez .tag.blind {
-  color: #16070a;
-  box-shadow: inset 0 0 0 1px rgba(22, 7, 10, 0.55);
+  color: #1d0509;
+  box-shadow: inset 0 0 0 1px rgba(29, 5, 9, 0.55);
 }
 :root[data-tema="cassino"] .anuncio-vez .anuncio-titulo {
-  color: #16070a;
-  border-color: #faf3e1;
+  color: #1d0509;
+  border-color: #fdf6e6;
 }
 :root[data-tema="cassino"] .barra-acoes.minha-vez {
-  border-top-color: #e5b84b;
-  border-color: rgba(229, 184, 75, 0.68);
+  border-top-color: #ebc056;
+  border-color: rgba(235, 192, 86, 0.72);
 }
 
 /* ----- Cartas em tom marfim de baralho de cassino ----- */
 :root[data-tema="cassino"] .carta:not(.verso),
 :root[data-tema="cassino"] .carta-3d-frente {
-  background: #fffcf4;
+  background: #fffdf5;
 }
 :root[data-tema="cassino"] .n-s,
 :root[data-tema="cassino"] .n-c { --cn: #161214; }
 :root[data-tema="cassino"] .n-h,
-:root[data-tema="cassino"] .n-d { --cn: #c41e30; }
+:root[data-tema="cassino"] .n-d { --cn: #c81e32; }
 :root[data-tema="cassino"] .carta.verso,
 :root[data-tema="cassino"] .carta-mini.verso,
 :root[data-tema="cassino"] .carta-3d-verso {
-  border-color: rgba(229, 184, 75, 0.72);
-  box-shadow: inset 0 0 0 2px rgba(250, 243, 225, 0.25), 0 4px 10px rgba(0, 0, 0, 0.48);
+  border-color: rgba(235, 192, 86, 0.74);
+  box-shadow: inset 0 0 0 2px rgba(253, 246, 230, 0.25), 0 4px 10px rgba(0, 0, 0, 0.48);
 }
 
 /* ----- Amostra do tema Cassino ----- */
 .amostra-cassino,
 :root[data-tema="cassino"] .amostra-dupla {
-  background: linear-gradient(135deg, #b81d2c 0 38%, #e5b84b 38% 62%, #0d5e37 62% 100%);
+  background: linear-gradient(135deg, #b8192b 0 38%, #ebc056 38% 62%, #0d5e37 62% 100%);
 }

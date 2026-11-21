@@ -1,8 +1,8 @@
 // Sincronização em tempo real (Broadcast + Postgres Changes + fallback + heartbeat)
 // Compartilhada por todos os modos de jogo
-import { banco } from './supabase.js?v=77';
-import { estado } from './estado.js?v=77';
-import { lerDevSala } from './storage.js?v=77';
+import { banco } from './supabase.js?v=78';
+import { estado } from './estado.js?v=78';
+import { lerDevSala } from './storage.js?v=78';
 
 let canal = null;
 let temporizadorReserva = null;

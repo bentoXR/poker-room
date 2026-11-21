@@ -2,8 +2,8 @@
 const CHAVE_TEMA = 'poker-tema';
 const ORDEM_TEMAS = ['classico', 'cassino', 'preto', 'liberdade', 'tropical'];
 const CORES_META = {
-  classico: '#1a100a',
-  cassino: '#18060a',
+  classico: '#1b130e',
+  cassino: '#480814',
   preto: '#14161c',
   liberdade: '#0a3161',
   tropical: '#04384f'
