@@ -1,8 +1,9 @@
 // Recursos compartilhados da mesa: histórico, conversão em R$, guia de mãos e detalhes dos potes
-import { banco } from '../core/supabase.js?v=2';
-import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=2';
-import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=2';
-import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=2';
+import { banco } from '../core/supabase.js?v=3';
+import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=3';
+import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=3';
+import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=3';
+import { htmlCartaMini } from '../modos/online/cartas.js?v=3';
 
 // ----- Histórico -----
 export function abrirHistorico() {
@@ -135,14 +136,15 @@ const MAOS_POKER = [
   ['Carta Alta', 'High Card', 'Nenhuma combinação: vale a carta mais alta.', 'A♠ J♦* 8♣* 5♥* 2♦*']
 ];
 
+const NAIPE_POR_SIMBOLO = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
+
+// Usa o mesmo desenho de carta do modo Online (naipes e cores idênticos)
 function cartaMiniHtml(txt) {
   const apagada = txt.slice(-1) === '*';
   if (apagada) txt = txt.slice(0, -1);
-  const naipe = txt.slice(-1);
+  const naipe = NAIPE_POR_SIMBOLO[txt.slice(-1)];
   const valor = txt.slice(0, -1);
-  const vermelha = (naipe === '♥' || naipe === '♦');
-  return '<div class="carta-mini' + (vermelha ? ' verm' : '') + (apagada ? ' apagada' : '') + '">'
-    + '<span class="cv">' + valor + '</span><span class="cn">' + naipe + '</span></div>';
+  return htmlCartaMini((valor === '10' ? 'T' : valor) + naipe, 'guia' + (apagada ? ' apagada' : ''));
 }
 
 export function abrirGuia() {

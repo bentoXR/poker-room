@@ -142,6 +142,10 @@
 .carta-mini .cn { font-size: 18px; line-height: 1; }
 .carta-mini.apagada { opacity: 0.35; box-shadow: none; }
 
+/* Guia de mãos: cartas desenhadas com o mesmo visual do modo Online */
+.guia-cartas .carta.mini.guia { width: 42px; flex-shrink: 0; border-radius: 6px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); }
+.guia-cartas .carta.mini.guia.apagada { opacity: 0.38; box-shadow: none; }
+
 /* ----- Distribuição do pote (simples e potes laterais) ----- */
 .linha-premio {
   display: grid;

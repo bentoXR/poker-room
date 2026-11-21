@@ -1,11 +1,11 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=2';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=2';
-import { guardarMeuJogador } from '../core/storage.js?v=2';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=2';
-import { tratarErroConta } from './auth.js?v=2';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=2';
-import { abrirMesa } from '../mesa/mesa.js?v=2';
+import { banco } from '../core/supabase.js?v=3';
+import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=3';
+import { guardarMeuJogador } from '../core/storage.js?v=3';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=3';
+import { tratarErroConta } from './auth.js?v=3';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=3';
+import { abrirMesa } from '../mesa/mesa.js?v=3';
 
 export function abrirSalas() {
   pararSalas();
@@ -55,7 +55,7 @@ export function desenharSalas() {
       const ehOnline = s.modo === 'online';
       const estadoTxt = s.iniciada ? 'Em andamento · Mão ' + s.mao : 'Aguardando início';
       const extras = ehOnline
-        ? ' · Turno ' + (s.tempo_turno || 30) + 's' + (s.subir_blinds_min > 0 ? ' · ↑' + s.subir_blinds_min + 'm' : '')
+        ? ' · ' + (Number(s.tempo_turno) === 0 ? 'Sem limite de tempo' : 'Turno ' + (s.tempo_turno || 30) + 's') + (s.subir_blinds_min > 0 ? ' · ↑' + s.subir_blinds_min + 'm' : '')
         : '';
       const detalhe = estadoTxt + ' · ' + s.n_jogadores + (s.n_jogadores === 1 ? ' jogador' : ' jogadores')
         + ' · Blinds ' + s.small_blind + '/' + s.big_blind + extras;

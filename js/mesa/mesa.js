@@ -1,14 +1,14 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=2';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, limparCachesMesa } from '../core/estado.js?v=2';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=2';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, fecharFolhas } from '../core/ui.js?v=2';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=2';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=2';
-import { obterModo } from './modos.js?v=2';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=2';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=2';
+import { banco } from '../core/supabase.js?v=3';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, limparCachesMesa } from '../core/estado.js?v=3';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=3';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, fecharFolhas } from '../core/ui.js?v=3';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=3';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=3';
+import { obterModo } from './modos.js?v=3';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=3';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=3';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -162,6 +162,13 @@ export function desenharMesa(dados) {
     return;
   }
 
+  const modo = obterModo(estado.modoAtual);
+  // O modo pode conduzir uma "cena" (ex.: Online revela flop/turn/river/showdown em câmera lenta)
+  if (modo && modo.prepararCena) modo.prepararCena(partida, jogadores);
+  const congelado = (modo && modo.visaoCongelada) ? modo.visaoCongelada() : null;
+  const jogadoresVis = (congelado && congelado.jogadores) || jogadores;
+  const poteVis = (congelado && congelado.pote !== null && congelado.pote !== undefined) ? congelado.pote : partida.pote;
+
   const jogadorDaVez = jogadores.find((j) => j.id === partida.vez_jogador_id) || null;
   const emJogo = partida.iniciada && !partida.aguardando_cartas && partida.fase < 4;
   const vezAtivaId = emJogo ? partida.vez_jogador_id : null;
@@ -178,17 +185,17 @@ export function desenharMesa(dados) {
   $id('mesa-sala').textContent = nomeDe(partida.nome || ('Sala ' + partida.codigo));
 
   const elPote = $id('mesa-pote');
-  elPote.textContent = partida.pote;
-  elPote.dataset.len = String(String(partida.pote).length);
-  if (estado.ultimoPote !== null && estado.ultimoPote !== partida.pote) {
+  elPote.textContent = poteVis;
+  elPote.dataset.len = String(String(poteVis).length);
+  if (estado.ultimoPote !== null && estado.ultimoPote !== poteVis) {
     const ficha = $id('pote-ficha');
     ficha.classList.remove('bump');
     void ficha.offsetWidth;
     ficha.classList.add('bump');
   }
-  estado.ultimoPote = partida.pote;
+  estado.ultimoPote = poteVis;
 
-  if (estado.maoVista !== null && partida.mao > estado.maoVista) {
+  if (estado.maoVista !== null && partida.mao > estado.maoVista && !ehModoOnline) {
     aviso('Mão ' + (partida.mao - 1) + ' terminou. Veja o histórico.');
   }
   estado.maoVista = partida.mao;
@@ -204,7 +211,7 @@ export function desenharMesa(dados) {
     : (eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo');
 
   // ----- Potes laterais na mesa -----
-  const potesMesa = potesVisiveisNaMesa(partida, jogadores);
+  const potesMesa = congelado ? null : potesVisiveisNaMesa(partida, jogadores);
   const elMesaPotes = $id('mesa-potes');
   if (potesMesa && potesMesa.length >= 2) {
     const htmlPotes = potesMesa.map((p, i) => (
@@ -225,18 +232,19 @@ export function desenharMesa(dados) {
   }
 
   // ----- Faixa de status -----
-  const status = calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez });
+  const statusModo = (modo && modo.textoStatus) ? modo.textoStatus(partida) : null;
+  const status = statusModo || calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez });
   const elStatus = $id('mesa-status');
   elStatus.textContent = status;
   elStatus.classList.toggle('minha-vez', minhaVez);
 
   // ----- Board (delegado ao modo: presencial = slots, online = cartas viradas) -----
-  $id('mesa-fase').textContent = partida.iniciada ? NOMES_FASE[partida.fase] : '';
-  const modo = obterModo(estado.modoAtual);
+  const faseVis = (modo && modo.faseExibida) ? modo.faseExibida(partida) : partida.fase;
+  $id('mesa-fase').textContent = partida.iniciada ? NOMES_FASE[faseVis] : '';
   if (modo && modo.desenharBoard) modo.desenharBoard(partida, jogadores);
 
   // ----- Assentos em elipse 360° -----
-  desenharAssentos({ partida, jogadores, vezAtivaId, modo });
+  desenharAssentos({ partida, jogadores: jogadoresVis, vezAtivaId, modo, congelado: !!congelado });
 
   // ----- Cronômetros e histórico -----
   estado.relogio.offset = dados.agora ? Date.parse(dados.agora) - Date.now() : 0;
@@ -295,7 +303,7 @@ function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez })
   return 'Fim da partida: só resta um jogador com fichas.';
 }
 
-function desenharAssentos({ partida, jogadores, vezAtivaId, modo }) {
+function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   let proximoId = null;
   if (partida.iniciada && partida.fase_blind === 1) proximoId = partida.bb_jogador_id;
   else if (partida.iniciada && partida.fase_blind === 2) proximoId = partida.primeiro_jogador_id;
@@ -313,7 +321,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo }) {
 
   const ehOnline = partida.modo === 'online';
   const desktopOnline = ehOnline && window.innerWidth >= 820;
-  const emEsperaOnline = ehOnline && (!partida.iniciada || partida.aguardando_proxima_mao);
+  const emEsperaOnline = ehOnline && (!partida.iniciada || partida.aguardando_proxima_mao) && !congelado;
   const nJ = jogadores.length;
   const meuIdx = Math.max(0, jogadores.findIndex((j) => j.id === estado.meuJogadorId));
   const larguraLugar = desktopOnline
@@ -385,6 +393,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo }) {
         </div>
         ${cartasHtml}
         <div class="l-tags">${tags}</div>
+        ${(naVez && ehOnline && Number(partida.tempo_turno) > 0) ? '<div class="l-timer"><i></i></div>' : ''}
       </div>
     `;
   }).join('');

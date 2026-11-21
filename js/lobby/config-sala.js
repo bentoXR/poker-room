@@ -1,8 +1,8 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=2';
-import { estado, marcarReal } from '../core/estado.js?v=2';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=2';
+import { banco } from '../core/supabase.js?v=3';
+import { estado, marcarReal } from '../core/estado.js?v=3';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=3';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -20,7 +20,7 @@ export function obterConfigOnline(p) {
   p = p || '';
   return {
     modo: cfgModo[p] || 'presencial',
-    tempoTurno: cfgTempoTurno[p] || 30,
+    tempoTurno: cfgTempoTurno[p] === 0 ? 0 : (cfgTempoTurno[p] || 30),
     subirBlindsMin: cfgSubirBlinds[p] || 0
   };
 }
@@ -43,7 +43,7 @@ export function escolherModoSala(modo, p) {
 
 export function escolherTempoTurno(seg, p) {
   p = p || '';
-  cfgTempoTurno[p] = Number(seg) || 30;
+  cfgTempoTurno[p] = Number(seg) === 0 ? 0 : (Number(seg) || 30);
   const wrap = $id('chips-turno' + idsCfg(p).s);
   if (wrap) {
     wrap.querySelectorAll('.op-chip').forEach((b) => {

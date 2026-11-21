@@ -1,14 +1,39 @@
-// Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s
-import { banco } from '../../core/supabase.js?v=2';
-import { estado, nomeDe } from '../../core/estado.js?v=2';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=2';
-import { lerDevSala } from '../../core/storage.js?v=2';
-import { registrarModo } from '../../mesa/modos.js?v=2';
-import { executar } from '../../mesa/apostas.js?v=2';
+// Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
+// Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
+// e do assistente de mão (luzinha nas cartas que formam a sua jogada).
+import { banco } from '../../core/supabase.js?v=3';
+import { estado, nomeDe } from '../../core/estado.js?v=3';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=3';
+import { lerDevSala } from '../../core/storage.js?v=3';
+import { registrarModo } from '../../mesa/modos.js?v=3';
+import { executar } from '../../mesa/apostas.js?v=3';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=3';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=3';
+import { avaliarMaoLocal } from './maos.js?v=3';
 
-const NAIPES_SYM = { s: '♠', h: '♥', d: '♦', c: '♣' };
+// Tempos (ms) do "ritmo lento" das etapas da mão
+const T = {
+  antesCarta: 1100,   // aviso aparece e só depois as cartas caem na mesa
+  aposFlop: 2800,     // pausa depois do flop (3 cartas) antes da próxima etapa
+  aposCarta: 2300,    // pausa depois de Turn / River
+  showdown: 2400,     // aviso "Showdown" antes de revelar as mãos
+  anuncio: 2300,      // duração do aviso grande no centro da mesa
+  anuncioVez: 2000    // duração do aviso "Sua vez"
+};
+const ROTULOS_RUA = { 3: 'FLOP', 4: 'TURN', 5: 'RIVER' };
+const SUBTITULOS_RUA = {
+  FLOP: 'As 3 primeiras cartas da mesa',
+  TURN: 'A quarta carta da mesa',
+  RIVER: 'A última carta da mesa'
+};
 
-// Estado local efêmero das cartas do jogador (escondidas por padrão a cada mão!)
+const ICONE_LUZ = '<svg class="ic-luz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21h6M10 17h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg>';
+
+function lerAssistente() {
+  try { return localStorage.getItem('poker-assistente') !== '0'; } catch (erro) { return true; }
+}
+
+// Estado local efêmero (nada daqui é enviado ao servidor)
 const onlineUI = {
   maoCarregada: null,
   jogadorCarregado: null,
@@ -16,20 +41,57 @@ const onlineUI = {
   viradas: [false, false],  // estado do flip 3D de cada carta
   buscandoCartas: false,
   htmlBoardVisto: '',
+  boardQtdVisto: -1,
   htmlMaoVisto: '',
   avancandoTempo: false,
   ultimoAvancoEm: 0,
-  mostrouDica: false
+  mostrouDica: false,
+  assistente: lerAssistente(),
+
+  // Cena de revelação (flop, turn, river e showdown em câmera lenta)
+  partidaId: null,
+  boardMostrado: -1,        // quantas cartas da mesa já foram reveladas na tela
+  cena: null,               // { fila, timer }
+  segurando: false,         // true = resultado do showdown ainda escondido
+  chaveEmCena: null,
+  resultadoVisto: null,
+  congelado: null,          // fichas/pote de antes do showdown (para não "estragar" a surpresa)
+  ultimaVisao: null,
+
+  eraMinhaVez: false,
+  ultimaTxt: null,
+  timerAnuncio: null,
+  timerAnuncioVez: null
 };
 
+function cancelarCena() {
+  if (onlineUI.cena && onlineUI.cena.timer) clearTimeout(onlineUI.cena.timer);
+  onlineUI.cena = null;
+  onlineUI.segurando = false;
+  onlineUI.chaveEmCena = null;
+  onlineUI.congelado = null;
+  ['anuncio-mesa', 'anuncio-vez'].forEach((id) => {
+    const el = $id(id);
+    if (el) { el.classList.remove('mostra'); el.innerHTML = ''; }
+  });
+}
+
 export function resetarOnlineUI() {
+  cancelarCena();
   onlineUI.maoCarregada = null;
   onlineUI.jogadorCarregado = null;
   onlineUI.minhasCartas = null;
   onlineUI.viradas = [false, false];
   onlineUI.buscandoCartas = false;
   onlineUI.htmlBoardVisto = '';
+  onlineUI.boardQtdVisto = -1;
   onlineUI.htmlMaoVisto = '';
+  onlineUI.partidaId = null;
+  onlineUI.boardMostrado = -1;
+  onlineUI.resultadoVisto = null;
+  onlineUI.ultimaVisao = null;
+  onlineUI.eraMinhaVez = false;
+  onlineUI.ultimaTxt = null;
   const wrap = $id('minha-mao-wrap');
   if (wrap) { wrap.innerHTML = ''; wrap.hidden = true; }
   const faixa = $id('faixa-online');
@@ -38,14 +100,23 @@ export function resetarOnlineUI() {
   if (timerWrap) timerWrap.hidden = true;
 }
 
-function parseCarta(c) {
-  if (!c || c.length < 2) return null;
-  const r = c[0] === 'T' ? '10' : c[0];
-  const s = c[1];
-  const sym = NAIPES_SYM[s] || '';
-  const verm = s === 'h' || s === 'd';
-  return { raw: c, val: r, sym, verm };
+// ----- Avisos grandes na mesa -----
+function anunciar(titulo, sub, variante, duracao) {
+  const vez = variante === 'vez';
+  const el = $id(vez ? 'anuncio-vez' : 'anuncio-mesa');
+  if (!el) return;
+  el.className = (vez ? 'anuncio-vez ' : 'anuncio-mesa ') + variante;
+  el.style.setProperty('--dur', duracao + 'ms');
+  el.innerHTML = '<div class="anuncio-titulo">' + escapar(titulo) + '</div>'
+    + (sub ? '<div class="anuncio-sub">' + escapar(sub) + '</div>' : '');
+  void el.offsetWidth;
+  el.classList.add('mostra');
+  const chave = vez ? 'timerAnuncioVez' : 'timerAnuncio';
+  clearTimeout(onlineUI[chave]);
+  onlineUI[chave] = setTimeout(() => el.classList.remove('mostra'), duracao);
 }
+
+function parseCartaLocal(raw) { return parseCarta(raw); }
 
 function melhoresDoResultado(partida) {
   const set = {};
@@ -68,6 +139,195 @@ function vencedoresDoResultado(partida) {
     (p.vencedores || []).forEach((v) => { if (v.id) set[v.id] = true; });
   });
   return set;
+}
+
+// ----- Cena em câmera lenta: flop → turn → river → showdown -----
+function chaveDoResultado(partida) {
+  const res = partida.ultimo_resultado;
+  return (partida.aguardando_proxima_mao && res) ? (partida.mao + ':' + res.tipo) : null;
+}
+
+function prepararCena(partida, jogadores) {
+  const total = Array.isArray(partida.board) ? partida.board.length : 0;
+  const res = partida.ultimo_resultado;
+  const chave = chaveDoResultado(partida);
+  const ehShowdown = !!(chave && res && res.tipo === 'showdown');
+
+  if (onlineUI.boardMostrado < 0 || onlineUI.partidaId !== partida.id) {
+    // Primeira vez que vemos esta mesa: mostra tudo como está, sem reencenar
+    cancelarCena();
+    onlineUI.partidaId = partida.id;
+    onlineUI.boardMostrado = total;
+    onlineUI.resultadoVisto = chave;
+  } else if (total < onlineUI.boardMostrado) {
+    // Nova mão começou
+    cancelarCena();
+    onlineUI.boardMostrado = total;
+    onlineUI.resultadoVisto = chave;
+  } else if (!onlineUI.cena) {
+    const faltamCartas = total > onlineUI.boardMostrado;
+    const faltaShowdown = ehShowdown && chave !== onlineUI.resultadoVisto;
+    if (faltamCartas || faltaShowdown) iniciarCena(total, faltaShowdown ? chave : null);
+    else if (chave) onlineUI.resultadoVisto = chave;
+  }
+
+  if (!onlineUI.segurando) {
+    onlineUI.ultimaVisao = { jogadores, pote: partida.pote };
+  }
+}
+
+function iniciarCena(total, chaveShowdown) {
+  const fila = [];
+  let atual = onlineUI.boardMostrado;
+  while (atual < total) {
+    const prox = atual < 3 ? Math.min(3, total) : atual + 1;
+    fila.push({ ate: prox, rotulo: ROTULOS_RUA[prox] || 'FLOP' });
+    atual = prox;
+  }
+  if (chaveShowdown) {
+    fila.push({ showdown: true });
+    onlineUI.segurando = true;
+    onlineUI.chaveEmCena = chaveShowdown;
+    onlineUI.congelado = onlineUI.ultimaVisao;
+  }
+  onlineUI.cena = { fila, timer: null };
+  proximaEtapa();
+}
+
+function proximaEtapa() {
+  const cena = onlineUI.cena;
+  if (!cena) return;
+  const etapa = cena.fila.shift();
+  if (!etapa) { terminarCena(); return; }
+
+  if (etapa.showdown) {
+    anunciar('SHOWDOWN', 'Hora de mostrar as cartas', 'showdown', T.showdown);
+    cena.timer = setTimeout(proximaEtapa, T.showdown);
+    return;
+  }
+
+  anunciar(etapa.rotulo, SUBTITULOS_RUA[etapa.rotulo], 'rua', T.anuncio);
+  cena.timer = setTimeout(() => {
+    onlineUI.boardMostrado = etapa.ate;
+    desenharBoardInterno(estado.partidaAtual);
+    cena.timer = setTimeout(proximaEtapa, etapa.ate === 3 ? T.aposFlop : T.aposCarta);
+  }, T.antesCarta);
+}
+
+function terminarCena() {
+  const eraSegurando = onlineUI.segurando;
+  if (onlineUI.chaveEmCena) onlineUI.resultadoVisto = onlineUI.chaveEmCena;
+  onlineUI.cena = null;
+  onlineUI.segurando = false;
+  onlineUI.chaveEmCena = null;
+  onlineUI.congelado = null;
+  if (eraSegurando) recalcularLayoutMesa();
+}
+
+// ----- Cartas da mesa (board) -----
+function desenharBoardInterno(partida) {
+  if (!partida) return;
+  const boardEl = $id('board');
+  boardEl.classList.add('online');
+  const todas = Array.isArray(partida.board) ? partida.board : [];
+  const n = onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length);
+  const cartas = todas.slice(0, n);
+  const melhores = (partida.aguardando_proxima_mao && !onlineUI.segurando) ? melhoresDoResultado(partida) : {};
+  const chave = cartas.join(',') + '|' + Object.keys(melhores).sort().join(',');
+
+  if (chave !== onlineUI.htmlBoardVisto) {
+    const antes = onlineUI.boardQtdVisto < 0 ? n : onlineUI.boardQtdVisto;
+    onlineUI.htmlBoardVisto = chave;
+    onlineUI.boardQtdVisto = n;
+    let html = '';
+    for (let k = 0; k < 5; k++) {
+      const raw = cartas[k];
+      if (!raw) {
+        html += '<div class="carta-slot-vazio"></div>';
+        continue;
+      }
+      const c = parseCartaLocal(raw);
+      if (!c) { html += '<div class="carta-slot-vazio"></div>'; continue; }
+      const nova = k >= antes;
+      const atraso = nova ? ((k - antes) * 420) + 'ms' : '0ms';
+      const dest = !!melhores[c.raw];
+      html += '<div class="carta-board' + (nova ? '' : ' ja') + (dest ? ' destaque' : '') + '" data-raw="' + c.raw + '" style="--atraso:' + atraso + '">'
+        + htmlCarta(c.raw)
+        + '</div>';
+    }
+    boardEl.querySelector('.slots').innerHTML = html;
+  }
+
+  boardEl.querySelectorAll('.rotulos span').forEach((el) => {
+    const faseVis = faseExibida(partida);
+    el.classList.toggle('atual', partida.iniciada && !partida.aguardando_proxima_mao && Number(el.dataset.f) === faseVis);
+  });
+  atualizarLuzes();
+}
+
+function faseExibida(partida) {
+  if (!onlineUI.segurando || onlineUI.boardMostrado < 0) return partida.fase;
+  const n = onlineUI.boardMostrado;
+  return n >= 5 ? 3 : n === 4 ? 2 : n === 3 ? 1 : 0;
+}
+
+// ----- Assistente de mão: luzinha nas cartas que formam a sua jogada -----
+export function alternarAssistente() {
+  onlineUI.assistente = !onlineUI.assistente;
+  try { localStorage.setItem('poker-assistente', onlineUI.assistente ? '1' : '0'); } catch (erro) {}
+  const btn = document.querySelector('#minha-mao-wrap .btn-luz');
+  if (btn) {
+    btn.classList.toggle('on', onlineUI.assistente);
+    btn.setAttribute('aria-pressed', onlineUI.assistente ? 'true' : 'false');
+    btn.title = onlineUI.assistente ? 'Dica de mão ligada' : 'Dica de mão desligada';
+  }
+  aviso(onlineUI.assistente ? 'Dica de mão ligada: vire uma carta para ver' : 'Dica de mão desligada');
+  atualizarLuzes();
+}
+
+function atualizarLuzes() {
+  const wrap = $id('minha-mao-wrap');
+  const boardEl = $id('board');
+  if (wrap) wrap.querySelectorAll('.carta-3d').forEach((b) => b.classList.remove('luz'));
+  if (boardEl) boardEl.querySelectorAll('.carta-board').forEach((el) => el.classList.remove('luz', 'apagada'));
+  const nomeEl = $id('minha-mao-nome');
+  const esconderNome = () => {
+    if (nomeEl) { nomeEl.hidden = true; nomeEl.innerHTML = ''; }
+    if (wrap) wrap.classList.remove('com-nome');
+  };
+
+  const p = estado.partidaAtual;
+  if (!p || p.modo !== 'online' || !onlineUI.minhasCartas) { esconderNome(); return; }
+  const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
+  const olhando = !!(onlineUI.viradas[0] || onlineUI.viradas[1]);
+  const emMao = p.iniciada && !p.aguardando_proxima_mao && !onlineUI.segurando;
+  if (!onlineUI.assistente || !olhando || !emMao || !eu || !eu.tem_cartas || eu.desistiu) { esconderNome(); return; }
+
+  const todas = Array.isArray(p.board) ? p.board : [];
+  const abertas = todas.slice(0, onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length));
+  const av = avaliarMaoLocal(onlineUI.minhasCartas.concat(abertas));
+  if (!av) { esconderNome(); return; }
+
+  const usadas = {};
+  av.usadas.forEach((r) => { usadas[r] = true; });
+  if (wrap) {
+    wrap.querySelectorAll('.carta-3d').forEach((b) => {
+      b.classList.toggle('luz', !!usadas[b.dataset.raw]);
+    });
+  }
+  if (boardEl) {
+    boardEl.querySelectorAll('.carta-board').forEach((el) => {
+      if (usadas[el.dataset.raw]) el.classList.add('luz');
+      else if (av.cat >= 1) el.classList.add('apagada');
+    });
+  }
+  if (nomeEl) {
+    nomeEl.innerHTML = '<span class="mm-ico">' + ICONE_LUZ + '</span>'
+      + '<span class="mm-txt"><b>' + escapar(av.detalhe) + '</b>'
+      + (av.projeto ? '<small>' + escapar(av.projeto) + '</small>' : '') + '</span>';
+    nomeEl.hidden = false;
+  }
+  if (wrap) wrap.classList.add('com-nome');
 }
 
 // Busca as 2 cartas privadas do jogador atual (autenticadas pelo segredo no banco)
@@ -95,7 +355,6 @@ async function sincronizarMinhasCartas(partida, eu) {
   try {
     const resp = await banco.rpc('minhas_cartas', { p_jogador: jid, p_segredo: seg });
     if (!resp.error && resp.data && Array.isArray(resp.data.cartas) && resp.data.cartas.length === 2) {
-      // Se ainda estamos no mesmo jogador e mesma mão, guarda e começa virada para baixo!
       if (estado.meuJogadorId === jid) {
         const mudouMao = (onlineUI.maoCarregada !== resp.data.mao || onlineUI.jogadorCarregado !== jid);
         onlineUI.maoCarregada = resp.data.mao;
@@ -120,6 +379,7 @@ export function virarMinhaCarta(indice) {
   if (btn) btn.classList.toggle('virada', onlineUI.viradas[indice]);
   const dica = document.querySelector('#minha-mao-wrap .minha-mao-dica');
   if (dica) dica.textContent = (onlineUI.viradas[0] || onlineUI.viradas[1]) ? 'Toque novamente para esconder' : 'Toque na carta para espiar';
+  atualizarLuzes();
 }
 
 function desenharMinhaMao(partida, eu) {
@@ -131,7 +391,7 @@ function desenharMinhaMao(partida, eu) {
     return;
   }
 
-  const emPausa = !!partida.aguardando_proxima_mao;
+  const emPausa = !!partida.aguardando_proxima_mao && !onlineUI.segurando;
   const res = partida.ultimo_resultado;
   const vis = Array.isArray(eu.cartas_visiveis) ? eu.cartas_visiveis : [];
   const melhores = emPausa && res && res.tipo === 'showdown' ? melhoresDoResultado(partida) : {};
@@ -151,11 +411,13 @@ function desenharMinhaMao(partida, eu) {
     c2Vis ? '1' : '0',
     podeRevelar ? '1' : '0',
     eu.mao_nome || '',
+    onlineUI.assistente ? 'L' : 'l',
     Object.keys(melhores).sort().join(',')
   ].join('|');
 
   if (chave === onlineUI.htmlMaoVisto) {
     wrap.hidden = false;
+    atualizarLuzes();
     return;
   }
   onlineUI.htmlMaoVisto = chave;
@@ -166,20 +428,17 @@ function desenharMinhaMao(partida, eu) {
   ];
 
   const cartasHtml = onlineUI.minhasCartas.map((raw, idx) => {
-    const c = parseCarta(raw);
+    const c = parseCartaLocal(raw);
     if (!c) return '';
     const virada = abertas[idx];
-    const dest = !!melhores[raw];
+    const dest = !!melhores[c.raw];
     return `
       <div class="carta-3d-slot">
         <button type="button" class="carta-3d${virada ? ' virada' : ''}${dest ? ' destaque' : ''}"
-                data-idx="${idx}" onclick="virarMinhaCarta(${idx})"
+                data-idx="${idx}" data-raw="${c.raw}" onclick="virarMinhaCarta(${idx})"
                 aria-label="Carta ${idx + 1}: toque para virar">
           <span class="carta-face verso"></span>
-          <span class="carta-face frente${c.verm ? ' verm' : ''}">
-            <span class="cf-canto"><span>${c.val}</span><span>${c.sym}</span></span>
-            <span class="cf-centro">${c.sym}</span>
-          </span>
+          <span class="carta-face frente">${htmlCarta(c.raw)}</span>
         </button>
       </div>
     `;
@@ -187,11 +446,9 @@ function desenharMinhaMao(partida, eu) {
 
   let revelarHtml = '';
   if (podeRevelar) {
-    const p1 = parseCarta(onlineUI.minhasCartas[0]);
-    const p2 = parseCarta(onlineUI.minhasCartas[1]);
     revelarHtml = '<div class="minha-mao-revelar">'
-      + (!c1Vis ? '<button type="button" class="secundario" onclick="mostrarCartasOnline(\'1\')">Mostrar ' + (p1 ? p1.val + p1.sym : '1ª') + '</button>' : '')
-      + (!c2Vis ? '<button type="button" class="secundario" onclick="mostrarCartasOnline(\'2\')">Mostrar ' + (p2 ? p2.val + p2.sym : '2ª') + '</button>' : '')
+      + (!c1Vis ? '<button type="button" class="secundario" onclick="mostrarCartasOnline(\'1\')">Mostrar ' + textoCarta(onlineUI.minhasCartas[0]) + '</button>' : '')
+      + (!c2Vis ? '<button type="button" class="secundario" onclick="mostrarCartasOnline(\'2\')">Mostrar ' + textoCarta(onlineUI.minhasCartas[1]) + '</button>' : '')
       + ((!c1Vis && !c2Vis) ? '<button type="button" class="positivo" onclick="mostrarCartasOnline(\'ambas\')">Mostrar as duas</button>' : '')
       + '</div>';
   }
@@ -200,12 +457,19 @@ function desenharMinhaMao(partida, eu) {
     ? 'Quer mostrar seu blefe ou sua mão para a mesa?'
     : (eu.mao_nome && emPausa
         ? 'Sua mão: ' + escapar(eu.mao_nome)
-        : (abertas[0] || abertas[1] ? 'Toque na carta para esconder' : 'Toque na carta para espiar'));
+        : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque na carta para espiar'));
 
-  wrap.innerHTML = '<div class="minha-mao-cartas">' + cartasHtml + '</div>'
+  const btnLuz = '<button type="button" class="btn-luz' + (onlineUI.assistente ? ' on' : '') + '" onclick="alternarAssistente()"'
+    + ' aria-pressed="' + (onlineUI.assistente ? 'true' : 'false') + '"'
+    + ' title="' + (onlineUI.assistente ? 'Dica de mão ligada' : 'Dica de mão desligada') + '"'
+    + ' aria-label="Ligar ou desligar a dica de mão">' + ICONE_LUZ + '</button>';
+
+  wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas">' + cartasHtml + '</div>' + btnLuz + '</div>'
+    + '<div class="minha-mao-nome" id="minha-mao-nome" hidden></div>'
     + '<div class="minha-mao-dica">' + dica + '</div>'
     + revelarHtml;
   wrap.hidden = false;
+  atualizarLuzes();
 }
 
 // ----- Ações RPC do modo Online -----
@@ -277,12 +541,13 @@ export function tickOnline() {
 
   const agora = Date.now() + estado.relogio.offset;
 
-  // 1) Timer de turno (contagem regressiva + barra de progresso)
+  // 1) Timer de turno (contagem regressiva + barra de progresso). tempo_turno = 0 → sem limite.
+  const limitado = Number(p.tempo_turno) > 0;
   const emTurno = p.iniciada && !p.aguardando_proxima_mao && p.fase < 4 && !!p.vez_jogador_id && !!p.vez_desde;
   const timerWrap = $id('timer-turno-wrap');
   const timerFill = $id('timer-turno-fill');
 
-  if (emTurno) {
+  if (emTurno && limitado) {
     const totalMs = Math.max(15, Number(p.tempo_turno) || 30) * 1000;
     const decorrido = Math.max(0, agora - Date.parse(p.vez_desde));
     const restanteMs = Math.max(0, totalMs - decorrido);
@@ -294,6 +559,12 @@ export function tickOnline() {
       elTurno.textContent = restanteSeg + 's';
       const tagVez = elTurno.closest('.tag.vez');
       if (tagVez) tagVez.classList.toggle('urgente', restanteSeg <= 7);
+    }
+    const barraAssento = document.querySelector('.lugar.vez .l-timer i');
+    if (barraAssento) {
+      barraAssento.style.width = pct.toFixed(1) + '%';
+      barraAssento.classList.toggle('alerta', restanteSeg <= 12 && restanteSeg > 7);
+      barraAssento.classList.toggle('urgente', restanteSeg <= 7);
     }
 
     const minhaVez = p.vez_jogador_id === estado.meuJogadorId;
@@ -327,80 +598,82 @@ export function tickOnline() {
   }
 }
 
+function avisarMinhaVez(partida, eu) {
+  const emJogo = partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4;
+  const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id && !onlineUI.segurando;
+  if (minhaVez && !onlineUI.eraMinhaVez && !partida.fase_blind) {
+    anunciar('SUA VEZ', null, 'vez', T.anuncioVez);
+  }
+  onlineUI.eraMinhaVez = minhaVez;
+}
+
+function destacarUltimaJogada() {
+  const el = $id('mesa-ultima');
+  if (!el) return;
+  const txt = el.textContent;
+  if (onlineUI.ultimaTxt !== null && txt && txt !== onlineUI.ultimaTxt) {
+    el.classList.remove('nova');
+    void el.offsetWidth;
+    el.classList.add('nova');
+  }
+  onlineUI.ultimaTxt = txt;
+}
+
 // ----- Registro do modo 'online' no contrato compartilhado de mesa/modos.js -----
 registrarModo('online', {
+  prepararCena,
+
+  visaoCongelada() {
+    if (!onlineUI.segurando) return null;
+    return onlineUI.congelado || { jogadores: null, pote: null };
+  },
+
+  faseExibida,
+
+  textoStatus() {
+    return onlineUI.segurando ? 'Mostrando as cartas…' : null;
+  },
+
   desenharBoard(partida) {
-    const boardEl = $id('board');
-    boardEl.classList.add('online');
-    const cartas = Array.isArray(partida.board) ? partida.board : [];
-    const melhores = partida.aguardando_proxima_mao ? melhoresDoResultado(partida) : {};
-    const chave = cartas.join(',') + '|' + Object.keys(melhores).sort().join(',');
-
-    if (chave !== onlineUI.htmlBoardVisto) {
-      const prevCount = onlineUI.htmlBoardVisto ? (onlineUI.htmlBoardVisto.split('|')[0].split(',').filter(Boolean).length) : 0;
-      onlineUI.htmlBoardVisto = chave;
-      let html = '';
-      for (let k = 0; k < 5; k++) {
-        const raw = cartas[k];
-        if (!raw) {
-          html += '<div class="carta-slot-vazio"></div>';
-        } else {
-          const c = parseCarta(raw);
-          const novaIdx = k >= prevCount ? (k - prevCount) : 0;
-          const atraso = k >= prevCount ? (novaIdx * 95) + 'ms' : '0ms';
-          const dest = !!melhores[raw];
-          html += `
-            <div class="carta-board${c.verm ? ' verm' : ''}${dest ? ' destaque' : ''}" style="--atraso:${atraso}">
-              <div class="carta-corpo">
-                <span class="c-val">${c.val}</span>
-                <span class="c-naipe">${c.sym}</span>
-              </div>
-            </div>
-          `;
-        }
-      }
-      boardEl.querySelector('.slots').innerHTML = html;
-    }
-
-    boardEl.querySelectorAll('.rotulos span').forEach((el) => {
-      el.classList.toggle('atual', partida.iniciada && !partida.aguardando_proxima_mao && Number(el.dataset.f) === partida.fase);
-    });
+    desenharBoardInterno(partida);
   },
 
   htmlCartasAssento(jogador, partida) {
     if (!partida.iniciada) return '';
     const souEu = jogador.id === estado.meuJogadorId;
-    const vis = Array.isArray(jogador.cartas_visiveis) ? jogador.cartas_visiveis : [];
+    const segurando = onlineUI.segurando;
+    const vis = (!segurando && Array.isArray(jogador.cartas_visiveis)) ? jogador.cartas_visiveis : [];
     const temVis = !!(vis[0] || vis[1]);
 
     // Minhas cartas (e o nome da minha mão) já ficam em destaque grande na barra de baixo:
     // evita crescer o assento inferior e sobrepor o centro da mesa em telas pequenas.
     if (souEu) return '';
 
+    const melhores = (partida.aguardando_proxima_mao && !segurando) ? melhoresDoResultado(partida) : {};
     let html = '';
     if (temVis) {
       html += '<div class="l-cartas">';
       for (let i = 0; i < 2; i++) {
-        const c = parseCarta(vis[i]);
+        const c = parseCartaLocal(vis[i]);
         if (c) {
-          html += '<span class="mini-carta frente' + (c.verm ? ' verm' : '') + '"><span class="mv">' + c.val + '</span><span class="mn">' + c.sym + '</span></span>';
+          html += htmlCartaMini(c.raw, 'frente-mini' + (melhores[c.raw] ? ' destaque' : ''));
         } else if (jogador.tem_cartas) {
-          html += '<span class="mini-carta verso"></span>';
+          html += htmlVersoMini();
         }
       }
       html += '</div>';
-    } else if (jogador.tem_cartas && !jogador.desistiu && !partida.aguardando_proxima_mao) {
-      html += '<div class="l-cartas"><span class="mini-carta verso"></span><span class="mini-carta verso"></span></div>';
+    } else if (jogador.tem_cartas && !jogador.desistiu && (!partida.aguardando_proxima_mao || segurando)) {
+      html += '<div class="l-cartas">' + htmlVersoMini() + htmlVersoMini() + '</div>';
     }
 
-    if (jogador.mao_nome && partida.aguardando_proxima_mao) {
+    if (jogador.mao_nome && partida.aguardando_proxima_mao && !segurando) {
       html += '<div class="l-mao-nome">' + escapar(jogador.mao_nome) + '</div>';
     }
     return html;
   },
 
   ehVencedorAssento(jogador, partida) {
-    if (!partida.aguardando_proxima_mao) return false;
+    if (!partida.aguardando_proxima_mao || onlineUI.segurando) return false;
     return !!vencedoresDoResultado(partida)[jogador.id];
   },
 
@@ -412,7 +685,7 @@ registrarModo('online', {
     if (!faixa) return;
 
     const emEspera = !partida.iniciada || partida.aguardando_proxima_mao;
-    if (!emEspera) {
+    if (!emEspera || onlineUI.segurando) {
       faixa.hidden = true;
       faixa.innerHTML = '';
       return;
@@ -512,6 +785,8 @@ registrarModo('online', {
   aoAtualizarMesa(partida, _jogadores, { eu }) {
     sincronizarMinhasCartas(partida, eu);
     desenharMinhaMao(partida, eu);
+    avisarMinhaVez(partida, eu);
+    destacarUltimaJogada();
     tickOnline();
   },
 

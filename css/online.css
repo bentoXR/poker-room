@@ -60,53 +60,94 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 .tag.modo-online { background: rgba(47, 111, 208, 0.32); color: #cfe2ff; }
 .tag.modo-presencial { background: rgba(244, 247, 255, 0.11); color: var(--marfim-suave); }
 
-/* ----- Cartas comunitárias reais no centro da mesa (Modo Online) ----- */
+/* ----- Cartas (desenho único em SVG, usado na mão, na mesa, nos assentos e no guia) ----- */
+.carta {
+  --cn: #16213f;
+  position: relative;
+  display: block;
+  aspect-ratio: 5 / 7;
+  border-radius: 9% / 6.4%;
+  background: linear-gradient(165deg, #ffffff 0%, #e9eff9 100%);
+  box-shadow: inset 0 0 0 1px rgba(13, 27, 54, 0.16), 0 5px 12px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.carta svg { display: block; width: 100%; height: 100%; }
+.carta .nv, .carta .idx, .carta .fig { fill: var(--cn); }
+.carta .idx, .carta .fig { font-family: var(--fonte-numero); font-weight: 700; }
+.carta .moldura { fill: none; stroke: var(--cn); stroke-width: 2.2; opacity: 0.5; }
+
+/* Cada naipe tem sua forma E sua cor (baralho de 4 cores): fica impossível confundir */
+.n-s { --cn: #16213f; }  /* espadas: azul-marinho escuro */
+.n-h { --cn: #c8102e; }  /* copas: vermelho */
+.n-d { --cn: #1b6fe0; }  /* ouros: azul */
+.n-c { --cn: #17874a; }  /* paus: verde */
+
+/* Ícone de naipe dentro de textos e botões */
+.nv-ico {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  margin-left: 3px;
+  padding: 1px;
+  vertical-align: -0.16em;
+  border-radius: 4px;
+  background: #f4f7ff;
+}
+.nv-ico .nv { fill: var(--cn); }
+
+/* Verso das cartas (mesmo desenho em todo lugar) */
+.carta.verso {
+  aspect-ratio: 5 / 7;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.16) 0 24%, transparent 25%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.12) 0 2px, transparent 2px 5px),
+    linear-gradient(150deg, #b3263d, #5e0f1d);
+  border: 1.5px solid rgba(244, 247, 255, 0.88);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* ----- Cartas comunitárias no centro da mesa (Modo Online) ----- */
 #board.online .slots { gap: 5px; }
 .carta-slot-vazio {
   aspect-ratio: 5 / 7;
-  border-radius: 6px;
+  border-radius: 7% / 5%;
   border: 1.5px dashed rgba(244, 247, 255, 0.22);
   background: rgba(0, 0, 0, 0.18);
 }
-.carta-board {
-  position: relative;
-  aspect-ratio: 5 / 7;
-  perspective: 600px;
-}
-.carta-board .carta-corpo {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
-  background: linear-gradient(160deg, #ffffff, #e9eef8);
-  color: #0d1b36;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(13, 27, 54, 0.1);
-  animation: cartaEntrar 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+.carta-board { position: relative; perspective: 700px; }
+.carta-board .carta {
+  animation: cartaEntrar 1s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--atraso, 0ms);
+  transition: filter 0.5s ease;
 }
-.carta-board.verm .carta-corpo { color: #b31b2c; }
-.carta-board .c-val {
-  font-family: var(--fonte-numero);
-  font-size: clamp(14px, 3.8vw, 18px);
-  font-weight: 700;
-  line-height: 0.95;
-}
-.carta-board .c-naipe {
-  font-size: clamp(13px, 3.5vw, 17px);
-  line-height: 0.95;
-}
-.carta-board.destaque .carta-corpo {
-  box-shadow: 0 0 0 2px #ffd866, 0 0 14px rgba(255, 216, 102, 0.65);
+.carta-board.ja .carta { animation: none; }
+.carta-board.apagada .carta { filter: brightness(0.55) saturate(0.65); }
+.carta-board.destaque .carta {
+  box-shadow: 0 0 0 2px #ffd866, 0 0 16px rgba(255, 216, 102, 0.7), 0 5px 12px rgba(0, 0, 0, 0.45);
   transform: translateY(-3px);
 }
 @keyframes cartaEntrar {
-  0% { opacity: 0; transform: translateY(-12px) rotateY(90deg) scale(0.86); }
+  0% { opacity: 0; transform: translateY(-48px) rotateY(100deg) scale(0.78); }
+  55% { opacity: 1; }
   100% { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); }
 }
+
+/* Luzinha do assistente: contorno azul-claro pulsando nas cartas que formam a sua mão */
+.carta-board::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9% / 6.4%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.carta-board.luz::after {
+  opacity: 1;
+  box-shadow: 0 0 0 2.5px #8fd8ff, 0 0 18px 4px rgba(120, 205, 255, 0.75);
+  animation: luzPulso 1.9s ease-in-out infinite;
+}
+@keyframes luzPulso { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
 /* ----- Cartas dos adversários / reveladas nos assentos ----- */
 .l-cartas {
@@ -116,39 +157,19 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   gap: 3px;
   margin-top: 2px;
 }
-.mini-carta {
-  width: 22px;
-  height: 30px;
+.l-cartas .carta {
+  width: 25px;
+  flex-shrink: 0;
   border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--fonte-numero);
-  font-weight: 700;
-  line-height: 0.95;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
-  transition: transform 0.25s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-.mini-carta.verso {
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 5px),
-    linear-gradient(145deg, #9b1c31, #5e0f1d);
-  border: 1.5px solid rgba(244, 247, 255, 0.85);
-}
-.mini-carta.frente {
-  background: linear-gradient(160deg, #fff, #e8eef8);
-  color: #0d1b36;
-  border: 1px solid rgba(13, 27, 54, 0.15);
-  animation: miniVirar 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.mini-carta.frente.verm { color: #b31b2c; }
-.mini-carta .mv { font-size: 11px; }
-.mini-carta .mn { font-size: 10px; }
+.l-cartas .carta.frente-mini { animation: miniVirar 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.l-cartas .carta.destaque { box-shadow: 0 0 0 2px #ffd866, 0 0 10px rgba(255, 216, 102, 0.75); }
 @keyframes miniVirar {
-  0% { opacity: 0.2; transform: rotateY(90deg) scale(0.85); }
+  0% { opacity: 0.2; transform: rotateY(90deg) scale(0.8); }
   100% { opacity: 1; transform: rotateY(0deg) scale(1); }
 }
+
 
 .l-mao-nome {
   margin-top: 2px;
@@ -179,18 +200,25 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   gap: 5px;
   margin-bottom: 8px;
 }
+.minha-mao-linha {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 .minha-mao-cartas {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   perspective: 900px;
 }
 .carta-3d-slot {
   perspective: 900px;
-  animation: distribuirCarta 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: distribuirCarta 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.carta-3d-slot:nth-child(2) { animation-delay: 90ms; }
+.carta-3d-slot:nth-child(2) { animation-delay: 240ms; }
 .carta-3d {
   position: relative;
   display: block;
@@ -206,21 +234,17 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   cursor: pointer;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
   transform: rotateY(0deg);
 }
 .carta-3d:active:not(:disabled) { transform: scale(0.96); box-shadow: none; }
-.carta-3d.virada {
-  transform: rotateY(180deg) translateY(-4px);
-}
-.carta-3d.virada:active:not(:disabled) {
-  transform: rotateY(180deg) translateY(-2px) scale(0.97);
-}
-.carta-3d.destaque .carta-face.frente {
+.carta-3d.virada { transform: rotateY(180deg) translateY(-4px); }
+.carta-3d.virada:active:not(:disabled) { transform: rotateY(180deg) translateY(-2px) scale(0.97); }
+.carta-3d.destaque .carta-face.frente .carta {
   box-shadow: 0 0 0 2.5px #ffd866, 0 8px 20px rgba(255, 216, 102, 0.45);
 }
 @keyframes distribuirCarta {
-  0% { opacity: 0; transform: translateY(-22px) scale(0.76) rotate(-6deg); }
+  0% { opacity: 0; transform: translateY(-36px) scale(0.7) rotate(-8deg); }
   100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
 }
 
@@ -230,15 +254,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   border-radius: 10px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 .carta-face.verso {
   transform: rotateY(0deg);
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.14) 0 28%, transparent 29%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.16) 0 26%, transparent 27%),
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0 3px, transparent 3px 7px),
     linear-gradient(155deg, #b3263d, #5e0f1d);
   border: 2.5px solid var(--marfim);
@@ -246,35 +267,86 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 .carta-face.verso::after {
   content: "♠";
-  font-size: 24px;
-  color: rgba(244, 247, 255, 0.85);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: rgba(244, 247, 255, 0.88);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 }
 .carta-face.frente {
   transform: rotateY(180deg);
-  background: linear-gradient(165deg, #ffffff, #e8eef9);
-  color: #0d1b36;
-  border: 1.5px solid rgba(13, 27, 54, 0.15);
   box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.65);
 }
-.carta-face.frente.verm { color: #b31b2c; }
-.carta-face.frente .cf-canto {
+.carta-face.frente .carta {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1.5px rgba(13, 27, 54, 0.15);
+}
+/* Luzinha na sua carta (só aparece com a carta virada para você) */
+.carta-face.frente::after {
+  content: "";
   position: absolute;
-  top: 4px;
-  left: 6px;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.carta-3d.luz .carta-face.frente::after {
+  opacity: 1;
+  box-shadow: 0 0 0 3px #8fd8ff, 0 0 20px 5px rgba(120, 205, 255, 0.8);
+  animation: luzPulso 1.9s ease-in-out infinite;
+}
+
+/* Botão da lâmpada (liga/desliga a dica de mão) */
+.minha-mao-linha .btn-luz {
+  position: absolute;
+  right: 2px;
+  top: calc(50% - 19px);
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  font-family: var(--fonte-numero);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 0.95;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(244, 247, 255, 0.1);
+  color: var(--marfim-suave);
+  box-shadow: none;
 }
-.carta-face.frente .cf-centro {
-  font-size: 30px;
-  line-height: 1;
-  margin-top: 6px;
+.minha-mao-linha .btn-luz.on {
+  background: rgba(143, 216, 255, 0.2);
+  color: #a6e3ff;
+  box-shadow: inset 0 0 0 1.5px rgba(143, 216, 255, 0.7);
 }
+.ic-luz { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Nome da mão que você está formando */
+.minha-mao-nome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 5px 14px 5px 9px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(143, 216, 255, 0.2), rgba(47, 111, 208, 0.24));
+  border: 1px solid rgba(143, 216, 255, 0.55);
+  animation: entrarFaixa 0.35s ease;
+}
+.mm-ico { display: inline-flex; color: #9fe0ff; }
+.mm-ico .ic-luz { width: 18px; height: 18px; }
+.mm-txt { display: flex; flex-direction: column; line-height: 1.15; text-align: left; }
+.mm-txt b { font-size: 14.5px; color: #fff; }
+.mm-txt small { font-size: 11.5px; font-weight: 600; color: #bfe9ff; }
+.minha-mao-wrap.com-nome .minha-mao-dica { display: none; }
+
 
 .minha-mao-dica {
   font-size: 11.5px;
@@ -300,7 +372,6 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 
 /* Quando caixa de aposta está aberta, compacta suas cartas para caber no celular */
 #tela-mesa.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 46px; height: 64px; }
-#tela-mesa.apostando ~ #barra-acoes .carta-face.frente .cf-centro { font-size: 22px; }
 #tela-mesa.apostando ~ #barra-acoes .minha-mao-dica { display: none; }
 
 /* ----- Barra de progresso do timer de turno ----- */
@@ -371,6 +442,155 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   color: #e8f2ff;
   box-shadow: inset 0 0 0 1.5px rgba(105, 162, 255, 0.7);
 }
+
+
+/* ----- Avisos grandes na mesa (Flop, Turn, River, Showdown, Sua vez) ----- */
+.anuncio-mesa, .anuncio-vez {
+  position: absolute;
+  left: 50%;
+  z-index: 9;
+  opacity: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.anuncio-mesa { top: 50%; transform: translate(-50%, -50%); }
+.anuncio-mesa.mostra {
+  opacity: 1;
+  animation: anuncioRua var(--dur, 2300ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anuncio-mesa .anuncio-titulo {
+  font-family: var(--fonte-numero);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  padding-left: 0.16em;
+  color: #fff;
+}
+.anuncio-mesa .anuncio-sub {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--marfim-suave);
+  white-space: nowrap;
+}
+.anuncio-mesa.rua, .anuncio-mesa.showdown {
+  min-width: 220px;
+  padding: 12px 30px 11px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(14, 33, 72, 0.97), rgba(6, 13, 36, 0.98));
+  border: 2px solid rgba(244, 247, 255, 0.6);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.7), 0 0 0 5px rgba(47, 111, 208, 0.32);
+}
+.anuncio-mesa.showdown {
+  background: linear-gradient(180deg, rgba(155, 28, 49, 0.98), rgba(94, 15, 29, 0.98));
+  border-color: #ffd866;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.7), 0 0 0 5px rgba(255, 216, 102, 0.3);
+}
+@keyframes anuncioRua {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  13% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+  22% { transform: translate(-50%, -50%) scale(1); }
+  82% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+.anuncio-vez { top: 4px; transform: translateX(-50%); }
+.anuncio-vez.mostra {
+  opacity: 1;
+  animation: anuncioVez var(--dur, 2000ms) ease both;
+}
+.anuncio-vez .anuncio-titulo {
+  padding: 6px 20px;
+  border-radius: 999px;
+  font-family: var(--fonte-numero);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #fff;
+  background: linear-gradient(180deg, #b3263d, #7d1626);
+  border: 2px solid #fff;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 255, 255, 0.25);
+  white-space: nowrap;
+}
+@keyframes anuncioVez {
+  0% { opacity: 0; transform: translate(-50%, -14px); }
+  14% { opacity: 1; transform: translate(-50%, 0); }
+  84% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+
+/* ----- Tempo de cada jogador no próprio assento ----- */
+.l-timer {
+  height: 4px;
+  margin-top: 3px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.l-timer i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: #fff;
+  transition: width 0.95s linear, background-color 0.3s ease;
+}
+.l-timer i.alerta { background: #ffcf5a; }
+.l-timer i.urgente { background: #ff6b78; }
+
+/* ----- Visual da mesa Online: feltro, assentos e ritmo mais lento ----- */
+#tela-mesa.modo-online .centro-roda {
+  background: radial-gradient(ellipse at 50% 40%, #2a5cb5 0%, #173a7a 58%, #0d2250 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(244, 247, 255, 0.2),
+    inset 0 0 34px rgba(0, 0, 0, 0.4),
+    0 10px 26px -8px rgba(0, 0, 0, 0.7),
+    0 0 0 4px #08132c,
+    0 0 0 5.5px rgba(244, 247, 255, 0.16);
+}
+#tela-mesa.modo-online .lugar {
+  background: linear-gradient(180deg, #1b3f86, #12295c);
+  transition: box-shadow 0.5s ease, border-color 0.5s ease, background 0.5s ease, opacity 0.5s ease;
+}
+#tela-mesa.modo-online .lugar.eu {
+  background: linear-gradient(180deg, #2557b0, #173a7a);
+  border-color: rgba(244, 247, 255, 0.7);
+}
+#tela-mesa.modo-online .lugar.vez {
+  background: linear-gradient(180deg, #b3263d, #7d1626);
+  animation: vezPulso 1.8s ease-in-out infinite;
+}
+@keyframes vezPulso {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 0 0 0 rgba(255, 255, 255, 0.3); }
+  50% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 22px 6px rgba(255, 255, 255, 0.26); }
+}
+#tela-mesa.modo-online .lugar.vencedor { animation: vencedorBrilho 1.6s ease-in-out infinite; }
+@keyframes vencedorBrilho {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 216, 102, 0.7), 0 0 16px rgba(255, 216, 102, 0.4); }
+  50% { box-shadow: 0 0 0 3px rgba(255, 216, 102, 1), 0 0 30px rgba(255, 216, 102, 0.7); }
+}
+#tela-mesa.modo-online .centro-roda .board { width: 96%; max-width: 250px; }
+#tela-mesa.modo-online .pote-ficha { transition: transform 0.5s ease; }
+#tela-mesa.modo-online .pote-ficha.bump { animation-duration: 0.8s; }
+
+/* Última jogada vira um aviso legível e pisca quando muda */
+#tela-mesa.modo-online .linha-ultima { margin-top: 5px; }
+#tela-mesa.modo-online .ultima {
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding: 3px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--marfim);
+  background: rgba(0, 0, 0, 0.28);
+}
+#tela-mesa.modo-online .ultima.nova { animation: ultimaNova 2s ease; }
+@keyframes ultimaNova {
+  0% { background: rgba(47, 111, 208, 0.85); transform: scale(1.05); }
+  100% { background: rgba(0, 0, 0, 0.28); transform: scale(1); }
+}
+
 
 /* =====================================================
    EXPERIÊNCIA PC / DESKTOP (MODO ONLINE E SELETORES)
@@ -519,12 +739,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   }
   #tela-mesa.modo-online #board.online .slots { gap: 8px; }
   #tela-mesa.modo-online .carta-slot-vazio { border-radius: 8px; }
-  #tela-mesa.modo-online .carta-board .carta-corpo {
-    border-radius: 8px;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(13, 27, 54, 0.12);
-  }
-  #tela-mesa.modo-online .carta-board .c-val { font-size: 25px; }
-  #tela-mesa.modo-online .carta-board .c-naipe { font-size: 22px; }
+  #tela-mesa.modo-online .carta-board .carta { box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(13, 27, 54, 0.14); }
   #tela-mesa.modo-online #board.online .rotulos span { font-size: 10px; letter-spacing: 0.08em; }
   #tela-mesa.modo-online .centro-roda .pilula.destaque { padding: 4px 14px; font-size: 13px; }
 
@@ -537,13 +752,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   #tela-mesa.modo-online .l-cartas { gap: 4px; margin-top: 3px; }
-  #tela-mesa.modo-online .mini-carta {
-    width: 30px;
-    height: 42px;
-    border-radius: 5px;
-  }
-  #tela-mesa.modo-online .mini-carta .mv { font-size: 14px; }
-  #tela-mesa.modo-online .mini-carta .mn { font-size: 13px; }
+  #tela-mesa.modo-online .l-cartas .carta { width: 33px; border-radius: 5px; }
   #tela-mesa.modo-online .l-mao-nome {
     margin-top: 3px;
     padding: 2px 7px;
@@ -591,16 +800,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     border-radius: 11px;
   }
   #barra-acoes.modo-online .carta-face { border-radius: 11px; }
+  #barra-acoes.modo-online .carta-face.frente .carta { border-radius: 11px; }
   #barra-acoes.modo-online .carta-face.verso::after { font-size: 30px; }
-  #barra-acoes.modo-online .carta-face.frente .cf-canto {
-    top: 5px;
-    left: 7px;
-    font-size: 16px;
-  }
-  #barra-acoes.modo-online .carta-face.frente .cf-centro {
-    font-size: 36px;
-    margin-top: 8px;
-  }
+  #barra-acoes.modo-online .minha-mao-linha { min-width: 0; gap: 12px; }
+  #barra-acoes.modo-online .minha-mao-linha .btn-luz { position: static; flex-shrink: 0; }
   #barra-acoes.modo-online .minha-mao-dica { font-size: 12px; }
   #barra-acoes.modo-online .barra-controles { min-width: 0; }
   #barra-acoes.modo-online .barra-titulo {
@@ -646,8 +849,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   #tela-mesa.modo-online.apostando .centro-roda .fase-nome { font-size: 12px; padding: 3px 14px; }
   body.modo-online:has(#tela-mesa.apostando) #barra-titulo { display: block; }
   #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 74px; height: 104px; }
-  #tela-mesa.modo-online.apostando ~ #barra-acoes .carta-face.frente .cf-centro { font-size: 36px; }
   #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-dica { display: block; }
+  #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-wrap.com-nome .minha-mao-dica { display: none; }
 
   /* Gavetas (.folha) viram modais centralizados no PC (Modo Online) */
   body.modo-online .fundo-folha {
@@ -705,13 +908,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   #tela-mesa.modo-online .pote-ficha { width: 70px; height: 70px; padding: 5px; }
   #tela-mesa.modo-online .pote-valor { font-size: 25px; }
   #tela-mesa.modo-online #board.online { max-width: 290px; }
-  #tela-mesa.modo-online .carta-board .c-val { font-size: 21px; }
-  #tela-mesa.modo-online .carta-board .c-naipe { font-size: 19px; }
   #barra-acoes.modo-online { bottom: 8px; padding: 10px 16px; }
   #barra-acoes.modo-online .carta-3d { width: 62px; height: 88px; }
-  #barra-acoes.modo-online .carta-face.frente .cf-canto { font-size: 14px; }
-  #barra-acoes.modo-online .carta-face.frente .cf-centro { font-size: 30px; }
   #barra-acoes.modo-online .grade-simples button { min-height: 48px; font-size: 16.5px; }
   #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 62px; height: 88px; }
-  #tela-mesa.modo-online.apostando ~ #barra-acoes .carta-face.frente .cf-centro { font-size: 30px; }
 }
