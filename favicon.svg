@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Borda externa da ficha de poker (vermelho cassino + listras brancas) -->
+  <circle cx="32" cy="32" r="30" fill="#c8102e"/>
+  <g stroke="#ffffff" stroke-width="5.5" stroke-linecap="butt">
+    <line x1="32" y1="2" x2="32" y2="11"/>
+    <line x1="32" y1="53" x2="32" y2="62"/>
+    <line x1="2" y1="32" x2="11" y2="32"/>
+    <line x1="53" y1="32" x2="62" y2="32"/>
+    <line x1="10.8" y1="10.8" x2="17.2" y2="17.2"/>
+    <line x1="46.8" y1="46.8" x2="53.2" y2="53.2"/>
+    <line x1="53.2" y1="10.8" x2="46.8" y2="17.2"/>
+    <line x1="17.2" y1="46.8" x2="10.8" y2="53.2"/>
+  </g>
+  <!-- Miolo escuro da ficha com aro dourado/branco -->
+  <circle cx="32" cy="32" r="21" fill="#0e1f38" stroke="#ffffff" stroke-width="2.5"/>
+  <!-- Naipe de espadas centralizado e nítido -->
+  <path fill="#ffffff" d="M32 16c-2.6 6.2-13.5 12.8-13.5 19.3 0 4.4 3.2 7.5 7.3 7.5 2.6 0 4.6-1.4 5.6-3.4-.3 3.4-1.7 5.8-4.7 7.8h10.6c-3-2-4.4-4.4-4.7-7.8 1 2 3 3.4 5.6 3.4 4.1 0 7.3-3.1 7.3-7.5C45.5 28.8 34.6 22.2 32 16z"/>
+</svg>
