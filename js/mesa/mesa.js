@@ -1,14 +1,14 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=6';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=6';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=6';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=6';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=6';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=6';
-import { obterModo } from './modos.js?v=6';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=6';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=6';
+import { banco } from '../core/supabase.js?v=7';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=7';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=7';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=7';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=7';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=7';
+import { obterModo } from './modos.js?v=7';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=7';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=7';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -201,7 +201,8 @@ export function desenharMesa(dados) {
   }
   estado.maoVista = partida.mao;
 
-  $id('mesa-mao').textContent = partida.iniciada ? 'Mão ' + partida.mao : '';
+  const maoVis = partida.aguardando_proxima_mao ? Math.max(1, partida.mao - 1) : partida.mao;
+  $id('mesa-mao').textContent = partida.iniciada ? 'Mão ' + maoVis : '';
   $id('mesa-nivel').textContent = 'Nível ' + partida.nivel;
   $id('mesa-blinds').textContent = 'Blinds ' + partida.small_blind + '/' + partida.big_blind;
   $id('mesa-aposta').textContent = (partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4)
@@ -258,7 +259,12 @@ export function desenharMesa(dados) {
   estado.relogio.ini = partida.iniciada && partida.iniciada_em ? Date.parse(partida.iniciada_em) : null;
   estado.relogio.vez = vezAtivaId && partida.vez_desde ? Date.parse(partida.vez_desde) : null;
   tick();
-  desenharHistorico(dados.historico);
+  if (congelado) {
+    const ult = $id('mesa-ultima');
+    if (ult) ult.textContent = 'All-in! Acompanhando as cartas…';
+  } else {
+    desenharHistorico(dados.historico);
+  }
 
   // ----- Faixa de fase e painel do criador (delegados ao modo) -----
   const souCriador = (!!eu && eu.criador) || estado.modoDev;

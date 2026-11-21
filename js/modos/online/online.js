@@ -1,15 +1,15 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=6';
-import { estado, nomeDe } from '../../core/estado.js?v=6';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=6';
-import { lerDevSala } from '../../core/storage.js?v=6';
-import { registrarModo } from '../../mesa/modos.js?v=6';
-import { executar } from '../../mesa/apostas.js?v=6';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=6';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=6';
-import { avaliarMaoLocal } from './maos.js?v=6';
+import { banco } from '../../core/supabase.js?v=7';
+import { estado, nomeDe } from '../../core/estado.js?v=7';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=7';
+import { lerDevSala } from '../../core/storage.js?v=7';
+import { registrarModo } from '../../mesa/modos.js?v=7';
+import { executar } from '../../mesa/apostas.js?v=7';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=7';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=7';
+import { avaliarMaoLocal } from './maos.js?v=7';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -259,6 +259,25 @@ function prepararCena(partida, jogadores) {
     const faltaShowdown = ehShowdown && chave !== onlineUI.resultadoVisto;
     if (faltamCartas || faltaShowdown) iniciarCena(total, faltaShowdown ? chave : null);
     else if (chave) onlineUI.resultadoVisto = chave;
+  } else {
+    // Se uma nova carta ou o showdown chegou enquanto a animação anterior ainda rodava, enfileira sem dar spoiler!
+    const fila = onlineUI.cena.fila;
+    let ate = onlineUI.boardMostrado;
+    fila.forEach((et) => { if (et.ate && et.ate > ate) ate = et.ate; });
+    while (ate < total) {
+      const prox = ate < 3 ? Math.min(3, total) : ate + 1;
+      const idxShow = fila.findIndex((et) => et.showdown);
+      const item = { ate: prox, rotulo: ROTULOS_RUA[prox] || 'FLOP' };
+      if (idxShow >= 0) fila.splice(idxShow, 0, item);
+      else fila.push(item);
+      ate = prox;
+    }
+    if (ehShowdown && chave !== onlineUI.resultadoVisto && !onlineUI.segurando) {
+      if (!fila.some((et) => et.showdown)) fila.push({ showdown: true });
+      onlineUI.segurando = true;
+      onlineUI.chaveEmCena = chave;
+      onlineUI.congelado = onlineUI.ultimaVisao;
+    }
   }
 
   if (!onlineUI.segurando) {

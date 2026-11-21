@@ -726,87 +726,80 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     color: rgba(244, 247, 255, 0.78);
   }
 
-  /* Feltro oval minimalista e corredor central 100% livre para as 5 cartas */
+  /* Feltro oval fiel ao estilo do Poker Room (mesma identidade do PC e do Presencial) */
   #tela-mesa.modo-online .mesa-wrap { margin-top: 4px; }
   #tela-mesa.modo-online .centro-roda {
     width: 72%;
     height: 70%;
     justify-content: center;
-    gap: 7px;
-    padding: 10px 6px;
+    gap: 6px;
+    padding: 8px 6px;
     overflow: visible;
-    background: radial-gradient(ellipse at 50% 42%, #1f4996 0%, #112a5c 64%, #09183a 100%);
+    background: radial-gradient(ellipse at 50% 40%, #2a5cb5 0%, #173a7a 58%, #0d2250 100%);
     box-shadow:
-      inset 0 0 0 1px rgba(244, 247, 255, 0.16),
-      inset 0 0 28px rgba(0, 0, 0, 0.36),
-      0 14px 32px -10px rgba(0, 0, 0, 0.75),
-      0 0 0 5px rgba(5, 11, 28, 0.88),
-      0 0 0 6px rgba(244, 247, 255, 0.12);
+      inset 0 0 0 2px rgba(244, 247, 255, 0.2),
+      inset 0 0 32px rgba(0, 0, 0, 0.38),
+      0 14px 32px -10px rgba(0, 0, 0, 0.78),
+      0 0 0 5px #08132c,
+      0 0 0 6.5px rgba(244, 247, 255, 0.16);
   }
   #tela-mesa.modo-online .centro-roda .fase-nome {
     font-size: 9.5px;
-    padding: 2px 9px;
-    letter-spacing: 0.16em;
-    background: rgba(6, 13, 36, 0.42);
-    color: rgba(244, 247, 255, 0.85);
+    padding: 2px 10px;
+    letter-spacing: 0.15em;
+    background: rgba(0, 0, 0, 0.28);
+    color: var(--estrela);
   }
-  /* Pote minimalista em pílula escura (sem borda tricolor chamativa) */
+  /* Ficha clássica redonda do Pote (mesmo design icônico do PC e do Presencial, em escala ideal pro mobile) */
   #tela-mesa.modo-online .pote-ficha {
-    width: auto;
-    height: auto;
-    min-width: 88px;
-    padding: 0;
-    border-radius: 999px;
-    background: none;
-    box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.65);
+    width: 66px;
+    height: 66px;
+    padding: 5px;
   }
-  #tela-mesa.modo-online .pote-ficha .miolo {
-    flex-direction: row;
-    gap: 6px;
-    padding: 3px 13px;
-    border-radius: 999px;
-    background: rgba(6, 13, 36, 0.62);
-    border: 1px solid rgba(244, 247, 255, 0.24);
-    box-shadow: none;
+  #tela-mesa.modo-online .pote-rotulo { font-size: 9.5px; }
+  #tela-mesa.modo-online .pote-valor { font-size: 23px; }
+  #tela-mesa.modo-online .pote-valor[data-len="5"] { font-size: 19px; }
+  #tela-mesa.modo-online .pote-valor[data-len="6"] { font-size: 15.5px; }
+  #tela-mesa.modo-online .pote-valor[data-len="7"],
+  #tela-mesa.modo-online .pote-valor[data-len="8"] { font-size: 12.5px; }
+  #tela-mesa.modo-online.cheia .pote-ficha {
+    width: 54px;
+    height: 54px;
+    padding: 4px;
   }
-  #tela-mesa.modo-online .pote-rotulo {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(244, 247, 255, 0.68);
-  }
-  #tela-mesa.modo-online .pote-valor { font-size: 18px !important; }
+  #tela-mesa.modo-online.cheia .pote-rotulo { font-size: 8.5px; }
+  #tela-mesa.modo-online.cheia .pote-valor { font-size: 19px; }
+  #tela-mesa.modo-online.cheia .pote-valor[data-len="5"] { font-size: 15.5px; }
+  #tela-mesa.modo-online.cheia .pote-valor[data-len="6"] { font-size: 13px; }
   #tela-mesa.modo-online .centro-roda .board {
     width: 100%;
-    max-width: 192px;
+    max-width: 194px;
     z-index: 4;
   }
   #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 186px; }
   #tela-mesa.modo-online #board.online .slots { gap: 3.5px; }
   #tela-mesa.modo-online .carta-slot-vazio {
-    border: 1px dashed rgba(244, 247, 255, 0.16);
+    border: 1px dashed rgba(244, 247, 255, 0.22);
     background: rgba(6, 13, 36, 0.24);
   }
   #tela-mesa.modo-online .centro-roda .pilula.destaque {
     font-size: 10.5px;
-    padding: 2px 9px;
-    background: rgba(6, 13, 36, 0.45);
-    color: rgba(244, 247, 255, 0.85);
+    padding: 2px 10px;
   }
 
-  /* Assentos minimalistas no Mobile Online: cartas fechadas viram um par compacto no canto superior */
+  /* Assentos no Mobile Online: mesma identidade do PC/Presencial, com cartas fechadas em leque no canto */
   #tela-mesa.modo-online .lugar.assento-redondo {
     padding: 5px 7px 4px;
-    border-radius: 13px;
-    border-width: 1px;
-    border-color: rgba(244, 247, 255, 0.18);
-    background: linear-gradient(180deg, rgba(22, 49, 104, 0.94), rgba(12, 28, 64, 0.96));
+    border-radius: 14px;
+    border-width: 1.5px;
+    border-color: rgba(244, 247, 255, 0.24);
+    background: linear-gradient(180deg, #1d448f, #122a5e);
     gap: 2px;
-    box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.72);
+    box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.74), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   #tela-mesa.modo-online .lugar.assento-redondo.eu {
-    border-color: rgba(244, 247, 255, 0.52);
-    background: linear-gradient(180deg, rgba(32, 71, 146, 0.96), rgba(18, 42, 92, 0.98));
+    border-color: rgba(244, 247, 255, 0.65);
+    background: linear-gradient(180deg, #275bb8, #183c82);
   }
   #tela-mesa.modo-online .lugar.assento-redondo.vez {
     border-width: 1.5px;
