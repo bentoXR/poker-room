@@ -397,7 +397,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   margin-top: 6px;
   padding: 10px 12px;
   border-radius: 14px;
-  background: var(--faixa-bg);
+  background: linear-gradient(180deg, var(--faixa-bg), var(--faixa-bg-2));
   border: 1.5px solid var(--faixa-borda);
   text-align: center;
   animation: entrarFaixa 0.28s ease;
@@ -407,7 +407,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   to { opacity: 1; transform: translateY(0); }
 }
 .faixa-online.campeao {
-  background: var(--vez-bg);
+  background: linear-gradient(180deg, var(--vez-bg), var(--vez-bg-2));
   border-color: #ffd54f;
 }
 .faixa-online-res {
@@ -568,7 +568,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
 /* ----- Visual da mesa Online: feltro sólido, borda marcante e assentos bem destacados ----- */
 #tela-mesa.modo-online .centro-roda {
-  background: var(--feltro-mesa);
+  background: radial-gradient(ellipse at 50% 44%, var(--feltro-mesa) 0%, var(--feltro-mesa-borda) 100%);
   box-shadow:
     inset 0 0 0 2px var(--feltro-trilha),
     0 8px 22px -8px rgba(0, 0, 0, 0.6),
@@ -576,16 +576,16 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     0 0 0 6.5px var(--borda-aro);
 }
 #tela-mesa.modo-online .lugar {
-  background: var(--assento-bg);
+  background: linear-gradient(180deg, var(--assento-bg), var(--assento-bg-2));
   border-color: rgba(255, 255, 255, 0.26);
   transition: box-shadow 0.5s ease, border-color 0.5s ease, background 0.5s ease, opacity 0.5s ease;
 }
 #tela-mesa.modo-online .lugar.eu {
-  background: var(--assento-eu-bg);
+  background: linear-gradient(180deg, var(--assento-eu-bg), var(--assento-eu-bg-2));
   border-color: #ffffff;
 }
 #tela-mesa.modo-online .lugar.vez {
-  background: var(--vez-bg);
+  background: linear-gradient(180deg, var(--vez-bg), var(--vez-bg-2));
   border-color: #ffffff;
   animation: vezPulso 1.8s ease-in-out infinite;
 }
@@ -869,7 +869,9 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
   /* ----- Mesa Online em paisagem (widescreen) ----- */
   body.na-mesa.modo-online {
-    background: var(--feltro-900);
+    background:
+      radial-gradient(75% 48% at 50% 42%, var(--bg-topo) 0%, transparent 70%),
+      var(--feltro-900);
   }
   body.na-mesa.modo-online main {
     max-width: min(1560px, 98vw);
@@ -950,7 +952,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     border-radius: 999px;
     padding: 10px 32px;
     gap: 5px;
-    background: var(--feltro-mesa);
+    background: radial-gradient(ellipse at 50% 44%, var(--feltro-mesa) 0%, var(--feltro-mesa-borda) 100%);
     border: 10px solid var(--borda-mesa);
     box-shadow:
       inset 0 0 0 2px var(--feltro-trilha),
@@ -1019,7 +1021,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     padding: 12px 22px;
     border: 1.5px solid var(--cartao-borda);
     border-radius: 20px;
-    background: var(--dock-bg);
+    background: linear-gradient(180deg, var(--dock-bg), var(--dock-bg-2));
     box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.72);
   }
   #barra-acoes.modo-online.minha-vez {
