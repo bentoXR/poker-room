@@ -1,9 +1,9 @@
 // Chat de texto simples da mesa (persistido no Supabase + entrega instantânea via Realtime)
-import { banco } from '../core/supabase.js?v=47';
-import { estado, nomeDe } from '../core/estado.js?v=47';
-import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=47';
-import { publicarChat } from '../core/realtime.js?v=47';
-import { tocarSom } from '../core/som.js?v=47';
+import { banco } from '../core/supabase.js?v=48';
+import { estado, nomeDe } from '../core/estado.js?v=48';
+import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=48';
+import { publicarChat } from '../core/realtime.js?v=48';
+import { tocarSom } from '../core/som.js?v=48';
 
 const chat = {
   partidaId: null,
@@ -78,6 +78,41 @@ function desenharChat() {
   rolarFim();
 }
 
+function limparPreviewChat() {
+  const wrap = $id('chat-preview');
+  if (wrap) wrap.innerHTML = '';
+}
+
+function mostrarPreviewChat(msg) {
+  const wrap = $id('chat-preview');
+  if (!wrap || !msg) return;
+
+  const autor = escapar(nomeDe(msg.autor_nome || 'Jogador'));
+  const texto = escapar(msg.texto || '');
+
+  const item = document.createElement('button');
+  item.type = 'button';
+  item.className = 'chat-preview-item';
+  item.setAttribute('aria-label', 'Abrir chat: ' + nomeDe(msg.autor_nome || 'Jogador') + ' disse ' + (msg.texto || ''));
+  item.innerHTML =
+    '<strong class="chat-preview-autor">' + autor + '</strong> ' +
+    '<span class="chat-preview-txt">' + texto + '</span>';
+  item.addEventListener('click', () => abrirChat());
+
+  wrap.appendChild(item);
+  while (wrap.children.length > 2) {
+    wrap.removeChild(wrap.firstElementChild);
+  }
+
+  setTimeout(() => {
+    if (!item.isConnected) return;
+    item.classList.add('saindo');
+    setTimeout(() => {
+      if (item.isConnected) item.remove();
+    }, 260);
+  }, 4600);
+}
+
 export function limparChatMesa() {
   chat.partidaId = null;
   chat.mensagens = [];
@@ -85,6 +120,7 @@ export function limparChatMesa() {
   chat.naoLidas = 0;
   chat.enviando = false;
   atualizarBadge();
+  limparPreviewChat();
   const lista = $id('chat-lista');
   if (lista) lista.innerHTML = '';
   const campo = $id('campo-chat');
@@ -125,10 +161,13 @@ export function receberMensagemChat(msg) {
   }
   desenharChat();
 
-  if (!chatAberto() && !ehMinhaMensagem(msg)) {
-    chat.naoLidas += 1;
-    atualizarBadge();
-    tocarSom('clique');
+  if (!chatAberto()) {
+    if (!ehMinhaMensagem(msg)) {
+      chat.naoLidas += 1;
+      atualizarBadge();
+      tocarSom('clique');
+    }
+    mostrarPreviewChat(msg);
   }
 }
 
@@ -136,6 +175,7 @@ export function abrirChat() {
   if (!estado.partidaAtual) return;
   chat.naoLidas = 0;
   atualizarBadge();
+  limparPreviewChat();
   abrirFolha('folha-chat');
   desenharChat();
   requestAnimationFrame(() => {

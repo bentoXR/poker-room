@@ -469,3 +469,68 @@ button.dist-modo-btn {
     max-height: 80dvh;
   }
 }
+
+/* ----- Prévia flutuante de mensagens recentes (canto superior direito, sem atrapalhar a mesa) ----- */
+.chat-preview {
+  position: fixed;
+  top: calc(58px + env(safe-area-inset-top));
+  right: 10px;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: min(260px, 72vw);
+  pointer-events: none;
+}
+button.chat-preview-item {
+  pointer-events: auto;
+  width: auto;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 7px 11px;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--marfim);
+  background: var(--dock-bg);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--acento);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.72);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  animation: chatPreviewEntrar 0.22s ease both;
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+button.chat-preview-item:active:not(:disabled) {
+  transform: scale(0.98);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.72);
+}
+button.chat-preview-item.saindo {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.chat-preview-autor {
+  color: var(--acento);
+  font-weight: 700;
+  margin-right: 4px;
+}
+.chat-preview-txt {
+  color: var(--marfim);
+}
+@keyframes chatPreviewEntrar {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+@media (min-width: 820px) {
+  .chat-preview {
+    top: 68px;
+    right: 22px;
+    max-width: 310px;
+  }
+}

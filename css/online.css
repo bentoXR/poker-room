@@ -790,6 +790,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online #btn-hist,
   #tela-mesa.modo-online #btn-som-mesa,
   #tela-mesa.modo-online #btn-tema-mesa,
+  #tela-mesa.modo-online #btn-guia,
   #tela-mesa.modo-online #btn-reais,
   #tela-mesa.modo-online #btn-dev,
   #tela-mesa.modo-online .barra-info { display: none !important; }
