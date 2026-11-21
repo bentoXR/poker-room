@@ -188,25 +188,13 @@
       0 0 0 2px var(--borda-aro) !important;
   }
 }
-/* Fundo com textura sutil de bandeira americana (cantão estrelado no topo esquerdo + listras discretas) no tema Azul */
-:root:not([data-tema]) body,
-:root:not([data-tema]) body:not(.na-mesa),
-:root:not([data-tema]) body.na-mesa.modo-online {
-  background-color: #0c1d45;
-  background-image:
-    radial-gradient(85% 45% at 50% 0%, rgba(37, 80, 176, 0.24) 0%, transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cpolygon fill='%23ffffff' fill-opacity='0.075' points='18,5 20.4,12.5 28.2,12.5 21.9,17.1 24.3,24.6 18,20 11.7,24.6 14.1,17.1 7.8,12.5 15.6,12.5'/%3E%3C/svg%3E"),
-    linear-gradient(180deg, rgba(12, 29, 69, 0.94) 0%, rgba(12, 29, 69, 0.94) 100%),
-    repeating-linear-gradient(
-      180deg,
-      rgba(204, 34, 52, 0.11) 0px,
-      rgba(204, 34, 52, 0.11) 28px,
-      rgba(255, 255, 255, 0.035) 28px,
-      rgba(255, 255, 255, 0.035) 56px
-    );
-  background-position: 0 0, 0 0, 0 0, 0 0;
-  background-size: 100% 100%, 36px 36px, 42% 46%, 100% 100%;
-  background-repeat: no-repeat, repeat, no-repeat, repeat;
+/* Detalhes sutis estilo americano no tema Azul (fundo limpo + ficha do pote tricolor) */
+:root:not([data-tema]) .pote-ficha {
+  background: repeating-conic-gradient(
+    #cc2234 0deg 15deg,
+    #ffffff 15deg 30deg,
+    #1b46a8 30deg 45deg
+  );
 }
 
 /* Fundo com textura aveludada / tapete escuro no tema Preto & Vermelho */
