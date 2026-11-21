@@ -1,9 +1,9 @@
 // Gestão de perfil do usuário: foto de perfil (compressão local), nome único, troca de senha e cache de avatares na mesa
-import { banco } from '../core/supabase.js?v=23';
-import { estado, contaParams } from '../core/estado.js?v=23';
-import { guardarConta, lembrarNome } from '../core/storage.js?v=23';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=23';
-import { tratarErroConta } from './auth.js?v=23';
+import { banco } from '../core/supabase.js?v=24';
+import { estado, contaParams } from '../core/estado.js?v=24';
+import { guardarConta, lembrarNome } from '../core/storage.js?v=24';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=24';
+import { tratarErroConta } from './auth.js?v=24';
 
 // Cache em memória de avatares: conta_id -> { versao, url }
 const avataresCache = new Map();

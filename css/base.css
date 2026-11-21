@@ -87,79 +87,142 @@
   --fonte-numero: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
 }
 
-/* Tema 2: Cassino (Mesa de Sinuca — Verde clássico, borda marrom madeira, preto, vermelho e dourado) */
+/* Tema 2: Cassino (Mesa de Sinuca Clássica — feltro natural, madeira mogno e latão dourado) */
 :root[data-tema="classico"] {
-  --feltro-950: #0c2619;
-  --feltro-900: #13402a;
-  --feltro-800: #1b593b;
-  --feltro-700: #23734c;
-  --feltro-600: #2c8f5f;
-  --linha: rgba(255, 244, 214, 0.22);
+  --feltro-950: #0c0a09;
+  --feltro-900: #12100e;
+  --feltro-800: #1e1a17;
+  --feltro-700: #2b2520;
+  --feltro-600: #3a312b;
+  --linha: rgba(243, 239, 234, 0.16);
 
-  --marfim: #f7fbf8;
-  --estrela: #ffffff;
-  --marfim-suave: rgba(242, 250, 245, 0.84);
-  --texto-escuro: #102419;
+  --marfim: #f3efea;
+  --estrela: #f3efea;
+  --marfim-suave: #b8afa6;
+  --texto-escuro: #12100e;
 
-  --ouro: #d12436;
-  --ouro-escuro: #8a1420;
-  --ouro-suave: rgba(209, 36, 54, 0.26);
-  --ouro-borda: rgba(209, 36, 54, 0.78);
+  --ouro: #a62626;
+  --ouro-escuro: #6b1515;
+  --ouro-suave: rgba(166, 38, 38, 0.24);
+  --ouro-borda: rgba(166, 38, 38, 0.72);
 
-  --vermelho: #c91e30;
-  --verde: #1fa362;
-  --verde-escuro: #126b3f;
-  --verde-suave: rgba(31, 163, 98, 0.26);
-  --verde-borda: rgba(82, 219, 148, 0.65);
-  --verde-texto: #d4fce7;
+  --vermelho: #a62626;
+  --verde: #2e6f40;
+  --verde-escuro: #1b4728;
+  --verde-suave: rgba(46, 111, 64, 0.28);
+  --verde-borda: rgba(197, 155, 39, 0.65);
+  --verde-texto: #e8f5ec;
 
-  --acento: #ffd54f;
-  --acento-suave: rgba(255, 213, 79, 0.22);
-  --luz-cor: #76f2b3;
-  --luz-sombra: rgba(118, 242, 179, 0.78);
+  --acento: #c59b27;
+  --acento-suave: rgba(197, 155, 39, 0.22);
+  --luz-cor: #c59b27;
+  --luz-sombra: rgba(197, 155, 39, 0.72);
 
-  --bg-topo: rgba(38, 153, 96, 0.2);
+  --bg-topo: rgba(36, 89, 56, 0.16);
   --faixa-topo: linear-gradient(
     90deg,
-    #d12436 0 25%,
-    #ffd54f 25% 50%,
-    #6e3617 50% 75%,
-    #1fa362 75% 100%
+    #4a2511 0 30%,
+    #c59b27 30% 45%,
+    #245938 45% 75%,
+    #a62626 75% 100%
   );
 
-  --feltro-mesa: #1f8052;
-  --feltro-mesa-borda: #155c3a;
-  --feltro-trilha: rgba(255, 213, 79, 0.45);
-  --borda-mesa: #6b3416;
-  --borda-aro: #d9a441;
+  --feltro-mesa: #245938;
+  --feltro-mesa-borda: #163823;
+  --feltro-trilha: rgba(197, 155, 39, 0.52);
+  --borda-mesa: #4a2511;
+  --borda-aro: #c59b27;
 
-  --pote-bg: #592b14;
-  --pote-bg-2: #36190b;
-  --assento-bg: #232625;
-  --assento-bg-2: #181a19;
-  --assento-eu-bg: #663218;
-  --assento-eu-bg-2: #4a2310;
-  --vez-bg: #d12436;
-  --vez-bg-2: #9e1726;
-  --vez-tag-bg: #171211;
+  --pote-bg: #241d17;
+  --pote-bg-2: #12100e;
+  --assento-bg: #211d1a;
+  --assento-bg-2: #161311;
+  --assento-eu-bg: #362216;
+  --assento-eu-bg-2: #24160e;
+  --vez-bg: #c59b27;
+  --vez-bg-2: #9c791b;
+  --vez-tag-bg: #12100e;
 
-  --dock-bg: #1c1918;
-  --dock-bg-2: #12100f;
-  --faixa-bg: #241e1c;
-  --faixa-bg-2: #181413;
-  --faixa-borda: #d9a441;
+  --dock-bg: #1b1714;
+  --dock-bg-2: #12100e;
+  --faixa-bg: #221d19;
+  --faixa-bg-2: #171411;
+  --faixa-borda: #c59b27;
 
-  --cartao-bg: #161d19;
-  --cartao-bg-pc: #161d19;
-  --cartao-borda: rgba(217, 164, 65, 0.36);
+  --cartao-bg: #1a1613;
+  --cartao-bg-pc: #1a1613;
+  --cartao-borda: rgba(197, 155, 39, 0.34);
 
-  --verso-bg: #bd1f30;
+  --verso-bg: #8f1f1f;
   --verso-simbolo: "♠";
   --marca-selo: "♠  ♥  ♣  ♦";
   --mesa-orn-esq: "♠  ♣";
   --mesa-orn-dir: "♥  ♦";
-  --mesa-orn-cor: rgba(255, 213, 79, 0.28);
+  --mesa-orn-cor: rgba(197, 155, 39, 0.28);
 }
+
+/* Detalhes exclusivos da Mesa de Sinuca Clássica (textura de feltro, relevo 3D mogno/latão, botões e cartas) */
+:root[data-tema="classico"] #tela-mesa .centro-roda {
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 44%, #245938 0%, #163823 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(197, 155, 39, 0.45),
+    inset 0 0 0 5px #2a1408,
+    inset 0 10px 26px rgba(0, 0, 0, 0.45),
+    0 12px 28px -8px rgba(0, 0, 0, 0.78),
+    0 0 0 6px #4a2511,
+    0 0 0 7.5px #c59b27;
+}
+@media (min-width: 820px) {
+  :root[data-tema="classico"] #tela-mesa.modo-online .centro-roda {
+    border: 11px solid #4a2511;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(197, 155, 39, 0.5),
+      inset 0 0 0 6px #2a1408,
+      inset 0 14px 34px rgba(0, 0, 0, 0.48),
+      0 22px 48px -12px rgba(0, 0, 0, 0.82),
+      0 0 0 2px #c59b27;
+  }
+}
+:root[data-tema="classico"] .pote-ficha {
+  background: repeating-conic-gradient(#c59b27 0deg 14deg, #4a2511 14deg 30deg);
+}
+:root[data-tema="classico"] .pote-ficha .miolo {
+  border-color: #c59b27;
+}
+:root[data-tema="classico"] .pote-valor { color: #c59b27; }
+:root[data-tema="classico"] .lugar.vez {
+  color: #12100e;
+  border-color: #f3efea;
+}
+:root[data-tema="classico"] .lugar.vez .l-nome .coroa,
+:root[data-tema="classico"] .lugar.vez .l-voce { color: #12100e; }
+:root[data-tema="classico"] .lugar.vez .tag.blind {
+  color: #12100e;
+  box-shadow: inset 0 0 0 1px rgba(18, 16, 14, 0.55);
+}
+:root[data-tema="classico"] .anuncio-vez .anuncio-titulo {
+  color: #12100e;
+  border-color: #f3efea;
+}
+:root[data-tema="classico"] .barra-acoes.minha-vez {
+  border-top-color: #c59b27;
+  border-color: rgba(197, 155, 39, 0.65);
+}
+:root[data-tema="classico"] .barra-acoes button.perigo {
+  background: #3e3630;
+  color: #f3efea;
+  box-shadow: 0 3px 0 #241e1a;
+}
+:root[data-tema="classico"] .carta {
+  background: #faf8f5;
+}
+:root[data-tema="classico"] .n-s,
+:root[data-tema="classico"] .n-c { --cn: #1a1817; }
+:root[data-tema="classico"] .n-h,
+:root[data-tema="classico"] .n-d { --cn: #b91c1c; }
 
 /* Tema 3: Preto & Vermelho (Alto contraste — preto carbono, grafite e vermelho vivo) */
 :root[data-tema="preto"] {
