@@ -1,16 +1,16 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=39';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=39';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=39';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=39';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=39';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=39';
-import { obterModo } from './modos.js?v=39';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=39';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=39';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=39';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=39';
+import { banco } from '../core/supabase.js?v=40';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=40';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=40';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=40';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=40';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=40';
+import { obterModo } from './modos.js?v=40';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=40';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=40';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=40';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=40';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 

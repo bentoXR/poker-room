@@ -101,16 +101,10 @@
   background-attachment: fixed, scroll, scroll;
 }
 
-/* Faixa superior um pouco mais alta no PC, com animação suave e menos pontinhos */
+/* Faixa superior um pouco mais alta para as estrelas do cantão aparecerem */
 :root[data-tema="liberdade"] body::before {
   height: calc(7px + env(safe-area-inset-top));
   box-shadow: 0 1px 0 rgba(201, 162, 75, 0.55);
-  background-size: 200% 100%, 24px 100%, auto;
-  animation: faixaCorrerUsa 18s linear infinite;
-}
-@keyframes faixaCorrerUsa {
-  from { background-position: 0 0, 0 0, 0 0; }
-  to { background-position: 200% 0, 240px 0, 0 0; }
 }
 
 /* ----- Tipografia "varsity" em títulos e números ----- */
