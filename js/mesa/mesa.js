@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=51';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=51';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=51';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=51';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=51';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=51';
-import { obterModo } from './modos.js?v=51';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=51';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=51';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=51';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=51';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=51';
+import { banco } from '../core/supabase.js?v=52';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=52';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=52';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=52';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=52';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=52';
+import { obterModo } from './modos.js?v=52';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=52';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=52';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=52';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=52';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=52';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -489,15 +489,15 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   dock.className = classes;
   dock.dataset.jogadorId = eu.id;
   dock.innerHTML = `
-    <div class="mp-topo">
+    <div class="mp-esq">
       ${badgePerfilHtml}
       <span class="mp-nome">${escapar(nomeDe(eu.nome))}</span>
+      ${tags ? '<div class="l-tags mp-tags">' + tags + '</div>' : ''}
     </div>
-    <div class="mp-meio">
-      <span class="mp-saldo">${eu.saldo}</span>
+    <div class="mp-dir">
+      <span class="mp-saldo">${Number(eu.saldo).toLocaleString('pt-BR')}</span>
       ${eu.apostou > 0 ? '<span class="l-aposta">+' + eu.apostou + '</span>' : ''}
     </div>
-    ${tags ? '<div class="l-tags mp-tags">' + tags + '</div>' : ''}
   `;
   dock.hidden = false;
 }
