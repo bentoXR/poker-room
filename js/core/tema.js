@@ -1,15 +1,17 @@
-// Gerenciamento de tema visual ('azul' = Azul Royal | 'classico' = Cassino Sinuca | 'preto' = Preto & Vermelho)
+// Gerenciamento de tema visual ('azul' = Azul Royal | 'classico' = Cassino Sinuca | 'preto' = Preto & Vermelho | 'liberdade' = Americano Clássico)
 const CHAVE_TEMA = 'poker-tema';
-const ORDEM_TEMAS = ['azul', 'classico', 'preto'];
+const ORDEM_TEMAS = ['azul', 'classico', 'preto', 'liberdade'];
 const CORES_META = {
   azul: '#0c1d45',
   classico: '#1b130e',
-  preto: '#14161c'
+  preto: '#14161c',
+  liberdade: '#0a3161'
 };
 const TITULOS_TEMA = {
   azul: 'Tema: Azul Americano (clique para trocar para Cassino)',
   classico: 'Tema: Cassino (clique para trocar para Preto e Vermelho)',
-  preto: 'Tema: Preto e Vermelho (clique para trocar para Azul Americano)'
+  preto: 'Tema: Preto e Vermelho (clique para trocar para Americano Clássico)',
+  liberdade: 'Tema: Americano Clássico (clique para trocar para Azul Americano)'
 };
 
 function normalizarTema(tema) {

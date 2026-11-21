@@ -1,0 +1,208 @@
+/* =====================================================================
+   TEMA 4: AMERICANO CLÁSSICO  (data-tema="liberdade")
+   Azul Old Glory #0A3161 · Vermelho Old Glory #B31942 · Creme #F5F1E6
+   Dourado envelhecido #C9A24B. Estilo cassino de Las Vegas vintage.
+   Não altera layout nem lógica: só variáveis e detalhes visuais.
+   Carregar DEPOIS de base/telas/mesa/gavetas/online.css.
+   ===================================================================== */
+
+:root[data-tema="liberdade"] {
+  --feltro-950: #061f40;
+  --feltro-900: #0a3161;
+  --feltro-800: #0e3f78;
+  --feltro-700: #14508f;
+  --feltro-600: #1c62ad;
+  --linha: rgba(245, 241, 230, 0.22);
+
+  --marfim: #f5f1e6;
+  --estrela: #ffffff;
+  --marfim-suave: rgba(245, 241, 230, 0.8);
+  --texto-escuro: #0a1a38;
+
+  /* "ouro" é a cor de AÇÃO principal do app (botões); aqui = vermelho Old Glory */
+  --ouro: #b31942;
+  --ouro-escuro: #741028;
+  --ouro-suave: rgba(179, 25, 66, 0.3);
+  --ouro-borda: rgba(214, 52, 92, 0.85);
+
+  --vermelho: #b31942;
+  --verde: #1d5bb8;
+  --verde-escuro: #123d82;
+  --verde-suave: rgba(29, 91, 184, 0.3);
+  --verde-borda: rgba(96, 158, 240, 0.7);
+  --verde-texto: #d6e7ff;
+
+  /* acento = dourado envelhecido (focos, coroa, detalhes premium) */
+  --acento: #c9a24b;
+  --acento-suave: rgba(201, 162, 75, 0.2);
+  --luz-cor: #e8c872;
+  --luz-sombra: rgba(232, 200, 114, 0.7);
+
+  --bg-topo: rgba(28, 98, 173, 0.32);
+  /* Camada de cima: listras (cantão transparente); embaixo: estrelas; base: azul */
+  --faixa-topo:
+    linear-gradient(90deg,
+      transparent 0 28%,
+      #b31942 28% 40%, #ffffff 40% 52%,
+      #b31942 52% 64%, #ffffff 64% 76%,
+      #b31942 76% 88%, #ffffff 88% 100%),
+    radial-gradient(circle at 5px 50%, #ffffff 1.1px, transparent 1.7px) 0 0 / 10px 100% repeat-x,
+    #0a3161;
+
+  --feltro-mesa: #245938;
+  --feltro-mesa-borda: #163823;
+  --feltro-trilha: rgba(201, 162, 75, 0.6);
+  --borda-mesa: #b31942;
+  --borda-interna: #4a0a1c;
+  --borda-aro: rgba(245, 241, 230, 0.9);
+
+  --pote-bg: #12408a;
+  --pote-bg-2: #071c3f;
+  --assento-bg: #0f3a73;
+  --assento-bg-2: #092a57;
+  --assento-eu-bg: #1a4f99;
+  --assento-eu-bg-2: #123a75;
+  --vez-bg: #b31942;
+  --vez-bg-2: #881232;
+  --vez-tag-bg: #061f40;
+
+  --dock-bg: #0a3161;
+  --dock-bg-2: #061f40;
+  --faixa-bg: #123c78;
+  --faixa-bg-2: #0b2a56;
+  --faixa-borda: rgba(201, 162, 75, 0.75);
+
+  --cartao-bg: #071f40;
+  --cartao-bg-pc: #071f40;
+  --cartao-borda: rgba(201, 162, 75, 0.32);
+
+  --verso-bg: #b31942;
+  --verso-simbolo: "★";
+  --marca-selo: "★   ★   ★   ★   ★";
+  --mesa-orn-esq: "★  ★  ★";
+  --mesa-orn-dir: "★  ★  ★";
+  --mesa-orn-cor: rgba(201, 162, 75, 0.55);
+
+  --fonte-numero: "Oswald", "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+}
+
+/* ----- Fundo: gradiente + estrelas esparsas (~6%). Estátua da Liberdade (~5%) nas telas fora da mesa ----- */
+:root[data-tema="liberdade"] body {
+  background-color: #0a3161;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 220 500%22 fill=%22%23ffffff%22 fill-opacity=%220.055%22%3E%3Cpath d=%22M40,438 H180 V500 H40Z M54,396 H166 V438 H54Z M68,350 H152 V396 H68Z%22/%3E%3Cpath d=%22M92,128 C80,152 72,205 66,265 L58,350 H162 L152,265 C147,205 136,152 124,128Z%22/%3E%3Ccircle cx=%22108%22 cy=%22108%22 r=%2215%22/%3E%3Cpath d=%22M94.2,105.9 L95.0,102.9 L69.4,97.6 Z M96.4,100.2 L98.3,97.9 L77.4,82.3 Z M100.7,96.0 L103.5,94.7 L91.1,71.7 Z M106.5,94.1 L109.5,94.1 L108.0,68.0 Z M112.5,94.7 L115.3,96.0 L124.9,71.7 Z M117.7,97.9 L119.6,100.2 L138.6,82.3 Z M121.0,102.9 L121.8,105.9 L146.6,97.6 Z%22/%3E%3Cpath d=%22M116,140 L132,128 L164,66 L150,58Z%22/%3E%3Cpath d=%22M146,60 L162,66 L158,44 L150,42Z%22/%3E%3Cpath d=%22M141,36 H169 L162,46 H148Z%22/%3E%3Cpath d=%22M155,6 C166,20 171,27 163,36 H147 C140,27 148,20 155,6Z%22/%3E%3Cpath d=%22M92,138 L80,150 L70,190 L84,194 L96,158Z%22/%3E%3Cpath d=%22M50,150 L78,140 L88,194 L60,204Z%22/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22260%22 height=%22260%22 fill=%22%23ffffff%22%3E%3Cpolygon points=%2230.0,35.0 31.2,38.4 34.8,38.5 31.9,40.6 32.9,44.0 30.0,42.0 27.1,44.0 28.1,40.6 25.2,38.5 28.8,38.4%22 fill-opacity=%220.07%22/%3E%3Cpolygon points=%22150.0,14.5 150.8,16.9 153.3,16.9 151.3,18.4 152.1,20.8 150.0,19.4 147.9,20.8 148.7,18.4 146.7,16.9 149.2,16.9%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%22215.0,90.0 216.2,93.4 219.8,93.5 216.9,95.6 217.9,99.0 215.0,97.0 212.1,99.0 213.1,95.6 210.2,93.5 213.8,93.4%22 fill-opacity=%220.07%22/%3E%3Cpolygon points=%2280.0,146.5 80.8,148.9 83.3,148.9 81.3,150.4 82.1,152.8 80.0,151.4 77.9,152.8 78.7,150.4 76.7,148.9 79.2,148.9%22 fill-opacity=%220.05%22/%3E%3Cpolygon points=%22190.0,200.5 191.1,203.5 194.3,203.6 191.7,205.6 192.6,208.6 190.0,206.8 187.4,208.6 188.3,205.6 185.7,203.6 188.9,203.5%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%2225.0,222.0 25.7,224.0 27.9,224.1 26.1,225.4 26.8,227.4 25.0,226.2 23.2,227.4 23.9,225.4 22.1,224.1 24.3,224.0%22 fill-opacity=%220.05%22/%3E%3C/svg%3E"),
+    radial-gradient(95% 45% at 50% 0%, rgba(28, 98, 173, 0.45) 0%, transparent 72%),
+    linear-gradient(180deg, #0c3a74 0%, #0a3161 45%, #061f40 100%);
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+  background-position: center bottom 4vh, 0 0, 0 0, 0 0;
+  background-size: auto 78vh, 260px 260px, auto, auto;
+  background-attachment: fixed, fixed, scroll, scroll;
+}
+/* Na mesa a estátua ficaria escondida atrás do feltro: no fundo só estrelas (a estátua vai no feltro) */
+:root[data-tema="liberdade"] body.na-mesa,
+:root[data-tema="liberdade"] body.na-mesa.modo-online {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22260%22 height=%22260%22 fill=%22%23ffffff%22%3E%3Cpolygon points=%2230.0,35.0 31.2,38.4 34.8,38.5 31.9,40.6 32.9,44.0 30.0,42.0 27.1,44.0 28.1,40.6 25.2,38.5 28.8,38.4%22 fill-opacity=%220.07%22/%3E%3Cpolygon points=%22150.0,14.5 150.8,16.9 153.3,16.9 151.3,18.4 152.1,20.8 150.0,19.4 147.9,20.8 148.7,18.4 146.7,16.9 149.2,16.9%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%22215.0,90.0 216.2,93.4 219.8,93.5 216.9,95.6 217.9,99.0 215.0,97.0 212.1,99.0 213.1,95.6 210.2,93.5 213.8,93.4%22 fill-opacity=%220.07%22/%3E%3Cpolygon points=%2280.0,146.5 80.8,148.9 83.3,148.9 81.3,150.4 82.1,152.8 80.0,151.4 77.9,152.8 78.7,150.4 76.7,148.9 79.2,148.9%22 fill-opacity=%220.05%22/%3E%3Cpolygon points=%22190.0,200.5 191.1,203.5 194.3,203.6 191.7,205.6 192.6,208.6 190.0,206.8 187.4,208.6 188.3,205.6 185.7,203.6 188.9,203.5%22 fill-opacity=%220.06%22/%3E%3Cpolygon points=%2225.0,222.0 25.7,224.0 27.9,224.1 26.1,225.4 26.8,227.4 25.0,226.2 23.2,227.4 23.9,225.4 22.1,224.1 24.3,224.0%22 fill-opacity=%220.05%22/%3E%3C/svg%3E"),
+    radial-gradient(95% 45% at 50% 0%, rgba(28, 98, 173, 0.45) 0%, transparent 72%),
+    linear-gradient(180deg, #0c3a74 0%, #0a3161 45%, #061f40 100%);
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-position: 0 0, 0 0, 0 0;
+  background-size: 260px 260px, auto, auto;
+  background-attachment: fixed, scroll, scroll;
+}
+/* Marca d'água dourada da Estátua da Liberdade no feltro da mesa */
+:root[data-tema="liberdade"] #tela-mesa .centro-roda {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 220 500%22 fill=%22%23c9a24b%22 fill-opacity=%220.075%22%3E%3Cpath d=%22M40,438 H180 V500 H40Z M54,396 H166 V438 H54Z M68,350 H152 V396 H68Z%22/%3E%3Cpath d=%22M92,128 C80,152 72,205 66,265 L58,350 H162 L152,265 C147,205 136,152 124,128Z%22/%3E%3Ccircle cx=%22108%22 cy=%22108%22 r=%2215%22/%3E%3Cpath d=%22M94.2,105.9 L95.0,102.9 L69.4,97.6 Z M96.4,100.2 L98.3,97.9 L77.4,82.3 Z M100.7,96.0 L103.5,94.7 L91.1,71.7 Z M106.5,94.1 L109.5,94.1 L108.0,68.0 Z M112.5,94.7 L115.3,96.0 L124.9,71.7 Z M117.7,97.9 L119.6,100.2 L138.6,82.3 Z M121.0,102.9 L121.8,105.9 L146.6,97.6 Z%22/%3E%3Cpath d=%22M116,140 L132,128 L164,66 L150,58Z%22/%3E%3Cpath d=%22M146,60 L162,66 L158,44 L150,42Z%22/%3E%3Cpath d=%22M141,36 H169 L162,46 H148Z%22/%3E%3Cpath d=%22M155,6 C166,20 171,27 163,36 H147 C140,27 148,20 155,6Z%22/%3E%3Cpath d=%22M92,138 L80,150 L70,190 L84,194 L96,158Z%22/%3E%3Cpath d=%22M50,150 L78,140 L88,194 L60,204Z%22/%3E%3C/svg%3E"),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 44%, var(--feltro-mesa) 0%, var(--feltro-mesa-borda) 100%) !important;
+  background-repeat: no-repeat, repeat, repeat, no-repeat !important;
+  background-position: center 58%, 0 0, 0 0, 0 0 !important;
+  background-size: auto 66%, auto, auto, auto !important;
+}
+
+/* Faixa superior um pouco mais alta para as estrelas do cantão aparecerem */
+:root[data-tema="liberdade"] body::before {
+  height: calc(7px + env(safe-area-inset-top));
+  box-shadow: 0 1px 0 rgba(201, 162, 75, 0.55);
+}
+
+/* ----- Tipografia "varsity" em títulos e números ----- */
+:root[data-tema="liberdade"] h1,
+:root[data-tema="liberdade"] h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+:root[data-tema="liberdade"] .marca h1 {
+  color: #f5f1e6;
+  text-shadow: 0 2px 0 #b31942, 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* ----- Botões: vermelho com borda dourada (só os botões de ação principais) ----- */
+:root[data-tema="liberdade"] button:not([class]),
+:root[data-tema="liberdade"] .faixa-online-acoes button.positivo,
+:root[data-tema="liberdade"] #btn-iniciar-rapido {
+  background: linear-gradient(180deg, #c81e4a, #b31942 55%, #96143a);
+  box-shadow: inset 0 0 0 1.5px rgba(201, 162, 75, 0.85), 0 3px 0 #741028;
+}
+:root[data-tema="liberdade"] button:not([class]):active:not(:disabled),
+:root[data-tema="liberdade"] .faixa-online-acoes button.positivo:active:not(:disabled),
+:root[data-tema="liberdade"] #btn-iniciar-rapido:active:not(:disabled) {
+  box-shadow: inset 0 0 0 1.5px rgba(201, 162, 75, 0.85), 0 1px 0 #741028;
+}
+/* Botão azul (positivo): ganha só o filete dourado */
+:root[data-tema="liberdade"] button.positivo {
+  box-shadow: inset 0 0 0 1.5px rgba(201, 162, 75, 0.6), 0 3px 0 #123d82;
+}
+:root[data-tema="liberdade"] button.positivo:active:not(:disabled) {
+  box-shadow: inset 0 0 0 1.5px rgba(201, 162, 75, 0.6), 0 1px 0 #123d82;
+}
+
+/* ----- Assentos dos jogadores: borda dourada fina + estrelinha no canto ----- */
+:root[data-tema="liberdade"] .lugar {
+  border-color: rgba(201, 162, 75, 0.6);
+}
+:root[data-tema="liberdade"] .lugar.eu {
+  border-color: #c9a24b;
+  box-shadow: 0 0 0 1px rgba(201, 162, 75, 0.35), 0 6px 18px -6px rgba(0, 0, 0, 0.6);
+}
+:root[data-tema="liberdade"] .lugar::after {
+  content: "★";
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: 9px;
+  line-height: 1;
+  color: #c9a24b;
+  opacity: 0.7;
+  pointer-events: none;
+}
+:root[data-tema="liberdade"] .lugar.vez::after { color: #ffffff; opacity: 0.85; }
+
+/* ----- Ficha do pote: vermelho / branco / azul + miolo dourado ----- */
+:root[data-tema="liberdade"] .pote-ficha {
+  background: repeating-conic-gradient(#b31942 0deg 15deg, #ffffff 15deg 30deg, #0a3161 30deg 45deg);
+}
+:root[data-tema="liberdade"] .pote-ficha .miolo { border-color: #c9a24b; }
+:root[data-tema="liberdade"] .pote-valor { color: #e8c872; }
+
+/* ----- Cartas: marfim, naipes vermelho Old Glory / azul-marinho ----- */
+:root[data-tema="liberdade"] .carta { background: #fbf8ef; }
+:root[data-tema="liberdade"] .n-s,
+:root[data-tema="liberdade"] .n-c { --cn: #0a1a38; }
+:root[data-tema="liberdade"] .n-h,
+:root[data-tema="liberdade"] .n-d { --cn: #b31942; }
+
+/* ----- Barra de ações na sua vez: contorno dourado ----- */
+:root[data-tema="liberdade"] .barra-acoes.minha-vez {
+  border-top-color: #c9a24b;
+  border-color: rgba(201, 162, 75, 0.7);
+}
+
+/* ----- Seletor de tema: amostra do novo tema ----- */
+.amostra-liberdade {
+  background: linear-gradient(135deg, #0a3161 0 34%, #ffffff 34% 52%, #b31942 52% 78%, #c9a24b 78% 100%);
+}
