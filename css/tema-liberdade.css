@@ -155,8 +155,8 @@
 :root[data-tema="liberdade"] .lugar::after {
   content: "★";
   position: absolute;
-  top: 5px;
-  right: 11px;
+  top: 4px;
+  right: 7px;
   font-size: 9px;
   line-height: 1;
   color: #c9a24b;

@@ -689,7 +689,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 /* ----- Tempo de cada jogador no próprio assento ----- */
 .l-timer {
   height: 3.5px;
-  margin: 2px 6px 0;
+  margin: 3px 0 0;
   border-radius: 99px;
   background: rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -1060,18 +1060,19 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     top: clamp(36px, var(--y, 50%), calc(100% - 34px));
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    top: clamp(34px, var(--y, 50%), calc(100% - 30px));
-    padding: 5px 8px 5px 31px;
-    border-radius: 999px;
+    top: clamp(34px, var(--y, 50%), calc(100% - 32px));
+    min-height: 54px;
+    padding: 5px 6px 4px 20px;
+    border-radius: 14px;
     gap: 1px;
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo > .l-avatar,
   #tela-mesa.modo-online.cheia .lugar.assento-redondo > .ficha {
-    top: 50%;
-    left: -7px;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
+    top: -8px;
+    left: -10px;
+    transform: none;
+    width: 32px;
+    height: 32px;
   }
   /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
   #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
@@ -1255,8 +1256,9 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online .centro-roda .board,
   #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 142px; }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    top: clamp(28px, var(--y, 50%), calc(100% - 28px));
-    padding: 4px 7px 4px 28px;
+    top: clamp(30px, var(--y, 50%), calc(100% - 30px));
+    min-height: 50px;
+    padding: 4px 5px 4px 18px;
   }
   #barra-acoes.modo-online .minha-mao-dica { display: none; }
 }

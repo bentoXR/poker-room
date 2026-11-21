@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=59';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=59';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=59';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=59';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=59';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=59';
-import { obterModo } from './modos.js?v=59';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=59';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=59';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=59';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=59';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=59';
+import { banco } from '../core/supabase.js?v=60';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=60';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=60';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=60';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=60';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=60';
+import { obterModo } from './modos.js?v=60';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=60';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=60';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=60';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=60';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=60';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -550,14 +550,14 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
   const nMesa = listaMesa.length;
   const larguraLugar = ehDesktop
-    ? (nMesa <= 4 ? 186 : nMesa <= 6 ? 174 : 158)
-    : (nMesa <= 3 ? 118 : nMesa <= 5 ? 112 : nMesa <= 6 ? 104 : 96);
+    ? (nMesa <= 4 ? 156 : nMesa <= 6 ? 148 : 138)
+    : (nMesa <= 3 ? 102 : nMesa <= 5 ? 96 : nMesa <= 6 ? 90 : 84);
   const escalaLugar = ehDesktop
-    ? (nMesa <= 4 ? 1.05 : nMesa <= 6 ? 1.0 : 0.94)
-    : (nMesa <= 3 ? 0.98 : nMesa <= 5 ? 0.94 : nMesa <= 6 ? 0.88 : 0.84);
+    ? (nMesa <= 4 ? 1.04 : nMesa <= 6 ? 0.98 : 0.92)
+    : (nMesa <= 3 ? 0.96 : nMesa <= 5 ? 0.92 : nMesa <= 6 ? 0.86 : 0.82);
   const raioX = ehDesktop ? 43.5 : 40;
   const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '19vw' : (nMesa >= 7 ? '27.5vw' : nMesa >= 5 ? '30.5vw' : '33vw');
+  const maxVw = ehDesktop ? '17vw' : (nMesa >= 7 ? '24.5vw' : nMesa >= 5 ? '27.5vw' : '29.5vw');
 
   const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
