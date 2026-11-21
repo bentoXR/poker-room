@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0c1d45">
+  <meta name="theme-color" content="#1b130e">
   <title>Poker Room</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
 
@@ -15,12 +15,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=35">
-  <link rel="stylesheet" href="./css/telas.css?v=35">
-  <link rel="stylesheet" href="./css/mesa.css?v=35">
-  <link rel="stylesheet" href="./css/gavetas.css?v=35">
-  <link rel="stylesheet" href="./css/online.css?v=35">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=35">
+  <link rel="stylesheet" href="./css/base.css?v=36">
+  <link rel="stylesheet" href="./css/telas.css?v=36">
+  <link rel="stylesheet" href="./css/mesa.css?v=36">
+  <link rel="stylesheet" href="./css/gavetas.css?v=36">
+  <link rel="stylesheet" href="./css/online.css?v=36">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=36">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -36,14 +36,13 @@
   </defs>
 </svg>
 <script>
-  // Aplica tema salvo e evita "piscar" a tela de login ao recarregar
+  // Aplica tema salvo (padrão: Sinuca / 'classico') e evita "piscar" ao recarregar
   try {
     var temaSalvo = localStorage.getItem('poker-tema');
-    if (temaSalvo === 'classico' || temaSalvo === 'preto' || temaSalvo === 'liberdade') {
-      document.documentElement.setAttribute('data-tema', temaSalvo);
-      var m = document.querySelector('meta[name="theme-color"]');
-      if (m) m.setAttribute('content', temaSalvo === 'preto' ? '#14161c' : temaSalvo === 'liberdade' ? '#0a3161' : '#1b130e');
-    }
+    var temaAtivo = (temaSalvo === 'preto' || temaSalvo === 'liberdade') ? temaSalvo : 'classico';
+    document.documentElement.setAttribute('data-tema', temaAtivo);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', temaAtivo === 'preto' ? '#14161c' : temaAtivo === 'liberdade' ? '#0a3161' : '#1b130e');
     if (localStorage.getItem('poker-conta')) {
       document.documentElement.classList.add('restaurando');
     }
@@ -55,11 +54,8 @@
   <section id="tela-login" class="tela ativa">
     <div class="topo-tema-login">
       <div class="seletor-tema" role="group" aria-label="Escolher cores do site">
-        <button type="button" class="tema-btn sel" data-tema="azul" onclick="escolherTema('azul')" aria-pressed="true">
-          <span class="amostra amostra-azul" aria-hidden="true"></span>Azul
-        </button>
-        <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-          <span class="amostra amostra-classico" aria-hidden="true"></span>Cassino
+        <button type="button" class="tema-btn sel" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="true">
+          <span class="amostra amostra-classico" aria-hidden="true"></span>Sinuca
         </button>
         <button type="button" class="tema-btn" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="false">
           <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
@@ -127,11 +123,8 @@
       </button>
       <div class="conta-acoes">
         <div class="seletor-tema compacto" role="group" aria-label="Escolher cores do site">
-          <button type="button" class="tema-btn sel" data-tema="azul" onclick="escolherTema('azul')" aria-pressed="true">
-            <span class="amostra amostra-azul" aria-hidden="true"></span>Azul
-          </button>
-          <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-            <span class="amostra amostra-classico" aria-hidden="true"></span>Cassino
+          <button type="button" class="tema-btn sel" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="true">
+            <span class="amostra amostra-classico" aria-hidden="true"></span>Sinuca
           </button>
           <button type="button" class="tema-btn" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="false">
             <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
@@ -449,11 +442,8 @@
         <div class="menu-tema-linha">
           <span>Cores da mesa</span>
           <div class="seletor-tema compacto" role="group" aria-label="Escolher cores do site">
-            <button type="button" class="tema-btn sel" data-tema="azul" onclick="escolherTema('azul')" aria-pressed="true">
-              <span class="amostra amostra-azul" aria-hidden="true"></span>Azul
-            </button>
-            <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-              <span class="amostra amostra-classico" aria-hidden="true"></span>Cassino
+            <button type="button" class="tema-btn sel" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="true">
+              <span class="amostra amostra-classico" aria-hidden="true"></span>Sinuca
             </button>
             <button type="button" class="tema-btn" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="false">
               <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
@@ -735,6 +725,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=35"></script>
+<script type="module" src="./js/main.js?v=36"></script>
 </body>
 </html>

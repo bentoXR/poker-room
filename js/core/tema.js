@@ -1,35 +1,32 @@
-// Gerenciamento de tema visual ('azul' = Azul Royal | 'classico' = Cassino Sinuca | 'preto' = Preto & Vermelho | 'liberdade' = Americano Clássico)
+// Gerenciamento de tema visual ('classico' = Sinuca [padrão] | 'preto' = Preto & Vermelho | 'liberdade' = EUA)
 const CHAVE_TEMA = 'poker-tema';
-const ORDEM_TEMAS = ['azul', 'classico', 'preto', 'liberdade'];
+const ORDEM_TEMAS = ['classico', 'preto', 'liberdade'];
 const CORES_META = {
-  azul: '#0c1d45',
   classico: '#1b130e',
   preto: '#14161c',
   liberdade: '#0a3161'
 };
 const TITULOS_TEMA = {
-  azul: 'Tema: Azul Americano (clique para trocar para Cassino)',
-  classico: 'Tema: Cassino (clique para trocar para Preto e Vermelho)',
-  preto: 'Tema: Preto e Vermelho (clique para trocar para Americano Clássico)',
-  liberdade: 'Tema: Americano Clássico (clique para trocar para Azul Americano)'
+  classico: 'Tema: Sinuca (clique para trocar para Preto)',
+  preto: 'Tema: Preto (clique para trocar para EUA)',
+  liberdade: 'Tema: EUA (clique para trocar para Sinuca)'
 };
 
 function normalizarTema(tema) {
-  return ORDEM_TEMAS.includes(tema) ? tema : 'azul';
+  return ORDEM_TEMAS.includes(tema) ? tema : 'classico';
 }
 
 export function lerTemaSalvo() {
   try {
     return normalizarTema(localStorage.getItem(CHAVE_TEMA));
   } catch (erro) {
-    return 'azul';
+    return 'classico';
   }
 }
 
 function aplicarTemaDOM(tema) {
   const ativo = normalizarTema(tema);
-  if (ativo === 'azul') document.documentElement.removeAttribute('data-tema');
-  else document.documentElement.setAttribute('data-tema', ativo);
+  document.documentElement.setAttribute('data-tema', ativo);
 
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', CORES_META[ativo]);
