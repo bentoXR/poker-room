@@ -1,14 +1,14 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=3';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, limparCachesMesa } from '../core/estado.js?v=3';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=3';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, fecharFolhas } from '../core/ui.js?v=3';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=3';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=3';
-import { obterModo } from './modos.js?v=3';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=3';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=3';
+import { banco } from '../core/supabase.js?v=4';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, limparCachesMesa } from '../core/estado.js?v=4';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=4';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, fecharFolhas } from '../core/ui.js?v=4';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=4';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=4';
+import { obterModo } from './modos.js?v=4';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=4';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=4';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -325,14 +325,14 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   const nJ = jogadores.length;
   const meuIdx = Math.max(0, jogadores.findIndex((j) => j.id === estado.meuJogadorId));
   const larguraLugar = desktopOnline
-    ? (nJ <= 4 ? 156 : nJ <= 6 ? 148 : nJ <= 8 ? 138 : 130)
+    ? (nJ <= 4 ? 182 : nJ <= 6 ? 170 : nJ <= 8 ? 156 : 146)
     : (nJ <= 4 ? 100 : nJ <= 6 ? 94 : nJ <= 8 ? 88 : 84);
   const escalaLugar = desktopOnline
-    ? (nJ <= 4 ? 1.08 : nJ <= 6 ? 1.04 : nJ <= 8 ? 1.0 : 0.96)
+    ? (nJ <= 4 ? 1.2 : nJ <= 6 ? 1.15 : nJ <= 8 ? 1.08 : 1.02)
     : (nJ <= 4 ? 1.05 : nJ <= 6 ? 1 : nJ <= 8 ? 0.95 : 0.92);
-  const raioX = desktopOnline ? 43 : 40;
-  const raioY = desktopOnline ? 40 : 39;
-  const maxVw = desktopOnline ? '18vw' : '27vw';
+  const raioX = desktopOnline ? 43.5 : 40;
+  const raioY = desktopOnline ? 40.5 : 39;
+  const maxVw = desktopOnline ? '19vw' : '27vw';
 
   const htmlLista = jogadores.map((j, i) => {
     const souEu = (j.id === estado.meuJogadorId);
