@@ -1,5 +1,5 @@
 // Utilitários de interface: navegação entre telas, gavetas (.folha), toast, erros, formatação
-import { estado } from './estado.js?v=43';
+import { estado } from './estado.js?v=47';
 
 export const $id = (id) => document.getElementById(id);
 
@@ -11,6 +11,7 @@ export const FOLHAS = [
   'painel-criador',
   'painel-distribuir',
   'folha-hist',
+  'folha-chat',
   'painel-dev',
   'folha-reais',
   'folha-guia',

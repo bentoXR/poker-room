@@ -1,16 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=43';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=43';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=43';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=43';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=43';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=43';
-import { obterModo } from './modos.js?v=43';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=43';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=43';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=43';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=43';
+import { banco } from '../core/supabase.js?v=47';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=47';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=47';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=47';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=47';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=47';
+import { obterModo } from './modos.js?v=47';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=47';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=47';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=47';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=47';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=47';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -72,10 +73,12 @@ export async function abrirMesa(partida, estadoInicial) {
   if (!estado.partidaAtual) return;
 
   mostrar('tela-mesa');
+  iniciarChatMesa(partida.id);
   ligarTempoReal({
     onEstado: receberEstado,
     onBuscar: buscarMesa,
-    onConectado: carregarValorReal
+    onConectado: carregarValorReal,
+    onChat: receberMensagemChat
   });
 }
 
@@ -628,6 +631,7 @@ export function voltarParaSalas() {
   const eraDev = estado.modoDev;
   desligarTempoReal();
   fecharFolhas();
+  limparChatMesa();
   const modo = obterModo(estado.modoAtual);
   if (modo && modo.aoSairDaMesa) modo.aoSairDaMesa();
 

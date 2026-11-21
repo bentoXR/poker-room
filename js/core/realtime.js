@@ -1,8 +1,8 @@
 // Sincronização em tempo real (Broadcast + Postgres Changes + fallback + heartbeat)
 // Compartilhada por todos os modos de jogo
-import { banco } from './supabase.js?v=43';
-import { estado } from './estado.js?v=43';
-import { lerDevSala } from './storage.js?v=43';
+import { banco } from './supabase.js?v=47';
+import { estado } from './estado.js?v=47';
+import { lerDevSala } from './storage.js?v=47';
 
 let canal = null;
 let temporizadorReserva = null;
@@ -19,7 +19,14 @@ export function publicarBroadcast(payload) {
   } catch (erro) {}
 }
 
-export function ligarTempoReal({ onEstado, onBuscar, onConectado }) {
+export function publicarChat(payload) {
+  if (!canal) return;
+  try {
+    canal.send({ type: 'broadcast', event: 'chat', payload }).catch(() => {});
+  } catch (erro) {}
+}
+
+export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat }) {
   desligarTempoReal();
   const idSala = estado.partidaAtual.id;
   let jaInscrito = false;
@@ -28,6 +35,9 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado }) {
     .channel('mesa-' + idSala)
     .on('broadcast', { event: 'estado' }, (msg) => {
       if (msg && msg.payload && msg.payload.partida) onEstado(msg.payload, false);
+    })
+    .on('broadcast', { event: 'chat' }, (msg) => {
+      if (onChat && msg && msg.payload) onChat(msg.payload);
     })
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'partidas', filter: 'id=eq.' + idSala },
