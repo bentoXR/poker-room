@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=62';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=62';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=62';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=62';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=62';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=62';
-import { obterModo } from './modos.js?v=62';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=62';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=62';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=62';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=62';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=62';
+import { banco } from '../core/supabase.js?v=63';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=63';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=63';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=63';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=63';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=63';
+import { obterModo } from './modos.js?v=63';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=63';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=63';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=63';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=63';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=63';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -422,6 +422,29 @@ const POSICOES_OPONENTES_DESKTOP = {
   8: [[12, 81], [8.5, 52], [15, 22], [35, 10], [65, 10], [85, 22], [91.5, 52], [88, 81]]
 };
 
+// Coordenadas (x%, y%) dedicadas para celular na horizontal (landscape)
+const POSICOES_LANDSCAPE_ONLINE = {
+  2: [[50, 88], [50, 12]],
+  3: [[50, 88], [11, 30], [89, 30]],
+  4: [[50, 88], [9.5, 50], [50, 12], [90.5, 50]],
+  5: [[50, 88], [10.5, 74], [12, 26], [88, 26], [89.5, 74]],
+  6: [[50, 88], [10, 75], [10.5, 28], [50, 12], [89.5, 28], [90, 75]],
+  7: [[50, 88], [11, 78], [9, 40], [32, 12], [68, 12], [91, 40], [89, 78]],
+  8: [[50, 88], [12, 80], [8.5, 50], [15, 21], [50, 11], [85, 21], [91.5, 50], [88, 80]],
+  9: [[50, 88], [13, 81], [8.5, 52], [14, 21], [36, 11], [64, 11], [86, 21], [91.5, 52], [87, 81]]
+};
+
+const POSICOES_OPONENTES_LANDSCAPE = {
+  1: [[50, 11]],
+  2: [[11, 36], [89, 36]],
+  3: [[9.5, 60], [50, 11], [90.5, 60]],
+  4: [[11, 80], [12, 28], [88, 28], [89, 80]],
+  5: [[10.5, 81], [11, 30], [50, 11], [89, 30], [89.5, 81]],
+  6: [[11, 83], [9, 46], [32, 11], [68, 11], [91, 46], [89, 83]],
+  7: [[12, 85], [8, 52], [17, 19], [50, 10], [83, 19], [92, 52], [88, 85]],
+  8: [[13, 86], [8, 53], [16, 19], [36, 10], [64, 10], [84, 19], [92, 53], [87, 86]]
+};
+
 function montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline }) {
   let tags = '';
   if (premioVencedor > 0) {
@@ -527,8 +550,11 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   }
 
   const ehOnline = partida.modo === 'online';
-  const ehDesktop = window.innerWidth >= 820;
-  const ehMobile = !ehDesktop;
+  const ehLandscapeMobile = window.innerWidth > window.innerHeight
+    && window.innerHeight <= 520
+    && window.innerWidth <= 1024;
+  const ehDesktop = !ehLandscapeMobile && window.innerWidth >= 820;
+  const ehMobile = !ehLandscapeMobile && !ehDesktop;
   const emEsperaOnline = ehOnline && (!partida.iniciada || partida.aguardando_proxima_mao) && !congelado;
   const nJ = jogadores.length;
   const meuIdx = jogadores.findIndex((j) => j.id === estado.meuJogadorId);
@@ -549,15 +575,19 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   }
 
   const nMesa = listaMesa.length;
-  const larguraLugar = ehDesktop
-    ? (nMesa <= 4 ? 186 : nMesa <= 6 ? 174 : 162)
-    : (nMesa <= 3 ? 102 : nMesa <= 5 ? 96 : nMesa <= 6 ? 90 : 84);
-  const escalaLugar = ehDesktop
-    ? (nMesa <= 4 ? 1.05 : nMesa <= 6 ? 0.99 : 0.93)
-    : (nMesa <= 3 ? 0.96 : nMesa <= 5 ? 0.92 : nMesa <= 6 ? 0.86 : 0.82);
-  const raioX = ehDesktop ? 44 : 40;
-  const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '18vw' : (nMesa >= 7 ? '24.5vw' : nMesa >= 5 ? '27.5vw' : '29.5vw');
+  const larguraLugar = ehLandscapeMobile
+    ? (nMesa <= 4 ? 128 : nMesa <= 6 ? 118 : 108)
+    : ehDesktop
+      ? (nMesa <= 4 ? 186 : nMesa <= 6 ? 174 : 162)
+      : (nMesa <= 3 ? 102 : nMesa <= 5 ? 96 : nMesa <= 6 ? 90 : 84);
+  const escalaLugar = ehLandscapeMobile
+    ? (nMesa <= 4 ? 0.88 : nMesa <= 6 ? 0.83 : 0.78)
+    : ehDesktop
+      ? (nMesa <= 4 ? 1.05 : nMesa <= 6 ? 0.99 : 0.93)
+      : (nMesa <= 3 ? 0.96 : nMesa <= 5 ? 0.92 : nMesa <= 6 ? 0.86 : 0.82);
+  const raioX = ehLandscapeMobile ? 43 : (ehDesktop ? 44 : 40);
+  const raioY = ehLandscapeMobile ? 40 : (ehDesktop ? 40.5 : 39);
+  const maxVw = ehLandscapeMobile ? '19vw' : (ehDesktop ? '18vw' : (nMesa >= 7 ? '24.5vw' : nMesa >= 5 ? '27.5vw' : '29.5vw'));
 
   const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
@@ -578,7 +608,9 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     let x;
     let y;
     if (heroNoDock) {
-      const mapaOp = ehMobile ? POSICOES_OPONENTES_MOBILE[nMesa] : POSICOES_OPONENTES_DESKTOP[nMesa];
+      const mapaOp = ehLandscapeMobile
+        ? POSICOES_OPONENTES_LANDSCAPE[nMesa]
+        : (ehMobile ? POSICOES_OPONENTES_MOBILE[nMesa] : POSICOES_OPONENTES_DESKTOP[nMesa]);
       if (mapaOp && mapaOp[idxLista]) {
         x = mapaOp[idxLista][0];
         y = mapaOp[idxLista][1];
@@ -589,7 +621,9 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       }
     } else {
       const k = (idxLista - Math.max(0, meuIdx) + nJ) % nJ;
-      const mapaPos = ehMobile ? POSICOES_MOBILE_ONLINE[nJ] : POSICOES_DESKTOP_ONLINE[nJ];
+      const mapaPos = ehLandscapeMobile
+        ? POSICOES_LANDSCAPE_ONLINE[nJ]
+        : (ehMobile ? POSICOES_MOBILE_ONLINE[nJ] : POSICOES_DESKTOP_ONLINE[nJ]);
       if (mapaPos && mapaPos[k]) {
         x = mapaPos[k][0];
         y = mapaPos[k][1];
@@ -600,7 +634,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       }
     }
 
-    const largura = larguraLugar + (souEu ? (ehDesktop ? 8 : 14) : 0);
+    const largura = larguraLugar + (souEu ? (ehLandscapeMobile ? 6 : (ehDesktop ? 8 : 14)) : 0);
     const maxVwAssento = (ehMobile && souEu) ? '30vw' : maxVw;
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVwAssento + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
@@ -616,7 +650,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
         <div class="l-corpo">
           <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
           <div class="l-meio">
-            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${ehDesktop ? Number(j.saldo).toLocaleString('pt-BR') : j.saldo}</div>
+            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${(ehDesktop || ehLandscapeMobile) ? Number(j.saldo).toLocaleString('pt-BR') : j.saldo}</div>
             ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
           </div>
           ${tags ? '<div class="l-tags">' + tags + '</div>' : ''}
