@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=67';
-import { estado, nomeDe } from '../../core/estado.js?v=67';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=67';
-import { lerDevSala } from '../../core/storage.js?v=67';
-import { registrarModo } from '../../mesa/modos.js?v=67';
-import { executar } from '../../mesa/apostas.js?v=67';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=67';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=67';
-import { avaliarMaoLocal } from './maos.js?v=67';
-import { tocarSom } from '../../core/som.js?v=67';
+import { banco } from '../../core/supabase.js?v=68';
+import { estado, nomeDe } from '../../core/estado.js?v=68';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=68';
+import { lerDevSala } from '../../core/storage.js?v=68';
+import { registrarModo } from '../../mesa/modos.js?v=68';
+import { executar } from '../../mesa/apostas.js?v=68';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=68';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=68';
+import { avaliarMaoLocal } from './maos.js?v=68';
+import { tocarSom } from '../../core/som.js?v=68';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -479,11 +479,11 @@ function desenharBoardInterno(partida) {
   const n = onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length);
   const cartas = todas.slice(0, n);
   const melhores = (partida.aguardando_proxima_mao && !onlineUI.segurando) ? melhoresDoResultado(partida) : {};
-  const chave = cartas.join(',') + '|' + Object.keys(melhores).sort().join(',');
+  const chaveCartas = cartas.join(',');
 
-  if (chave !== onlineUI.htmlBoardVisto) {
+  if (chaveCartas !== onlineUI.htmlBoardVisto) {
     const antes = onlineUI.boardQtdVisto < 0 ? n : onlineUI.boardQtdVisto;
-    onlineUI.htmlBoardVisto = chave;
+    onlineUI.htmlBoardVisto = chaveCartas;
     onlineUI.boardQtdVisto = n;
     let html = '';
     for (let k = 0; k < 5; k++) {
@@ -495,18 +495,38 @@ function desenharBoardInterno(partida) {
       const c = parseCartaLocal(raw);
       if (!c) { html += '<div class="carta-slot-vazio"></div>'; continue; }
       const nova = k >= antes;
-      const atraso = nova ? ((k - antes) * 580) + 'ms' : '0ms';
+      const atrasoMs = nova ? ((k - antes) * 520) : 0;
       const dest = !!melhores[c.raw];
-      html += '<div class="carta-board' + (nova ? '' : ' ja') + (dest ? ' destaque' : '') + '" data-raw="' + c.raw + '" style="--atraso:' + atraso + '">'
+      html += '<div class="carta-board' + (nova ? '' : ' ja') + (dest ? ' destaque' : '') + '" data-raw="' + c.raw + '" style="--atraso:' + atrasoMs + 'ms">'
+        + '<div class="carta-board-3d">'
+        + '<span class="carta verso carta-board-verso" aria-hidden="true"></span>'
         + htmlCarta(c.raw)
+        + '</div>'
         + '</div>';
     }
-    boardEl.querySelector('.slots').innerHTML = html;
+    const slotsEl = boardEl.querySelector('.slots');
+    slotsEl.innerHTML = html;
+
+    slotsEl.querySelectorAll('.carta-board:not(.ja)').forEach((cardEl) => {
+      const inner = cardEl.querySelector('.carta-board-3d');
+      if (inner) {
+        inner.addEventListener('animationend', () => {
+          cardEl.classList.add('ja');
+          atualizarLuzes();
+        }, { once: true });
+      }
+    });
+
     if (antes < n) {
       for (let k = antes; k < n; k++) {
-        tocarSom('carta-dar', (k - antes) * 580);
+        tocarSom('carta-dar', (k - antes) * 520);
       }
     }
+  } else {
+    // Atualiza apenas o destaque de cartas vencedoras sem reconstruir o DOM das cartas da mesa
+    boardEl.querySelectorAll('.carta-board').forEach((cardEl) => {
+      cardEl.classList.toggle('destaque', !!melhores[cardEl.dataset.raw]);
+    });
   }
 
   boardEl.querySelectorAll('.rotulos span').forEach((el) => {

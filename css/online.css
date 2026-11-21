@@ -112,23 +112,65 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   border: 1.5px dashed rgba(244, 247, 255, 0.22);
   background: rgba(0, 0, 0, 0.18);
 }
-.carta-board { position: relative; perspective: 800px; }
-.carta-board .carta {
-  animation: cartaEntrar 1.38s cubic-bezier(0.19, 1, 0.22, 1) both;
-  animation-delay: var(--atraso, 0ms);
-  transition: filter 0.55s ease, transform 0.35s ease, box-shadow 0.35s ease;
+.carta-board {
+  position: relative;
+  perspective: 760px;
 }
-.carta-board.ja .carta { animation: none; }
-.carta-board.apagada .carta { filter: brightness(0.55) saturate(0.65); }
-.carta-board.destaque .carta {
+.carta-board-3d {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform, opacity;
+  animation: cartaEntrar 0.96s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--atraso, 0ms);
+}
+.carta-board.ja .carta-board-3d {
+  animation: none;
+  will-change: auto;
+}
+.carta-board-3d > .carta:not(.verso) {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(0deg);
+  transition: filter 0.45s ease, transform 0.35s ease, box-shadow 0.35s ease;
+}
+.carta-board-3d > .carta-board-verso {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 9% / 6.4%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(180deg);
+  pointer-events: none;
+}
+.carta-board.ja .carta-board-verso {
+  display: none;
+}
+/* Só aplica filter depois que a animação 3D termina (.ja), nunca quebrando preserve-3d durante o giro! */
+.carta-board.ja.apagada .carta:not(.verso) {
+  filter: brightness(0.55) saturate(0.65);
+}
+.carta-board.destaque .carta:not(.verso) {
   box-shadow: 0 0 0 2px #ffd866, 0 0 16px rgba(255, 216, 102, 0.7), 0 5px 12px rgba(0, 0, 0, 0.45);
   transform: translateY(-3px);
 }
+/* Transform apenas em 0% e 100% = curva única contínua sem paradas intermediárias! */
 @keyframes cartaEntrar {
-  0%   { opacity: 0; transform: translate3d(-26px, -58px, 34px) rotateY(155deg) rotateZ(-11deg) scale(0.72); }
-  38%  { opacity: 1; transform: translate3d(-8px, -14px, 18px) rotateY(70deg) rotateZ(-4deg) scale(1.03); }
-  72%  { opacity: 1; transform: translate3d(0, 2px, 0) rotateY(-6deg) rotateZ(0.8deg) scale(1.01); }
-  100% { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0deg) rotateZ(0deg) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -24px, 0) rotateY(180deg) scale(0.86);
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateY(0deg) scale(1);
+  }
 }
 
 /* Luzinha do assistente: contorno azul-claro pulsando nas cartas que formam a sua mão */
@@ -155,6 +197,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   justify-content: center;
   gap: 3px;
   margin-top: 2px;
+  perspective: 500px;
 }
 .l-cartas .carta {
   width: 25px;
@@ -162,12 +205,23 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-.l-cartas .carta.frente-mini { animation: miniVirar 1.15s cubic-bezier(0.19, 1, 0.22, 1) both; }
+.l-cartas .carta.frente-mini {
+  will-change: transform, opacity;
+  animation: miniVirar 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 .l-cartas .carta.destaque { box-shadow: 0 0 0 2px #ffd866, 0 0 10px rgba(255, 216, 102, 0.75); }
 @keyframes miniVirar {
-  0%   { opacity: 0.15; transform: translateY(-6px) rotateY(110deg) scale(0.76); }
-  58%  { opacity: 1; transform: translateY(1px) rotateY(-8deg) scale(1.04); }
-  100% { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) rotateY(110deg) scale(0.84);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateY(0deg) scale(1);
+  }
 }
 
 
@@ -218,11 +272,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   perspective: 900px;
 }
 .carta-3d-slot.animar-entrada {
-  animation: distribuirCarta 1.38s cubic-bezier(0.19, 1, 0.22, 1) both;
+  will-change: transform, opacity;
+  animation: distribuirCarta 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--atraso-deal, 0ms);
 }
 .carta-3d-slot.animar-entrada:nth-child(2) {
-  animation-delay: calc(var(--atraso-deal, 0ms) + 420ms);
+  animation-delay: calc(var(--atraso-deal, 0ms) + 360ms);
 }
 .carta-3d {
   position: relative;
@@ -239,7 +294,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   cursor: pointer;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.78s cubic-bezier(0.22, 1, 0.36, 1);
   transform: rotateY(0deg);
 }
 .carta-3d:active:not(:disabled) { transform: scale(0.96); box-shadow: none; }
@@ -248,11 +303,19 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 .carta-3d.destaque .carta-face.frente .carta {
   box-shadow: 0 0 0 2.5px #ffd866, 0 8px 20px rgba(255, 216, 102, 0.45);
 }
+/* Transform apenas em 0% e 100% = curva contínua sem travadas! */
 @keyframes distribuirCarta {
-  0%   { opacity: 0; transform: translate3d(0, -68px, 36px) scale(0.58) rotateZ(-15deg) rotateX(26deg); }
-  45%  { opacity: 1; transform: translate3d(0, -10px, 14px) scale(1.03) rotateZ(3deg) rotateX(6deg); }
-  78%  { opacity: 1; transform: translate3d(0, 2px, 0) scale(0.995) rotateZ(-0.8deg) rotateX(0deg); }
-  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotateZ(0deg) rotateX(0deg); }
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -48px, 0) scale(0.68) rotateZ(-12deg);
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotateZ(0deg);
+  }
 }
 
 .carta-face {
@@ -812,8 +875,9 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   inset: 0;
   border-radius: 7px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  will-change: transform, opacity;
   animation-duration: 2050ms;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.38, 1);
+  animation-timing-function: ease-in-out;
   animation-fill-mode: both;
   animation-delay: calc(var(--i, 0) * 58ms);
 }
