@@ -1545,6 +1545,42 @@
     min-height: 38px !important;
     font-size: 14px !important;
   }
+  .chat-abas {
+    padding: 4px 10px 6px !important;
+    gap: 5px !important;
+  }
+  button.chat-aba {
+    min-height: 30px !important;
+    font-size: 12.5px !important;
+    padding: 2px 8px !important;
+  }
+  .votacao-card {
+    margin: 5px 10px 2px !important;
+    padding: 6px 8px !important;
+    gap: 4px !important;
+  }
+  .votacao-titulo {
+    font-size: 13.5px !important;
+  }
+  .votacao-sub,
+  .votacao-placar {
+    font-size: 11.5px !important;
+  }
+  .votacao-acoes button {
+    min-height: 30px !important;
+    font-size: 12.5px !important;
+  }
+  #aba-votacao.chat-painel {
+    padding: 6px 10px 10px !important;
+  }
+  .chat-atalhos {
+    padding: 4px 10px 3px !important;
+  }
+  button.chat-chip {
+    min-height: 26px !important;
+    font-size: 11.5px !important;
+    padding: 2px 8px !important;
+  }
   .chat-form {
     padding: 5px 10px !important;
   }

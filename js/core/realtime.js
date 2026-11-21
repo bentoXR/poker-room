@@ -1,8 +1,8 @@
 // Sincronização em tempo real (Broadcast + Postgres Changes + fallback + heartbeat)
 // Compartilhada por todos os modos de jogo
-import { banco } from './supabase.js?v=73';
-import { estado } from './estado.js?v=73';
-import { lerDevSala } from './storage.js?v=73';
+import { banco } from './supabase.js?v=74';
+import { estado } from './estado.js?v=74';
+import { lerDevSala } from './storage.js?v=74';
 
 let canal = null;
 let temporizadorReserva = null;
@@ -33,7 +33,14 @@ export function publicarReacao(payload) {
   } catch (erro) {}
 }
 
-export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReacao }) {
+export function publicarDigitando(payload) {
+  if (!canal) return;
+  try {
+    canal.send({ type: 'broadcast', event: 'digitando', payload }).catch(() => {});
+  } catch (erro) {}
+}
+
+export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReacao, onDigitando }) {
   desligarTempoReal();
   const idSala = estado.partidaAtual.id;
   let jaInscrito = false;
@@ -48,6 +55,9 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReac
     })
     .on('broadcast', { event: 'reacao' }, (msg) => {
       if (onReacao && msg && msg.payload) onReacao(msg.payload);
+    })
+    .on('broadcast', { event: 'digitando' }, (msg) => {
+      if (onDigitando && msg && msg.payload) onDigitando(msg.payload);
     })
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'partidas', filter: 'id=eq.' + idSala },

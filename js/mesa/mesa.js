@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=73';
-import { estado, ICONE_COROA, nomeDe, contaParams, credC, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=73';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=73';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=73';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=73';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=73';
-import { obterModo } from './modos.js?v=73';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=73';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=73';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=73';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=73';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao } from './chat.js?v=73';
+import { banco } from '../core/supabase.js?v=74';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=74';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=74';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=74';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=74';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=74';
+import { obterModo } from './modos.js?v=74';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=74';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=74';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=74';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=74';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=74';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -79,7 +79,8 @@ export async function abrirMesa(partida, estadoInicial) {
     onBuscar: buscarMesa,
     onConectado: carregarValorReal,
     onChat: receberMensagemChat,
-    onReacao: receberReacao
+    onReacao: receberReacao,
+    onDigitando: receberDigitando
   });
 }
 
@@ -340,13 +341,14 @@ export function desenharMesa(dados) {
   const folhaMenu = $id('folha-menu');
   if (folhaMenu && !folhaMenu.hidden) preencherMenuOnline();
 
-  // ----- Barra de ações -----
+  // ----- Barra de ações e votação/chat -----
   desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, falta, status });
+  atualizarVotacaoUI();
   if (modo && modo.aoAtualizarMesa) modo.aoAtualizarMesa(partida, jogadores, ctxModo);
 }
 
 function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez }) {
-  if (partida.pausada) return '⏸ Mesa pausada pelo anfitrião';
+  if (partida.pausada) return '⏸ Mesa pausada por votação';
   if (partida.modo === 'online') {
     const comFichas = jogadores.filter((j) => j.saldo > 0).length;
     if (!partida.iniciada) return 'Aguardando jogadores confirmarem entrada';
@@ -785,52 +787,6 @@ function preencherMenuOnline() {
   btnSair.hidden = !eu || estado.modoDev;
   const emMaoAtiva = p.iniciada && !p.aguardando_proxima_mao && eu && !eu.desistiu && eu.saldo > 0;
   btnSair.disabled = !!emMaoAtiva;
-
-  // Controles do Anfitrião no modo Online (pausar, tempo de turno, remover ausentes, encerrar sala)
-  const boxAnf = $id('menu-anfitriao-online');
-  if (boxAnf) {
-    const souCriador = (!!eu && eu.criador) || estado.modoDev;
-    const ehOnline = p.modo === 'online';
-    boxAnf.hidden = !(ehOnline && souCriador);
-    if (ehOnline && souCriador) {
-      const tempos = [
-        [20, '20s'],
-        [30, '30s'],
-        [45, '45s'],
-        [60, '60s'],
-        [0, 'Sem limite']
-      ];
-      const tempoAtual = Number(p.tempo_turno) === 0 ? 0 : (Number(p.tempo_turno) || 30);
-      const chipsTempo = tempos.map(([val, rot]) => (
-        '<button type="button" class="op-chip' + (tempoAtual === val ? ' sel' : '') + '" onclick="ajustarTempoOnline(' + val + ')">' + rot + '</button>'
-      )).join('');
-
-      const emEspera = !p.iniciada || p.aguardando_proxima_mao;
-      const criadorId = credC().id;
-      const outros = jogadores.filter((j) => !j.criador && j.id !== criadorId);
-      const listaRem = outros.length
-        ? outros.map((j) => (
-            '<div class="linha-dev">'
-            + '<div class="info-dev">' + escapar(nomeDe(j.nome)) + '<small>fichas: ' + j.saldo + (j.ausente ? ' · ausente' : '') + '</small></div>'
-            + '<button type="button" class="contorno-perigo" onclick="removerJogador(\'' + j.id + '\')"' + (emEspera ? '' : ' disabled title="Disponível entre as mãos"') + '>Remover</button>'
-            + '</div>'
-          )).join('')
-        : '';
-
-      boxAnf.innerHTML =
-        '<div class="cartao-titulo">Controles do anfitrião</div>'
-        + '<button type="button" class="' + (p.pausada ? 'positivo' : 'secundario') + '" onclick="pausarSalaOnline()">'
-        +   (p.pausada ? '▶ Retomar mesa' : '⏸ Pausar mesa')
-        + '</button>'
-        + '<div class="opcoes-grupo" style="margin-top:8px"><label>Tempo por jogada</label>'
-        +   '<div class="opcoes-chips">' + chipsTempo + '</div>'
-        + '</div>'
-        + (listaRem ? '<div class="cartao-titulo" style="margin-top:10px">Jogadores na sala' + (emEspera ? '' : ' <small>(remova entre mãos)</small>') + '</div>' + listaRem : '')
-        + '<button type="button" class="contorno-perigo" style="margin-top:10px" onclick="encerrarSala()">Encerrar sala</button>';
-    } else {
-      boxAnf.innerHTML = '';
-    }
-  }
 }
 
 export function abrirMenuOnline() {
@@ -858,6 +814,7 @@ export function tick() {
   if (geral) geral.textContent = estado.relogio.ini ? 'Mesa ' + formatarTempo(agora - estado.relogio.ini) : '';
   if (estado.partidaAtual && estado.partidaAtual.modo === 'online') {
     atualizarResumoTopoOnline();
+    if (estado.partidaAtual.votacao) atualizarContagemVotacao();
     if (hookTickOnline) hookTickOnline();
     return;
   }

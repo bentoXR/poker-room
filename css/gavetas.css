@@ -417,12 +417,20 @@ button.btn-pref-toggle.ativo {
 
 /* ----- Chat de texto simples da mesa ----- */
 .btn-chat-ico { position: relative; }
+.btn-chat-ico.digitando {
+  box-shadow: 0 0 0 2px var(--acento), 0 0 12px color-mix(in srgb, var(--acento) 55%, transparent);
+  animation: btnChatDigitando 1.3s ease-in-out infinite;
+}
+@keyframes btnChatDigitando {
+  0%, 100% { box-shadow: 0 0 0 2px var(--acento); }
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--acento) 45%, transparent); }
+}
 .badge-chat {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 19px;
-  height: 19px;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
   padding: 0 5px;
   border-radius: 999px;
   display: inline-flex;
@@ -430,16 +438,241 @@ button.btn-pref-toggle.ativo {
   justify-content: center;
   font-family: var(--fonte-numero);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
   color: #fff;
-  background: var(--ouro);
+  background: #e63946;
   border: 2px solid var(--feltro-900);
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.55);
   pointer-events: none;
 }
+.badge-chat.voto {
+  background: #d97706;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.55);
+}
+.badge-chat.pulsa {
+  animation: badgeChatPulsa 1.5s ease-in-out infinite;
+}
+@keyframes badgeChatPulsa {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.13); }
+}
+.badge-chat[hidden],
+.chat-abas[hidden],
+.chat-painel[hidden],
+.votacao-card[hidden],
+.chat-digitando[hidden],
+.badge-aba-voto[hidden] {
+  display: none !important;
+}
 .folha-chat {
-  height: 72dvh;
-  max-height: 78dvh;
+  height: 74dvh;
+  max-height: 82dvh;
+}
+.chat-abas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px 14px 8px;
+  border-bottom: 1px solid var(--linha);
+  flex-shrink: 0;
+}
+button.chat-aba {
+  min-height: 36px;
+  margin-top: 0;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--marfim-suave);
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+button.chat-aba.ativa {
+  background: var(--verde-suave);
+  border-color: var(--verde-borda);
+  color: var(--marfim);
+}
+.badge-aba-voto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--marfim);
+}
+.badge-aba-voto.pendente {
+  background: #e63946;
+  color: #fff;
+}
+.chat-painel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#aba-votacao.chat-painel {
+  display: block;
+  overflow-y: auto;
+  padding: 10px 14px 16px;
+}
+.votacao-erro {
+  margin: 6px 14px 0;
+  flex-shrink: 0;
+}
+.votacao-card {
+  margin: 8px 14px 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--feltro-800) 88%, #000);
+  border: 1.5px solid var(--ouro);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.votacao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.votacao-tag {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--estrela);
+}
+.votacao-tempo {
+  font-family: var(--fonte-numero);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--marfim);
+}
+.votacao-titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--marfim);
+}
+.votacao-sub {
+  font-size: 12.5px;
+  color: var(--marfim-suave);
+}
+.votacao-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.votacao-barra-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--verde-texto);
+  transition: width 0.25s ease;
+}
+.votacao-placar {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--marfim-suave);
+}
+.votacao-acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 2px;
+}
+.votacao-acoes button {
+  min-height: 38px;
+  margin-top: 0;
+  padding: 0 10px;
+  font-size: 13.5px;
+}
+.votacao-acoes button.votado {
+  box-shadow: 0 0 0 2px #fff inset;
+  font-weight: 800;
+}
+.votacao-nota,
+.votacao-info,
+.votacao-aviso {
+  font-size: 13px;
+  line-height: 1.38;
+  color: var(--marfim-suave);
+}
+.votacao-aviso {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(217, 119, 6, 0.14);
+  border: 1px solid rgba(217, 119, 6, 0.45);
+  color: var(--estrela);
+}
+.votacao-bloco {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.votacao-bloco > button {
+  margin-top: 0;
+  min-height: 42px;
+  font-size: 14.5px;
+}
+.votacao-sec-titulo {
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--estrela);
+}
+.votacao-jogador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--feltro-800);
+  border: 1px solid var(--linha);
+}
+.votacao-jog-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.votacao-jog-info strong {
+  font-size: 14px;
+  color: var(--marfim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.votacao-jog-info small {
+  font-size: 12px;
+  color: var(--marfim-suave);
+}
+.votacao-jogador button {
+  width: auto;
+  min-height: 36px;
+  margin-top: 0;
+  padding: 0 12px;
+  font-size: 13px;
+  flex-shrink: 0;
 }
 .chat-lista {
   flex: 1;
@@ -448,6 +681,39 @@ button.btn-pref-toggle.ativo {
   flex-direction: column;
   gap: 8px;
   padding: 8px 16px 12px;
+}
+.chat-digitando {
+  padding: 3px 16px 2px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--acento);
+  flex-shrink: 0;
+}
+.chat-atalhos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.chat-atalhos::-webkit-scrollbar { display: none; }
+button.chat-chip {
+  width: auto;
+  min-height: 30px;
+  margin-top: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--marfim);
+  box-shadow: none;
 }
 .chat-vazio {
   margin: auto;
@@ -571,6 +837,10 @@ button.chat-preview-item:active:not(:disabled) {
 button.chat-preview-item.saindo {
   opacity: 0;
   transform: translateY(-6px);
+}
+button.chat-preview-item.voto {
+  border-left-color: #d97706;
+  background: color-mix(in srgb, var(--feltro-900) 86%, #d97706);
 }
 .chat-preview-autor {
   color: var(--acento);

@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=73">
+  <link rel="manifest" href="./manifest.webmanifest?v=74">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,15 +20,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=73">
-  <link rel="stylesheet" href="./css/telas.css?v=73">
-  <link rel="stylesheet" href="./css/mesa.css?v=73">
-  <link rel="stylesheet" href="./css/gavetas.css?v=73">
-  <link rel="stylesheet" href="./css/online.css?v=73">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=73">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=73">
-  <link rel="stylesheet" href="./css/desktop.css?v=73">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=73">
+  <link rel="stylesheet" href="./css/base.css?v=74">
+  <link rel="stylesheet" href="./css/telas.css?v=74">
+  <link rel="stylesheet" href="./css/mesa.css?v=74">
+  <link rel="stylesheet" href="./css/gavetas.css?v=74">
+  <link rel="stylesheet" href="./css/online.css?v=74">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=74">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=74">
+  <link rel="stylesheet" href="./css/desktop.css?v=74">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=74">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -492,7 +492,6 @@
           <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
           <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()">🏆 Placar e Acerto</button>
           <button type="button" id="menu-btn-dev" class="secundario" onclick="abrirPainelDev()" hidden>Painel DEV</button>
-          <div id="menu-anfitriao-online" class="menu-anfitriao" hidden></div>
           <button type="button" id="menu-btn-sair" class="contorno-perigo" onclick="fecharFolhas(); sairDaMesa()" hidden>Sair da mesa</button>
           <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()">Voltar para as salas</button>
         </div>
@@ -508,7 +507,7 @@
       <div class="folha-corpo" id="hist-lista"></div>
     </div>
 
-    <!-- Gaveta: chat de texto da mesa -->
+    <!-- Gaveta: chat de texto da mesa e votação coletiva -->
     <div id="folha-chat" class="folha folha-chat" hidden>
       <div class="folha-topo">
         <div class="folha-titulo">
@@ -517,12 +516,32 @@
         </div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
-      <div class="folha-corpo chat-lista" id="chat-lista" aria-live="polite"></div>
-      <form class="folha-rodape chat-form" onsubmit="event.preventDefault(); enviarChat();">
-        <input id="campo-chat" type="text" maxlength="240" placeholder="Digite uma mensagem..."
-               autocomplete="off" enterkeyhint="send" aria-label="Mensagem do chat">
-        <button type="submit" id="btn-enviar-chat" class="positivo">Enviar</button>
-      </form>
+      <div id="chat-abas" class="chat-abas" role="tablist">
+        <button type="button" id="aba-btn-chat" class="chat-aba ativa" role="tab" aria-selected="true" onclick="escolherAbaChat('chat')">💬 Chat</button>
+        <button type="button" id="aba-btn-votacao" class="chat-aba" role="tab" aria-selected="false" onclick="escolherAbaChat('votacao')">
+          🗳 Votação <span id="badge-aba-voto" class="badge-aba-voto" hidden></span>
+        </button>
+      </div>
+      <div id="erro-votacao" class="erro votacao-erro" role="alert"></div>
+      <div id="votacao-ativa-card" class="votacao-card" hidden></div>
+      <div id="aba-chat" class="chat-painel">
+        <div class="folha-corpo chat-lista" id="chat-lista" aria-live="polite"></div>
+        <div id="chat-digitando" class="chat-digitando" hidden></div>
+        <div class="chat-atalhos" id="chat-atalhos" aria-label="Mensagens rápidas">
+          <button type="button" class="chat-chip" onclick="enviarAtalhoChat('Boa! 👏')">Boa! 👏</button>
+          <button type="button" class="chat-chip" onclick="enviarAtalhoChat('Bora! ⚡')">Bora! ⚡</button>
+          <button type="button" class="chat-chip" onclick="enviarAtalhoChat('Calma 👀')">Calma 👀</button>
+          <button type="button" class="chat-chip" onclick="enviarAtalhoChat('Volto já ⏳')">Volto já ⏳</button>
+        </div>
+        <form class="folha-rodape chat-form" onsubmit="event.preventDefault(); enviarChat();">
+          <input id="campo-chat" type="text" maxlength="240" placeholder="Digite uma mensagem..."
+                 autocomplete="off" enterkeyhint="send" aria-label="Mensagem do chat" oninput="aoDigitarChat()">
+          <button type="submit" id="btn-enviar-chat" class="positivo">Enviar</button>
+        </form>
+      </div>
+      <div id="aba-votacao" class="folha-corpo chat-painel" hidden>
+        <div id="painel-votacao"></div>
+      </div>
     </div>
 
     <!-- Gaveta: opções do criador -->
@@ -819,11 +838,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=73"></script>
+<script type="module" src="./js/main.js?v=74"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=73').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=74').catch(() => {});
     });
   }
 </script>

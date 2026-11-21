@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=73';
-import { estado, nomeDe } from '../../core/estado.js?v=73';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=73';
-import { lerDevSala } from '../../core/storage.js?v=73';
-import { registrarModo } from '../../mesa/modos.js?v=73';
-import { executar } from '../../mesa/apostas.js?v=73';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=73';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=73';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=73';
-import { tocarSom } from '../../core/som.js?v=73';
+import { banco } from '../../core/supabase.js?v=74';
+import { estado, nomeDe } from '../../core/estado.js?v=74';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=74';
+import { lerDevSala } from '../../core/storage.js?v=74';
+import { registrarModo } from '../../mesa/modos.js?v=74';
+import { executar } from '../../mesa/apostas.js?v=74';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=74';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=74';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=74';
+import { tocarSom } from '../../core/som.js?v=74';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -951,26 +951,6 @@ export function chamarRabbitHunt() {
   }, 'erro-barra');
 }
 
-export function pausarSalaOnline() {
-  const p = estado.partidaAtual;
-  if (!p) return;
-  tocarSom('clique');
-  return executar('pausar_sala_online', {
-    p_jogador: estado.meuJogadorId,
-    p_segredo: estado.meuSegredo,
-    p_pausada: !p.pausada
-  }, 'erro-barra');
-}
-
-export function ajustarTempoOnline(seg) {
-  tocarSom('clique');
-  return executar('ajustar_tempo_online', {
-    p_jogador: estado.meuJogadorId,
-    p_segredo: estado.meuSegredo,
-    p_tempo: Number(seg)
-  }, 'erro-barra');
-}
-
 export function mostrarCartasOnline(qual) {
   tocarSom('carta-virar');
   return executar('mostrar_cartas_online', {
@@ -1033,6 +1013,11 @@ export function tickOnline() {
   if (!p || p.modo !== 'online' || p.encerrada) return;
 
   const agora = Date.now() + estado.relogio.offset;
+
+  // 0) Votação expirada: limpa no servidor mesmo com mesa pausada
+  if (p.votacao && p.votacao.expira_em && agora >= Date.parse(p.votacao.expira_em) + 600) {
+    dispararAvancoTempo(p.id);
+  }
 
   // 1) Timer de turno (contagem regressiva + barra de progresso). tempo_turno = 0 → sem limite.
   const limitado = Number(p.tempo_turno) > 0;
@@ -1353,7 +1338,7 @@ registrarModo('online', {
     // 2) Lobby antes da 1ª mão OU pausa entre mãos
     let sub = '';
     if (partida.pausada) {
-      sub = '⏸ <strong>Mesa pausada pelo anfitrião</strong> · ' + confirmados.length + ' de ' + elegiveis.length + ' prontos';
+      sub = '⏸ <strong>Mesa pausada por votação</strong> · ' + confirmados.length + ' de ' + elegiveis.length + ' prontos';
     } else if (comFichas.length < 2) {
       sub = 'Aguardando pelo menos <strong>2 jogadores</strong> entrarem na sala…';
     } else if (elegiveis.length < 2) {

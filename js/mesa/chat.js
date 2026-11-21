@@ -1,9 +1,12 @@
-// Chat de texto simples da mesa (persistido no Supabase + entrega instantânea via Realtime)
-import { banco } from '../core/supabase.js?v=73';
-import { estado, nomeDe } from '../core/estado.js?v=73';
-import { $id, escapar, aviso, abrirFolha } from '../core/ui.js?v=73';
-import { publicarChat, publicarReacao } from '../core/realtime.js?v=73';
-import { tocarSom } from '../core/som.js?v=73';
+// Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
+import { banco } from '../core/supabase.js?v=74';
+import { estado, nomeDe } from '../core/estado.js?v=74';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=74';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=74';
+import { tocarSom } from '../core/som.js?v=74';
+import { executar } from './apostas.js?v=74';
+
+const JANELA_DIGITANDO_MS = 3400;
 
 const chat = {
   partidaId: null,
@@ -11,7 +14,12 @@ const chat = {
   ids: new Set(),
   naoLidas: 0,
   enviando: false,
-  ultimaReacaoEm: 0
+  ultimaReacaoEm: 0,
+  abaAtual: 'chat',
+  digitandoPor: new Map(),
+  ultimoSinalDigitar: 0,
+  timerDigitando: null,
+  votacaoVistaId: null
 };
 
 function chatAberto() {
@@ -19,16 +27,95 @@ function chatAberto() {
   return Boolean(el && !el.hidden);
 }
 
+function modoOnlineAtivo() {
+  return Boolean(estado.partidaAtual && estado.partidaAtual.modo === 'online' && !estado.partidaAtual.encerrada);
+}
+
+function segundosRestantesVotacao(v) {
+  if (!v || !v.expira_em) return 0;
+  const exp = Date.parse(v.expira_em);
+  if (Number.isNaN(exp)) return 0;
+  return Math.max(0, Math.ceil((exp - (Date.now() + (estado.relogio.offset || 0))) / 1000));
+}
+
+function votacaoAtiva() {
+  const p = estado.partidaAtual;
+  if (!p || p.modo !== 'online' || p.encerrada || !p.votacao) return null;
+  if (segundosRestantesVotacao(p.votacao) <= 0) return null;
+  return p.votacao;
+}
+
+function meuVotoAtual(v) {
+  if (!v || !v.votos || !estado.meuJogadorId) return null;
+  if (!Object.prototype.hasOwnProperty.call(v.votos, estado.meuJogadorId)) return null;
+  return Boolean(v.votos[estado.meuJogadorId]);
+}
+
+function euNaMesa() {
+  if (!estado.meuJogadorId || !estado.meuSegredo) return null;
+  return (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId) || null;
+}
+
+function votacaoAguardandoMeuVoto() {
+  const v = votacaoAtiva();
+  if (!v || !euNaMesa()) return false;
+  return meuVotoAtual(v) === null;
+}
+
+function descreverVotacao(v) {
+  if (!v) return '';
+  if (v.tipo === 'pausar') return 'Pausar a mesa';
+  if (v.tipo === 'retomar') return 'Retomar a mesa';
+  if (v.tipo === 'expulsar') return 'Remover ' + nomeDe(v.alvo_nome || 'jogador');
+  return 'Votação da mesa';
+}
+
 function atualizarBadge() {
   const badge = $id('badge-chat');
-  if (!badge) return;
-  if (chat.naoLidas > 0) {
-    badge.textContent = chat.naoLidas > 9 ? '9+' : String(chat.naoLidas);
-    badge.hidden = false;
-  } else {
-    badge.textContent = '';
-    badge.hidden = true;
+  const pendenteVoto = votacaoAguardandoMeuVoto();
+  if (badge) {
+    if (chat.naoLidas > 0) {
+      badge.textContent = chat.naoLidas > 9 ? '9+' : String(chat.naoLidas);
+      badge.classList.remove('voto');
+      badge.classList.add('pulsa');
+      badge.hidden = false;
+    } else if (pendenteVoto) {
+      badge.textContent = '!';
+      badge.classList.add('voto', 'pulsa');
+      badge.hidden = false;
+    } else {
+      badge.textContent = '';
+      badge.classList.remove('pulsa', 'voto');
+      badge.hidden = true;
+    }
   }
+
+  const badgeAba = $id('badge-aba-voto');
+  const v = votacaoAtiva();
+  if (badgeAba) {
+    if (v) {
+      badgeAba.textContent = pendenteVoto ? 'Votar' : ((v.sim || 1) + '/' + (v.necessarios || 1));
+      badgeAba.classList.toggle('pendente', pendenteVoto);
+      badgeAba.hidden = false;
+    } else {
+      badgeAba.textContent = '';
+      badgeAba.classList.remove('pendente');
+      badgeAba.hidden = true;
+    }
+  }
+}
+
+function meuAutorKey() {
+  if (estado.meuJogadorId) return String(estado.meuJogadorId);
+  if (estado.minhaConta && estado.minhaConta.id) return String(estado.minhaConta.id);
+  return '';
+}
+
+function meuNomeAutor() {
+  const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
+  if (eu && eu.nome) return eu.nome;
+  if (estado.minhaConta && estado.minhaConta.nome) return estado.minhaConta.nome;
+  return 'Jogador';
 }
 
 function formatarHora(iso) {
@@ -56,7 +143,7 @@ function desenharChat() {
 
   if (!chat.mensagens.length) {
     lista.innerHTML =
-      '<div class="chat-vazio">Nenhuma mensagem ainda. Mande um oi para a mesa!</div>';
+      '<div class="chat-vazio">Nenhuma mensagem ainda. Mande um oi ou use um atalho abaixo!</div>';
     return;
   }
 
@@ -84,21 +171,16 @@ function limparPreviewChat() {
   if (wrap) wrap.innerHTML = '';
 }
 
-function mostrarPreviewChat(msg) {
+function adicionarBannerPreview({ textoHtml, ariaLabel, classeExtra, onClick, duracaoMs = 4600 }) {
   const wrap = $id('chat-preview');
-  if (!wrap || !msg) return;
-
-  const autor = escapar(nomeDe(msg.autor_nome || 'Jogador'));
-  const texto = escapar(msg.texto || '');
+  if (!wrap) return;
 
   const item = document.createElement('button');
   item.type = 'button';
-  item.className = 'chat-preview-item';
-  item.setAttribute('aria-label', 'Abrir chat: ' + nomeDe(msg.autor_nome || 'Jogador') + ' disse ' + (msg.texto || ''));
-  item.innerHTML =
-    '<strong class="chat-preview-autor">' + autor + '</strong> ' +
-    '<span class="chat-preview-txt">' + texto + '</span>';
-  item.addEventListener('click', () => abrirChat());
+  item.className = 'chat-preview-item' + (classeExtra ? ' ' + classeExtra : '');
+  item.setAttribute('aria-label', ariaLabel);
+  item.innerHTML = textoHtml;
+  item.addEventListener('click', onClick);
 
   wrap.appendChild(item);
   while (wrap.children.length > 2) {
@@ -111,7 +193,307 @@ function mostrarPreviewChat(msg) {
     setTimeout(() => {
       if (item.isConnected) item.remove();
     }, 260);
-  }, 4600);
+  }, duracaoMs);
+}
+
+function mostrarPreviewChat(msg) {
+  if (!msg) return;
+  const autor = escapar(nomeDe(msg.autor_nome || 'Jogador'));
+  const texto = escapar(msg.texto || '');
+  adicionarBannerPreview({
+    textoHtml: '<strong class="chat-preview-autor">' + autor + '</strong> <span class="chat-preview-txt">' + texto + '</span>',
+    ariaLabel: 'Abrir chat: ' + nomeDe(msg.autor_nome || 'Jogador') + ' disse ' + (msg.texto || ''),
+    onClick: () => abrirChat('chat')
+  });
+}
+
+function mostrarPreviewVotacao(v) {
+  if (!v) return;
+  const titulo = escapar(descreverVotacao(v));
+  const autor = escapar(nomeDe(v.autor_nome || 'Jogador'));
+  adicionarBannerPreview({
+    classeExtra: 'voto',
+    textoHtml: '<strong class="chat-preview-autor">🗳 Votação (' + autor + ')</strong> <span class="chat-preview-txt">' + titulo + ' · Toque para votar</span>',
+    ariaLabel: 'Abrir votação: ' + descreverVotacao(v),
+    onClick: () => abrirChat('votacao'),
+    duracaoMs: 7500
+  });
+}
+
+function atualizarDigitandoUI() {
+  const agora = Date.now();
+  for (const [k, info] of chat.digitandoPor.entries()) {
+    if (!info || info.expira <= agora) chat.digitandoPor.delete(k);
+  }
+
+  const nomes = Array.from(chat.digitandoPor.values()).map((info) => nomeDe(info.nome || 'Jogador'));
+  const el = $id('chat-digitando');
+  const btnChat = $id('btn-chat');
+
+  if (btnChat) btnChat.classList.toggle('digitando', nomes.length > 0 && !chatAberto());
+  if (el) {
+    if (nomes.length === 0) {
+      el.hidden = true;
+      el.textContent = '';
+    } else if (nomes.length === 1) {
+      el.hidden = false;
+      el.textContent = nomes[0] + ' está digitando…';
+    } else if (nomes.length === 2) {
+      el.hidden = false;
+      el.textContent = nomes[0] + ' e ' + nomes[1] + ' estão digitando…';
+    } else {
+      el.hidden = false;
+      el.textContent = nomes.length + ' pessoas digitando…';
+    }
+  }
+
+  clearTimeout(chat.timerDigitando);
+  chat.timerDigitando = null;
+  if (chat.digitandoPor.size > 0) {
+    let menorRestante = JANELA_DIGITANDO_MS;
+    for (const info of chat.digitandoPor.values()) {
+      menorRestante = Math.min(menorRestante, Math.max(250, info.expira - agora));
+    }
+    chat.timerDigitando = setTimeout(atualizarDigitandoUI, menorRestante + 40);
+  }
+}
+
+export function aoDigitarChat() {
+  if (!estado.partidaAtual || !chat.partidaId) return;
+  const campo = $id('campo-chat');
+  const ativo = Boolean(campo && campo.value.trim().length > 0);
+  const agora = Date.now();
+  if (ativo && agora - chat.ultimoSinalDigitar < 1600) return;
+  chat.ultimoSinalDigitar = agora;
+
+  publicarDigitando({
+    partida_id: estado.partidaAtual.id,
+    jogador_key: meuAutorKey(),
+    autor_nome: meuNomeAutor(),
+    ativo
+  });
+}
+
+export function receberDigitando(payload) {
+  if (!payload || !chat.partidaId) return;
+  if (payload.partida_id && estado.partidaAtual && payload.partida_id !== estado.partidaAtual.id) return;
+  const key = payload.jogador_key ? String(payload.jogador_key) : ('nome:' + String(payload.autor_nome || ''));
+  if (key && key === meuAutorKey()) return;
+
+  if (payload.ativo) {
+    chat.digitandoPor.set(key, {
+      nome: payload.autor_nome || 'Jogador',
+      expira: Date.now() + JANELA_DIGITANDO_MS
+    });
+  } else {
+    chat.digitandoPor.delete(key);
+  }
+  atualizarDigitandoUI();
+}
+
+export function escolherAbaChat(aba) {
+  const online = modoOnlineAtivo();
+  const alvo = (online && aba === 'votacao') ? 'votacao' : 'chat';
+  chat.abaAtual = alvo;
+  limparErro('erro-votacao');
+
+  const abas = $id('chat-abas');
+  if (abas) abas.hidden = !online;
+
+  const btnChat = $id('aba-btn-chat');
+  const btnVoto = $id('aba-btn-votacao');
+  const pChat = $id('aba-chat');
+  const pVoto = $id('aba-votacao');
+
+  if (btnChat) {
+    btnChat.classList.toggle('ativa', alvo === 'chat');
+    btnChat.setAttribute('aria-selected', alvo === 'chat' ? 'true' : 'false');
+  }
+  if (btnVoto) {
+    btnVoto.classList.toggle('ativa', alvo === 'votacao');
+    btnVoto.setAttribute('aria-selected', alvo === 'votacao' ? 'true' : 'false');
+  }
+  if (pChat) pChat.hidden = alvo !== 'chat';
+  if (pVoto) pVoto.hidden = alvo !== 'votacao';
+
+  if (alvo === 'chat') {
+    chat.naoLidas = 0;
+    atualizarBadge();
+    requestAnimationFrame(rolarFim);
+  } else {
+    desenharPainelVotacao();
+  }
+}
+
+function desenharCardVotacaoAtiva() {
+  const card = $id('votacao-ativa-card');
+  if (!card) return;
+  const v = votacaoAtiva();
+  if (!v) {
+    card.hidden = true;
+    card.innerHTML = '';
+    return;
+  }
+
+  const restante = segundosRestantesVotacao(v);
+  const sim = Number(v.sim) || 0;
+  const nao = Number(v.nao) || 0;
+  const nec = Math.max(1, Number(v.necessarios) || 1);
+  const eleg = Math.max(1, Number(v.elegiveis) || 1);
+  const pct = Math.min(100, Math.round((sim / nec) * 100));
+  const meuVoto = meuVotoAtual(v);
+  const sentado = Boolean(euNaMesa());
+
+  let acoesHtml = '';
+  if (sentado) {
+    acoesHtml =
+      '<div class="votacao-acoes">'
+      + '<button type="button" class="positivo' + (meuVoto === true ? ' votado' : '') + '" onclick="enviarVoto(true)">'
+      +   (meuVoto === true ? '✓ Você votou Sim' : '✓ Sim')
+      + '</button>'
+      + '<button type="button" class="contorno-perigo' + (meuVoto === false ? ' votado' : '') + '" onclick="enviarVoto(false)">'
+      +   (meuVoto === false ? '✕ Você votou Não' : '✕ Não')
+      + '</button>'
+      + '</div>';
+  } else {
+    acoesHtml = '<div class="votacao-nota">Apenas jogadores na mesa podem votar.</div>';
+  }
+
+  card.innerHTML =
+    '<div class="votacao-topo">'
+    + '<span class="votacao-tag">🗳 Votação aberta</span>'
+    + '<span class="votacao-tempo" data-contagem-votacao>' + restante + 's</span>'
+    + '</div>'
+    + '<div class="votacao-titulo">' + escapar(descreverVotacao(v)) + '</div>'
+    + '<div class="votacao-sub">Proposta por <strong>' + escapar(nomeDe(v.autor_nome || 'Jogador')) + '</strong> · Maioria: ' + nec + ' de ' + eleg + '</div>'
+    + '<div class="votacao-barra"><div class="votacao-barra-fill" style="width:' + pct + '%"></div></div>'
+    + '<div class="votacao-placar">'
+    +   '<span>✓ ' + sim + ' Sim</span>'
+    +   '<span>✕ ' + nao + ' Não</span>'
+    + '</div>'
+    + acoesHtml;
+  card.hidden = false;
+}
+
+function desenharPainelVotacao() {
+  const el = $id('painel-votacao');
+  if (!el) return;
+  const p = estado.partidaAtual;
+  if (!p || p.modo !== 'online') {
+    el.innerHTML = '';
+    return;
+  }
+
+  const eu = euNaMesa();
+  if (!eu) {
+    el.innerHTML = '<div class="votacao-info">Entre na mesa como jogador para propor pausas ou remoções por votação.</div>';
+    return;
+  }
+
+  const vAtiva = votacaoAtiva();
+  const bloqueado = Boolean(vAtiva);
+  const jogadores = estado.jogadoresAtuais || [];
+  const outros = jogadores.filter((j) => j.id !== eu.id);
+  const podeExpulsarQtd = jogadores.length >= 3;
+
+  const tipoMesa = p.pausada ? 'retomar' : 'pausar';
+  const rotuloMesa = p.pausada ? '▶ Propor retomar a mesa' : '⏸ Propor pausar a mesa';
+  const classeMesa = p.pausada ? 'positivo' : 'secundario';
+
+  const listaJog = outros.length
+    ? outros.map((j) => (
+        '<div class="votacao-jogador">'
+        + '<div class="votacao-jog-info">'
+        +   '<strong>' + escapar(nomeDe(j.nome)) + '</strong>'
+        +   '<small>' + j.saldo + ' fichas' + (j.ausente ? ' · ausente' : '') + '</small>'
+        + '</div>'
+        + '<button type="button" class="contorno-perigo" onclick="iniciarVotacao(\'expulsar\', \'' + j.id + '\')"'
+        +   ((bloqueado || !podeExpulsarQtd) ? ' disabled' : '') + '>Votar remoção</button>'
+        + '</div>'
+      )).join('')
+    : '<div class="votacao-info">Nenhum outro jogador sentado na mesa agora.</div>';
+
+  el.innerHTML =
+    '<div class="votacao-info">Sem anfitrião: decisões da sala funcionam por <strong>maioria simples</strong> (metade + 1 dos jogadores, 60s para votar).</div>'
+    + (bloqueado ? '<div class="votacao-aviso">Há uma votação aberta acima. Aguarde concluir para iniciar outra.</div>' : '')
+    + '<div class="votacao-bloco">'
+    +   '<div class="votacao-sec-titulo">Controle da partida</div>'
+    +   '<button type="button" class="' + classeMesa + '" onclick="iniciarVotacao(\'' + tipoMesa + '\')"' + (bloqueado ? ' disabled' : '') + '>' + rotuloMesa + '</button>'
+    + '</div>'
+    + '<div class="votacao-bloco">'
+    +   '<div class="votacao-sec-titulo">Remover jogador' + (podeExpulsarQtd ? '' : ' <small>(mín. 3 na mesa)</small>') + '</div>'
+    +   listaJog
+    + '</div>';
+}
+
+export function atualizarVotacaoUI() {
+  const v = votacaoAtiva();
+  if (v && v.id && v.id !== chat.votacaoVistaId) {
+    chat.votacaoVistaId = v.id;
+    if (!chatAberto() && v.autor_id !== estado.meuJogadorId) {
+      tocarSom('clique');
+      mostrarPreviewVotacao(v);
+    }
+  } else if (!v) {
+    chat.votacaoVistaId = null;
+  }
+
+  if (!modoOnlineAtivo()) {
+    const abas = $id('chat-abas');
+    if (abas) abas.hidden = true;
+    const card = $id('votacao-ativa-card');
+    if (card) { card.hidden = true; card.innerHTML = ''; }
+    const pChat = $id('aba-chat');
+    const pVoto = $id('aba-votacao');
+    if (pChat) pChat.hidden = false;
+    if (pVoto) pVoto.hidden = true;
+  } else {
+    const abas = $id('chat-abas');
+    if (abas) abas.hidden = false;
+    desenharCardVotacaoAtiva();
+    if (chatAberto() && chat.abaAtual === 'votacao') {
+      desenharPainelVotacao();
+    }
+  }
+
+  atualizarBadge();
+}
+
+export function atualizarContagemVotacao() {
+  const p = estado.partidaAtual;
+  if (!p || !p.votacao) return;
+  const restante = segundosRestantesVotacao(p.votacao);
+  document.querySelectorAll('[data-contagem-votacao]').forEach((el) => {
+    el.textContent = restante + 's';
+  });
+  if (restante <= 0) {
+    atualizarVotacaoUI();
+  }
+}
+
+export async function iniciarVotacao(tipo, alvoId) {
+  if (!estado.partidaAtual || !estado.meuJogadorId || !estado.meuSegredo) return;
+  tocarSom('clique');
+  limparErro('erro-votacao');
+  const ok = await executar('iniciar_votacao_online', {
+    p_jogador: estado.meuJogadorId,
+    p_segredo: estado.meuSegredo,
+    p_tipo: tipo,
+    p_alvo: alvoId || null
+  }, 'erro-votacao');
+  if (ok) atualizarVotacaoUI();
+}
+
+export async function enviarVoto(voto) {
+  if (!estado.partidaAtual || !estado.meuJogadorId || !estado.meuSegredo) return;
+  tocarSom('clique');
+  limparErro('erro-votacao');
+  const ok = await executar('votar_sala_online', {
+    p_jogador: estado.meuJogadorId,
+    p_segredo: estado.meuSegredo,
+    p_voto: Boolean(voto)
+  }, 'erro-votacao');
+  if (ok) atualizarVotacaoUI();
 }
 
 export function limparChatMesa() {
@@ -120,8 +502,15 @@ export function limparChatMesa() {
   chat.ids.clear();
   chat.naoLidas = 0;
   chat.enviando = false;
+  chat.abaAtual = 'chat';
+  chat.digitandoPor.clear();
+  clearTimeout(chat.timerDigitando);
+  chat.timerDigitando = null;
+  chat.votacaoVistaId = null;
   atualizarBadge();
+  atualizarDigitandoUI();
   limparPreviewChat();
+  limparErro('erro-votacao');
   const pop = $id('popover-reacoes');
   if (pop) pop.hidden = true;
   document.querySelectorAll('.reacao-balao').forEach((el) => el.remove());
@@ -129,6 +518,10 @@ export function limparChatMesa() {
   if (lista) lista.innerHTML = '';
   const campo = $id('campo-chat');
   if (campo) campo.value = '';
+  const card = $id('votacao-ativa-card');
+  if (card) { card.hidden = true; card.innerHTML = ''; }
+  const pVoto = $id('painel-votacao');
+  if (pVoto) pVoto.innerHTML = '';
 }
 
 export async function iniciarChatMesa(partidaId) {
@@ -136,6 +529,7 @@ export async function iniciarChatMesa(partidaId) {
   if (!partidaId) return;
   chat.partidaId = partidaId;
   desenharChat();
+  atualizarVotacaoUI();
 
   try {
     const resp = await banco.rpc('listar_mensagens_chat', {
@@ -163,43 +557,56 @@ export function receberMensagemChat(msg) {
     const removida = chat.mensagens.shift();
     if (removida) chat.ids.delete(removida.id);
   }
+
+  if (msg.autor_id) {
+    chat.digitandoPor.delete(String(msg.autor_id));
+    atualizarDigitandoUI();
+  }
+
   desenharChat();
 
-  if (!chatAberto()) {
+  const vendoChat = chatAberto() && chat.abaAtual === 'chat';
+  if (!vendoChat) {
     if (!ehMinhaMensagem(msg)) {
       chat.naoLidas += 1;
       atualizarBadge();
       tocarSom('clique');
     }
-    mostrarPreviewChat(msg);
+    if (!chatAberto()) mostrarPreviewChat(msg);
   }
 }
 
-export function abrirChat() {
+export function abrirChat(abaInicial) {
   if (!estado.partidaAtual) return;
-  chat.naoLidas = 0;
-  atualizarBadge();
   limparPreviewChat();
+  limparErro('erro-votacao');
+  const online = modoOnlineAtivo();
+  const alvoAba = (online && (abaInicial === 'votacao' || (!abaInicial && votacaoAguardandoMeuVoto())))
+    ? 'votacao'
+    : 'chat';
+
   abrirFolha('folha-chat');
+  escolherAbaChat(alvoAba);
   desenharChat();
-  requestAnimationFrame(() => {
-    rolarFim();
-    if (window.matchMedia && window.matchMedia('(min-width: 820px)').matches) {
-      const campo = $id('campo-chat');
-      if (campo) campo.focus();
-    }
-  });
+  atualizarVotacaoUI();
+
+  if (alvoAba === 'chat') {
+    requestAnimationFrame(() => {
+      rolarFim();
+      if (window.matchMedia && window.matchMedia('(min-width: 820px)').matches) {
+        const campo = $id('campo-chat');
+        if (campo) campo.focus();
+      }
+    });
+  }
 }
 
-export async function enviarChat() {
-  if (chat.enviando || !estado.partidaAtual) return;
-  const campo = $id('campo-chat');
+async function enviarTextoChat(texto) {
+  if (chat.enviando || !estado.partidaAtual) return false;
+  const limpo = String(texto || '').trim();
+  if (!limpo) return false;
+
   const btn = $id('btn-enviar-chat');
-  if (!campo) return;
-
-  const texto = campo.value.trim();
-  if (!texto) return;
-
   chat.enviando = true;
   if (btn) btn.disabled = true;
 
@@ -209,7 +616,7 @@ export async function enviarChat() {
       p_partida: estado.partidaAtual.id,
       p_conta: estado.minhaConta ? estado.minhaConta.id : null,
       p_token: estado.minhaConta ? estado.minhaConta.token : null,
-      p_texto: texto,
+      p_texto: limpo,
       p_jogador: estado.meuJogadorId || null,
       p_segredo: estado.meuSegredo || null
     });
@@ -222,14 +629,32 @@ export async function enviarChat() {
 
   if (resp.error) {
     aviso(resp.error.message || 'Não foi possível enviar a mensagem.');
-    return;
+    return false;
   }
 
-  campo.value = '';
+  publicarDigitando({
+    partida_id: estado.partidaAtual.id,
+    jogador_key: meuAutorKey(),
+    autor_nome: meuNomeAutor(),
+    ativo: false
+  });
+
   if (resp.data) {
     receberMensagemChat(resp.data);
     publicarChat(resp.data);
   }
+  return true;
+}
+
+export async function enviarChat() {
+  const campo = $id('campo-chat');
+  if (!campo) return;
+  const ok = await enviarTextoChat(campo.value);
+  if (ok) campo.value = '';
+}
+
+export function enviarAtalhoChat(texto) {
+  return enviarTextoChat(texto);
 }
 
 // ----- Reações rápidas sobre os avatares -----
