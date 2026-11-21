@@ -14,11 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=4">
-  <link rel="stylesheet" href="./css/telas.css?v=4">
-  <link rel="stylesheet" href="./css/mesa.css?v=4">
-  <link rel="stylesheet" href="./css/gavetas.css?v=4">
-  <link rel="stylesheet" href="./css/online.css?v=4">
+  <link rel="stylesheet" href="./css/base.css?v=5">
+  <link rel="stylesheet" href="./css/telas.css?v=5">
+  <link rel="stylesheet" href="./css/mesa.css?v=5">
+  <link rel="stylesheet" href="./css/gavetas.css?v=5">
+  <link rel="stylesheet" href="./css/online.css?v=5">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -296,17 +296,21 @@
   <section id="tela-mesa" class="tela">
 
     <div class="topo">
-      <button class="icone-btn" onclick="voltarParaSalas()" aria-label="Voltar para as salas">
+      <button id="btn-voltar-mesa" class="icone-btn" onclick="voltarParaSalas()" aria-label="Voltar para as salas">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <button id="btn-menu-online" class="icone-btn" onclick="abrirMenuOnline()" aria-label="Menu da sala">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <div class="sala-pill">
         <strong id="mesa-sala"></strong>
         <span class="rotulo" id="mesa-papel"></span>
       </div>
+      <div class="topo-resumo-online" id="topo-resumo-online"></div>
       <button id="btn-sair-mesa" class="icone-btn" onclick="sairDaMesa()" aria-label="Sair da mesa" hidden>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
       </button>
-      <button class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
+      <button id="btn-hist" class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
       <button id="btn-guia" class="icone-btn" style="font-size:19px" onclick="abrirGuia()" aria-label="Guia de mãos do poker">♠</button>
@@ -365,6 +369,25 @@
     </div>
 
     <div id="fundo-folha" class="fundo-folha" onclick="fecharFolhas()" hidden></div>
+
+    <!-- Gaveta: menu compacto da mesa Online (mobile) -->
+    <div id="folha-menu" class="folha" hidden>
+      <div class="folha-topo">
+        <div class="folha-titulo" id="menu-online-titulo">Menu da sala</div>
+        <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="folha-corpo">
+        <p class="dica" id="menu-online-info" style="margin-top:0"></p>
+        <div class="menu-online-acoes">
+          <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
+          <button type="button" class="secundario" onclick="abrirGuia()">Guia de mãos (♠)</button>
+          <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()" hidden>Fichas em reais (R$)</button>
+          <button type="button" id="menu-btn-dev" class="secundario" onclick="abrirPainelDev()" hidden>Painel DEV</button>
+          <button type="button" id="menu-btn-sair" class="contorno-perigo" onclick="fecharFolhas(); sairDaMesa()" hidden>Sair da mesa</button>
+          <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()">Voltar para as salas</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Gaveta: histórico -->
     <div id="folha-hist" class="folha" hidden>
@@ -570,6 +593,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=4"></script>
+<script type="module" src="./js/main.js?v=5"></script>
 </body>
 </html>

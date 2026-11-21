@@ -1,14 +1,16 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=4';
-import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=4';
-import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=4';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=4';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=4';
-import { executar } from '../../mesa/apostas.js?v=4';
+import { banco } from '../../core/supabase.js?v=5';
+import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=5';
+import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=5';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=5';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=5';
+import { executar } from '../../mesa/apostas.js?v=5';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const MAX_DEV = 9;
 let apagandoDev = false;
+let timerAutoVez = null;
+let chaveAutoVez = '';
 
 let hooksDev = {
   abrirSalas: () => {},
@@ -16,7 +18,8 @@ let hooksDev = {
   abrirMesa: () => Promise.resolve(),
   buscarMesa: () => Promise.resolve(),
   voltarParaSalas: () => {},
-  onTrocarJogador: () => {}
+  onTrocarJogador: () => {},
+  onRedesenhar: () => {}
 };
 
 export function registrarHooksDev(hooks) {
@@ -151,9 +154,39 @@ export function controlarDev(indice, sala) {
 }
 
 export function trocarJogadorDev(indice) {
+  clearTimeout(timerAutoVez);
   controlarDev(indice);
   fecharFolhas();
   hooksDev.buscarMesa(true);
+}
+
+// No modo DEV, acompanha automaticamente quem está com a ação depois de cada jogada
+export function autoSeguirVezDev(partida, emJogo, congelado) {
+  if (!estado.modoDev || !emJogo || congelado || !partida || !partida.vez_jogador_id) {
+    clearTimeout(timerAutoVez);
+    return;
+  }
+  if (partida.vez_jogador_id === estado.meuJogadorId) {
+    clearTimeout(timerAutoVez);
+    return;
+  }
+  const sala = lerDevSala();
+  if (!sala || !Array.isArray(sala.jogadores)) return;
+  const idx = sala.jogadores.findIndex((j) => j.id === partida.vez_jogador_id);
+  if (idx < 0) return;
+
+  const chave = partida.id + ':' + partida.versao + ':' + partida.vez_jogador_id;
+  if (chave === chaveAutoVez) return;
+  chaveAutoVez = chave;
+
+  clearTimeout(timerAutoVez);
+  timerAutoVez = setTimeout(() => {
+    if (!estado.modoDev || !estado.partidaAtual || estado.partidaAtual.id !== partida.id) return;
+    if (estado.partidaAtual.vez_jogador_id !== partida.vez_jogador_id) return;
+    if (estado.meuJogadorId === partida.vez_jogador_id) return;
+    controlarDev(idx, lerDevSala() || sala);
+    hooksDev.onRedesenhar();
+  }, 380);
 }
 
 export function proximoJogadorDev() {

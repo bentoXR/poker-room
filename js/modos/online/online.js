@@ -1,15 +1,15 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=4';
-import { estado, nomeDe } from '../../core/estado.js?v=4';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=4';
-import { lerDevSala } from '../../core/storage.js?v=4';
-import { registrarModo } from '../../mesa/modos.js?v=4';
-import { executar } from '../../mesa/apostas.js?v=4';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=4';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=4';
-import { avaliarMaoLocal } from './maos.js?v=4';
+import { banco } from '../../core/supabase.js?v=5';
+import { estado, nomeDe } from '../../core/estado.js?v=5';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=5';
+import { lerDevSala } from '../../core/storage.js?v=5';
+import { registrarModo } from '../../mesa/modos.js?v=5';
+import { executar } from '../../mesa/apostas.js?v=5';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=5';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=5';
+import { avaliarMaoLocal } from './maos.js?v=5';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -55,6 +55,7 @@ const onlineUI = {
   segurando: false,         // true = resultado do showdown ainda escondido
   chaveEmCena: null,
   resultadoVisto: null,
+  poteAnimadoChave: null,   // evita repetir a animação de fichas voando para o mesmo showdown
   congelado: null,          // fichas/pote de antes do showdown (para não "estragar" a surpresa)
   ultimaVisao: null,
 
@@ -89,6 +90,7 @@ export function resetarOnlineUI() {
   onlineUI.partidaId = null;
   onlineUI.boardMostrado = -1;
   onlineUI.resultadoVisto = null;
+  onlineUI.poteAnimadoChave = null;
   onlineUI.ultimaVisao = null;
   onlineUI.eraMinhaVez = false;
   onlineUI.ultimaTxt = null;
@@ -141,6 +143,93 @@ function vencedoresDoResultado(partida) {
   return set;
 }
 
+function premiosDoResultado(partida) {
+  const mapa = {};
+  const res = partida && partida.ultimo_resultado;
+  if (!res) return mapa;
+  if (res.vencedor_id && res.valor > 0) {
+    mapa[res.vencedor_id] = (mapa[res.vencedor_id] || 0) + Number(res.valor);
+  }
+  (res.potes || []).forEach((p) => {
+    (p.vencedores || []).forEach((v) => {
+      if (v.id && v.valor > 0) mapa[v.id] = (mapa[v.id] || 0) + Number(v.valor);
+    });
+  });
+  return mapa;
+}
+
+// Animação do pote voando em fichas até o(s) assento(s) vencedor(es)
+function animarPoteParaVencedor(partida) {
+  if (!partida || !partida.aguardando_proxima_mao || onlineUI.segurando || !partida.ultimo_resultado) return;
+  const chave = chaveDoResultado(partida);
+  if (!chave || chave === onlineUI.poteAnimadoChave) return;
+  onlineUI.poteAnimadoChave = chave;
+
+  const premios = premiosDoResultado(partida);
+  const idsVencedores = Object.keys(premios);
+  if (!idsVencedores.length) return;
+
+  requestAnimationFrame(() => {
+    const wrap = document.querySelector('#tela-mesa .mesa-wrap');
+    const poteEl = $id('pote-ficha');
+    if (!wrap || !poteEl) return;
+
+    const wRect = wrap.getBoundingClientRect();
+    const pRect = poteEl.getBoundingClientRect();
+    const ox = (pRect.left - wRect.left) + pRect.width / 2;
+    const oy = (pRect.top - wRect.top) + pRect.height / 2;
+
+    const destinos = idsVencedores
+      .map((id) => wrap.querySelector('.lugar[data-jogador-id="' + id + '"]'))
+      .filter(Boolean);
+    if (!destinos.length) return;
+
+    const totalFichas = Math.max(6, destinos.length * 4);
+    for (let i = 0; i < totalFichas; i++) {
+      const alvo = destinos[i % destinos.length];
+      const aRect = alvo.getBoundingClientRect();
+      const dx = (aRect.left - wRect.left) + aRect.width / 2 - ox;
+      const dy = (aRect.top - wRect.top) + aRect.height / 2 - oy;
+
+      const chip = document.createElement('span');
+      chip.className = 'ficha-voo';
+      chip.style.left = ox + 'px';
+      chip.style.top = oy + 'px';
+      wrap.appendChild(chip);
+
+      const espalhoX = ((i % 3) - 1) * 10;
+      const espalhoY = (Math.floor(i / 3) - 1) * 8;
+      const curvaX = dx * 0.45 + espalhoX * 1.6;
+      const curvaY = dy * 0.45 - 26 + espalhoY;
+
+      if (chip.animate) {
+        const anim = chip.animate([
+          { transform: 'translate(-50%, -50%) scale(0.7)', opacity: 0 },
+          { transform: 'translate(calc(-50% + ' + espalhoX + 'px), calc(-50% + ' + espalhoY + 'px)) scale(1.1)', opacity: 1, offset: 0.16 },
+          { transform: 'translate(calc(-50% + ' + curvaX + 'px), calc(-50% + ' + curvaY + 'px)) scale(1.05)', opacity: 1, offset: 0.58 },
+          { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0.55)', opacity: 0.15 }
+        ], {
+          duration: 860,
+          delay: i * 70,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          fill: 'forwards'
+        });
+        anim.onfinish = () => chip.remove();
+      } else {
+        setTimeout(() => chip.remove(), 900);
+      }
+    }
+
+    destinos.forEach((alvo) => {
+      setTimeout(() => {
+        alvo.classList.remove('recebeu-pote');
+        void alvo.offsetWidth;
+        alvo.classList.add('recebeu-pote');
+      }, 640);
+    });
+  });
+}
+
 // ----- Cena em câmera lenta: flop → turn → river → showdown -----
 function chaveDoResultado(partida) {
   const res = partida.ultimo_resultado;
@@ -159,6 +248,7 @@ function prepararCena(partida, jogadores) {
     onlineUI.partidaId = partida.id;
     onlineUI.boardMostrado = total;
     onlineUI.resultadoVisto = chave;
+    onlineUI.poteAnimadoChave = chave;
   } else if (total < onlineUI.boardMostrado) {
     // Nova mão começou
     cancelarCena();
@@ -677,6 +767,11 @@ registrarModo('online', {
     return !!vencedoresDoResultado(partida)[jogador.id];
   },
 
+  premioVencedorAssento(jogador, partida) {
+    if (!partida.aguardando_proxima_mao || onlineUI.segurando) return 0;
+    return premiosDoResultado(partida)[jogador.id] || 0;
+  },
+
   desenharFaixa(partida, jogadores, { eu }) {
     // Esconde faixa do presencial
     $id('faixa-fase').hidden = true;
@@ -702,15 +797,17 @@ registrarModo('online', {
       if (res.tipo === 'showdown' && Array.isArray(res.potes)) {
         resHtml = res.potes.map((p) => {
           const vs = (p.vencedores || []).map((v) => (
-            escapar(nomeDe(v.nome)) + ' +' + v.valor
-            + (v.mao_nome ? ' <span class="res-mao">(' + escapar(v.mao_nome) + ')</span>' : '')
+            '<span class="res-nome">' + escapar(nomeDe(v.nome)) + '</span>'
+            + ' <span class="res-valor">+' + Number(v.valor).toLocaleString('pt-BR') + '</span>'
+            + (v.mao_nome ? ' <span class="res-mao">' + escapar(v.mao_nome) + '</span>' : '')
           )).join(' · ');
-          const pref = res.potes.length > 1 ? escapar(p.nome) + ': ' : '';
+          const pref = res.potes.length > 1 ? '<span class="res-pote">' + escapar(p.nome) + ':</span> ' : '';
           return '<div class="res-linha">🏆 ' + pref + vs + '</div>';
         }).join('');
       } else if (res.tipo === 'desistencia' && res.vencedor_nome) {
-        resHtml = '<div class="res-linha">🏆 ' + escapar(nomeDe(res.vencedor_nome))
-          + ' ganhou +' + res.valor + ' <span class="res-mao">(todos desistiram)</span></div>';
+        resHtml = '<div class="res-linha">🏆 <span class="res-nome">' + escapar(nomeDe(res.vencedor_nome)) + '</span>'
+          + ' <span class="res-valor">+' + Number(res.valor).toLocaleString('pt-BR') + '</span>'
+          + ' <span class="res-mao">Todos desistiram</span></div>';
       }
     }
 
@@ -787,6 +884,7 @@ registrarModo('online', {
     desenharMinhaMao(partida, eu);
     avisarMinhaVez(partida, eu);
     destacarUltimaJogada();
+    animarPoteParaVencedor(partida);
     tickOnline();
   },
 

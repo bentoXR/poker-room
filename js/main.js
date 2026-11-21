@@ -1,59 +1,59 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=4';
-import { estado } from './core/estado.js?v=4';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=4';
+import { banco } from './core/supabase.js?v=5';
+import { estado } from './core/estado.js?v=5';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala } from './core/storage.js?v=5';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=4';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=4';
+} from './core/ui.js?v=5';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=5';
 
-import { registrarHooksAuth, fazerLogin, criarConta, sairDaConta } from './lobby/auth.js?v=4';
+import { registrarHooksAuth, fazerLogin, criarConta, sairDaConta } from './lobby/auth.js?v=5';
 import {
   abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js?v=4';
+} from './lobby/salas.js?v=5';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds
-} from './lobby/config-sala.js?v=4';
+} from './lobby/config-sala.js?v=5';
 
 import {
-  abrirMesa, buscarMesa, receberEstado, iniciarRelogio, recalcularLayoutMesa,
-  sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa, registrarTickOnline
-} from './mesa/mesa.js?v=4';
+  abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
+  abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa, registrarTickOnline
+} from './mesa/mesa.js?v=5';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
   aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=4';
+} from './mesa/apostas.js?v=5';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal
-} from './mesa/extras.js?v=4';
+} from './mesa/extras.js?v=5';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=4';
+} from './modos/presencial/acoes.js?v=5';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=4';
+} from './modos/presencial/distribuir.js?v=5';
 import {
   registrarHooksDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
-  proximoJogadorDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
+  proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=4';
+} from './modos/presencial/dev.js?v=5';
 import {
   virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, alternarAssistente
-} from './modos/online/online.js?v=4';
+} from './modos/online/online.js?v=5';
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
 registrarHooksAuth({ abrirSalas, pararSalas });
-registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev });
+registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, autoSeguirVezDev });
 registrarTickOnline(tickOnline);
 registrarHooksDev({
   abrirSalas,
@@ -61,7 +61,8 @@ registrarHooksDev({
   abrirMesa,
   buscarMesa,
   voltarParaSalas,
-  onTrocarJogador: resetarOnlineUI
+  onTrocarJogador: resetarOnlineUI,
+  onRedesenhar: () => { if (estado.ultimoEstado) desenharMesa(estado.ultimoEstado); }
 });
 
 // ----- Inicialização ao abrir a página -----
@@ -110,7 +111,7 @@ Object.assign(window, {
   esquecerPartida, iniciarApp,
 
   // Mesa compartilhada e apostas
-  voltarParaSalas, sairDaMesa, encerrarSala,
+  voltarParaSalas, sairDaMesa, encerrarSala, abrirMenuOnline,
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, fecharFolhas,
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
   aoMoverSlider, aoDigitarAposta,
