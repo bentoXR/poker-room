@@ -6,11 +6,59 @@ import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
+const cfgModo = { '': 'presencial', dev: 'presencial' };
+const cfgTempoTurno = { '': 30, dev: 30 };
+const cfgSubirBlinds = { '': 0, dev: 0 };
 
 function idsCfg(p) {
   return p
     ? { saldo: 'campo-dev-saldo', small: 'campo-dev-small', big: 'campo-dev-big', s: '-dev' }
     : { saldo: 'campo-saldo', small: 'campo-small', big: 'campo-big', s: '' };
+}
+
+export function obterConfigOnline(p) {
+  p = p || '';
+  return {
+    modo: cfgModo[p] || 'presencial',
+    tempoTurno: cfgTempoTurno[p] || 30,
+    subirBlindsMin: cfgSubirBlinds[p] || 0
+  };
+}
+
+export function escolherModoSala(modo, p) {
+  p = p || '';
+  cfgModo[p] = modo === 'online' ? 'online' : 'presencial';
+  const s = idsCfg(p).s;
+  const wrap = $id('seletor-modo' + s);
+  if (wrap) {
+    wrap.querySelectorAll('.modo-btn').forEach((b) => {
+      b.classList.toggle('sel', b.dataset.modo === cfgModo[p]);
+    });
+  }
+  const op = $id('opcoes-online' + s);
+  if (op) op.hidden = (cfgModo[p] !== 'online');
+}
+
+export function escolherTempoTurno(seg, p) {
+  p = p || '';
+  cfgTempoTurno[p] = Number(seg) || 30;
+  const wrap = $id('chips-turno' + idsCfg(p).s);
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      b.classList.toggle('sel', Number(b.dataset.v) === cfgTempoTurno[p]);
+    });
+  }
+}
+
+export function escolherSubirBlinds(min, p) {
+  p = p || '';
+  cfgSubirBlinds[p] = Number(min) || 0;
+  const wrap = $id('chips-blinds' + idsCfg(p).s);
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      b.classList.toggle('sel', Number(b.dataset.v) === cfgSubirBlinds[p]);
+    });
+  }
 }
 
 function blinds100(s) {
@@ -111,4 +159,10 @@ export function iniciarConfigSala() {
   });
   atualizarProfundidade('');
   atualizarProfundidade('dev');
+  escolherModoSala('presencial', '');
+  escolherModoSala('presencial', 'dev');
+  escolherTempoTurno(30, '');
+  escolherTempoTurno(30, 'dev');
+  escolherSubirBlinds(0, '');
+  escolherSubirBlinds(0, 'dev');
 }

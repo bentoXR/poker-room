@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="./css/telas.css">
   <link rel="stylesheet" href="./css/mesa.css">
   <link rel="stylesheet" href="./css/gavetas.css">
+  <link rel="stylesheet" href="./css/online.css">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -92,6 +93,34 @@
     <div class="cartao">
       <div class="nome-sala-linha"><span class="detalhe">Sua sala:</span> <strong id="criar-nome-sala"></strong></div>
 
+      <label>Modo de jogo</label>
+      <div class="seletor-modo" id="seletor-modo">
+        <button type="button" class="modo-btn sel" data-modo="presencial" onclick="escolherModoSala('presencial','')">
+          <b>Presencial</b><small>baralho físico</small>
+        </button>
+        <button type="button" class="modo-btn" data-modo="online" onclick="escolherModoSala('online','')">
+          <b>Online</b><small>baralho virtual</small>
+        </button>
+      </div>
+
+      <div class="opcoes-online" id="opcoes-online" hidden>
+        <label>Tempo por jogada</label>
+        <div class="opcoes-chips" id="chips-turno">
+          <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'')">20s</button>
+          <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'')">30s</button>
+          <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'')">45s</button>
+          <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'')">60s</button>
+        </div>
+        <label>Subir blinds automaticamente</label>
+        <div class="opcoes-chips" id="chips-blinds">
+          <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'')">Fixos</button>
+          <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
+          <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'')">15m</button>
+          <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'')">20m</button>
+          <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'')">30m</button>
+        </div>
+      </div>
+
       <label>Fichas iniciais</label>
       <div class="stacks" id="stacks">
         <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
@@ -148,6 +177,34 @@
 
     <div class="cartao">
       <p class="dica" style="margin-top:0">Sala de teste só neste aparelho, com jogadores fictícios que você controla.</p>
+
+      <label>Modo de jogo</label>
+      <div class="seletor-modo" id="seletor-modo-dev">
+        <button type="button" class="modo-btn sel" data-modo="presencial" onclick="escolherModoSala('presencial','dev')">
+          <b>Presencial</b><small>baralho físico</small>
+        </button>
+        <button type="button" class="modo-btn" data-modo="online" onclick="escolherModoSala('online','dev')">
+          <b>Online</b><small>baralho virtual</small>
+        </button>
+      </div>
+
+      <div class="opcoes-online" id="opcoes-online-dev" hidden>
+        <label>Tempo por jogada</label>
+        <div class="opcoes-chips" id="chips-turno-dev">
+          <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'dev')">20s</button>
+          <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'dev')">30s</button>
+          <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'dev')">45s</button>
+          <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'dev')">60s</button>
+        </div>
+        <label>Subir blinds automaticamente</label>
+        <div class="opcoes-chips" id="chips-blinds-dev">
+          <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'dev')">Fixos</button>
+          <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'dev')">10m</button>
+          <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'dev')">15m</button>
+          <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'dev')">20m</button>
+          <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'dev')">30m</button>
+        </div>
+      </div>
 
       <label>Fichas iniciais</label>
       <div class="stacks" id="stacks-dev">
@@ -254,6 +311,8 @@
       <button id="btn-distribuir-faixa" onclick="abrirDistribuicao()" hidden>Distribuir pote</button>
       <div id="erro-faixa" class="erro" role="alert"></div>
     </div>
+
+    <div class="faixa-online" id="faixa-online" hidden></div>
 
     <div class="status" id="mesa-status"></div>
     <div class="linha-ultima">
@@ -377,16 +436,19 @@
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div class="folha-corpo">
-        <p class="dica" style="margin-top:0">Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.</p>
+        <p class="dica" id="dev-dica" style="margin-top:0">Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.</p>
         <div id="lista-dev"></div>
+        <button id="dev-confirmar-todos" class="positivo" onclick="confirmarTodosDev()" hidden>Confirmar todos (iniciar mão)</button>
         <button id="botao-add-dev" class="secundario" onclick="adicionarJogadorDev()">Adicionar jogador</button>
-        <div class="grade-2">
-          <button id="dev-iniciar" onclick="devAcao('iniciar_partida', {}, 'Partida iniciada')">Iniciar partida</button>
-          <button id="dev-proxima" onclick="devAcao('proxima_mao', {}, 'Próxima mão')" hidden>Próxima mão</button>
-        </div>
-        <div class="grade-2">
-          <button class="secundario" onclick="devAcao('subir_nivel', {}, 'Nível subido')">Subir nível</button>
-          <button class="contorno-perigo" onclick="devAcao('resetar_partida', {}, 'Partida reiniciada')">Reiniciar partida</button>
+        <div id="dev-acoes-presencial">
+          <div class="grade-2">
+            <button id="dev-iniciar" onclick="devAcao('iniciar_partida', {}, 'Partida iniciada')">Iniciar partida</button>
+            <button id="dev-proxima" onclick="devAcao('proxima_mao', {}, 'Próxima mão')" hidden>Próxima mão</button>
+          </div>
+          <div class="grade-2">
+            <button class="secundario" onclick="devAcao('subir_nivel', {}, 'Nível subido')">Subir nível</button>
+            <button class="contorno-perigo" onclick="devAcao('resetar_partida', {}, 'Partida reiniciada')">Reiniciar partida</button>
+          </div>
         </div>
         <button class="contorno-perigo" onclick="excluirSalaDev()">Encerrar e excluir sala DEV</button>
         <div id="erro-dev" class="erro" role="alert"></div>
@@ -444,6 +506,8 @@
 
 <!-- ===== BARRA DE AÇÕES (só aparece para jogadores, com a partida iniciada) ===== -->
 <div id="barra-acoes" class="barra-acoes">
+  <div id="timer-turno-wrap" class="timer-turno-wrap" hidden><div id="timer-turno-fill" class="timer-turno-fill"></div></div>
+  <div id="minha-mao-wrap" class="minha-mao-wrap" hidden></div>
   <div id="erro-barra" class="erro" role="alert"></div>
   <div id="barra-titulo" class="barra-titulo"></div>
 

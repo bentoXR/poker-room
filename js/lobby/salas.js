@@ -4,7 +4,7 @@ import { estado, ICONE_COROA, contaParams } from '../core/estado.js';
 import { guardarMeuJogador } from '../core/storage.js';
 import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js';
 import { tratarErroConta } from './auth.js';
-import { registrarRealCriacao } from './config-sala.js';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js';
 import { abrirMesa } from '../mesa/mesa.js';
 
 export function abrirSalas() {
@@ -52,17 +52,24 @@ export function desenharSalas() {
     html = '<div class="vazio">Nenhuma sala aberta ainda.<br>Toque em "Criar sala" para começar.</div>';
   } else {
     html = estado.salasAtuais.map((s) => {
+      const ehOnline = s.modo === 'online';
       const estadoTxt = s.iniciada ? 'Em andamento · Mão ' + s.mao : 'Aguardando início';
+      const extras = ehOnline
+        ? ' · Turno ' + (s.tempo_turno || 30) + 's' + (s.subir_blinds_min > 0 ? ' · ↑' + s.subir_blinds_min + 'm' : '')
+        : '';
       const detalhe = estadoTxt + ' · ' + s.n_jogadores + (s.n_jogadores === 1 ? ' jogador' : ' jogadores')
-        + ' · Blinds ' + s.small_blind + '/' + s.big_blind;
+        + ' · Blinds ' + s.small_blind + '/' + s.big_blind + extras;
+      const modoTag = ehOnline
+        ? '<span class="tag modo-online">Online</span>'
+        : '<span class="tag modo-presencial">Presencial</span>';
       const tag = s.sou_jogador ? '<span class="tag vez">Continuar</span>' : '';
       return `
         <button type="button" class="sala ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
           <div class="sala-info">
-            <div class="sala-nome">${s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
+            <div class="sala-nome">${!ehOnline && s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
             <div class="sala-detalhe">${escapar(detalhe)}</div>
           </div>
-          ${tag}
+          <div class="sala-badges">${modoTag}${tag}</div>
           <svg class="ic sala-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
         </button>
       `;
@@ -134,11 +141,20 @@ export async function criarSala() {
   botao.disabled = true;
   botao.textContent = 'Criando...';
 
-  const resp = await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
-    p_saldo: saldo,
-    p_small: small,
-    p_big: big
-  }));
+  const cfg = obterConfigOnline('');
+  const resp = cfg.modo === 'online'
+    ? await banco.rpc('criar_sala_online', Object.assign({}, contaParams(), {
+        p_saldo: saldo,
+        p_small: small,
+        p_big: big,
+        p_tempo_turno: cfg.tempoTurno,
+        p_subir_blinds_min: cfg.subirBlindsMin
+      }))
+    : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
+        p_saldo: saldo,
+        p_small: small,
+        p_big: big
+      }));
 
   if (resp.error) {
     if (!tratarErroConta(resp.error)) mostrarErro('erro-criar', resp.error.message);

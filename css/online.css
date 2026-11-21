@@ -1,0 +1,373 @@
+/* =====================================================
+   MODO ONLINE: CARTAS 3D, FLIP, ANIMAÇÕES, TIMER E SHOWDOWN
+   ===================================================== */
+
+/* ----- Seletor de modo na tela de criação / DEV ----- */
+.seletor-modo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+button.modo-btn {
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--feltro-800);
+  color: var(--marfim);
+  box-shadow: inset 0 0 0 1.5px var(--linha);
+  border-radius: var(--raio-md);
+}
+button.modo-btn b { font-size: 15px; font-weight: 700; line-height: 1.15; }
+button.modo-btn small { font-size: 11px; font-weight: 500; color: var(--marfim-suave); }
+button.modo-btn.sel { background: var(--verde); color: #fff; box-shadow: 0 3px 0 #1a478f; }
+button.modo-btn.sel small { color: rgba(255, 255, 255, 0.88); }
+
+.opcoes-online {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(47, 111, 208, 0.12);
+  border: 1px solid rgba(47, 111, 208, 0.35);
+  border-radius: var(--raio-md);
+}
+.opcoes-online label { margin: 6px 0 4px !important; font-size: 12.5px !important; }
+.opcoes-online label:first-child { margin-top: 0 !important; }
+.opcoes-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+button.op-chip {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 48px;
+  min-height: 34px;
+  margin: 0;
+  padding: 4px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(6, 13, 36, 0.48);
+  color: var(--marfim);
+  box-shadow: inset 0 0 0 1px var(--linha);
+  border-radius: 9px;
+}
+button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
+
+/* Selo do modo na lista de salas */
+.sala-badges { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.tag.modo-online { background: rgba(47, 111, 208, 0.32); color: #cfe2ff; }
+.tag.modo-presencial { background: rgba(244, 247, 255, 0.11); color: var(--marfim-suave); }
+
+/* ----- Cartas comunitárias reais no centro da mesa (Modo Online) ----- */
+#board.online .slots { gap: 5px; }
+.carta-slot-vazio {
+  aspect-ratio: 5 / 7;
+  border-radius: 6px;
+  border: 1.5px dashed rgba(244, 247, 255, 0.22);
+  background: rgba(0, 0, 0, 0.18);
+}
+.carta-board {
+  position: relative;
+  aspect-ratio: 5 / 7;
+  perspective: 600px;
+}
+.carta-board .carta-corpo {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(160deg, #ffffff, #e9eef8);
+  color: #0d1b36;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(13, 27, 54, 0.1);
+  animation: cartaEntrar 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--atraso, 0ms);
+}
+.carta-board.verm .carta-corpo { color: #b31b2c; }
+.carta-board .c-val {
+  font-family: var(--fonte-numero);
+  font-size: clamp(14px, 3.8vw, 18px);
+  font-weight: 700;
+  line-height: 0.95;
+}
+.carta-board .c-naipe {
+  font-size: clamp(13px, 3.5vw, 17px);
+  line-height: 0.95;
+}
+.carta-board.destaque .carta-corpo {
+  box-shadow: 0 0 0 2px #ffd866, 0 0 14px rgba(255, 216, 102, 0.65);
+  transform: translateY(-3px);
+}
+@keyframes cartaEntrar {
+  0% { opacity: 0; transform: translateY(-12px) rotateY(90deg) scale(0.86); }
+  100% { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); }
+}
+
+/* ----- Cartas dos adversários / reveladas nos assentos ----- */
+.l-cartas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+.mini-carta {
+  width: 22px;
+  height: 30px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fonte-numero);
+  font-weight: 700;
+  line-height: 0.95;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+  transition: transform 0.25s ease;
+}
+.mini-carta.verso {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 5px),
+    linear-gradient(145deg, #9b1c31, #5e0f1d);
+  border: 1.5px solid rgba(244, 247, 255, 0.85);
+}
+.mini-carta.frente {
+  background: linear-gradient(160deg, #fff, #e8eef8);
+  color: #0d1b36;
+  border: 1px solid rgba(13, 27, 54, 0.15);
+  animation: miniVirar 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mini-carta.frente.verm { color: #b31b2c; }
+.mini-carta .mv { font-size: 11px; }
+.mini-carta .mn { font-size: 10px; }
+@keyframes miniVirar {
+  0% { opacity: 0.2; transform: rotateY(90deg) scale(0.85); }
+  100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+}
+
+.l-mao-nome {
+  margin-top: 2px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(47, 111, 208, 0.38);
+  color: #e4f0ff;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lugar.vencedor {
+  border-color: #ffd866 !important;
+  box-shadow: 0 0 0 2px rgba(255, 216, 102, 0.7), 0 0 20px rgba(255, 216, 102, 0.45) !important;
+}
+.lugar .tag.pronto { background: rgba(47, 111, 208, 0.5); color: #fff; }
+.lugar.vez .tag.vez.urgente { background: #9b1c31; color: #fff; animation: piscaUrgente 0.65s ease-in-out infinite; }
+@keyframes piscaUrgente { 50% { opacity: 0.6; } }
+
+/* ----- Suas 2 cartas privadas (3D flip interativo — toque para espiar) ----- */
+.minha-mao-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.minha-mao-cartas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  perspective: 900px;
+}
+.carta-3d-slot {
+  perspective: 900px;
+  animation: distribuirCarta 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.carta-3d-slot:nth-child(2) { animation-delay: 90ms; }
+.carta-3d {
+  position: relative;
+  display: block;
+  width: 62px;
+  height: 86px;
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: rotateY(0deg);
+}
+.carta-3d:active:not(:disabled) { transform: scale(0.96); box-shadow: none; }
+.carta-3d.virada {
+  transform: rotateY(180deg) translateY(-4px);
+}
+.carta-3d.virada:active:not(:disabled) {
+  transform: rotateY(180deg) translateY(-2px) scale(0.97);
+}
+.carta-3d.destaque .carta-face.frente {
+  box-shadow: 0 0 0 2.5px #ffd866, 0 8px 20px rgba(255, 216, 102, 0.45);
+}
+@keyframes distribuirCarta {
+  0% { opacity: 0; transform: translateY(-22px) scale(0.76) rotate(-6deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+.carta-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.carta-face.verso {
+  transform: rotateY(0deg);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.14) 0 28%, transparent 29%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0 3px, transparent 3px 7px),
+    linear-gradient(155deg, #b3263d, #5e0f1d);
+  border: 2.5px solid var(--marfim);
+  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.72), inset 0 0 0 3px rgba(6, 13, 36, 0.35);
+}
+.carta-face.verso::after {
+  content: "♠";
+  font-size: 24px;
+  color: rgba(244, 247, 255, 0.85);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+}
+.carta-face.frente {
+  transform: rotateY(180deg);
+  background: linear-gradient(165deg, #ffffff, #e8eef9);
+  color: #0d1b36;
+  border: 1.5px solid rgba(13, 27, 54, 0.15);
+  box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.65);
+}
+.carta-face.frente.verm { color: #b31b2c; }
+.carta-face.frente .cf-canto {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--fonte-numero);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 0.95;
+}
+.carta-face.frente .cf-centro {
+  font-size: 30px;
+  line-height: 1;
+  margin-top: 6px;
+}
+
+.minha-mao-dica {
+  font-size: 11.5px;
+  color: var(--marfim-suave);
+  text-align: center;
+}
+.minha-mao-revelar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+.minha-mao-revelar button {
+  width: auto;
+  min-height: 32px;
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+/* Quando caixa de aposta está aberta, compacta suas cartas para caber no celular */
+#tela-mesa.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 46px; height: 64px; }
+#tela-mesa.apostando ~ #barra-acoes .carta-face.frente .cf-centro { font-size: 22px; }
+#tela-mesa.apostando ~ #barra-acoes .minha-mao-dica { display: none; }
+
+/* ----- Barra de progresso do timer de turno ----- */
+.timer-turno-wrap {
+  height: 4px;
+  width: 100%;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  background: rgba(244, 247, 255, 0.14);
+  overflow: hidden;
+}
+.timer-turno-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--verde);
+  transition: width 0.95s linear, background-color 0.3s ease;
+}
+.timer-turno-fill.alerta { background: #e8a838; }
+.timer-turno-fill.urgente { background: #e03c52; }
+
+/* ----- Faixa de resultado / confirmação de 30s / campeão (Modo Online) ----- */
+.faixa-online {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(26, 58, 122, 0.92), rgba(11, 27, 58, 0.95));
+  border: 1.5px solid rgba(47, 111, 208, 0.55);
+  text-align: center;
+  animation: entrarFaixa 0.28s ease;
+}
+@keyframes entrarFaixa {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.faixa-online.campeao {
+  background: linear-gradient(180deg, rgba(155, 28, 49, 0.92), rgba(94, 15, 29, 0.96));
+  border-color: rgba(255, 216, 102, 0.8);
+}
+.faixa-online-res {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+.faixa-online-res .res-linha { margin-top: 2px; }
+.faixa-online-res .res-linha:first-child { margin-top: 0; }
+.faixa-online-res .res-mao { color: #bcd8ff; font-weight: 600; }
+.faixa-online-sub {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--marfim-suave);
+}
+.faixa-online-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.faixa-online-acoes button {
+  margin-top: 0;
+  min-height: 46px;
+  font-size: 16px;
+}
+.faixa-online-acoes button.confirmado,
+.faixa-online-acoes button.confirmado:disabled {
+  opacity: 0.94;
+  background: rgba(47, 111, 208, 0.32);
+  color: #e8f2ff;
+  box-shadow: inset 0 0 0 1.5px rgba(105, 162, 255, 0.7);
+}

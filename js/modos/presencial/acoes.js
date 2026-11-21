@@ -155,6 +155,11 @@ export function subirNivel() {
 // Registra o modo 'presencial' no contrato compartilhado da mesa
 registrarModo('presencial', {
   desenharBoard(partida) {
+    const boardEl = $id('board');
+    if (boardEl.classList.contains('online')) {
+      boardEl.classList.remove('online');
+      boardEl.querySelector('.slots').innerHTML = '<i></i><i></i><i></i><i></i><i></i>';
+    }
     const acesas = [0, 3, 4, 5, 5][partida.fase] || 0;
     const novasDe = [0, 0, 3, 4, 5][partida.fase];
     document.querySelectorAll('#board .slots i').forEach((el, k) => {
@@ -167,6 +172,13 @@ registrarModo('presencial', {
   },
 
   desenharFaixa(partida, _jogadores, { eu, souCriador, potesMesa, nomesFase }) {
+    const faixaOnline = $id('faixa-online');
+    if (faixaOnline) { faixaOnline.hidden = true; faixaOnline.innerHTML = ''; }
+    const minhaMao = $id('minha-mao-wrap');
+    if (minhaMao) { minhaMao.hidden = true; minhaMao.innerHTML = ''; }
+    const timerWrap = $id('timer-turno-wrap');
+    if (timerWrap) timerWrap.hidden = true;
+
     const faixaOn = partida.iniciada && partida.fase_blind === 0 && (partida.aguardando_cartas || partida.fase === 4);
     $id('faixa-fase').hidden = !faixaOn;
     if (faixaOn) {

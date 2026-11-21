@@ -14,12 +14,13 @@ import {
 } from './lobby/salas.js';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
-  aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala
+  aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
+  escolherModoSala, escolherTempoTurno, escolherSubirBlinds
 } from './lobby/config-sala.js';
 
 import {
   abrirMesa, buscarMesa, receberEstado, iniciarRelogio,
-  sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa
+  sairDaMesa, voltarParaSalas, encerrarSala, registrarHooksMesa, registrarTickOnline
 } from './mesa/mesa.js';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaAllIn,
@@ -29,7 +30,7 @@ import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal
 } from './mesa/extras.js';
 
-// Modos registrados (hoje: presencial; futuramente bastará importar './modos/online/...' aqui)
+// Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
@@ -44,12 +45,24 @@ import {
   proximoJogadorDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
 } from './modos/presencial/dev.js';
+import {
+  virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline,
+  confirmarTodosDev, tickOnline, resetarOnlineUI
+} from './modos/online/online.js';
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
 registrarHooksAuth({ abrirSalas, pararSalas });
 registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev });
-registrarHooksDev({ abrirSalas, pararSalas, abrirMesa, buscarMesa, voltarParaSalas });
+registrarTickOnline(tickOnline);
+registrarHooksDev({
+  abrirSalas,
+  pararSalas,
+  abrirMesa,
+  buscarMesa,
+  voltarParaSalas,
+  onTrocarJogador: resetarOnlineUI
+});
 
 // ----- Inicialização ao abrir a página -----
 async function iniciarApp() {
@@ -93,6 +106,7 @@ Object.assign(window, {
   abrirSalas, abrirCriar, criarSala, abrirSala, entrarComoJogador,
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade,
+  escolherModoSala, escolherTempoTurno, escolherSubirBlinds,
   esquecerPartida, iniciarApp,
 
   // Mesa compartilhada e apostas
@@ -108,7 +122,10 @@ Object.assign(window, {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao,
   abrirSalaDev, criarSalaDev, trocarJogadorDev, proximoJogadorDev,
-  abrirPainelDev, adicionarJogadorDev, devAcao, excluirSalaDev
+  abrirPainelDev, adicionarJogadorDev, devAcao, excluirSalaDev,
+
+  // Modo online (baralho virtual, cartas 3D, confirmação e revanche)
+  virarMinhaCarta, confirmarMao, mostrarCartasOnline, revancheOnline, confirmarTodosDev
 });
 
 // ----- Eventos globais e detalhes de conforto -----

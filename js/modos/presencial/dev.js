@@ -3,7 +3,7 @@ import { banco } from '../../core/supabase.js';
 import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js';
 import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js';
 import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js';
-import { registrarRealCriacao } from '../../lobby/config-sala.js';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js';
 import { executar } from '../../mesa/apostas.js';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
@@ -15,7 +15,8 @@ let hooksDev = {
   pararSalas: () => {},
   abrirMesa: () => Promise.resolve(),
   buscarMesa: () => Promise.resolve(),
-  voltarParaSalas: () => {}
+  voltarParaSalas: () => {},
+  onTrocarJogador: () => {}
 };
 
 export function registrarHooksDev(hooks) {
@@ -79,9 +80,19 @@ export async function criarSalaDev() {
   botao.disabled = true;
   botao.textContent = 'Criando sala DEV...';
 
+  const cfg = obterConfigOnline('dev');
   let resp;
   try {
-    resp = await banco.rpc('dev_criar_sala', { p_nome: NOMES_DEV[0], p_saldo: saldo, p_small: small, p_big: big });
+    resp = cfg.modo === 'online'
+      ? await banco.rpc('dev_criar_sala_online', {
+          p_nome: NOMES_DEV[0],
+          p_saldo: saldo,
+          p_small: small,
+          p_big: big,
+          p_tempo_turno: cfg.tempoTurno,
+          p_subir_blinds_min: cfg.subirBlindsMin
+        })
+      : await banco.rpc('dev_criar_sala', { p_nome: NOMES_DEV[0], p_saldo: saldo, p_small: small, p_big: big });
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
@@ -136,6 +147,7 @@ export function controlarDev(indice, sala) {
   estado.apostaEditada = false;
   estado.apostaAberta = false;
   $id('campo-valor').value = '';
+  if (hooksDev.onTrocarJogador) hooksDev.onTrocarJogador();
 }
 
 export function trocarJogadorDev(indice) {
@@ -162,6 +174,16 @@ export function desenharPainelDev() {
 
   const iniciada = !!(estado.partidaAtual && estado.partidaAtual.iniciada);
   const pausa = iniciada && !!estado.partidaAtual.aguardando_proxima_mao;
+  const ehOnline = !!(estado.partidaAtual && estado.partidaAtual.modo === 'online');
+  const devDica = $id('dev-dica');
+  if (devDica) {
+    devDica.textContent = ehOnline
+      ? 'Modo Online: escolha qual jogador você controla para testar cartas privadas, turnos e confirmações.'
+      : 'Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.';
+  }
+  const devConf = $id('dev-confirmar-todos');
+  if (devConf) devConf.hidden = !(ehOnline && (!iniciada || pausa));
+  $id('dev-acoes-presencial').hidden = ehOnline;
   $id('dev-iniciar').hidden = iniciada;
   $id('dev-proxima').hidden = !pausa;
 

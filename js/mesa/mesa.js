@@ -192,7 +192,9 @@ export function desenharMesa(dados) {
   $id('mesa-mao').textContent = partida.iniciada ? 'Mão ' + partida.mao : '';
   $id('mesa-nivel').textContent = 'Nível ' + partida.nivel;
   $id('mesa-blinds').textContent = 'Blinds ' + partida.small_blind + '/' + partida.big_blind;
-  $id('mesa-aposta').textContent = partida.iniciada ? 'Maior aposta ' + partida.aposta_atual : '';
+  $id('mesa-aposta').textContent = (partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4)
+    ? 'Maior aposta ' + partida.aposta_atual
+    : '';
   $id('mesa-papel').textContent = estado.modoDev
     ? 'DEV · ' + (eu ? nomeDe(eu.nome) : 'só assistindo')
     : (eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo');
@@ -224,13 +226,13 @@ export function desenharMesa(dados) {
   elStatus.textContent = status;
   elStatus.classList.toggle('minha-vez', minhaVez);
 
-  // ----- Board (delegado ao modo: presencial = slots, futuro online = cartas viradas) -----
+  // ----- Board (delegado ao modo: presencial = slots, online = cartas viradas) -----
   $id('mesa-fase').textContent = partida.iniciada ? NOMES_FASE[partida.fase] : '';
   const modo = obterModo(estado.modoAtual);
   if (modo && modo.desenharBoard) modo.desenharBoard(partida, jogadores);
 
   // ----- Assentos em elipse 360° -----
-  desenharAssentos({ partida, jogadores, vezAtivaId });
+  desenharAssentos({ partida, jogadores, vezAtivaId, modo });
 
   // ----- Cronômetros e histórico -----
   estado.relogio.offset = dados.agora ? Date.parse(dados.agora) - Date.now() : 0;
@@ -255,9 +257,20 @@ export function desenharMesa(dados) {
 
   // ----- Barra de ações -----
   desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, falta, status });
+  if (modo && modo.aoAtualizarMesa) modo.aoAtualizarMesa(partida, jogadores, ctxModo);
 }
 
 function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez }) {
+  if (partida.modo === 'online') {
+    const comFichas = jogadores.filter((j) => j.saldo > 0).length;
+    if (!partida.iniciada) return 'Aguardando jogadores confirmarem entrada';
+    if (partida.aguardando_proxima_mao) {
+      if (comFichas < 2) return 'Fim da partida!';
+      return 'Mão ' + (partida.mao - 1) + ' terminou · confirme para a próxima mão';
+    }
+    if (jogadorDaVez) return minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + nomeDe(jogadorDaVez.nome);
+    return 'Atualizando mesa…';
+  }
   if (!partida.iniciada) return 'Aguardando o criador iniciar a partida';
   if (partida.aguardando_proxima_mao) {
     const comFichas = jogadores.filter((j) => j.saldo > 0).length;
@@ -278,7 +291,7 @@ function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez })
   return 'Fim da partida: só resta um jogador com fichas.';
 }
 
-function desenharAssentos({ partida, jogadores, vezAtivaId }) {
+function desenharAssentos({ partida, jogadores, vezAtivaId, modo }) {
   let proximoId = null;
   if (partida.iniciada && partida.fase_blind === 1) proximoId = partida.bb_jogador_id;
   else if (partida.iniciada && partida.fase_blind === 2) proximoId = partida.primeiro_jogador_id;
@@ -294,6 +307,8 @@ function desenharAssentos({ partida, jogadores, vezAtivaId }) {
     }
   }
 
+  const ehOnline = partida.modo === 'online';
+  const emEsperaOnline = ehOnline && (!partida.iniciada || partida.aguardando_proxima_mao);
   const nJ = jogadores.length;
   const meuIdx = Math.max(0, jogadores.findIndex((j) => j.id === estado.meuJogadorId));
   const larguraLugar = nJ <= 4 ? 100 : nJ <= 6 ? 94 : nJ <= 8 ? 88 : 84;
@@ -303,19 +318,25 @@ function desenharAssentos({ partida, jogadores, vezAtivaId }) {
     const souEu = (j.id === estado.meuJogadorId);
     const naVez = !!vezAtivaId && j.id === vezAtivaId;
     const ehProximo = !naVez && !j.desistiu && j.id === proximoId;
+    const ehVencedor = !!(modo && modo.ehVencedorAssento && modo.ehVencedorAssento(j, partida));
 
     let classes = 'lugar assento-redondo';
     if (souEu) classes += ' eu';
     if (naVez) classes += ' vez';
     if (ehProximo) classes += ' prox';
+    if (ehVencedor) classes += ' vencedor';
     if (j.esperando) classes += ' espera';
     else if (j.desistiu) classes += ' desistiu';
 
     let tags = '';
-    if (partida.iniciada) {
+    if (emEsperaOnline) {
+      if (j.saldo === 0) tags += '<span class="tag fora">ELIMINADO</span>';
+      else if (j.confirmado) tags += '<span class="tag pronto">✓ PRONTO</span>';
+      if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
+    } else if (partida.iniciada) {
       if (j.esperando) tags += '<span class="tag espera">ESPERANDO</span>';
       else if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
-      else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">SEM FICHAS</span>';
+      else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">' + (ehOnline ? 'ELIMINADO' : 'SEM FICHAS') + '</span>';
       else {
         if (naVez) {
           const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
@@ -337,17 +358,20 @@ function desenharAssentos({ partida, jogadores, vezAtivaId }) {
     const y = 50 + 39 * Math.sin(angulo);
     const largura = larguraLugar + (souEu ? 8 : 0);
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,27vw);--escala-lugar:' + escalaLugar + ';';
+    const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
+    const coroaHtml = (!ehOnline && j.criador) ? ICONE_COROA : '';
 
     return `
       <div class="${classes}" style="${estiloLugar}">
         <div class="l-topo">
           <div class="ficha ${corFicha}">${j.ordem}</div>
-          <div class="l-nome">${j.criador ? ICONE_COROA : ''}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
         </div>
         <div class="l-meio">
           <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
           ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
         </div>
+        ${cartasHtml}
         <div class="l-tags">${tags}</div>
       </div>
     `;
@@ -370,10 +394,17 @@ function formatarTempo(ms) {
   return h > 0 ? h + ':' + dois(m) + ':' + dois(sg) : dois(m) + ':' + dois(sg);
 }
 
+let hookTickOnline = null;
+export function registrarTickOnline(fn) { hookTickOnline = fn; }
+
 export function tick() {
   const agora = Date.now() + estado.relogio.offset;
   const geral = $id('mesa-relogio');
   if (geral) geral.textContent = estado.relogio.ini ? 'Mesa ' + formatarTempo(agora - estado.relogio.ini) : '';
+  if (estado.partidaAtual && estado.partidaAtual.modo === 'online') {
+    if (hookTickOnline) hookTickOnline();
+    return;
+  }
   const turno = $id('tempo-turno');
   if (turno) turno.textContent = estado.relogio.vez ? formatarTempo(agora - estado.relogio.vez) : 'VEZ';
 }
