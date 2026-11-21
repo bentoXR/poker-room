@@ -179,10 +179,18 @@
 :root[data-tema="liberdade"] .n-h,
 :root[data-tema="liberdade"] .n-d { --cn: #b31942; }
 
-/* ----- Barra de ações na sua vez: contorno dourado ----- */
+/* ----- Barra de ações na sua vez: contorno dourado + barrinha de tempo branca ----- */
 :root[data-tema="liberdade"] .barra-acoes.minha-vez {
   border-top-color: #c9a24b;
   border-color: rgba(201, 162, 75, 0.7);
+}
+:root[data-tema="liberdade"] .timer-turno-fill,
+:root[data-tema="liberdade"] .timer-turno-fill.alerta,
+:root[data-tema="liberdade"] .timer-turno-fill.urgente,
+:root[data-tema="liberdade"] .l-timer i,
+:root[data-tema="liberdade"] .l-timer i.alerta,
+:root[data-tema="liberdade"] .l-timer i.urgente {
+  background: #ffffff;
 }
 
 /* ----- Seletor de tema: amostra do novo tema ----- */

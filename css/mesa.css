@@ -405,9 +405,9 @@ button.dev-prox {
   position: absolute;
   width: var(--w, 98px);
   left: clamp(calc(var(--w, 98px) / 2 + 12px), var(--x, 50%), calc(100% - var(--w, 98px) / 2 - 4px));
-  top: clamp(38px, var(--y, 50%), calc(100% - 36px));
+  top: clamp(40px, var(--y, 50%), calc(100% - 38px));
   min-width: 0;
-  min-height: 62px;
+  min-height: 72px;
   padding: 7px 8px 6px 26px;
   transform: translate(-50%, -50%);
   border-radius: 18px;
@@ -644,13 +644,13 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
   .centro-roda { width: 70%; height: 69%; padding: 9px 7px; gap: 7px; }
   .centro-roda .pote-ficha { width: clamp(58px, 18vw, 82px); height: clamp(58px, 18vw, 82px); }
   .centro-roda .board { width: 88%; max-width: 190px; }
-  .lugar.assento-redondo { padding: 6px 7px 5px 24px; border-width: 1.5px; border-radius: 17px; min-height: 60px; }
+  .lugar.assento-redondo { padding: 6px 7px 5px 24px; border-width: 1.5px; border-radius: 17px; min-height: 70px; }
   .barra-acoes { padding-left: 12px; padding-right: 12px; }
   .barra-acoes .presets button { min-height: 44px; }
 }
 @media (max-width: 360px) {
   .centro-roda { width: 68%; height: 67%; padding-left: 5px; padding-right: 5px; }
-  .lugar.assento-redondo { padding: 6px 6px 5px 22px; min-height: 58px; }
+  .lugar.assento-redondo { padding: 6px 6px 5px 22px; min-height: 68px; }
 }
 @media (max-height: 700px) {
   .centro-roda { gap: 7px; padding-top: 8px; padding-bottom: 8px; }
@@ -725,7 +725,7 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
   }
   #tela-mesa .lugar.assento-redondo {
     top: clamp(48px, var(--y, 50%), calc(100% - 48px));
-    min-height: 76px;
+    min-height: 84px;
     padding: 9px 12px 8px 38px;
     border-radius: 18px;
     gap: 2px;

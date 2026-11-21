@@ -1060,8 +1060,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     top: clamp(36px, var(--y, 50%), calc(100% - 34px));
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    top: clamp(34px, var(--y, 50%), calc(100% - 32px));
-    min-height: 54px;
+    top: clamp(36px, var(--y, 50%), calc(100% - 34px));
+    min-height: 60px;
     padding: 5px 6px 4px 20px;
     border-radius: 14px;
     gap: 1px;
