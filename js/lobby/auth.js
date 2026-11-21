@@ -1,10 +1,10 @@
 // Autenticação de conta (nome único, senha protegida, criação com confirmação e sessão)
-import { banco } from '../core/supabase.js?v=58';
-import { estado, limparCachesMesa } from '../core/estado.js?v=58';
-import { guardarConta, esquecerConta, esquecerPartida, lembrarNome, lerNome } from '../core/storage.js?v=58';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=58';
-import { desligarTempoReal } from '../core/realtime.js?v=58';
-import { obterModo } from '../mesa/modos.js?v=58';
+import { banco } from '../core/supabase.js?v=59';
+import { estado, limparCachesMesa } from '../core/estado.js?v=59';
+import { guardarConta, esquecerConta, esquecerPartida, lembrarNome, lerNome } from '../core/storage.js?v=59';
+import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=59';
+import { desligarTempoReal } from '../core/realtime.js?v=59';
+import { obterModo } from '../mesa/modos.js?v=59';
 
 let modoLoginAtual = 'entrar';
 let hooksAuth = {
@@ -32,7 +32,14 @@ export function escolherModoLogin(modo) {
   if (grpConf) grpConf.hidden = !ehCriar;
 
   const lblNome = $id('lbl-login-nome');
-  if (lblNome) lblNome.textContent = ehCriar ? 'Escolha um nome único' : 'Seu nome';
+  if (lblNome) lblNome.textContent = ehCriar ? 'Escolha um nome único (até 10 caracteres)' : 'Seu nome';
+
+  const campoNome = $id('campo-login-nome');
+  if (campoNome) {
+    campoNome.maxLength = ehCriar ? 10 : 20;
+    campoNome.placeholder = ehCriar ? 'Ex.: Pedro (máx. 10)' : 'Ex.: Pedro';
+    if (ehCriar && campoNome.value.length > 10) campoNome.value = campoNome.value.slice(0, 10);
+  }
 
   const campoSenha = $id('campo-login-senha');
   if (campoSenha) campoSenha.placeholder = ehCriar ? 'Mínimo 6 caracteres' : 'Digite sua senha';
@@ -66,6 +73,10 @@ async function entrarNaConta(funcao) {
 
   if (nome.length < 2) {
     mostrarErro('erro-login', 'Digite um nome com pelo menos 2 caracteres.');
+    return;
+  }
+  if (ehCriar && nome.length > 10) {
+    mostrarErro('erro-login', 'O nome pode ter no máximo 10 caracteres.');
     return;
   }
   if (ehCriar) {

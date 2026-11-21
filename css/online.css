@@ -688,8 +688,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
 /* ----- Tempo de cada jogador no próprio assento ----- */
 .l-timer {
-  height: 4px;
-  margin-top: 3px;
+  height: 3.5px;
+  margin: 2px 6px 0;
   border-radius: 99px;
   background: rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -715,16 +715,30 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     0 0 0 6.5px var(--borda-aro);
 }
 #tela-mesa.modo-online .lugar {
-  background: linear-gradient(180deg, var(--assento-bg), var(--assento-bg-2));
-  border-color: rgba(255, 255, 255, 0.26);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--assento-bg) 82%, transparent),
+    color-mix(in srgb, var(--assento-bg-2) 86%, transparent)
+  );
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-color: rgba(255, 255, 255, 0.24);
   transition: box-shadow 0.5s ease, border-color 0.5s ease, background 0.5s ease, opacity 0.5s ease;
 }
 #tela-mesa.modo-online .lugar.eu {
-  background: linear-gradient(180deg, var(--assento-eu-bg), var(--assento-eu-bg-2));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--assento-eu-bg) 84%, transparent),
+    color-mix(in srgb, var(--assento-eu-bg-2) 88%, transparent)
+  );
   border-color: #ffffff;
 }
 #tela-mesa.modo-online .lugar.vez {
-  background: linear-gradient(180deg, var(--vez-bg), var(--vez-bg-2));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--vez-bg) 88%, transparent),
+    color-mix(in srgb, var(--vez-bg-2) 90%, transparent)
+  );
   border-color: #ffffff;
   animation: vezPulso 1.8s ease-in-out infinite;
 }
@@ -1047,16 +1061,17 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     top: clamp(34px, var(--y, 50%), calc(100% - 30px));
-    padding: 4px 6px 4px 28px;
-    border-radius: 12px;
+    padding: 5px 8px 5px 31px;
+    border-radius: 999px;
     gap: 1px;
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo > .l-avatar,
   #tela-mesa.modo-online.cheia .lugar.assento-redondo > .ficha {
-    top: -8px;
-    left: -10px;
-    width: 34px;
-    height: 34px;
+    top: 50%;
+    left: -7px;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
   }
   /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
   #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
@@ -1241,7 +1256,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 142px; }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     top: clamp(28px, var(--y, 50%), calc(100% - 28px));
-    padding: 3px 5px 3px 25px;
+    padding: 4px 7px 4px 28px;
   }
   #barra-acoes.modo-online .minha-mao-dica { display: none; }
 }

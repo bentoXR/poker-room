@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=58';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=58';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=58';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=58';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=58';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=58';
-import { obterModo } from './modos.js?v=58';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=58';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=58';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=58';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=58';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=58';
+import { banco } from '../core/supabase.js?v=59';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=59';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=59';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=59';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=59';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=59';
+import { obterModo } from './modos.js?v=59';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=59';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=59';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=59';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=59';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=59';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -422,7 +422,7 @@ const POSICOES_OPONENTES_DESKTOP = {
   8: [[14, 79], [10, 50], [14, 22], [35, 10], [65, 10], [86, 22], [90, 50], [86, 79]]
 };
 
-function montarTagsAssento({ j, partida, naVez, ehProximo, emEsperaOnline, premioVencedor, ehOnline }) {
+function montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline }) {
   let tags = '';
   if (premioVencedor > 0) {
     tags += '<span class="tag ganhou">🏆 +' + premioVencedor + '</span>';
@@ -436,12 +436,8 @@ function montarTagsAssento({ j, partida, naVez, ehProximo, emEsperaOnline, premi
     else if (j.desistiu) tags += '<span class="tag fora">DESISTIU</span>';
     else if (j.saldo === 0 && j.total_mao === 0) tags += '<span class="tag fora">' + (ehOnline ? 'ELIMINADO' : 'SEM FICHAS') + '</span>';
     else {
-      if (naVez) {
-        const rotulo = partida.fase_blind === 1 ? 'PAGAR SB' : partida.fase_blind === 2 ? 'PAGAR BB' : 'VEZ';
-        tags += '<span class="tag vez">▶ ' + (rotulo === 'VEZ' ? '<span id="tempo-turno">VEZ</span>' : rotulo) + '</span>';
-      } else if (ehProximo) {
-        tags += '<span class="tag prox">PRÓX ▸</span>';
-      }
+      if (naVez && partida.fase_blind === 1) tags += '<span class="tag vez">PAGAR SB</span>';
+      else if (naVez && partida.fase_blind === 2) tags += '<span class="tag vez">PAGAR BB</span>';
       if (j.saldo === 0) tags += '<span class="tag allin">ALL-IN</span>';
     }
     if (j.id === partida.dealer_jogador_id) tags += '<span class="tag d" title="Dealer">D</span>';
@@ -554,31 +550,29 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
   const nMesa = listaMesa.length;
   const larguraLugar = ehDesktop
-    ? (nMesa <= 4 ? 174 : nMesa <= 6 ? 162 : 148)
-    : (nMesa <= 3 ? 104 : nMesa <= 5 ? 98 : nMesa <= 6 ? 94 : 88);
+    ? (nMesa <= 4 ? 186 : nMesa <= 6 ? 174 : 158)
+    : (nMesa <= 3 ? 118 : nMesa <= 5 ? 112 : nMesa <= 6 ? 104 : 96);
   const escalaLugar = ehDesktop
-    ? (nMesa <= 4 ? 1.04 : nMesa <= 6 ? 0.98 : 0.92)
-    : (nMesa <= 3 ? 0.94 : nMesa <= 5 ? 0.9 : nMesa <= 6 ? 0.84 : 0.8);
+    ? (nMesa <= 4 ? 1.05 : nMesa <= 6 ? 1.0 : 0.94)
+    : (nMesa <= 3 ? 0.98 : nMesa <= 5 ? 0.94 : nMesa <= 6 ? 0.88 : 0.84);
   const raioX = ehDesktop ? 43.5 : 40;
   const raioY = ehDesktop ? 40.5 : 39;
-  const maxVw = ehDesktop ? '18vw' : (nMesa >= 7 ? '25vw' : nMesa >= 5 ? '27.5vw' : '29.5vw');
+  const maxVw = ehDesktop ? '19vw' : (nMesa >= 7 ? '27.5vw' : nMesa >= 5 ? '30.5vw' : '33vw');
 
   const htmlLista = listaMesa.map((j, idxLista) => {
     const souEu = (j.id === estado.meuJogadorId);
     const naVez = !!vezAtivaId && j.id === vezAtivaId;
-    const ehProximo = !naVez && !j.desistiu && j.id === proximoId;
     const ehVencedor = !!(modo && modo.ehVencedorAssento && modo.ehVencedorAssento(j, partida));
     const premioVencedor = (modo && modo.premioVencedorAssento) ? modo.premioVencedorAssento(j, partida) : 0;
 
     let classes = 'lugar assento-redondo';
     if (souEu) classes += ' eu';
     if (naVez) classes += ' vez';
-    if (ehProximo) classes += ' prox';
     if (ehVencedor) classes += ' vencedor';
     if (j.esperando) classes += ' espera';
     else if (j.desistiu) classes += ' desistiu';
 
-    const tags = montarTagsAssento({ j, partida, naVez, ehProximo, emEsperaOnline, premioVencedor, ehOnline });
+    const tags = montarTagsAssento({ j, partida, naVez, emEsperaOnline, premioVencedor, ehOnline });
 
     const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
     let x;
@@ -616,17 +610,16 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const badgePerfilHtml = avatarUrl
       ? '<div class="l-avatar ' + corFicha + ' ' + posBorda + '"><img src="' + avatarUrl + '" alt=""></div>'
       : '<div class="ficha ' + corFicha + ' ' + posBorda + '">' + j.ordem + '</div>';
-    const linha2TemConteudo = !!(tags || j.apostou > 0);
-
     return `
       <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
         ${badgePerfilHtml}
         <div class="l-corpo">
-          <div class="l-linha1">
-            <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+          <div class="l-meio">
             <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${j.saldo}</div>
+            ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
           </div>
-          ${linha2TemConteudo ? '<div class="l-linha2"><div class="l-tags">' + tags + '</div>' + (j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : '') + '</div>' : ''}
+          ${tags ? '<div class="l-tags">' + tags + '</div>' : ''}
         </div>
         ${cartasHtml}
         ${(naVez && ehOnline && Number(partida.tempo_turno) > 0) ? '<div class="l-timer"><i></i></div>' : ''}
