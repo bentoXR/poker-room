@@ -693,6 +693,12 @@ button.olho {
 }
 button.olho:active:not(:disabled) { transform: translateY(-50%); box-shadow: none; }
 
+@media (max-width: 819px) {
+  body::before { display: none !important; }
+  main { padding-top: calc(10px + env(safe-area-inset-top)); }
+  body.na-mesa main { padding-top: calc(4px + env(safe-area-inset-top)); }
+}
+
 @media (max-width: 600px) and (orientation: portrait) {
   main { width: 100%; padding-left: 14px; padding-right: 14px; }
   h2 { font-size: 30px; margin-bottom: 10px; }
