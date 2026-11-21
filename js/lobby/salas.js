@@ -1,12 +1,12 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=71';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=71';
-import { guardarMeuJogador } from '../core/storage.js?v=71';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=71';
-import { tratarErroConta } from './auth.js?v=71';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=71';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=71';
-import { abrirMesa } from '../mesa/mesa.js?v=71';
+import { banco } from '../core/supabase.js?v=72';
+import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=72';
+import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=72';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=72';
+import { tratarErroConta } from './auth.js?v=72';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=72';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=72';
+import { abrirMesa } from '../mesa/mesa.js?v=72';
 
 export function abrirSalas() {
   pararSalas();
@@ -106,6 +106,7 @@ export function desenharSalas() {
 export async function abrirSala(id) {
   if (estado.abrindoSala) return;
   estado.abrindoSala = true;
+  estado.modoDev = false;
   limparErro('erro-salas');
 
   try {
@@ -139,12 +140,15 @@ export async function abrirSala(id) {
 }
 
 export function abrirCriar() {
+  estado.modoDev = false;
   limparErro('erro-criar');
   $id('criar-nome-sala').value = 'Sala do ' + estado.minhaConta.nome;
   mostrar('tela-criar');
 }
 
 export async function criarSala() {
+  estado.modoDev = false;
+  esquecerDevSala();
   limparErro('erro-criar');
 
   const nomeSala = ($id('criar-nome-sala').value || '').trim().replace(/\s+/g, ' ');
@@ -186,6 +190,7 @@ export async function criarSala() {
     if (!tratarErroConta(resp.error)) mostrarErro('erro-criar', resp.error.message);
   } else {
     const dados = resp.data;
+    pararSalas();
     guardarMeuJogador(estado.minhaConta.id, dados.partida_id, dados.jogador_id, dados.segredo);
     await registrarRealCriacao('', dados.partida_id, saldo, dados.jogador_id, dados.segredo);
     await abrirMesa({ id: dados.partida_id });
@@ -196,6 +201,7 @@ export async function criarSala() {
 }
 
 export async function conectarNaSala(partida, idDoErro) {
+  estado.modoDev = false;
   let resp;
   try {
     resp = await banco.rpc('entrar_sala', Object.assign({}, contaParams(), { p_partida_id: partida.id }));

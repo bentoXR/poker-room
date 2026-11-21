@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=71';
-import { estado, ICONE_COROA, nomeDe, contaParams, credC, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=71';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=71';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=71';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=71';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=71';
-import { obterModo } from './modos.js?v=71';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=71';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=71';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=71';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=71';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao } from './chat.js?v=71';
+import { banco } from '../core/supabase.js?v=72';
+import { estado, ICONE_COROA, nomeDe, contaParams, credC, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=72';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=72';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=72';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=72';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=72';
+import { obterModo } from './modos.js?v=72';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=72';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=72';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=72';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=72';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao } from './chat.js?v=72';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -148,6 +148,7 @@ export function desenharMesa(dados) {
   }
 
   estado.partidaAtual = partida;
+  if (!partida.dev && estado.modoDev) estado.modoDev = false;
   estado.modoAtual = partida.modo || 'presencial';
   const ehModoOnline = estado.modoAtual === 'online';
   document.body.classList.toggle('modo-online', ehModoOnline);
@@ -779,14 +780,6 @@ function preencherMenuOnline() {
     }
   }
 
-  const btnEspiar = $id('menu-btn-espiar');
-  if (btnEspiar) {
-    btnEspiar.hidden = p.modo !== 'online' || !eu;
-    let segurando = false;
-    try { segurando = localStorage.getItem('poker-espiar-segurar') === '1'; } catch (e) {}
-    btnEspiar.textContent = segurando ? '👁 Espiar cartas: Segurar dedo' : '👁 Espiar cartas: Toque p/ virar';
-  }
-
   $id('menu-btn-dev').hidden = !estado.modoDev;
   const btnSair = $id('menu-btn-sair');
   btnSair.hidden = !eu || estado.modoDev;
@@ -933,6 +926,10 @@ export function voltarParaSalas() {
 }
 
 export function encerrarSala() {
+  if (estado.modoDev) {
+    voltarParaSalas();
+    return Promise.resolve(true);
+  }
   return executar('encerrar_sala', Object.assign({}, contaParams(), {
     p_partida_id: estado.partidaAtual.id
   }), 'erro-criador').then((ok) => {

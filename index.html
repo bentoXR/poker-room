@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=71">
+  <link rel="manifest" href="./manifest.webmanifest?v=72">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,15 +20,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=71">
-  <link rel="stylesheet" href="./css/telas.css?v=71">
-  <link rel="stylesheet" href="./css/mesa.css?v=71">
-  <link rel="stylesheet" href="./css/gavetas.css?v=71">
-  <link rel="stylesheet" href="./css/online.css?v=71">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=71">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=71">
-  <link rel="stylesheet" href="./css/desktop.css?v=71">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=71">
+  <link rel="stylesheet" href="./css/base.css?v=72">
+  <link rel="stylesheet" href="./css/telas.css?v=72">
+  <link rel="stylesheet" href="./css/mesa.css?v=72">
+  <link rel="stylesheet" href="./css/gavetas.css?v=72">
+  <link rel="stylesheet" href="./css/online.css?v=72">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=72">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=72">
+  <link rel="stylesheet" href="./css/desktop.css?v=72">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=72">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -497,7 +497,6 @@
         <div class="menu-online-acoes">
           <button type="button" id="menu-btn-convidar" class="secundario" onclick="fecharFolhas(); copiarConviteSala()">🔗 Convidar amigos (copiar link)</button>
           <button type="button" id="menu-btn-som" class="secundario" onclick="alternarSom()" aria-pressed="true">🔊 Som: Ligado</button>
-          <button type="button" id="menu-btn-espiar" class="secundario" onclick="alternarModoEspiar()" hidden>👁 Espiar cartas: Toque p/ virar</button>
           <button type="button" id="menu-btn-ausente" class="secundario" onclick="fecharFolhas(); alternarAusenteOnline()" hidden>⏸ Ficar ausente (Sit Out)</button>
           <button type="button" class="secundario" onclick="abrirGuia()">♠ Conferir mãos do poker</button>
           <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
@@ -804,11 +803,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=71"></script>
+<script type="module" src="./js/main.js?v=72"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=71').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=72').catch(() => {});
     });
   }
 </script>

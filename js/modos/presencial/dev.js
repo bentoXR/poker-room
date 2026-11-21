@@ -1,10 +1,10 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=71';
-import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=71';
-import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=71';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=71';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=71';
-import { executar } from '../../mesa/apostas.js?v=71';
+import { banco } from '../../core/supabase.js?v=72';
+import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=72';
+import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=72';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=72';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=72';
+import { executar } from '../../mesa/apostas.js?v=72';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const MAX_DEV = 9;
@@ -41,17 +41,10 @@ export async function abrirSalaDev() {
   estado.abrindoSala = true;
   limparErro('erro-salas');
   try {
-    const sala = lerDevSala();
-    if (sala) {
-      let resp;
-      try { resp = await banco.rpc('estado_mesa', { p_partida: sala.partida_id }); }
-      catch (erro) { resp = { error: erro }; }
-      if (resp.error) { mostrarErro('erro-salas', 'Não consegui abrir a sala DEV. Confira a internet.'); return; }
-      const viva = resp.data && resp.data.partida && !resp.data.partida.encerrada;
-      if (viva) { hooksDev.pararSalas(); await abrirMesaDev(0); return; }
-      esquecerDevSala();
-      aviso('A sala DEV anterior já tinha sido encerrada. Crie uma nova.');
+    if (lerDevSala()) {
+      await apagarSalaDev();
     }
+    estado.modoDev = false;
     limparErro('erro-dev-criar');
     mostrar('tela-dev');
   } finally {
@@ -108,6 +101,7 @@ export async function criarSalaDev() {
 
   const sala = { partida_id: resp.data.partida_id, jogadores: [jogadorDevDe(resp.data)] };
   salvarDevSala(sala);
+  esquecerPartida();
   await registrarRealCriacao('dev', sala.partida_id, saldo, sala.jogadores[0].id, sala.jogadores[0].segredo);
 
   let falhou = null;
@@ -269,6 +263,7 @@ export async function apagarSalaDev() {
   const sala = lerDevSala();
   if (!sala || apagandoDev) return false;
   apagandoDev = true;
+  esquecerDevSala();
   const criador = sala.jogadores[0];
   try {
     try {
@@ -279,16 +274,12 @@ export async function apagarSalaDev() {
       });
     } catch (erro) {}
     try { await banco.rpc('dev_apagar_sala', { p_partida: sala.partida_id }); } catch (erro) {}
-    const chk = await banco.rpc('estado_mesa', { p_partida: sala.partida_id });
-    if (!chk.error && (!chk.data || !chk.data.partida || chk.data.partida.encerrada)) {
-      esquecerDevSala();
-      return true;
-    }
+    return true;
   } catch (erro) {
+    return true;
   } finally {
     apagandoDev = false;
   }
-  return false;
 }
 
 export async function excluirSalaDev() {
