@@ -744,6 +744,37 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
 /* ----- Ajustes de espaço para Mobile no Modo Online (mesmo estilo de arte do PC e Presencial!) ----- */
 @media (max-width: 819px) {
+  /* Seletor de modo e opções online na criação / DEV (alvos >= 48x48 e fonte >= 14px) */
+  .seletor-modo { gap: 8px; margin-top: 0; }
+  button.modo-btn { min-height: 54px; padding: 8px 8px; }
+  button.modo-btn b { font-size: 15px; }
+  button.modo-btn small { font-size: 14px; }
+  .opcoes-online {
+    margin-top: 8px;
+    padding: 8px;
+  }
+  .opcoes-online label {
+    margin: 6px 0 4px !important;
+    font-size: 14px !important;
+    line-height: 1.15;
+  }
+  .opcoes-online label:first-child { margin-top: 0 !important; }
+  .opcoes-online .opcoes-chips {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+  #chips-turno, #chips-turno-dev {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1.35fr;
+  }
+  .opcoes-online button.op-chip {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 4px 2px;
+    font-size: 14px;
+    line-height: 1.05;
+  }
+
   body.na-mesa.modo-online main {
     padding: calc(6px + env(safe-area-inset-top)) 8px 0;
   }
@@ -767,10 +798,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     display: block !important;
     flex: 1;
     min-width: 0;
-    padding: 6px 12px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: rgba(0, 0, 0, 0.26);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     text-align: center;
     color: var(--marfim);
@@ -780,23 +811,39 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     font-variant-numeric: tabular-nums;
   }
   #tela-mesa.modo-online button.icone-btn {
-    width: 36px;
-    height: 36px;
-    min-height: 36px;
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
+  #tela-mesa.modo-online button.dev-prox {
+    min-height: 48px;
+    font-size: 14px;
+    padding: 4px 14px;
+  }
+  #tela-mesa.modo-online .minha-mao-linha .btn-luz {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+    top: calc(50% - 24px);
+  }
+  #tela-mesa.modo-online .minha-mao-revelar button {
+    min-height: 48px;
+    padding: 6px 14px;
+    font-size: 14px;
   }
 
   /* Faixa de resultado/confirmação com o mesmo estilo de arte do PC, apenas mais enxuta */
   #tela-mesa.modo-online .faixa-online {
-    margin-top: 5px;
+    margin-top: 4px;
     padding: 8px 10px;
   }
-  #tela-mesa.modo-online .faixa-online-res { font-size: 13.5px; }
-  #tela-mesa.modo-online .faixa-online-sub { margin-top: 2px; font-size: 11.5px; }
-  #tela-mesa.modo-online .faixa-online-acoes { margin-top: 6px; gap: 6px; }
-  #tela-mesa.modo-online .faixa-online-acoes button { min-height: 38px; padding: 6px 10px; font-size: 14px; }
+  #tela-mesa.modo-online .faixa-online-res { font-size: 14px; }
+  #tela-mesa.modo-online .faixa-online-sub { margin-top: 2px; font-size: 14px; }
+  #tela-mesa.modo-online .faixa-online-acoes { margin-top: 6px; gap: 8px; }
+  #tela-mesa.modo-online .faixa-online-acoes button { min-height: 48px; padding: 8px 12px; font-size: 15px; }
 
-  #tela-mesa.modo-online .linha-ultima { margin-top: 4px; gap: 6px; }
-  #tela-mesa.modo-online .ultima { font-size: 12px; padding: 2px 12px; }
+  #tela-mesa.modo-online .linha-ultima { margin-top: 4px; gap: 8px; }
+  #tela-mesa.modo-online .ultima { font-size: 14px; padding: 2px 12px; }
 
   /* Feltro oval dimensionado para os perfis ficarem na borda externa sem invadir a mesa */
   #tela-mesa.modo-online .mesa-wrap { margin-top: 4px; min-height: 0; }
@@ -840,7 +887,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
   /* Assentos com exatamente a mesma arte do PC/Presencial, posicionados na borda externa */
   #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(28px, var(--y, 50%), calc(100% - 28px));
+    top: clamp(28px, var(--y, 50%), calc(100% - 36px));
   }
   /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
   #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
@@ -860,11 +907,139 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online.cheia .lugar .tag.d { width: 13px; height: 13px; padding: 0; }
 
   /* Dock inferior: quando o menu de aposta ("Aumentar") abre, recolhe as cartas 3D para NUNCA cobrir seu perfil! */
-  #barra-acoes.modo-online { padding: 7px 10px calc(9px + env(safe-area-inset-bottom)); }
+  #barra-acoes.modo-online { padding: 6px 10px calc(8px + env(safe-area-inset-bottom)); }
   #barra-acoes.modo-online .minha-mao-wrap { gap: 4px; margin-bottom: 5px; }
-  #barra-acoes.modo-online .carta-3d { width: 58px; height: 81px; }
+  #barra-acoes.modo-online .carta-3d { width: clamp(46px, 9.5dvh, 58px); height: clamp(64px, 13.2dvh, 81px); }
+  #barra-acoes.modo-online .grade-simples { gap: 8px; }
+  #barra-acoes.modo-online .grade-simples button { min-height: clamp(48px, 8.2dvh, 58px); font-size: 16px; }
+  #barra-acoes.modo-online .presets { gap: 6px; margin-bottom: 6px; }
+  #barra-acoes.modo-online .presets button { min-height: 48px; font-size: 14px; }
+  #barra-acoes.modo-online .linha-aposta { grid-template-columns: 48px 1fr 48px; gap: 8px; }
+  #barra-acoes.modo-online .linha-aposta button,
+  #barra-acoes.modo-online .linha-aposta input { min-height: 48px; }
+  #barra-acoes.modo-online.apostando { padding: 6px 10px calc(6px + env(safe-area-inset-bottom)); }
+  #barra-acoes.modo-online.apostando .caixa-aposta { padding: 6px; margin-bottom: 6px; }
+  #barra-acoes.modo-online.apostando input[type=range] { height: 28px; min-height: 28px; margin-bottom: 4px; }
+  #barra-acoes.modo-online.apostando .grade-simples.modo-aposta #btn-confirmar-aposta { min-height: 50px; }
   #barra-acoes.modo-online.apostando #minha-mao-wrap,
   #barra-acoes.modo-online.apostando #barra-titulo { display: none !important; }
+}
+
+@media (max-width: 374px) {
+  #tela-mesa.modo-online .centro-roda {
+    width: 56%;
+    height: 54%;
+    padding: 6px 4px;
+    gap: 4px;
+  }
+  #tela-mesa.modo-online .centro-roda .board { max-width: 156px; }
+}
+
+@media (max-width: 359px) {
+  .opcoes-online { padding: 6px; }
+  .opcoes-online .opcoes-chips,
+  #chips-turno,
+  #chips-turno-dev {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .opcoes-online button.op-chip { min-width: 48px; }
+  #tela-mesa.modo-online .linha-ultima { display: none; }
+  #tela-mesa.modo-online .centro-roda,
+  #tela-mesa.modo-online.cheia .centro-roda {
+    width: 54%;
+    height: 50%;
+    padding: 4px;
+    gap: 3px;
+  }
+  #tela-mesa.modo-online.cheia .pote-ficha { width: 42px; height: 42px; padding: 3px; }
+  #tela-mesa.modo-online .centro-roda .board,
+  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 136px; }
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo {
+    top: clamp(22px, var(--y, 50%), calc(100% - 28px));
+    padding: 2px 4px;
+  }
+  #barra-acoes.modo-online .minha-mao-dica { display: none; }
+}
+
+@media (max-width: 819px) and (orientation: landscape) and (max-height: 500px) {
+  #tela-mesa.modo-online .linha-ultima { display: none; }
+  #tela-mesa.modo-online .topo { min-height: 40px; gap: 6px; }
+  #tela-mesa.modo-online button.icone-btn { width: 44px; height: 44px; min-height: 44px; }
+  #tela-mesa.modo-online .centro-roda {
+    width: 48%;
+    height: 48%;
+    padding: 4px 6px;
+    gap: 2px;
+  }
+  #tela-mesa.modo-online .pote-ficha,
+  #tela-mesa.modo-online.cheia .pote-ficha { width: 34px; height: 34px; padding: 2px; }
+  #tela-mesa.modo-online .pote-rotulo { display: none; }
+  #tela-mesa.modo-online .centro-roda .board,
+  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 140px; }
+  #tela-mesa.modo-online .lugar.assento-redondo {
+    top: clamp(18px, var(--y, 50%), calc(100% - 28px));
+    padding: 1.5px 4px;
+    border-radius: 10px;
+    gap: 0;
+  }
+  #tela-mesa.modo-online .l-tags { display: none; }
+  #barra-acoes.modo-online {
+    max-width: 100%;
+    padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+  }
+  #barra-acoes.modo-online .timer-turno-wrap { grid-column: 1 / -1; margin-bottom: 2px; }
+  #barra-acoes.modo-online .minha-mao-wrap { margin-bottom: 0; gap: 2px; }
+  #barra-acoes.modo-online .minha-mao-dica,
+  #barra-acoes.modo-online .minha-mao-nome,
+  #barra-acoes.modo-online .barra-titulo { display: none !important; }
+  #barra-acoes.modo-online .carta-3d { width: 38px; height: 52px; }
+  #barra-acoes.modo-online .minha-mao-linha .btn-luz { position: static; width: 44px; height: 44px; min-height: 44px; margin-left: 6px; }
+  #barra-acoes.modo-online .grade-simples button,
+  #barra-acoes.modo-online button.grande { min-height: 48px; font-size: 15px; }
+  #barra-acoes.modo-online.apostando .caixa-aposta {
+    display: grid;
+    grid-template-columns: auto minmax(80px, 1fr) 168px;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+  }
+  #barra-acoes.modo-online.apostando .presets {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+  }
+  #barra-acoes.modo-online.apostando .presets button {
+    width: auto;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 2px 6px;
+  }
+  #barra-acoes.modo-online.apostando input[type=range] { margin-bottom: 0; }
+  #barra-acoes.modo-online.apostando .linha-aposta { grid-template-columns: 44px 1fr 44px; gap: 4px; }
+  #barra-acoes.modo-online.apostando .linha-aposta button,
+  #barra-acoes.modo-online.apostando .linha-aposta input { min-height: 44px; font-size: 18px; }
+  #barra-acoes.modo-online.apostando .grade-simples.modo-aposta #btn-confirmar-aposta,
+  #barra-acoes.modo-online.apostando .grade-simples.modo-aposta #btn-aumentar { min-height: 48px; }
+}
+
+@media (max-width: 819px) and (max-height: 700px) {
+  button.modo-btn {
+    min-height: 48px;
+    flex-direction: row;
+    gap: 6px;
+    padding: 6px 8px;
+  }
+  button.modo-btn small { display: none; }
+  .opcoes-online { margin-top: 6px; padding: 6px 8px; }
+  .opcoes-online label { margin: 4px 0 3px !important; }
 }
 
 

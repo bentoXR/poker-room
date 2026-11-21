@@ -571,6 +571,515 @@ button.stack.especial b { font-size: 16.5px; }
   .marca h1 { font-size: clamp(56px, 16vw, 72px); }
 }
 
+/* ----- Mobile (<= 819px): #tela-login em 100dvh sem rolagem (3 faixas: topo | conteúdo | ação) ----- */
+@media (max-width: 819px) {
+  body:has(#tela-login.ativa) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  main:has(#tela-login.ativa) {
+    height: 100dvh;
+    width: 100%;
+    max-width: 100%;
+    padding: calc(clamp(6px, 1.4dvh, 14px) + env(safe-area-inset-top)) clamp(12px, 4vw, 18px) calc(clamp(8px, 1.8dvh, 16px) + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #tela-login.ativa {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(6px, 1.4dvh, 16px);
+    overflow: hidden;
+  }
+  #tela-login .topo-tema-login {
+    margin-bottom: 0;
+    justify-content: center;
+  }
+  #tela-login .seletor-tema {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 4px;
+  }
+  #tela-login button.tema-btn {
+    width: 100%;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 6px 8px;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+  }
+  #tela-login .login-grade {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(6px, 1.6dvh, 18px);
+    align-content: stretch;
+  }
+  #tela-login .marca {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #tela-login .naipes { gap: 8px; }
+  #tela-login .n-emblema {
+    width: clamp(28px, 4.4dvh, 36px);
+    height: clamp(34px, 5.4dvh, 44px);
+    font-size: clamp(17px, 2.8dvh, 22px);
+  }
+  #tela-login .marca h1 {
+    margin-top: clamp(4px, 1.2dvh, 12px);
+    font-size: clamp(36px, 7.5dvh, 62px);
+    line-height: 0.94;
+  }
+  #tela-login .marca h1::after {
+    margin-top: clamp(4px, 0.8dvh, 8px);
+    font-size: 14px;
+  }
+  #tela-login .marca p {
+    margin-top: clamp(6px, 1.2dvh, 12px);
+    max-width: 100%;
+    font-size: 14px;
+    line-height: 1.38;
+  }
+  #tela-login .cartao-login {
+    min-height: 0;
+    margin-top: 0;
+    padding: clamp(10px, 2dvh, 20px) clamp(12px, 3.6vw, 18px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #tela-login .auth-abas {
+    gap: 8px;
+    padding: 4px;
+    margin-bottom: clamp(8px, 1.6dvh, 14px);
+    flex-shrink: 0;
+  }
+  #tela-login button.auth-aba {
+    min-height: 48px;
+    min-width: 48px;
+    font-size: 15px;
+  }
+  #tela-login label {
+    margin: clamp(6px, 1.4dvh, 14px) 0 4px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  #tela-login #lbl-login-nome { margin-top: 0; }
+  #tela-login input {
+    min-height: 48px;
+    padding: 10px 14px;
+    font-size: 16px;
+  }
+  #tela-login .campo-senha input { padding-right: 96px; }
+  #tela-login button.olho {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+  #tela-login .campo-senha { margin-bottom: clamp(4px, 1dvh, 10px); }
+  #tela-login #botao-login {
+    margin-top: auto;
+    min-height: 52px;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  #tela-login #dica-login {
+    margin-top: clamp(6px, 1.2dvh, 10px);
+    font-size: 14px;
+    line-height: 1.35;
+    flex-shrink: 0;
+  }
+  #tela-login #erro-login {
+    margin-top: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 819px) and (max-height: 700px) {
+  #tela-login .marca .naipes,
+  #tela-login .marca h1::after,
+  #tela-login .marca p,
+  #tela-login #dica-login {
+    display: none;
+  }
+  #tela-login .marca h1 {
+    margin-top: 0;
+    font-size: clamp(32px, 5.8dvh, 46px);
+  }
+  #tela-login .cartao-login {
+    padding: 10px 12px;
+  }
+  #tela-login .auth-abas {
+    margin-bottom: 8px;
+  }
+  #tela-login label {
+    margin: 6px 0 3px;
+  }
+  #tela-login .campo-senha {
+    margin-bottom: 6px;
+  }
+  #tela-login #botao-login {
+    min-height: 48px;
+  }
+}
+
+/* ----- Mobile (<= 819px): #tela-salas, #tela-criar, #tela-dev, #tela-escolha em 100dvh ----- */
+@media (max-width: 819px) {
+  body:has(#tela-salas.ativa),
+  body:has(#tela-criar.ativa),
+  body:has(#tela-dev.ativa),
+  body:has(#tela-escolha.ativa),
+  body:has(#tela-carregando.ativa) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  main:has(#tela-salas.ativa),
+  main:has(#tela-criar.ativa),
+  main:has(#tela-dev.ativa),
+  main:has(#tela-escolha.ativa),
+  main:has(#tela-carregando.ativa) {
+    height: 100dvh;
+    width: 100%;
+    max-width: 100%;
+    padding: calc(clamp(6px, 1.2dvh, 12px) + env(safe-area-inset-top)) clamp(10px, 3.5vw, 16px) calc(clamp(8px, 1.6dvh, 14px) + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Botão voltar >= 48x48 */
+  #tela-criar button.voltar,
+  #tela-dev button.voltar,
+  #tela-escolha button.voltar {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 8px 12px 8px 6px;
+    font-size: 15px;
+  }
+
+  /* ===== TELA 2: #tela-salas ===== */
+  #tela-salas.ativa {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 1.4dvh, 12px);
+    overflow: hidden;
+  }
+  #tela-salas .cabecalho-conta {
+    order: 1;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-bottom: clamp(6px, 1.2dvh, 10px);
+  }
+  #tela-salas button.perfil-atalho {
+    width: 100%;
+    min-height: 48px;
+    padding: 4px 12px 4px 6px;
+  }
+  #tela-salas .perfil-sub {
+    font-size: 14px;
+  }
+  #tela-salas .conta-acoes {
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+  #tela-salas .seletor-tema.compacto {
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 3px;
+  }
+  #tela-salas .seletor-tema.compacto button.tema-btn {
+    width: 100%;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 4px 4px;
+    justify-content: center;
+    font-size: 14px;
+    gap: 4px;
+  }
+  #tela-salas button.sair-conta {
+    min-height: 48px;
+    min-width: 60px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background: var(--ouro-suave);
+    color: var(--marfim);
+    box-shadow: inset 0 0 0 1.5px var(--ouro-borda);
+  }
+  #tela-salas .salas-topo {
+    display: contents;
+  }
+  #tela-salas .salas-topo > div:first-child {
+    order: 2;
+    flex-shrink: 0;
+  }
+  #tela-salas h2 {
+    font-size: clamp(24px, 4.4dvh, 32px);
+    margin: 0;
+  }
+  #tela-salas .subtitulo-tela {
+    margin-top: 2px;
+    font-size: 14px;
+  }
+  #tela-salas #erro-salas {
+    order: 3;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+  #tela-salas #lista-salas {
+    order: 4;
+    flex: 1;
+    min-height: 0;
+    margin-top: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding-right: 2px;
+  }
+  #tela-salas .vazio {
+    margin-top: 0;
+    padding: clamp(14px, 3dvh, 28px) 14px;
+  }
+  #tela-salas .vazio p { font-size: 14px; }
+  #tela-salas .meta-chip { font-size: 14px; padding: 3px 9px; }
+  #tela-salas .salas-topo > .linha-botoes {
+    order: 5;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--linha);
+    gap: 8px;
+  }
+  #tela-salas .linha-botoes > button {
+    min-height: 52px;
+    font-size: 16px;
+  }
+  #tela-salas button.botao-dev-entrada {
+    min-width: 108px;
+    padding: 10px 14px;
+  }
+
+  /* ===== TELAS 3 E 4: #tela-criar e #tela-dev ===== */
+  #tela-criar.ativa,
+  #tela-dev.ativa {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 1dvh, 10px);
+    overflow: hidden;
+  }
+  #tela-criar .topo-criar,
+  #tela-dev .topo-criar {
+    flex-shrink: 0;
+    gap: 8px;
+  }
+  #tela-criar .topo-criar h2,
+  #tela-dev .topo-criar h2 {
+    font-size: clamp(24px, 4.4dvh, 30px);
+  }
+  #tela-criar .cartao,
+  #tela-dev .cartao {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0;
+    padding: clamp(8px, 1.5dvh, 14px) clamp(10px, 3vw, 14px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+  #tela-criar .nome-sala-linha {
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding-bottom: clamp(6px, 1.2dvh, 10px);
+  }
+  #tela-criar .nome-sala-linha label.etiqueta-sala {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  #tela-criar .nome-sala-linha input {
+    min-width: 0;
+    min-height: 48px;
+    font-size: 18px;
+    padding: 6px 10px;
+  }
+  #tela-dev .aviso-dev {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  #tela-criar .secao-titulo,
+  #tela-dev .secao-titulo {
+    margin: clamp(6px, 1.3dvh, 12px) 0 clamp(4px, 0.8dvh, 6px);
+    font-size: 14px;
+  }
+  #tela-criar .stacks,
+  #tela-dev .stacks {
+    gap: 8px;
+    margin-top: 0;
+  }
+  #tela-criar button.stack,
+  #tela-dev button.stack {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 4px 2px;
+  }
+  #tela-criar button.stack.especial,
+  #tela-dev button.stack.especial {
+    min-height: 48px;
+    margin-top: 8px;
+  }
+  #tela-criar button.stack.especial small,
+  #tela-dev button.stack.especial small {
+    font-size: 14px;
+  }
+  #tela-dev .chips-qtd {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  #tela-dev .chips-qtd button.op-chip {
+    min-height: 48px;
+    min-width: 48px;
+    font-size: 18px;
+  }
+  #tela-criar .profund,
+  #tela-dev .profund {
+    margin-top: clamp(6px, 1.2dvh, 10px);
+    padding: 8px 12px;
+  }
+  #tela-criar .profund span,
+  #tela-dev .profund span,
+  #tela-criar .profund small,
+  #tela-dev .profund small {
+    font-size: 14px;
+  }
+  #tela-criar #botao-criar,
+  #tela-dev #botao-criar-dev {
+    flex-shrink: 0;
+    margin-top: auto;
+    min-height: 52px;
+    font-size: 17px;
+  }
+  #tela-criar .erro,
+  #tela-dev .erro {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  #tela-criar label,
+  #tela-dev label {
+    font-size: 14px;
+  }
+  #tela-criar input,
+  #tela-dev input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  /* ===== TELA 5: #tela-escolha ===== */
+  #tela-escolha.ativa {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(8px, 1.6dvh, 14px);
+    overflow: hidden;
+  }
+  #tela-escolha .cartao-convite {
+    min-height: 0;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(14px, 3dvh, 26px) clamp(14px, 4vw, 20px);
+    overflow: hidden;
+  }
+  #tela-escolha .convite {
+    margin: auto 0;
+  }
+  #tela-escolha .convite-selo {
+    font-size: 14px;
+  }
+  #tela-escolha .grande-sala {
+    font-size: clamp(32px, 6.5dvh, 46px);
+  }
+  #tela-escolha #botao-jogar {
+    margin-top: auto;
+    min-height: 54px;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  #tela-escolha .dica {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* ===== TELA CARREGANDO ===== */
+  #tela-carregando.ativa {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #tela-carregando .carregando {
+    min-height: 0;
+    width: 100%;
+  }
+  #tela-carregando button {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  #tela-salas .seletor-tema.compacto .amostra { display: none; }
+}
+
+@media (max-width: 819px) and (max-height: 700px) {
+  #tela-salas .perfil-sub,
+  #tela-salas .subtitulo-tela,
+  #tela-criar .nome-sala-linha label.etiqueta-sala,
+  #tela-dev .aviso-dev,
+  #tela-escolha .dica {
+    display: none;
+  }
+  #tela-salas .cabecalho-conta { gap: 6px; padding-bottom: 6px; }
+  #tela-criar .cartao,
+  #tela-dev .cartao { padding: 8px 10px; }
+  #tela-criar .secao-titulo,
+  #tela-dev .secao-titulo { margin: 5px 0 3px; }
+  #tela-criar .profund,
+  #tela-dev .profund { padding: 6px 10px; margin-top: 6px; }
+  #tela-criar .profund strong,
+  #tela-dev .profund strong { font-size: 22px; }
+  #tela-criar #botao-criar,
+  #tela-dev #botao-criar-dev { min-height: 48px; }
+}
+
 @media (min-width: 480px) {
   .chips-qtd { grid-template-columns: repeat(8, 1fr); }
 }

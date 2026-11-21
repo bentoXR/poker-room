@@ -15,12 +15,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=43">
-  <link rel="stylesheet" href="./css/telas.css?v=43">
-  <link rel="stylesheet" href="./css/mesa.css?v=43">
-  <link rel="stylesheet" href="./css/gavetas.css?v=43">
-  <link rel="stylesheet" href="./css/online.css?v=43">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=43">
+  <link rel="stylesheet" href="./css/base.css?v=46">
+  <link rel="stylesheet" href="./css/telas.css?v=46">
+  <link rel="stylesheet" href="./css/mesa.css?v=46">
+  <link rel="stylesheet" href="./css/gavetas.css?v=46">
+  <link rel="stylesheet" href="./css/online.css?v=46">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=46">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -287,14 +287,14 @@
 
       <div class="secao-titulo"><span class="passo-num">2</span> Quantidade de jogadores</div>
       <div class="opcoes-chips chips-qtd" id="chips-dev-qtd">
-        <button type="button" class="op-chip" data-q="2" onclick="escolherQtdDev(2)">2</button>
-        <button type="button" class="op-chip" data-q="3" onclick="escolherQtdDev(3)">3</button>
-        <button type="button" class="op-chip sel" data-q="4" onclick="escolherQtdDev(4)">4</button>
-        <button type="button" class="op-chip" data-q="5" onclick="escolherQtdDev(5)">5</button>
-        <button type="button" class="op-chip" data-q="6" onclick="escolherQtdDev(6)">6</button>
-        <button type="button" class="op-chip" data-q="7" onclick="escolherQtdDev(7)">7</button>
-        <button type="button" class="op-chip" data-q="8" onclick="escolherQtdDev(8)">8</button>
-        <button type="button" class="op-chip" data-q="9" onclick="escolherQtdDev(9)">9</button>
+        <button type="button" class="op-chip" data-q="2" onclick="escolherQtdDev(2)" aria-label="2 jogadores">2</button>
+        <button type="button" class="op-chip" data-q="3" onclick="escolherQtdDev(3)" aria-label="3 jogadores">3</button>
+        <button type="button" class="op-chip sel" data-q="4" onclick="escolherQtdDev(4)" aria-label="4 jogadores">4</button>
+        <button type="button" class="op-chip" data-q="5" onclick="escolherQtdDev(5)" aria-label="5 jogadores">5</button>
+        <button type="button" class="op-chip" data-q="6" onclick="escolherQtdDev(6)" aria-label="6 jogadores">6</button>
+        <button type="button" class="op-chip" data-q="7" onclick="escolherQtdDev(7)" aria-label="7 jogadores">7</button>
+        <button type="button" class="op-chip" data-q="8" onclick="escolherQtdDev(8)" aria-label="8 jogadores">8</button>
+        <button type="button" class="op-chip" data-q="9" onclick="escolherQtdDev(9)" aria-label="9 jogadores">9</button>
       </div>
       <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4" hidden>
 
@@ -701,11 +701,11 @@
     <div id="barra-normal" hidden>
       <div id="caixa-aposta" class="caixa-aposta" hidden>
         <div class="presets">
-          <button type="button" class="secundario" onclick="apostaPote(1/3)">⅓</button>
-          <button type="button" class="secundario" onclick="apostaPote(1/2)">½</button>
-          <button type="button" class="secundario" onclick="apostaPote(2/3)">⅔</button>
-          <button type="button" class="secundario" onclick="apostaPote(1)">Pote</button>
-          <button type="button" class="secundario allin" onclick="apostaAllIn()">All-in</button>
+          <button type="button" class="secundario" onclick="apostaPote(1/3)" aria-label="Um terço do pote">⅓</button>
+          <button type="button" class="secundario" onclick="apostaPote(1/2)" aria-label="Metade do pote">½</button>
+          <button type="button" class="secundario" onclick="apostaPote(2/3)" aria-label="Dois terços do pote">⅔</button>
+          <button type="button" class="secundario" onclick="apostaPote(1)" aria-label="Valor do pote">Pote</button>
+          <button type="button" class="secundario allin" onclick="apostaAllIn()" aria-label="Apostar todas as fichas">All-in</button>
         </div>
         <input id="campo-slider" type="range" min="0" max="0" step="1" value="0" aria-label="Valor da aposta" oninput="aoMoverSlider()">
         <div class="linha-aposta">
