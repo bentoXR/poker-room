@@ -1541,9 +1541,23 @@
   .folha-corpo {
     padding: 4px 12px 10px !important;
   }
-  .menu-online-acoes button {
-    min-height: 38px !important;
-    font-size: 14px !important;
+  .menu-online-grade {
+    gap: 5px !important;
+    margin-top: 6px !important;
+  }
+  button.menu-tile {
+    min-height: 36px !important;
+    font-size: 12.5px !important;
+    padding: 4px 6px !important;
+  }
+  .menu-online-rodape {
+    gap: 6px !important;
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+  }
+  .menu-online-rodape button {
+    min-height: 34px !important;
+    font-size: 12.5px !important;
   }
   .chat-abas {
     padding: 4px 10px 6px !important;

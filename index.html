@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=74">
+  <link rel="manifest" href="./manifest.webmanifest?v=75">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,15 +20,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=74">
-  <link rel="stylesheet" href="./css/telas.css?v=74">
-  <link rel="stylesheet" href="./css/mesa.css?v=74">
-  <link rel="stylesheet" href="./css/gavetas.css?v=74">
-  <link rel="stylesheet" href="./css/online.css?v=74">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=74">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=74">
-  <link rel="stylesheet" href="./css/desktop.css?v=74">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=74">
+  <link rel="stylesheet" href="./css/base.css?v=75">
+  <link rel="stylesheet" href="./css/telas.css?v=75">
+  <link rel="stylesheet" href="./css/mesa.css?v=75">
+  <link rel="stylesheet" href="./css/gavetas.css?v=75">
+  <link rel="stylesheet" href="./css/online.css?v=75">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=75">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=75">
+  <link rel="stylesheet" href="./css/desktop.css?v=75">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=75">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -466,34 +466,19 @@
       </div>
       <div class="folha-corpo">
         <p class="dica" id="menu-online-info" style="margin-top:0"></p>
-        <div class="menu-tema-linha">
-          <span>Cores da mesa</span>
-          <div class="seletor-tema compacto" role="group" aria-label="Escolher cores do site">
-            <button type="button" class="tema-btn sel" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="true">
-              <span class="amostra amostra-classico" aria-hidden="true"></span>Sinuca
-            </button>
-            <button type="button" class="tema-btn" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="false">
-              <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
-            </button>
-            <button type="button" class="tema-btn" data-tema="liberdade" onclick="escolherTema('liberdade')" aria-pressed="false">
-              <span class="amostra amostra-liberdade" aria-hidden="true"></span>USA
-            </button>
-            <button type="button" class="tema-btn" data-tema="tropical" onclick="escolherTema('tropical')" aria-pressed="false">
-              <span class="amostra amostra-tropical" aria-hidden="true"></span>Tropical
-            </button>
-          </div>
+        <div class="menu-online-grade">
+          <button type="button" class="secundario menu-tile" onclick="fecharFolhas(); abrirPerfil()">👤 Perfil e tema</button>
+          <button type="button" id="menu-btn-som" class="secundario menu-tile" onclick="alternarSom()" aria-pressed="true">🔊 Som: Ligado</button>
+          <button type="button" id="menu-btn-convidar" class="secundario menu-tile" onclick="fecharFolhas(); copiarConviteSala()">🔗 Convidar</button>
+          <button type="button" id="menu-btn-ausente" class="secundario menu-tile" onclick="fecharFolhas(); alternarAusenteOnline()" hidden>⏸ Ficar ausente</button>
+          <button type="button" class="secundario menu-tile" onclick="abrirGuia()">♠ Guia de mãos</button>
+          <button type="button" class="secundario menu-tile" onclick="abrirHistorico()">📜 Histórico</button>
+          <button type="button" id="menu-btn-reais" class="secundario menu-tile" onclick="abrirReais()">🏆 Placar</button>
+          <button type="button" id="menu-btn-dev" class="secundario menu-tile" onclick="abrirPainelDev()" hidden>🛠 Painel DEV</button>
         </div>
-        <div class="menu-online-acoes">
-          <button type="button" id="menu-btn-convidar" class="secundario" onclick="fecharFolhas(); copiarConviteSala()">🔗 Convidar amigos (copiar link)</button>
-          <button type="button" class="secundario" onclick="fecharFolhas(); abrirPerfil()">👤 Meu perfil e preferências</button>
-          <button type="button" id="menu-btn-som" class="secundario" onclick="alternarSom()" aria-pressed="true">🔊 Som: Ligado</button>
-          <button type="button" id="menu-btn-ausente" class="secundario" onclick="fecharFolhas(); alternarAusenteOnline()" hidden>⏸ Ficar ausente (Sit Out)</button>
-          <button type="button" class="secundario" onclick="abrirGuia()">♠ Conferir mãos do poker</button>
-          <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
-          <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()">🏆 Placar e Acerto</button>
-          <button type="button" id="menu-btn-dev" class="secundario" onclick="abrirPainelDev()" hidden>Painel DEV</button>
+        <div class="menu-online-rodape">
           <button type="button" id="menu-btn-sair" class="contorno-perigo" onclick="fecharFolhas(); sairDaMesa()" hidden>Sair da mesa</button>
-          <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()">Voltar para as salas</button>
+          <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()">← Salas</button>
         </div>
       </div>
     </div>
@@ -838,11 +823,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=74"></script>
+<script type="module" src="./js/main.js?v=75"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=74').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=75').catch(() => {});
     });
   }
 </script>

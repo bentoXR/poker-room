@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=74';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=74';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=74';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=74';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=74';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=74';
-import { obterModo } from './modos.js?v=74';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=74';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=74';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=74';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=74';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=74';
+import { banco } from '../core/supabase.js?v=75';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=75';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=75';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=75';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=75';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=75';
+import { obterModo } from './modos.js?v=75';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=75';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=75';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=75';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=75';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=75';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -770,7 +770,7 @@ function preencherMenuOnline() {
   const btnReais = $id('menu-btn-reais');
   if (btnReais) {
     btnReais.hidden = false;
-    btnReais.textContent = valorPorMil(p.id) ? '🏆 Placar e Acerto (R$)' : '🏆 Placar e Acerto';
+    btnReais.textContent = valorPorMil(p.id) ? '🏆 Placar (R$)' : '🏆 Placar';
   }
 
   const btnAusente = $id('menu-btn-ausente');
@@ -778,7 +778,7 @@ function preencherMenuOnline() {
     const podeAusente = p.modo === 'online' && !!eu && eu.saldo > 0;
     btnAusente.hidden = !podeAusente;
     if (podeAusente) {
-      btnAusente.textContent = eu.ausente ? '▶ Voltar ao jogo (sair do Sit Out)' : '⏸ Ficar ausente (Sit Out)';
+      btnAusente.textContent = eu.ausente ? '▶ Voltar ao jogo' : '⏸ Ficar ausente';
     }
   }
 

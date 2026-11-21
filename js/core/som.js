@@ -418,7 +418,7 @@ function atualizarBotoesSom() {
   }
   const btnMenu = document.getElementById('menu-btn-som');
   if (btnMenu) {
-    btnMenu.textContent = ativo ? '🔊 Som: Ligado' : '🔇 Som: Silenciado';
+    btnMenu.textContent = ativo ? '🔊 Som: Ligado' : '🔇 Som: Mudo';
     btnMenu.setAttribute('aria-pressed', ativo ? 'true' : 'false');
   }
 }
