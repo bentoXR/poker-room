@@ -48,9 +48,10 @@
 
   --feltro-mesa: #1a4494;
   --feltro-mesa-borda: #112d66;
-  --feltro-trilha: rgba(255, 255, 255, 0.36);
+  --feltro-trilha: rgba(255, 255, 255, 0.42);
   --borda-mesa: #9e1828;
-  --borda-aro: rgba(255, 255, 255, 0.74);
+  --borda-interna: #4d0a14;
+  --borda-aro: rgba(255, 255, 255, 0.82);
 
   --pote-bg: #173a7d;
   --pote-bg-2: #0a193b;
@@ -129,8 +130,9 @@
 
   --feltro-mesa: #245938;
   --feltro-mesa-borda: #163823;
-  --feltro-trilha: rgba(197, 155, 39, 0.52);
+  --feltro-trilha: rgba(197, 155, 39, 0.5);
   --borda-mesa: #4a2511;
+  --borda-interna: #2a1408;
   --borda-aro: #c59b27;
 
   --pote-bg: #241d17;
@@ -161,29 +163,29 @@
   --mesa-orn-cor: rgba(197, 155, 39, 0.28);
 }
 
-/* Detalhes exclusivos da Mesa de Sinuca Clássica (textura de feltro, relevo 3D mogno/latão, botões e cartas) */
-:root[data-tema="classico"] #tela-mesa .centro-roda {
+/* Mesa 3D com textura sutil de feltro, borda interna escura de profundidade e filete fino em todos os temas */
+#tela-mesa .centro-roda {
   background-image:
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px),
     repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at 50% 44%, #245938 0%, #163823 100%);
+    radial-gradient(ellipse at 50% 44%, var(--feltro-mesa) 0%, var(--feltro-mesa-borda) 100%) !important;
   box-shadow:
-    inset 0 0 0 1.5px rgba(197, 155, 39, 0.45),
-    inset 0 0 0 5px #2a1408,
+    inset 0 0 0 1.5px var(--feltro-trilha),
+    inset 0 0 0 5px var(--borda-interna),
     inset 0 10px 26px rgba(0, 0, 0, 0.45),
     0 12px 28px -8px rgba(0, 0, 0, 0.78),
-    0 0 0 6px #4a2511,
-    0 0 0 7.5px #c59b27;
+    0 0 0 6px var(--borda-mesa),
+    0 0 0 7.5px var(--borda-aro) !important;
 }
 @media (min-width: 820px) {
-  :root[data-tema="classico"] #tela-mesa.modo-online .centro-roda {
-    border: 11px solid #4a2511;
+  #tela-mesa.modo-online .centro-roda {
+    border: 11px solid var(--borda-mesa) !important;
     box-shadow:
-      inset 0 0 0 1.5px rgba(197, 155, 39, 0.5),
-      inset 0 0 0 6px #2a1408,
+      inset 0 0 0 1.5px var(--feltro-trilha),
+      inset 0 0 0 6px var(--borda-interna),
       inset 0 14px 34px rgba(0, 0, 0, 0.48),
       0 22px 48px -12px rgba(0, 0, 0, 0.82),
-      0 0 0 2px #c59b27;
+      0 0 0 2px var(--borda-aro) !important;
   }
 }
 :root[data-tema="classico"] .pote-ficha {
@@ -267,6 +269,7 @@
   --feltro-mesa-borda: #1a1c24;
   --feltro-trilha: rgba(222, 35, 57, 0.55);
   --borda-mesa: #a61527;
+  --borda-interna: #4d0912;
   --borda-aro: rgba(255, 255, 255, 0.45);
 
   --pote-bg: #232631;

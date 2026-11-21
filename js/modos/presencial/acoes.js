@@ -1,10 +1,10 @@
 // Modo Presencial (baralho físico): ações do criador, blinds, abertura de rodadas e registro do modo
-import { estado, QUALQUER_UM_ABRE_RODADA, nomeDe, credC, passoSala } from '../../core/estado.js?v=26';
-import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid } from '../../core/ui.js?v=26';
-import { executar, modoEnviando } from '../../mesa/apostas.js?v=26';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=26';
-import { registrarModo } from '../../mesa/modos.js?v=26';
-import { fecharDistribuicao } from './distribuir.js?v=26';
+import { estado, QUALQUER_UM_ABRE_RODADA, nomeDe, credC, passoSala } from '../../core/estado.js?v=27';
+import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid } from '../../core/ui.js?v=27';
+import { executar, modoEnviando } from '../../mesa/apostas.js?v=27';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=27';
+import { registrarModo } from '../../mesa/modos.js?v=27';
+import { fecharDistribuicao } from './distribuir.js?v=27';
 
 export function abrirCriador() {
   limparErro('erro-criador');
