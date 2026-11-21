@@ -1,15 +1,15 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=5';
-import { estado, nomeDe } from '../../core/estado.js?v=5';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=5';
-import { lerDevSala } from '../../core/storage.js?v=5';
-import { registrarModo } from '../../mesa/modos.js?v=5';
-import { executar } from '../../mesa/apostas.js?v=5';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=5';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=5';
-import { avaliarMaoLocal } from './maos.js?v=5';
+import { banco } from '../../core/supabase.js?v=6';
+import { estado, nomeDe } from '../../core/estado.js?v=6';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=6';
+import { lerDevSala } from '../../core/storage.js?v=6';
+import { registrarModo } from '../../mesa/modos.js?v=6';
+import { executar } from '../../mesa/apostas.js?v=6';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=6';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=6';
+import { avaliarMaoLocal } from './maos.js?v=6';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -361,20 +361,7 @@ function faseExibida(partida) {
   return n >= 5 ? 3 : n === 4 ? 2 : n === 3 ? 1 : 0;
 }
 
-// ----- Assistente de mão: luzinha nas cartas que formam a sua jogada -----
-export function alternarAssistente() {
-  onlineUI.assistente = !onlineUI.assistente;
-  try { localStorage.setItem('poker-assistente', onlineUI.assistente ? '1' : '0'); } catch (erro) {}
-  const btn = document.querySelector('#minha-mao-wrap .btn-luz');
-  if (btn) {
-    btn.classList.toggle('on', onlineUI.assistente);
-    btn.setAttribute('aria-pressed', onlineUI.assistente ? 'true' : 'false');
-    btn.title = onlineUI.assistente ? 'Dica de mão ligada' : 'Dica de mão desligada';
-  }
-  aviso(onlineUI.assistente ? 'Dica de mão ligada: vire uma carta para ver' : 'Dica de mão desligada');
-  atualizarLuzes();
-}
-
+// ----- Assistente de mão: luzinha sempre ativa nas cartas que formam a sua jogada -----
 function atualizarLuzes() {
   const wrap = $id('minha-mao-wrap');
   const boardEl = $id('board');
@@ -391,7 +378,7 @@ function atualizarLuzes() {
   const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
   const olhando = !!(onlineUI.viradas[0] || onlineUI.viradas[1]);
   const emMao = p.iniciada && !p.aguardando_proxima_mao && !onlineUI.segurando;
-  if (!onlineUI.assistente || !olhando || !emMao || !eu || !eu.tem_cartas || eu.desistiu) { esconderNome(); return; }
+  if (!olhando || !emMao || !eu || !eu.tem_cartas || eu.desistiu) { esconderNome(); return; }
 
   const todas = Array.isArray(p.board) ? p.board : [];
   const abertas = todas.slice(0, onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length));
@@ -412,8 +399,7 @@ function atualizarLuzes() {
     });
   }
   if (nomeEl) {
-    nomeEl.innerHTML = '<span class="mm-ico">' + ICONE_LUZ + '</span>'
-      + '<span class="mm-txt"><b>' + escapar(av.detalhe) + '</b>'
+    nomeEl.innerHTML = '<span class="mm-txt"><b>' + escapar(av.detalhe) + '</b>'
       + (av.projeto ? '<small>' + escapar(av.projeto) + '</small>' : '') + '</span>';
     nomeEl.hidden = false;
   }
@@ -549,12 +535,7 @@ function desenharMinhaMao(partida, eu) {
         ? 'Sua mão: ' + escapar(eu.mao_nome)
         : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque na carta para espiar'));
 
-  const btnLuz = '<button type="button" class="btn-luz' + (onlineUI.assistente ? ' on' : '') + '" onclick="alternarAssistente()"'
-    + ' aria-pressed="' + (onlineUI.assistente ? 'true' : 'false') + '"'
-    + ' title="' + (onlineUI.assistente ? 'Dica de mão ligada' : 'Dica de mão desligada') + '"'
-    + ' aria-label="Ligar ou desligar a dica de mão">' + ICONE_LUZ + '</button>';
-
-  wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas">' + cartasHtml + '</div>' + btnLuz + '</div>'
+  wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas">' + cartasHtml + '</div></div>'
     + '<div class="minha-mao-nome" id="minha-mao-nome" hidden></div>'
     + '<div class="minha-mao-dica">' + dica + '</div>'
     + revelarHtml;
@@ -742,7 +723,7 @@ registrarModo('online', {
     const melhores = (partida.aguardando_proxima_mao && !segurando) ? melhoresDoResultado(partida) : {};
     let html = '';
     if (temVis) {
-      html += '<div class="l-cartas">';
+      html += '<div class="l-cartas reveladas">';
       for (let i = 0; i < 2; i++) {
         const c = parseCartaLocal(vis[i]);
         if (c) {
@@ -753,7 +734,7 @@ registrarModo('online', {
       }
       html += '</div>';
     } else if (jogador.tem_cartas && !jogador.desistiu && (!partida.aguardando_proxima_mao || segurando)) {
-      html += '<div class="l-cartas">' + htmlVersoMini() + htmlVersoMini() + '</div>';
+      html += '<div class="l-cartas fechadas">' + htmlVersoMini() + htmlVersoMini() + '</div>';
     }
 
     if (jogador.mao_nome && partida.aguardando_proxima_mao && !segurando) {
