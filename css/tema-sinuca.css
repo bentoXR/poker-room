@@ -1,0 +1,174 @@
+/* =====================================================================
+   TEMA SINUCA  (data-tema="classico")
+   Mesa de sinuca / bilhar clássica: pano verde esmeralda vivo, madeira
+   mogno com caçapas nas bordas, taco/triângulo e pote em estilo Bola 8.
+   ===================================================================== */
+
+:root[data-tema="classico"] {
+  --feltro-950: #110a06;
+  --feltro-900: #1a100a;
+  --feltro-800: #281910;
+  --feltro-700: #382317;
+  --feltro-600: #4c3020;
+  --linha: rgba(242, 234, 218, 0.18);
+
+  --marfim: #f5f2ea;
+  --estrela: #ffffff;
+  --marfim-suave: rgba(235, 226, 208, 0.78);
+  --texto-escuro: #111114;
+
+  /* Ação principal: Bola 3 Vermelha / Vermelho Bilhar */
+  --ouro: #c62828;
+  --ouro-escuro: #7d1515;
+  --ouro-suave: rgba(198, 40, 40, 0.25);
+  --ouro-borda: rgba(224, 72, 72, 0.78);
+
+  --vermelho: #c62828;
+  --verde: #0f7a4b;
+  --verde-escuro: #084d2f;
+  --verde-suave: rgba(15, 122, 75, 0.30);
+  --verde-borda: rgba(74, 222, 148, 0.56);
+  --verde-texto: #dcfce7;
+
+  /* Acento = latão dourado e giz azul de bilhar */
+  --acento: #e3b341;
+  --acento-suave: rgba(227, 179, 65, 0.22);
+  --luz-cor: #f3c963;
+  --luz-sombra: rgba(227, 179, 65, 0.75);
+
+  --bg-topo: rgba(15, 122, 75, 0.28);
+  /* Faixa superior com as cores clássicas das bolas de sinuca */
+  --faixa-topo: linear-gradient(
+    90deg,
+    #141418 0 14%,
+    #eab308 14% 28%,
+    #1d4ed8 28% 42%,
+    #c62828 42% 56%,
+    #7e22ce 56% 70%,
+    #ea580c 70% 84%,
+    #0f7a4b 84% 100%
+  );
+
+  /* Feltro vibrante de bilhar com madeira mogno e acabamento em latão */
+  --feltro-mesa: #10824f;
+  --feltro-mesa-borda: #07462a;
+  --feltro-trilha: rgba(255, 255, 255, 0.42);
+  --borda-mesa: #5e2c11;
+  --borda-interna: #240f05;
+  --borda-aro: #d9ab3a;
+
+  --pote-bg: #ffffff;
+  --pote-bg-2: #e7e3d8;
+  --assento-bg: #221710;
+  --assento-bg-2: #150e09;
+  --assento-eu-bg: #2f2015;
+  --assento-eu-bg-2: #1e130c;
+  --vez-bg: #e3b341;
+  --vez-bg-2: #b8881d;
+  --vez-tag-bg: #111114;
+
+  --dock-bg: #19120d;
+  --dock-bg-2: #110b07;
+  --faixa-bg: #211710;
+  --faixa-bg-2: #150f0a;
+  --faixa-borda: #d9ab3a;
+
+  --cartao-bg: #18110c;
+  --cartao-bg-pc: #18110c;
+  --cartao-borda: rgba(227, 179, 65, 0.36);
+
+  --verso-bg: #16161a;
+  --verso-simbolo: "🎱";
+  --marca-selo: "🎱  ●  ▲  ●  🎱";
+  --mesa-orn-esq: "🎱  ▲";
+  --mesa-orn-dir: "▲  🎱";
+  --mesa-orn-cor: rgba(245, 242, 234, 0.28);
+}
+
+/* ----- Fundo: madeira mogno + iluminação de luminária de bilhar + estampa sutil de bolas 8 ----- */
+:root[data-tema="classico"] body,
+:root[data-tema="classico"] body:not(.na-mesa),
+:root[data-tema="classico"] body.na-mesa,
+:root[data-tema="classico"] body.na-mesa.modo-online {
+  background-color: #1a100a;
+  background-image:
+    radial-gradient(75% 42% at 50% 0%, rgba(16, 130, 79, 0.24) 0%, transparent 72%),
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22220%22 height=%22220%22 viewBox=%220 0 220 220%22%3E%3Cg opacity=%220.2%22%3E%3Ccircle cx=%2246%22 cy=%2248%22 r=%2216%22 fill=%22%230b0b0d%22 stroke=%22%23e3b341%22 stroke-width=%221%22 stroke-opacity=%220.4%22/%3E%3Ccircle cx=%2246%22 cy=%2248%22 r=%226.5%22 fill=%22%23f5f2ea%22/%3E%3Ctext x=%2246%22 y=%2251.5%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%229%22 font-weight=%22800%22 fill=%22%23111%22%3E8%3C/text%3E%3Cpolygon points=%22162,38 144,70 180,70%22 fill=%22none%22 stroke=%22%23e3b341%22 stroke-width=%221.6%22 stroke-opacity=%220.45%22/%3E%3Ccircle cx=%22162%22 cy=%2256%22 r=%224%22 fill=%22%23c62828%22/%3E%3Ccircle cx=%22156%22 cy=%2265%22 r=%224%22 fill=%22%23eab308%22/%3E%3Ccircle cx=%22168%22 cy=%2265%22 r=%224%22 fill=%22%231d4ed8%22/%3E%3Ccircle cx=%22106%22 cy=%22156%22 r=%2214%22 fill=%22%230b0b0d%22 stroke=%22%23e3b341%22 stroke-width=%220.9%22 stroke-opacity=%220.38%22/%3E%3Ccircle cx=%22106%22 cy=%22156%22 r=%225.8%22 fill=%22%23f5f2ea%22/%3E%3Ctext x=%22106%22 y=%22159%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%228%22 font-weight=%22800%22 fill=%22%23111%22%3E8%3C/text%3E%3Ccircle cx=%22186%22 cy=%22182%22 r=%229%22 fill=%22%23f5f2ea%22 fill-opacity=%220.65%22/%3E%3Ccircle cx=%2238%22 cy=%22182%22 r=%229%22 fill=%22%23eab308%22 fill-opacity=%220.72%22/%3E%3C/g%3E%3C/svg%3E"),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.20) 0px,
+      rgba(0, 0, 0, 0.20) 1.5px,
+      rgba(255, 200, 145, 0.03) 1.5px,
+      transparent 4px,
+      transparent 168px
+    ),
+    linear-gradient(180deg, #2b190f 0%, #1a100a 56%, #110a06 100%);
+  background-repeat: no-repeat, repeat, repeat, no-repeat;
+  background-size: auto, 220px 220px, auto, auto;
+}
+
+/* ----- Pano da mesa com caçapas nos cantos/lados + marcações discretas de bilhar ----- */
+:root[data-tema="classico"] #tela-mesa .centro-roda {
+  background-image:
+    radial-gradient(circle at 13% 11%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
+    radial-gradient(circle at 87% 11%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
+    radial-gradient(circle at 13% 89%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
+    radial-gradient(circle at 87% 89%, #050506 0 11px, #2b1a0c 11.5px 14px, transparent 15px),
+    radial-gradient(circle at 50% 1.5%, #050506 0 9px, #2b1a0c 9.5px 12px, transparent 13px),
+    radial-gradient(circle at 50% 98.5%, #050506 0 9px, #2b1a0c 9.5px 12px, transparent 13px),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 44%, var(--feltro-mesa) 0%, var(--feltro-mesa-borda) 100%) !important;
+}
+
+/* ----- Pote central em formato de Bola 8 brilhante ----- */
+:root[data-tema="classico"] .pote-ficha {
+  padding: 8px;
+  background: radial-gradient(circle at 28% 24%, #555560 0%, #1d1d22 30%, #070709 74%, #000000 100%);
+  box-shadow:
+    inset -3px -4px 8px rgba(0, 0, 0, 0.72),
+    0 14px 28px -10px rgba(0, 0, 0, 0.88),
+    0 0 0 2px rgba(255, 255, 255, 0.14);
+}
+:root[data-tema="classico"] #tela-mesa.cheia .pote-ficha,
+:root[data-tema="classico"] #tela-mesa.modo-online.cheia .pote-ficha,
+:root[data-tema="classico"] #tela-mesa.apostando .centro-roda .pote-ficha {
+  padding: 5px;
+}
+:root[data-tema="classico"] .pote-ficha .miolo {
+  background: radial-gradient(circle at 36% 32%, #ffffff 0%, #f4f1ea 76%, #dbd5c7 100%);
+  border: 1.5px solid #0e0e11;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+:root[data-tema="classico"] .pote-rotulo {
+  color: #42424a;
+  opacity: 0.92;
+  font-weight: 800;
+}
+:root[data-tema="classico"] .pote-valor {
+  color: #111114;
+  font-weight: 800;
+}
+
+/* ----- Assentos com detalhe de latão e bolinha 8 sutil ----- */
+:root[data-tema="classico"] .lugar {
+  border-color: rgba(227, 179, 65, 0.44);
+}
+:root[data-tema="classico"] .lugar.eu {
+  border-color: #e3b341;
+  box-shadow: 0 0 0 1px rgba(227, 179, 65, 0.32), 0 6px 18px -6px rgba(0, 0, 0, 0.65);
+}
+
+/* ----- Cartas: verso preto estilo Bola 8 com filete de latão ----- */
+:root[data-tema="classico"] .carta.verso,
+:root[data-tema="classico"] .carta-mini.verso,
+:root[data-tema="classico"] .carta-3d-verso {
+  border-color: rgba(227, 179, 65, 0.52);
+  box-shadow: inset 0 0 0 2px rgba(245, 242, 234, 0.16), 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* ----- Amostra no seletor (mini Bola 8 no pano verde) ----- */
+.amostra-classico,
+:root[data-tema="classico"] .amostra-dupla {
+  background: radial-gradient(circle at 44% 44%, #ffffff 0 27%, #141418 29% 63%, #0f7a4b 65% 100%) !important;
+}

@@ -72,10 +72,11 @@
     padding: 2px !important;
   }
   #tela-login button.tema-btn {
+    flex: 0 0 auto !important;
     width: auto !important;
     min-width: 0 !important;
     min-height: 26px !important;
-    padding: 2px 9px !important;
+    padding: 2px 8px !important;
     font-size: 11.5px !important;
   }
   #tela-login .login-grade {

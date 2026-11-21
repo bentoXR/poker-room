@@ -334,17 +334,20 @@ button.dist-modo-btn {
 #folha-perfil #btn-encerrar-sessoes { min-height: 46px; font-size: 15.5px; }
 .seletor-tema.perfil-temas {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
   margin-top: 4px;
+  border-radius: 16px;
 }
 .seletor-tema.perfil-temas button.tema-btn {
-  width: 100%;
-  min-width: 0;
+  flex: 1 1 calc(33.33% - 6px);
+  width: auto;
+  min-width: 84px;
   min-height: 38px;
   justify-content: center;
-  padding: 5px 4px;
+  padding: 5px 6px;
 }
 .perfil-pref-linha {
   display: flex;
