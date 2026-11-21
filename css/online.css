@@ -114,47 +114,25 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 }
 .carta-board {
   position: relative;
-  perspective: 760px;
+  perspective: 720px;
 }
-.carta-board-3d {
-  position: relative;
-  width: 100%;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
+.carta-board .carta {
   will-change: transform, opacity;
-  animation: cartaEntrar 0.96s cubic-bezier(0.22, 1, 0.36, 1) both;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: cartaEntrar 0.88s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--atraso, 0ms);
+  transition: filter 0.45s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
-.carta-board.ja .carta-board-3d {
+.carta-board.ja .carta {
   animation: none;
   will-change: auto;
 }
-.carta-board-3d > .carta:not(.verso) {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: rotateY(0deg);
-  transition: filter 0.45s ease, transform 0.35s ease, box-shadow 0.35s ease;
-}
-.carta-board-3d > .carta-board-verso {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-  border-radius: 9% / 6.4%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: rotateY(180deg);
-  pointer-events: none;
-}
-.carta-board.ja .carta-board-verso {
-  display: none;
-}
-/* Só aplica filter depois que a animação 3D termina (.ja), nunca quebrando preserve-3d durante o giro! */
-.carta-board.ja.apagada .carta:not(.verso) {
+/* Só aplica filter depois que a animação 3D termina (.ja), nunca durante o giro! */
+.carta-board.ja.apagada .carta {
   filter: brightness(0.55) saturate(0.65);
 }
-.carta-board.destaque .carta:not(.verso) {
+.carta-board.destaque .carta {
   box-shadow: 0 0 0 2px #ffd866, 0 0 16px rgba(255, 216, 102, 0.7), 0 5px 12px rgba(0, 0, 0, 0.45);
   transform: translateY(-3px);
 }
@@ -162,9 +140,9 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 @keyframes cartaEntrar {
   0% {
     opacity: 0;
-    transform: translate3d(0, -24px, 0) rotateY(180deg) scale(0.86);
+    transform: translate3d(0, -32px, 0) rotateY(105deg) scale(0.82);
   }
-  16% {
+  22% {
     opacity: 1;
   }
   100% {
