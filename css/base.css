@@ -46,8 +46,8 @@
     #ffffff 88% 100%
   );
 
-  --feltro-mesa: #1a4494;
-  --feltro-mesa-borda: #112d66;
+  --feltro-mesa: #245938;
+  --feltro-mesa-borda: #163823;
   --feltro-trilha: rgba(255, 255, 255, 0.42);
   --borda-mesa: #9e1828;
   --borda-interna: #4d0a14;
@@ -265,8 +265,8 @@
     #de2339 58% 100%
   );
 
-  --feltro-mesa: #252834;
-  --feltro-mesa-borda: #1a1c24;
+  --feltro-mesa: #245938;
+  --feltro-mesa-borda: #163823;
   --feltro-trilha: rgba(222, 35, 57, 0.55);
   --borda-mesa: #a61527;
   --borda-interna: #4d0912;
