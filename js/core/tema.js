@@ -1,23 +1,33 @@
-// Gerenciamento de tema visual ('azul' = Azul Royal | 'classico' = Cassino Verde/Preto/Vermelho)
+// Gerenciamento de tema visual ('azul' = Azul Royal | 'classico' = Cassino Sinuca | 'preto' = Preto & Vermelho)
 const CHAVE_TEMA = 'poker-tema';
+const ORDEM_TEMAS = ['azul', 'classico', 'preto'];
 const CORES_META = {
   azul: '#0b1b3a',
-  classico: '#0d1612'
+  classico: '#0d3322',
+  preto: '#16181e'
 };
+const TITULOS_TEMA = {
+  azul: 'Tema: Azul (clique para trocar para Cassino)',
+  classico: 'Tema: Cassino (clique para trocar para Preto e Vermelho)',
+  preto: 'Tema: Preto e Vermelho (clique para trocar para Azul)'
+};
+
+function normalizarTema(tema) {
+  return ORDEM_TEMAS.includes(tema) ? tema : 'azul';
+}
 
 export function lerTemaSalvo() {
   try {
-    const salvo = localStorage.getItem(CHAVE_TEMA);
-    return salvo === 'classico' ? 'classico' : 'azul';
+    return normalizarTema(localStorage.getItem(CHAVE_TEMA));
   } catch (erro) {
     return 'azul';
   }
 }
 
 function aplicarTemaDOM(tema) {
-  const ativo = tema === 'classico' ? 'classico' : 'azul';
-  if (ativo === 'classico') document.documentElement.setAttribute('data-tema', 'classico');
-  else document.documentElement.removeAttribute('data-tema');
+  const ativo = normalizarTema(tema);
+  if (ativo === 'azul') document.documentElement.removeAttribute('data-tema');
+  else document.documentElement.setAttribute('data-tema', ativo);
 
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', CORES_META[ativo]);
@@ -29,22 +39,19 @@ function aplicarTemaDOM(tema) {
   });
 
   const btnTopo = document.getElementById('btn-tema-mesa');
-  if (btnTopo) {
-    btnTopo.title = ativo === 'classico'
-      ? 'Tema: Cassino Verde (clique para trocar para Azul)'
-      : 'Tema: Azul Royal (clique para trocar para Cassino Verde)';
-  }
+  if (btnTopo) btnTopo.title = TITULOS_TEMA[ativo];
 }
 
 export function escolherTema(tema) {
-  const ativo = tema === 'classico' ? 'classico' : 'azul';
+  const ativo = normalizarTema(tema);
   try { localStorage.setItem(CHAVE_TEMA, ativo); } catch (erro) {}
   aplicarTemaDOM(ativo);
 }
 
 export function alternarTema() {
-  const atual = document.documentElement.getAttribute('data-tema') === 'classico' ? 'classico' : 'azul';
-  escolherTema(atual === 'classico' ? 'azul' : 'classico');
+  const atual = normalizarTema(document.documentElement.getAttribute('data-tema'));
+  const prox = ORDEM_TEMAS[(ORDEM_TEMAS.indexOf(atual) + 1) % ORDEM_TEMAS.length];
+  escolherTema(prox);
 }
 
 export function iniciarTema() {

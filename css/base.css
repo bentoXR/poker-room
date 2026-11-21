@@ -68,65 +68,134 @@
   --fonte-numero: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
 }
 
-/* Tema 2: Cassino Clássico (Verde esmeralda de mesa de cartas, preto/carvão, vermelho e dourado) */
+/* Tema 2: Cassino (mesma leveza do Azul, em verde sinuca, borda marrom madeira, preto e vermelho) */
 :root[data-tema="classico"] {
-  --feltro-950: #070d0a;
-  --feltro-900: #0d1712;
-  --feltro-800: #142a1f;
-  --feltro-700: #1b3f2d;
-  --feltro-600: #245c41;
-  --linha: rgba(245, 249, 246, 0.16);
+  --feltro-950: #0a2418;
+  --feltro-900: #113826;
+  --feltro-800: #195238;
+  --feltro-700: #216b49;
+  --feltro-600: #2b855c;
+  --linha: rgba(246, 250, 247, 0.18);
 
-  --marfim: #f6faf7;
+  --marfim: #f5faf7;
   --estrela: #ffffff;
-  --marfim-suave: rgba(242, 250, 245, 0.76);
-  --texto-escuro: #0b1610;
+  --marfim-suave: rgba(242, 250, 245, 0.8);
+  --texto-escuro: #102419;
 
-  --ouro: #d42638;
-  --ouro-escuro: #82131e;
-  --ouro-suave: rgba(212, 38, 56, 0.25);
-  --ouro-borda: rgba(212, 38, 56, 0.68);
+  --ouro: #c9263e;
+  --ouro-escuro: #7d1524;
+  --ouro-suave: rgba(201, 38, 62, 0.24);
+  --ouro-borda: rgba(201, 38, 62, 0.68);
 
-  --vermelho: #c92032;
-  --verde: #1d9a59;
-  --verde-escuro: #116338;
-  --verde-suave: rgba(29, 154, 89, 0.24);
-  --verde-borda: rgba(52, 204, 125, 0.55);
-  --verde-texto: #ccf7df;
+  --vermelho: #bf1f36;
+  --verde: #269960;
+  --verde-escuro: #16633d;
+  --verde-suave: rgba(38, 153, 96, 0.24);
+  --verde-borda: rgba(62, 196, 128, 0.56);
+  --verde-texto: #d2fae4;
 
   --acento: #ffd866;
   --acento-suave: rgba(255, 216, 102, 0.2);
-  --luz-cor: #69f0ae;
-  --luz-sombra: rgba(105, 240, 174, 0.78);
+  --luz-cor: #76f2b3;
+  --luz-sombra: rgba(118, 242, 179, 0.78);
 
-  --bg-brilho-1: rgba(29, 154, 89, 0.3);
-  --bg-brilho-2: rgba(212, 38, 56, 0.18);
-  --bg-topo: #165236;
-  --faixa-topo: linear-gradient(90deg, #d62839 0 33.3%, #ffd866 33.3% 66.6%, #1f9d5c 66.6% 100%);
+  --bg-brilho-1: rgba(43, 133, 92, 0.26);
+  --bg-brilho-2: rgba(110, 56, 28, 0.22);
+  --bg-topo: #1d6142;
+  --faixa-topo: linear-gradient(90deg, #c9263e 0 33.3%, #6e381c 33.3% 66.6%, #269960 66.6% 100%);
 
-  --feltro-centro-1: #227c53;
-  --feltro-centro-2: #124d33;
-  --feltro-centro-3: #092b1c;
-  --borda-mesa: #181310;
+  --feltro-centro-1: #28875b;
+  --feltro-centro-2: #1c6644;
+  --feltro-centro-3: #144d33;
+  --borda-mesa: #572b15;
 
-  --pote-1: #216e4a;
-  --pote-2: #0a140f;
-  --assento-1: #1c2722;
-  --assento-2: #101714;
-  --assento-eu-1: #1f5c40;
-  --assento-eu-2: #123826;
-  --vez-1: #d42638;
-  --vez-2: #8c1420;
-  --vez-tag-bg: #140d0e;
+  --pote-1: #4a2614;
+  --pote-2: #1b0f09;
+  --assento-1: #242221;
+  --assento-2: #171514;
+  --assento-eu-1: #5c2f18;
+  --assento-eu-2: #3b1d0e;
+  --vez-1: #cf263e;
+  --vez-2: #8a1627;
+  --vez-tag-bg: #171211;
 
-  --dock-1: rgba(17, 25, 21, 0.96);
-  --dock-2: rgba(7, 11, 9, 0.99);
-  --faixa-1: rgba(20, 62, 43, 0.96);
-  --faixa-2: rgba(9, 25, 18, 0.98);
-  --faixa-borda: rgba(52, 204, 125, 0.55);
+  --dock-1: rgba(28, 23, 20, 0.96);
+  --dock-2: rgba(16, 13, 12, 0.98);
+  --faixa-1: rgba(34, 27, 23, 0.95);
+  --faixa-2: rgba(19, 15, 13, 0.97);
+  --faixa-borda: rgba(166, 98, 60, 0.58);
 
-  --cartao-bg: rgba(11, 18, 14, 0.72);
-  --cartao-bg-pc: rgba(11, 18, 14, 0.82);
+  --cartao-bg: rgba(16, 22, 18, 0.56);
+  --cartao-bg-pc: rgba(16, 22, 18, 0.68);
+}
+
+/* Tema 3: Preto & Vermelho (mesma leveza do Azul, em grafite/preto e vermelho vivo) */
+:root[data-tema="preto"] {
+  --feltro-950: #0f1014;
+  --feltro-900: #171920;
+  --feltro-800: #232630;
+  --feltro-700: #313542;
+  --feltro-600: #424758;
+  --linha: rgba(255, 255, 255, 0.16);
+
+  --marfim: #f7f7fa;
+  --estrela: #ffffff;
+  --marfim-suave: rgba(247, 247, 250, 0.78);
+  --texto-escuro: #15161c;
+
+  --ouro: #dc243a;
+  --ouro-escuro: #8c1322;
+  --ouro-suave: rgba(220, 36, 58, 0.24);
+  --ouro-borda: rgba(220, 36, 58, 0.7);
+
+  --vermelho: #d41f35;
+  --verde: #dc243a;
+  --verde-escuro: #8c1322;
+  --verde-suave: rgba(220, 36, 58, 0.22);
+  --verde-borda: rgba(235, 70, 90, 0.6);
+  --verde-texto: #ffd6dc;
+
+  --acento: #ffd866;
+  --acento-suave: rgba(255, 216, 102, 0.18);
+  --luz-cor: #ff7a8a;
+  --luz-sombra: rgba(255, 110, 128, 0.78);
+
+  --bg-brilho-1: rgba(220, 36, 58, 0.22);
+  --bg-brilho-2: rgba(220, 36, 58, 0.12);
+  --bg-topo: #2d1c23;
+  --faixa-topo: linear-gradient(90deg, #dc243a 0 33.3%, #ffffff 33.3% 66.6%, #171920 66.6% 100%);
+
+  --feltro-centro-1: #2f3340;
+  --feltro-centro-2: #21242e;
+  --feltro-centro-3: #171921;
+  --borda-mesa: #7d1525;
+
+  --pote-1: #363a47;
+  --pote-2: #15171d;
+  --assento-1: #292c36;
+  --assento-2: #1b1d24;
+  --assento-eu-1: #3a3e4d;
+  --assento-eu-2: #242731;
+  --vez-1: #dc243a;
+  --vez-2: #941525;
+  --vez-tag-bg: #15161c;
+
+  --dock-1: rgba(27, 29, 36, 0.96);
+  --dock-2: rgba(15, 16, 20, 0.98);
+  --faixa-1: rgba(38, 25, 30, 0.96);
+  --faixa-2: rgba(20, 16, 19, 0.98);
+  --faixa-borda: rgba(220, 36, 58, 0.62);
+
+  --cartao-bg: rgba(18, 20, 26, 0.62);
+  --cartao-bg-pc: rgba(18, 20, 26, 0.74);
+}
+
+/* No tema Preto & Vermelho, diferencia "Check/Pagar" (grafite) de "Aumentar" (vermelho) */
+:root[data-tema="preto"] .barra-acoes .grade-simples button#btn-check,
+:root[data-tema="preto"] .barra-acoes .grade-simples button#btn-pagar {
+  background: #363b47;
+  color: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.24), 0 3px 0 #1b1d24;
 }
 
 * {
@@ -223,9 +292,9 @@ button.tema-btn.sel {
 button.tema-btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none; }
 .seletor-tema.compacto button.tema-btn {
   min-height: 30px;
-  padding: 4px 10px;
-  font-size: 12.5px;
-  gap: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  gap: 5px;
 }
 .amostra {
   width: 14px;
@@ -235,13 +304,14 @@ button.tema-btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none
   border: 1.5px solid rgba(255, 255, 255, 0.85);
 }
 .amostra-azul { background: linear-gradient(135deg, #2d77e6 50%, #c9263e 50%); }
-.amostra-classico { background: linear-gradient(135deg, #1d9a59 50%, #d42638 50%); }
+.amostra-classico { background: linear-gradient(135deg, #248a5b 50%, #6b3519 50%); }
+.amostra-preto { background: linear-gradient(135deg, #1a1c22 50%, #dc243a 50%); }
 .amostra-dupla {
   width: 18px;
   height: 18px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.88);
-  background: linear-gradient(135deg, var(--verde) 50%, var(--ouro) 50%);
+  background: linear-gradient(135deg, var(--feltro-centro-1) 50%, var(--ouro) 50%);
 }
 
 /* ----- Botões ----- */
