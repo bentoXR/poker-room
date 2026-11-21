@@ -965,14 +965,14 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     font-variant-numeric: tabular-nums;
   }
   #tela-mesa.modo-online button.icone-btn {
-    width: 48px;
-    height: 48px;
-    min-height: 48px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
   }
   #tela-mesa.modo-online button.dev-prox {
-    min-height: 48px;
-    font-size: 14px;
-    padding: 4px 14px;
+    min-height: 32px;
+    font-size: 13px;
+    padding: 2px 12px;
   }
   #tela-mesa.modo-online .minha-mao-linha .btn-luz {
     width: 48px;
@@ -1043,7 +1043,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
     max-width: 184px;
     z-index: 4;
   }
-  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 174px; }
+  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 156px; }
   #tela-mesa.modo-online #board.online .slots { gap: 3px; }
   #tela-mesa.modo-online .centro-roda .pilula.destaque { font-size: 10px; padding: 2px 8px; }
 
@@ -1057,22 +1057,36 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 
   /* Assentos com foto saltada para fora: margens seguras no topo e nas bordas */
   #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(36px, var(--y, 50%), calc(100% - 34px));
+    left: clamp(calc(var(--w, 88px) / 2 + 6px), var(--x, 50%), calc(100% - var(--w, 88px) / 2 - 3px));
+    top: clamp(32px, var(--y, 50%), calc(100% - 30px));
+    min-height: 54px;
+    padding: 5px 6px 4px 21px;
+    border-radius: 15px;
+  }
+  #tela-mesa.modo-online .lugar.assento-redondo .l-timer {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 1.5px;
+    height: 2.5px;
+    margin: 0;
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
-    top: clamp(36px, var(--y, 50%), calc(100% - 34px));
-    min-height: 60px;
-    padding: 5px 6px 4px 20px;
-    border-radius: 14px;
+    left: clamp(calc(var(--w, 82px) / 2 + 5px), var(--x, 50%), calc(100% - var(--w, 82px) / 2 - 2px));
+    top: clamp(30px, var(--y, 50%), calc(100% - 28px));
+    min-height: 48px;
+    padding: 4px 5px 4px 19px;
+    border-radius: 13px;
     gap: 1px;
   }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo > .l-avatar,
   #tela-mesa.modo-online.cheia .lugar.assento-redondo > .ficha {
-    top: -8px;
-    left: -10px;
+    top: -7px;
+    left: -9px;
     transform: none;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
   }
   /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
   #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
@@ -1263,90 +1277,110 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #barra-acoes.modo-online .minha-mao-dica { display: none; }
 }
 
-@media (max-width: 819px) and (orientation: landscape) and (max-height: 500px) {
-  #tela-mesa.modo-online .linha-ultima { display: none; }
-  #tela-mesa.modo-online .topo { min-height: 40px; gap: 6px; }
-  #tela-mesa.modo-online button.icone-btn { width: 44px; height: 44px; min-height: 44px; }
-  #tela-mesa.modo-online .centro-roda {
-    width: 48%;
-    height: 48%;
-    padding: 4px 6px;
-    gap: 2px;
+/* Adaptação do Mobile Vertical para telas de celular mais baixas (ex.: 360x560 / 375x600 com barras do navegador) */
+@media (max-width: 819px) and (orientation: portrait) and (max-height: 680px) {
+  body.na-mesa.modo-online main {
+    padding: calc(4px + env(safe-area-inset-top)) 6px 0;
   }
-  #tela-mesa.modo-online .pote-ficha,
-  #tela-mesa.modo-online.cheia .pote-ficha { width: 34px; height: 34px; padding: 2px; }
-  #tela-mesa.modo-online .pote-rotulo { display: none; }
-  #tela-mesa.modo-online .centro-roda .board,
-  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 140px; }
-  #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(18px, var(--y, 50%), calc(100% - 28px));
-    padding: 1.5px 4px;
-    border-radius: 10px;
-    gap: 0;
+  #tela-mesa.modo-online .topo {
+    min-height: 36px;
+    gap: 6px;
   }
-  #tela-mesa.modo-online .l-tags { display: none; }
+  #tela-mesa.modo-online button.icone-btn {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+  }
+  #tela-mesa.modo-online #topo-resumo-online {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  #tela-mesa.modo-online .linha-ultima {
+    margin-top: 2px;
+  }
+  #tela-mesa.modo-online .ultima {
+    font-size: 12.5px;
+    padding: 1px 10px;
+  }
+  #tela-mesa.modo-online button.dev-prox {
+    min-height: 28px;
+    font-size: 12px;
+    padding: 1px 10px;
+  }
+  #tela-mesa.modo-online .mesa-wrap {
+    margin-top: 3px;
+  }
+  #tela-mesa.modo-online .lugar.assento-redondo,
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo {
+    top: clamp(26px, var(--y, 50%), calc(100% - 24px));
+    min-height: 43px;
+    padding: 3px 5px 3px 18px;
+    border-radius: 12px;
+  }
+  #tela-mesa.modo-online .lugar.assento-redondo > .l-avatar,
+  #tela-mesa.modo-online .lugar.assento-redondo > .ficha,
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo > .l-avatar,
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo > .ficha {
+    top: -6px;
+    left: -8px;
+    width: 26px;
+    height: 26px;
+    font-size: 11.5px;
+  }
   #barra-acoes.modo-online {
-    max-width: 100%;
-    padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
-  }
-  #barra-acoes.modo-online.visivel:not(.apostando) {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr);
-    gap: 8px;
-    align-items: center;
-  }
-  #barra-acoes.modo-online .timer-turno-wrap { grid-column: 1 / -1; margin-bottom: 2px; }
-  #barra-acoes.modo-online.visivel:not(.apostando) #minha-mao-wrap {
-    display: flex;
-    grid-column: 1;
-    grid-row: 2;
-    margin-bottom: 0;
-    gap: 2px;
+    padding: 4px 8px calc(5px + env(safe-area-inset-bottom));
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #meu-perfil-dock {
-    grid-column: 2;
-    grid-row: 2;
-    min-width: 112px;
-    padding: 4px 8px;
+    padding: 0 0 3px;
+    margin-bottom: 1px;
   }
-  #barra-acoes.modo-online.visivel:not(.apostando) .barra-controles {
-    display: block;
-    grid-column: 3;
-    grid-row: 2;
+  #barra-acoes.modo-online .meu-perfil-dock .mp-saldo {
+    font-size: 19px;
   }
-  #barra-acoes.modo-online .minha-mao-dica,
-  #barra-acoes.modo-online .minha-mao-nome,
-  #barra-acoes.modo-online .barra-titulo { display: none !important; }
-  #barra-acoes.modo-online .carta-3d { width: 38px; height: 52px; }
-  #barra-acoes.modo-online .minha-mao-linha { margin-bottom: 0; }
-  #barra-acoes.modo-online .minha-mao-linha .btn-luz { position: static; width: 44px; height: 44px; min-height: 44px; margin-left: 6px; }
-  #barra-acoes.modo-online .grade-simples button,
-  #barra-acoes.modo-online button.grande { min-height: 48px; font-size: 15px; }
-  #barra-acoes.modo-online.apostando .caixa-aposta {
-    display: grid;
-    grid-template-columns: auto minmax(80px, 1fr) 168px;
-    gap: 8px;
-    align-items: center;
-    padding: 4px 6px;
-    margin-bottom: 4px;
+  #barra-acoes.modo-online .carta-3d {
+    width: 46px;
+    height: 64px;
   }
-  #barra-acoes.modo-online.apostando .presets {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 0;
+  #barra-acoes.modo-online.visivel:not(.apostando) .grade-simples {
+    gap: 5px;
   }
-  #barra-acoes.modo-online.apostando .presets button {
-    width: auto;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 2px 6px;
+  #barra-acoes.modo-online.visivel:not(.apostando) .grade-simples #btn-check,
+  #barra-acoes.modo-online.visivel:not(.apostando) .grade-simples #btn-pagar {
+    min-height: 40px;
+    font-size: 15px;
   }
-  #barra-acoes.modo-online.apostando input[type=range] { margin-bottom: 0; }
-  #barra-acoes.modo-online.apostando .linha-aposta { grid-template-columns: 44px 1fr 44px; gap: 4px; }
-  #barra-acoes.modo-online.apostando .linha-aposta button,
-  #barra-acoes.modo-online.apostando .linha-aposta input { min-height: 44px; font-size: 18px; }
-  #barra-acoes.modo-online.apostando .grade-simples.modo-aposta #btn-confirmar-aposta,
-  #barra-acoes.modo-online.apostando .grade-simples.modo-aposta #btn-aumentar { min-height: 48px; }
+  #barra-acoes.modo-online.visivel:not(.apostando) .grade-simples #btn-desistir,
+  #barra-acoes.modo-online.visivel:not(.apostando) .grade-simples #btn-aumentar {
+    min-height: 38px;
+    font-size: 14px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) #btn-blind {
+    min-height: 48px;
+    font-size: 15.5px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button,
+  #barra-acoes.modo-online.visivel:not(.apostando) #barra-dev-prox button {
+    min-height: 38px;
+    font-size: 14px;
+  }
+}
+
+/* Adaptação do Mobile Vertical para celulares altos/grandes (ex.: 412x915, 430x932) */
+@media (min-width: 390px) and (max-width: 819px) and (orientation: portrait) and (min-height: 800px) {
+  #tela-mesa.modo-online .centro-roda .board {
+    max-width: 204px;
+  }
+  #tela-mesa.modo-online.cheia .centro-roda .board {
+    max-width: 192px;
+  }
+  #tela-mesa.modo-online .pote-ficha {
+    width: 62px;
+    height: 62px;
+  }
+  #tela-mesa.modo-online.cheia .pote-ficha {
+    width: 54px;
+    height: 54px;
+  }
 }
 
 @media (max-width: 819px) and (max-height: 700px) {

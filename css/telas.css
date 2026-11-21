@@ -618,9 +618,9 @@ button.stack.especial b { font-size: 16.5px; }
   #tela-login .login-grade {
     min-height: 0;
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: clamp(6px, 1.6dvh, 18px);
-    align-content: stretch;
+    grid-template-rows: auto auto;
+    gap: clamp(8px, 2dvh, 22px);
+    align-content: center;
   }
   #tela-login .marca {
     margin-bottom: 0;
@@ -653,10 +653,11 @@ button.stack.especial b { font-size: 16.5px; }
   #tela-login .cartao-login {
     min-height: 0;
     margin-top: 0;
-    padding: clamp(10px, 2dvh, 20px) clamp(12px, 3.6vw, 18px);
+    padding: clamp(12px, 2.2dvh, 20px) clamp(12px, 3.6vw, 18px);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   #tela-login .auth-abas {
     gap: 8px;
@@ -665,8 +666,8 @@ button.stack.especial b { font-size: 16.5px; }
     flex-shrink: 0;
   }
   #tela-login button.auth-aba {
-    min-height: 48px;
-    min-width: 48px;
+    min-height: 44px;
+    min-width: 44px;
     font-size: 15px;
   }
   #tela-login label {
@@ -676,27 +677,27 @@ button.stack.especial b { font-size: 16.5px; }
   }
   #tela-login #lbl-login-nome { margin-top: 0; }
   #tela-login input {
-    min-height: 48px;
+    min-height: 46px;
     padding: 10px 14px;
     font-size: 16px;
   }
   #tela-login .campo-senha input { padding-right: 96px; }
   #tela-login button.olho {
-    min-height: 48px;
+    min-height: 44px;
     min-width: 48px;
     padding: 0 12px;
     font-size: 14px;
   }
   #tela-login .campo-senha { margin-bottom: clamp(4px, 1dvh, 10px); }
   #tela-login #botao-login {
-    margin-top: auto;
-    min-height: 52px;
+    margin-top: clamp(10px, 1.8dvh, 16px);
+    min-height: 50px;
     font-size: 17px;
     flex-shrink: 0;
   }
   #tela-login #dica-login {
-    margin-top: clamp(6px, 1.2dvh, 10px);
-    font-size: 14px;
+    margin-top: clamp(8px, 1.4dvh, 12px);
+    font-size: 13.5px;
     line-height: 1.35;
     flex-shrink: 0;
   }
@@ -725,14 +726,25 @@ button.stack.especial b { font-size: 16.5px; }
   #tela-login .auth-abas {
     margin-bottom: 8px;
   }
+  #tela-login button.auth-aba {
+    min-height: 40px;
+  }
   #tela-login label {
-    margin: 6px 0 3px;
+    margin: 5px 0 2px;
+  }
+  #tela-login input {
+    min-height: 42px;
+    padding: 7px 12px;
+  }
+  #tela-login button.olho {
+    min-height: 40px;
   }
   #tela-login .campo-senha {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   #tela-login #botao-login {
-    min-height: 48px;
+    margin-top: 8px;
+    min-height: 46px;
   }
 }
 
@@ -958,13 +970,14 @@ button.stack.especial b { font-size: 16.5px; }
     font-size: 14px;
   }
   #tela-dev .chips-qtd {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 5px;
   }
   #tela-dev .chips-qtd button.op-chip {
-    min-height: 48px;
-    min-width: 48px;
-    font-size: 18px;
+    min-height: 42px;
+    min-width: 0;
+    padding: 4px 2px;
+    font-size: 16.5px;
   }
   #tela-criar .profund,
   #tela-dev .profund {

@@ -1,12 +1,12 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=63';
-import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=63';
-import { guardarMeuJogador } from '../core/storage.js?v=63';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=63';
-import { tratarErroConta } from './auth.js?v=63';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=63';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=63';
-import { abrirMesa } from '../mesa/mesa.js?v=63';
+import { banco } from '../core/supabase.js?v=64';
+import { estado, ICONE_COROA, contaParams } from '../core/estado.js?v=64';
+import { guardarMeuJogador } from '../core/storage.js?v=64';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=64';
+import { tratarErroConta } from './auth.js?v=64';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=64';
+import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=64';
+import { abrirMesa } from '../mesa/mesa.js?v=64';
 
 export function abrirSalas() {
   pararSalas();

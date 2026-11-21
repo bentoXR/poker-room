@@ -405,12 +405,12 @@ button.dev-prox {
   position: absolute;
   width: var(--w, 98px);
   left: clamp(calc(var(--w, 98px) / 2 + 12px), var(--x, 50%), calc(100% - var(--w, 98px) / 2 - 4px));
-  top: clamp(40px, var(--y, 50%), calc(100% - 38px));
+  top: clamp(32px, var(--y, 50%), calc(100% - 30px));
   min-width: 0;
-  min-height: 72px;
-  padding: 7px 8px 6px 26px;
+  min-height: 56px;
+  padding: 6px 8px 5px 24px;
   transform: translate(-50%, -50%);
-  border-radius: 18px;
+  border-radius: 16px;
   justify-content: center;
   gap: 2px;
   overflow: visible;
@@ -419,8 +419,14 @@ button.dev-prox {
   font-size: calc(12px * var(--escala-lugar, 1));
   box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
+#tela-mesa.cheia .lugar.assento-redondo {
+  min-height: 48px;
+  padding: 4px 6px 4px 20px;
+  border-radius: 13px;
+  gap: 1px;
+}
 .lugar.assento-redondo.eu { z-index: 4; }
-.lugar.assento-redondo.vez { z-index: 5; border-radius: 18px; }
+.lugar.assento-redondo.vez { z-index: 5; border-radius: 16px; }
 
 /* Foto / ficha circular parcialmente saltada para fora do canto superior esquerdo do card */
 .lugar.assento-redondo > .l-avatar,
@@ -644,13 +650,13 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
   .centro-roda { width: 70%; height: 69%; padding: 9px 7px; gap: 7px; }
   .centro-roda .pote-ficha { width: clamp(58px, 18vw, 82px); height: clamp(58px, 18vw, 82px); }
   .centro-roda .board { width: 88%; max-width: 190px; }
-  .lugar.assento-redondo { padding: 6px 7px 5px 24px; border-width: 1.5px; border-radius: 17px; min-height: 70px; }
+  .lugar.assento-redondo { padding: 5px 6px 4px 22px; border-width: 1.5px; border-radius: 15px; min-height: 52px; }
   .barra-acoes { padding-left: 12px; padding-right: 12px; }
   .barra-acoes .presets button { min-height: 44px; }
 }
 @media (max-width: 360px) {
   .centro-roda { width: 68%; height: 67%; padding-left: 5px; padding-right: 5px; }
-  .lugar.assento-redondo { padding: 6px 6px 5px 22px; min-height: 68px; }
+  .lugar.assento-redondo { padding: 4px 5px 4px 20px; min-height: 46px; }
 }
 @media (max-height: 700px) {
   .centro-roda { gap: 7px; padding-top: 8px; padding-bottom: 8px; }
@@ -658,10 +664,12 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
   .centro-roda .pote-valor { font-size: 23px; }
 }
 @media (max-height: 650px) {
-  .mesa-wrap { min-height: 220px; }
+  .mesa-wrap { min-height: 200px; }
   .centro-roda { height: 66%; gap: 4px; padding-top: 6px; padding-bottom: 6px; }
   .centro-roda .pote-ficha { width: 58px; height: 58px; }
   .centro-roda .board { max-width: 150px; }
+  .lugar.assento-redondo,
+  #tela-mesa.cheia .lugar.assento-redondo { min-height: 43px; padding: 3px 5px 3px 18px; border-radius: 12px; }
 }
 @media (max-height: 620px) {
   .ultima { display: none; }
