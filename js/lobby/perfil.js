@@ -1,9 +1,10 @@
 // Gestão de perfil do usuário: foto de perfil (compressão local), nome único, troca de senha e cache de avatares na mesa
-import { banco } from '../core/supabase.js?v=72';
-import { estado, contaParams } from '../core/estado.js?v=72';
-import { guardarConta, lembrarNome } from '../core/storage.js?v=72';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=72';
-import { tratarErroConta } from './auth.js?v=72';
+import { banco } from '../core/supabase.js?v=73';
+import { estado, contaParams } from '../core/estado.js?v=73';
+import { guardarConta, lembrarNome } from '../core/storage.js?v=73';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=73';
+import { tratarErroConta } from './auth.js?v=73';
+import { lerTemaSalvo, escolherTema } from '../core/tema.js?v=73';
 
 // Cache em memória de avatares: conta_id -> { versao, url }
 const avataresCache = new Map();
@@ -157,6 +158,16 @@ export function abrirPerfil() {
     const el = $id(id);
     if (el) el.value = '';
   });
+
+  escolherTema(lerTemaSalvo());
+  const btnEspiar = $id('btn-perfil-espiar');
+  if (btnEspiar) {
+    let segurando = false;
+    try { segurando = localStorage.getItem('poker-espiar-segurar') === '1'; } catch (e) {}
+    btnEspiar.textContent = segurando ? 'Ativado' : 'Desativado';
+    btnEspiar.classList.toggle('ativo', segurando);
+    btnEspiar.setAttribute('aria-pressed', segurando ? 'true' : 'false');
+  }
 
   $id('fundo-perfil').hidden = false;
   $id('folha-perfil').hidden = false;

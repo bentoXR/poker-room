@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=72';
-import { estado, nomeDe } from '../../core/estado.js?v=72';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=72';
-import { lerDevSala } from '../../core/storage.js?v=72';
-import { registrarModo } from '../../mesa/modos.js?v=72';
-import { executar } from '../../mesa/apostas.js?v=72';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=72';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=72';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=72';
-import { tocarSom } from '../../core/som.js?v=72';
+import { banco } from '../../core/supabase.js?v=73';
+import { estado, nomeDe } from '../../core/estado.js?v=73';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=73';
+import { lerDevSala } from '../../core/storage.js?v=73';
+import { registrarModo } from '../../mesa/modos.js?v=73';
+import { executar } from '../../mesa/apostas.js?v=73';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=73';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=73';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=73';
+import { tocarSom } from '../../core/som.js?v=73';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -62,6 +62,7 @@ const onlineUI = {
   ultimaVisao: null,
 
   // Preferências de usabilidade do jogador
+  espiarSegurar: (() => { try { return localStorage.getItem('poker-espiar-segurar') === '1'; } catch (e) { return false; } })(),
   autoPronto: (() => { try { return localStorage.getItem('poker-auto-pronto') === '1'; } catch (e) { return false; } })(),
   timerAutoPronto: null,
   autoProntoChave: '',
@@ -723,23 +724,62 @@ function ehMouseDesktop() {
   return !!(window.matchMedia && window.matchMedia('(min-width: 820px) and (pointer: fine)').matches);
 }
 
-export function virarMinhaCarta(_indice) {
+export function ehModoEspiarSegurar() {
+  return !!onlineUI.espiarSegurar;
+}
+
+export function abrirMinhasCartas(abrir) {
   if (!onlineUI.minhasCartas) return;
-  const abrir = !(onlineUI.viradas[0] && onlineUI.viradas[1]);
-  onlineUI.viradas = [abrir, abrir];
+  const alvo = !!abrir;
+  if (onlineUI.viradas[0] === alvo && onlineUI.viradas[1] === alvo) return;
+  onlineUI.viradas = [alvo, alvo];
   onlineUI.mostrouDica = true;
-  tocarSom('carta-virar');
-  try { if (navigator.vibrate) navigator.vibrate(10); } catch (erro) {}
+  if (alvo) {
+    tocarSom('carta-virar');
+    try { if (navigator.vibrate) navigator.vibrate(10); } catch (erro) {}
+  }
   document.querySelectorAll('#minha-mao-wrap .carta-3d').forEach((btn) => {
-    btn.classList.toggle('virada', abrir);
+    btn.classList.toggle('virada', alvo);
   });
   const dica = document.querySelector('#minha-mao-wrap .minha-mao-dica');
   if (dica) {
-    dica.textContent = ehMouseDesktop()
-      ? (abrir ? 'Clique ou Espaço p/ esconder' : 'Clique ou Espaço p/ espiar')
-      : (abrir ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar');
+    if (onlineUI.espiarSegurar) {
+      dica.textContent = ehMouseDesktop() ? 'Segure clique ou Espaço p/ espiar' : 'Segure nas cartas para espiar';
+    } else {
+      dica.textContent = ehMouseDesktop()
+        ? (alvo ? 'Clique ou Espaço p/ esconder' : 'Clique ou Espaço p/ espiar')
+        : (alvo ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar');
+    }
   }
   atualizarLuzes();
+}
+
+export function virarMinhaCarta(_indice) {
+  if (!onlineUI.minhasCartas || onlineUI.espiarSegurar) return;
+  const abrir = !(onlineUI.viradas[0] && onlineUI.viradas[1]);
+  abrirMinhasCartas(abrir);
+}
+
+export function alternarModoEspiar() {
+  onlineUI.espiarSegurar = !onlineUI.espiarSegurar;
+  try { localStorage.setItem('poker-espiar-segurar', onlineUI.espiarSegurar ? '1' : '0'); } catch (e) {}
+  if (onlineUI.espiarSegurar) onlineUI.viradas = [false, false];
+  onlineUI.htmlMaoVisto = '';
+  if (estado.partidaAtual && estado.partidaAtual.modo === 'online') {
+    const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
+    desenharMinhaMao(estado.partidaAtual, eu);
+  }
+  atualizarBotaoPerfilEspiar();
+  tocarSom('clique');
+  aviso(onlineUI.espiarSegurar ? 'Segurar para espiar ativado' : 'Segurar para espiar desativado');
+}
+
+export function atualizarBotaoPerfilEspiar() {
+  const btn = $id('btn-perfil-espiar');
+  if (!btn) return;
+  btn.textContent = onlineUI.espiarSegurar ? 'Ativado' : 'Desativado';
+  btn.classList.toggle('ativo', onlineUI.espiarSegurar);
+  btn.setAttribute('aria-pressed', onlineUI.espiarSegurar ? 'true' : 'false');
 }
 
 function desenharMinhaMao(partida, eu) {
@@ -772,6 +812,7 @@ function desenharMinhaMao(partida, eu) {
     podeRevelar ? '1' : '0',
     eu.mao_nome || '',
     onlineUI.assistente ? 'L' : 'l',
+    onlineUI.espiarSegurar ? 'S' : 'T',
     Object.keys(melhores).sort().join(',')
   ].join('|');
 
@@ -797,16 +838,18 @@ function desenharMinhaMao(partida, eu) {
   }
 
   const estiloSlot = (animarAgora && atrasoDeal > 0) ? ' style="--atraso-deal:' + atrasoDeal + 'ms"' : '';
+  const segurarModo = onlineUI.espiarSegurar && !c1Vis && !c2Vis;
   const cartasHtml = onlineUI.minhasCartas.map((raw, idx) => {
     const c = parseCartaLocal(raw);
     if (!c) return '';
     const virada = abertas[idx];
     const dest = !!melhores[c.raw];
+    const acaoAttr = segurarModo ? '' : ' onclick="virarMinhaCarta(' + idx + ')"';
     return `
       <div class="carta-3d-slot${animarAgora ? ' animar-entrada' : ''}"${estiloSlot}>
         <button type="button" class="carta-3d${virada ? ' virada' : ''}${dest ? ' destaque' : ''}"
-                data-idx="${idx}" data-raw="${c.raw}" onclick="virarMinhaCarta(${idx})"
-                aria-label="Carta ${idx + 1}: toque para virar">
+                data-idx="${idx}" data-raw="${c.raw}"${acaoAttr}
+                aria-label="Carta ${idx + 1}: ${segurarModo ? 'segure para espiar' : 'toque para virar'}">
           <span class="carta-face verso"></span>
           <span class="carta-face frente">${htmlCarta(c.raw)}</span>
         </button>
@@ -827,15 +870,30 @@ function desenharMinhaMao(partida, eu) {
     ? 'Quer mostrar seu blefe ou sua mão para a mesa?'
     : (eu.mao_nome && emPausa
         ? 'Sua mão: ' + escapar(eu.mao_nome)
-        : (ehMouseDesktop()
-            ? (abertas[0] || abertas[1] ? 'Clique ou Espaço p/ esconder' : 'Clique ou Espaço p/ espiar')
-            : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar')));
+        : (onlineUI.espiarSegurar
+            ? (ehMouseDesktop() ? 'Segure clique ou Espaço p/ espiar' : 'Segure nas cartas para espiar')
+            : (ehMouseDesktop()
+                ? (abertas[0] || abertas[1] ? 'Clique ou Espaço p/ esconder' : 'Clique ou Espaço p/ espiar')
+                : (abertas[0] || abertas[1] ? 'Toque novamente para esconder' : 'Toque nas cartas para espiar'))));
 
   wrap.innerHTML = '<div class="minha-mao-linha"><div class="minha-mao-cartas">' + cartasHtml + '</div></div>'
     + '<div class="minha-mao-nome" id="minha-mao-nome" hidden></div>'
     + '<div class="minha-mao-dica">' + dica + '</div>'
     + revelarHtml;
   wrap.hidden = false;
+  if (segurarModo) {
+    wrap.querySelectorAll('.carta-3d').forEach((btn) => {
+      btn.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        abrirMinhasCartas(true);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => {
+        btn.addEventListener(ev, () => abrirMinhasCartas(false));
+      });
+      btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+  }
+  atualizarBotaoPerfilEspiar();
   // Remove a classe de entrada depois que as cartas terminam de cair,
   // evitando que a animação repita ao abrir/fechar "Aumentar" no celular!
   setTimeout(() => {

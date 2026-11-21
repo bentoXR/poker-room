@@ -923,6 +923,7 @@
 }
 
 @media (min-width: 820px) {
+  #btn-perfil-mesa { display: inline-flex !important; }
   .popover-reacoes {
     top: 68px;
     right: 22px;
