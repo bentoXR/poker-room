@@ -1,9 +1,9 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=42';
-import { estado, passoSala } from '../core/estado.js?v=42';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=42';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=42';
+import { banco } from '../core/supabase.js?v=43';
+import { estado, passoSala, nomeDe } from '../core/estado.js?v=43';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=43';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=43';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -198,6 +198,8 @@ export function modoEnviando() {
   $id('barra-acoes').classList.remove('apostando');
   $id('barra-normal').hidden = true;
   $id('barra-blind').hidden = true;
+  const devProx = $id('barra-dev-prox');
+  if (devProx) devProx.hidden = true;
   $id('barra-titulo').textContent = 'Enviando…';
   $id('barra-acoes').classList.remove('minha-vez');
 }
@@ -266,6 +268,19 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
 
   $id('barra-blind').hidden = !minhaVezBlind;
   $id('barra-normal').hidden = !(minhaVez && !emBlind && emJogo);
+
+  const barraDevProx = $id('barra-dev-prox');
+  const btnDevPassar = $id('btn-dev-passar');
+  if (barraDevProx && btnDevPassar) {
+    const mostrarPassarDev = estado.modoDev && !minhaVez && emJogo;
+    barraDevProx.hidden = !mostrarPassarDev;
+    if (mostrarPassarDev) {
+      const daVez = jogadores.find((j) => j.id === partida.vez_jogador_id);
+      btnDevPassar.textContent = daVez
+        ? 'Passar para ' + nomeDe(daVez.nome) + ' ▶'
+        : 'Próximo jogador ▶';
+    }
+  }
 
   if (minhaVezBlind) {
     const valorBlind = Math.min(

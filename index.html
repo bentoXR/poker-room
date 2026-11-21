@@ -15,12 +15,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=42">
-  <link rel="stylesheet" href="./css/telas.css?v=42">
-  <link rel="stylesheet" href="./css/mesa.css?v=42">
-  <link rel="stylesheet" href="./css/gavetas.css?v=42">
-  <link rel="stylesheet" href="./css/online.css?v=42">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=42">
+  <link rel="stylesheet" href="./css/base.css?v=43">
+  <link rel="stylesheet" href="./css/telas.css?v=43">
+  <link rel="stylesheet" href="./css/mesa.css?v=43">
+  <link rel="stylesheet" href="./css/gavetas.css?v=43">
+  <link rel="stylesheet" href="./css/online.css?v=43">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=43">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -692,6 +692,11 @@
       <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
     </div>
 
+    <!-- Modo DEV: botão manual para passar para o jogador da vez / próximo jogador -->
+    <div id="barra-dev-prox" hidden>
+      <button type="button" id="btn-dev-passar" class="secundario" onclick="proximoJogadorDev()">Próximo jogador ▶</button>
+    </div>
+
     <!-- Modo normal: aparece só na sua vez -->
     <div id="barra-normal" hidden>
       <div id="caixa-aposta" class="caixa-aposta" hidden>
@@ -723,6 +728,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=42"></script>
+<script type="module" src="./js/main.js?v=43"></script>
 </body>
 </html>

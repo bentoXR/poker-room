@@ -1,16 +1,16 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=42';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=42';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=42';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=42';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=42';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=42';
-import { obterModo } from './modos.js?v=42';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=42';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=42';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=42';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=42';
+import { banco } from '../core/supabase.js?v=43';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=43';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=43';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=43';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=43';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=43';
+import { obterModo } from './modos.js?v=43';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=43';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=43';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=43';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=43';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -321,15 +321,19 @@ export function desenharMesa(dados) {
   // ----- Botões globais do topo (DEV / Reais) -----
   $id('btn-dev').hidden = !estado.modoDev;
   const btnProx = $id('btn-dev-prox');
-  btnProx.hidden = !estado.modoDev || ehModoOnline;
-  if (estado.modoDev && !ehModoOnline) btnProx.textContent = (eu ? nomeDe(eu.nome) : 'Jogador') + ' ▶';
+  btnProx.hidden = !estado.modoDev;
+  if (estado.modoDev) {
+    const rotuloProx = (jogadorDaVez && (!eu || jogadorDaVez.id !== eu.id))
+      ? 'Ir para ' + nomeDe(jogadorDaVez.nome) + ' ▶'
+      : 'Próximo (' + (eu ? nomeDe(eu.nome) : 'DEV') + ') ▶';
+    btnProx.textContent = rotuloProx;
+  }
   atualizarReais(false);
   if (estado.modoDev) hooksApp.desenharPainelDev();
 
   // ----- Barra de ações -----
   desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, falta, status });
   if (modo && modo.aoAtualizarMesa) modo.aoAtualizarMesa(partida, jogadores, ctxModo);
-  if (estado.modoDev) hooksApp.autoSeguirVezDev(partida, emJogo, !!congelado);
 }
 
 function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez }) {
@@ -339,6 +343,12 @@ function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez })
     if (partida.aguardando_proxima_mao) {
       if (comFichas < 2) return 'Fim da partida!';
       return 'Mão ' + (partida.mao - 1) + ' terminou · confirme para a próxima mão';
+    }
+    if (jogadorDaVez && partida.fase_blind === 1) {
+      return minhaVez ? 'Você deve pagar o small blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o small blind';
+    }
+    if (jogadorDaVez && partida.fase_blind === 2) {
+      return minhaVez ? 'Você deve pagar o big blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o big blind';
     }
     if (jogadorDaVez) return minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + nomeDe(jogadorDaVez.nome);
     return 'Atualizando mesa…';

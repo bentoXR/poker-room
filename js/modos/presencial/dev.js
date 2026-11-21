@@ -1,10 +1,10 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=42';
-import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=42';
-import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=42';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=42';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=42';
-import { executar } from '../../mesa/apostas.js?v=42';
+import { banco } from '../../core/supabase.js?v=43';
+import { estado, nomeDe, limparCachesMesa } from '../../core/estado.js?v=43';
+import { lerDevSala, salvarDevSala, esquecerDevSala } from '../../core/storage.js?v=43';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=43';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=43';
+import { executar } from '../../mesa/apostas.js?v=43';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const MAX_DEV = 9;
@@ -160,38 +160,22 @@ export function trocarJogadorDev(indice) {
   hooksDev.buscarMesa(true);
 }
 
-// No modo DEV, acompanha automaticamente quem está com a ação depois de cada jogada
-export function autoSeguirVezDev(partida, emJogo, congelado) {
-  if (!estado.modoDev || !emJogo || congelado || !partida || !partida.vez_jogador_id) {
-    clearTimeout(timerAutoVez);
-    return;
-  }
-  if (partida.vez_jogador_id === estado.meuJogadorId) {
-    clearTimeout(timerAutoVez);
-    return;
-  }
-  const sala = lerDevSala();
-  if (!sala || !Array.isArray(sala.jogadores)) return;
-  const idx = sala.jogadores.findIndex((j) => j.id === partida.vez_jogador_id);
-  if (idx < 0) return;
-
-  const chave = partida.id + ':' + partida.versao + ':' + partida.vez_jogador_id;
-  if (chave === chaveAutoVez) return;
-  chaveAutoVez = chave;
-
+// No modo DEV, a troca de jogador agora é manual pelo botão "Passar para próximo"
+export function autoSeguirVezDev() {
   clearTimeout(timerAutoVez);
-  timerAutoVez = setTimeout(() => {
-    if (!estado.modoDev || !estado.partidaAtual || estado.partidaAtual.id !== partida.id) return;
-    if (estado.partidaAtual.vez_jogador_id !== partida.vez_jogador_id) return;
-    if (estado.meuJogadorId === partida.vez_jogador_id) return;
-    controlarDev(idx, lerDevSala() || sala);
-    hooksDev.onRedesenhar();
-  }, 380);
 }
 
 export function proximoJogadorDev() {
   const sala = lerDevSala();
   if (!sala || sala.jogadores.length < 2) return;
+  const p = estado.partidaAtual;
+  if (p && p.vez_jogador_id && p.vez_jogador_id !== estado.meuJogadorId) {
+    const idxVez = sala.jogadores.findIndex((j) => j.id === p.vez_jogador_id);
+    if (idxVez >= 0) {
+      trocarJogadorDev(idxVez);
+      return;
+    }
+  }
   const i = sala.jogadores.findIndex((j) => j.id === estado.meuJogadorId);
   trocarJogadorDev((i + 1) % sala.jogadores.length);
 }

@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=42';
-import { estado, nomeDe } from '../../core/estado.js?v=42';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=42';
-import { lerDevSala } from '../../core/storage.js?v=42';
-import { registrarModo } from '../../mesa/modos.js?v=42';
-import { executar } from '../../mesa/apostas.js?v=42';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=42';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=42';
-import { avaliarMaoLocal } from './maos.js?v=42';
-import { tocarSom } from '../../core/som.js?v=42';
+import { banco } from '../../core/supabase.js?v=43';
+import { estado, nomeDe } from '../../core/estado.js?v=43';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=43';
+import { lerDevSala } from '../../core/storage.js?v=43';
+import { registrarModo } from '../../mesa/modos.js?v=43';
+import { executar } from '../../mesa/apostas.js?v=43';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=43';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=43';
+import { avaliarMaoLocal } from './maos.js?v=43';
+import { tocarSom } from '../../core/som.js?v=43';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -755,7 +755,7 @@ export function tickOnline() {
 function avisarMinhaVez(partida, eu) {
   const emJogo = partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4;
   const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id && !onlineUI.segurando;
-  if (minhaVez && !onlineUI.eraMinhaVez && !partida.fase_blind) {
+  if (minhaVez && !onlineUI.eraMinhaVez) {
     anunciar('SUA VEZ', null, 'vez', T.anuncioVez);
     tocarSom('sua-vez');
   }
