@@ -7,7 +7,7 @@ const CHAVE_SOM = 'poker-som';
 const ARQUIVOS_MP3 = {
   'carta-dar':    { url: './sons/card-slide-1.mp3',   vol: 0.62, jitter: 0.04 },
   'carta-virar':  { url: './sons/card-shove-1.mp3',   vol: 0.65, jitter: 0.03 },
-  'embaralhar':   { url: './sons/card-fan-1.mp3',     vol: 0.54, jitter: 0 },
+  'embaralhar':   { url: './sons/oxidvideos-shuffling-deck-of-cards-522518.mp3', vol: 0.65, jitter: 0 },
   'ficha':        { url: './sons/chip-lay-1.mp3',     vol: 0.68, jitter: 0.05 },
   'allin':        { url: './sons/chips-stack-4.mp3',  vol: 0.82, jitter: 0 },
   'ganhar-pote':  { url: './sons/chips-handle-5.mp3', vol: 0.80, jitter: 0 }
