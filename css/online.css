@@ -623,6 +623,48 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   box-shadow: 0 2px 8px rgba(255, 213, 79, 0.45);
 }
 
+/* Animação de baralho embaralhando (riffle shuffle) no início de cada mão */
+.baralho-embaralhar {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+  width: 44px;
+  height: 62px;
+  transform: translate(-50%, -50%);
+  z-index: 11;
+  pointer-events: none;
+  animation: baralhoSumir 960ms ease forwards;
+}
+.baralho-embaralhar .carta-shuf {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  animation-duration: 760ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+  animation-delay: calc(var(--i, 0) * 42ms);
+}
+.baralho-embaralhar .carta-shuf.esq { animation-name: shufEsq; }
+.baralho-embaralhar .carta-shuf.dir { animation-name: shufDir; }
+@keyframes shufEsq {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(0.85); opacity: 0; }
+  18%  { transform: translate(-28px, -4px) rotate(-14deg) scale(1); opacity: 1; }
+  52%  { transform: translate(-24px, -10px) rotate(-9deg) scale(1.04); opacity: 1; }
+  84%  { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(0.95); opacity: 1; }
+}
+@keyframes shufDir {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(0.85); opacity: 0; }
+  18%  { transform: translate(28px, -4px) rotate(14deg) scale(1); opacity: 1; }
+  52%  { transform: translate(24px, -10px) rotate(9deg) scale(1.04); opacity: 1; }
+  84%  { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(0.95); opacity: 1; }
+}
+@keyframes baralhoSumir {
+  0%, 76% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100%    { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
 /* Fichas voando do pote para o vencedor */
 .ficha-voo {
   position: absolute;
