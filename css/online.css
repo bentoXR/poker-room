@@ -460,67 +460,78 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 }
 
 
-/* ----- Avisos grandes na mesa (Flop, Turn, River, Showdown abaixo das cartas para nunca tampar) ----- */
+/* ----- Avisos na mesa (Flop/Turn/River/Showdown no canto inferior esquerdo; Sua Vez no canto inferior direito — zero sobreposição!) ----- */
 .anuncio-mesa, .anuncio-vez {
   position: absolute;
-  left: 50%;
   z-index: 9;
   opacity: 0;
   text-align: center;
   pointer-events: none;
 }
-.anuncio-mesa { top: auto; bottom: 10px; transform: translateX(-50%); }
+.anuncio-mesa {
+  left: 10px;
+  right: auto;
+  top: auto;
+  bottom: 8px;
+  transform: none;
+}
 .anuncio-mesa.mostra {
   opacity: 1;
   animation: anuncioRua var(--dur, 2300ms) cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .anuncio-mesa .anuncio-titulo {
   font-family: var(--fonte-numero);
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.16em;
-  padding-left: 0.16em;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
   color: #fff;
 }
 .anuncio-mesa .anuncio-sub {
-  margin-top: 3px;
-  font-size: 12px;
+  margin-top: 2px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--marfim-suave);
   white-space: nowrap;
 }
 .anuncio-mesa.rua, .anuncio-mesa.showdown {
-  min-width: 196px;
-  padding: 8px 24px 8px;
-  border-radius: 16px;
+  min-width: 148px;
+  padding: 6px 16px 6px;
+  border-radius: 14px;
   background: linear-gradient(180deg, rgba(14, 33, 72, 0.96), rgba(6, 13, 36, 0.98));
-  border: 2px solid rgba(244, 247, 255, 0.65);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.72), 0 0 0 4px rgba(47, 111, 208, 0.32);
+  border: 1.5px solid rgba(244, 247, 255, 0.65);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.72), 0 0 0 3px rgba(47, 111, 208, 0.3);
 }
 .anuncio-mesa.showdown {
   background: linear-gradient(180deg, rgba(155, 28, 49, 0.98), rgba(94, 15, 29, 0.98));
   border-color: #ffd866;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.72), 0 0 0 4px rgba(255, 216, 102, 0.32);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.72), 0 0 0 3px rgba(255, 216, 102, 0.3);
 }
 @keyframes anuncioRua {
-  0% { opacity: 0; transform: translate(-50%, 16px) scale(0.84); }
-  14% { opacity: 1; transform: translate(-50%, -2px) scale(1.03); }
-  22% { transform: translate(-50%, 0) scale(1); }
-  82% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -6px) scale(1.04); }
+  0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+  14% { opacity: 1; transform: translateY(0) scale(1.02); }
+  22% { transform: translateY(0) scale(1); }
+  82% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(6px) scale(0.96); }
 }
 
-.anuncio-vez { top: -8px; transform: translateX(-50%); }
+.anuncio-vez {
+  top: auto;
+  left: auto;
+  right: 10px;
+  bottom: 8px;
+  transform: none;
+}
 .anuncio-vez.mostra {
   opacity: 1;
   animation: anuncioVez var(--dur, 2000ms) ease both;
 }
 .anuncio-vez .anuncio-titulo {
-  padding: 6px 20px;
+  padding: 5px 16px;
   border-radius: 999px;
   font-family: var(--fonte-numero);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: #fff;
@@ -530,10 +541,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   white-space: nowrap;
 }
 @keyframes anuncioVez {
-  0% { opacity: 0; transform: translate(-50%, -14px); }
-  14% { opacity: 1; transform: translate(-50%, 0); }
-  84% { opacity: 1; transform: translate(-50%, 0); }
-  100% { opacity: 0; transform: translate(-50%, -8px); }
+  0% { opacity: 0; transform: translateY(10px) scale(0.92); }
+  14% { opacity: 1; transform: translateY(0) scale(1); }
+  84% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(6px) scale(0.96); }
 }
 
 /* ----- Tempo de cada jogador no próprio assento ----- */
@@ -623,6 +634,26 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   box-shadow: inset 0 0 0 5px #11295c, inset 0 0 0 6.5px #ffd866, 0 6px 14px rgba(0, 0, 0, 0.65);
 }
 
+/* Cartas fechadas dos oponentes no canto superior direito do assento (não aumentam a altura do perfil!) */
+#tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 20px; }
+#tela-mesa.modo-online .l-cartas.fechadas {
+  position: absolute;
+  top: -7px;
+  right: 6px;
+  margin: 0;
+  gap: 0;
+  pointer-events: none;
+}
+#tela-mesa.modo-online .l-cartas.fechadas .carta {
+  width: 15px;
+  border-radius: 3px;
+  border-width: 1px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+#tela-mesa.modo-online .l-cartas.fechadas .carta:first-child { transform: rotate(-8deg); }
+#tela-mesa.modo-online .l-cartas.fechadas .carta:last-child { margin-left: -5px; transform: rotate(8deg); }
+
+#tela-mesa.modo-online .mesa-wrap { min-height: 0; }
 #tela-mesa.modo-online .centro-roda .board { width: 96%; max-width: 250px; }
 #tela-mesa.modo-online .pote-ficha { transition: transform 0.5s ease; }
 #tela-mesa.modo-online .pote-ficha.bump { animation-duration: 0.8s; }
@@ -708,63 +739,69 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   #tela-mesa.modo-online .linha-ultima { margin-top: 4px; gap: 6px; }
   #tela-mesa.modo-online .ultima { font-size: 12px; padding: 2px 12px; }
 
-  /* Feltro oval, ficha redonda clássica do pote e 5 cartas sempre 100% visíveis */
-  #tela-mesa.modo-online .mesa-wrap { margin-top: 4px; }
+  /* Feltro oval dimensionado para os perfis ficarem na borda externa sem invadir a mesa */
+  #tela-mesa.modo-online .mesa-wrap { margin-top: 4px; min-height: 0; }
   #tela-mesa.modo-online .centro-roda {
-    width: 72%;
-    height: 70%;
+    top: 49%;
+    width: 63%;
+    height: 58%;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     padding: 8px 6px;
     overflow: visible;
   }
   #tela-mesa.modo-online .pote-ficha {
-    width: 66px;
-    height: 66px;
-    padding: 5px;
-  }
-  #tela-mesa.modo-online .pote-rotulo { font-size: 9.5px; }
-  #tela-mesa.modo-online .pote-valor { font-size: 23px; }
-  #tela-mesa.modo-online .pote-valor[data-len="5"] { font-size: 19px; }
-  #tela-mesa.modo-online .pote-valor[data-len="6"] { font-size: 15.5px; }
-  #tela-mesa.modo-online .pote-valor[data-len="7"],
-  #tela-mesa.modo-online .pote-valor[data-len="8"] { font-size: 12.5px; }
-  #tela-mesa.modo-online.cheia .pote-ficha {
-    width: 54px;
-    height: 54px;
+    width: 56px;
+    height: 56px;
     padding: 4px;
   }
-  #tela-mesa.modo-online.cheia .pote-rotulo { font-size: 8.5px; }
-  #tela-mesa.modo-online.cheia .pote-valor { font-size: 19px; }
-  #tela-mesa.modo-online.cheia .pote-valor[data-len="5"] { font-size: 15.5px; }
-  #tela-mesa.modo-online.cheia .pote-valor[data-len="6"] { font-size: 13px; }
+  #tela-mesa.modo-online .pote-rotulo { font-size: 8.5px; }
+  #tela-mesa.modo-online .pote-valor { font-size: 20px; }
+  #tela-mesa.modo-online .pote-valor[data-len="5"] { font-size: 16.5px; }
+  #tela-mesa.modo-online .pote-valor[data-len="6"] { font-size: 14px; }
+  #tela-mesa.modo-online .pote-valor[data-len="7"],
+  #tela-mesa.modo-online .pote-valor[data-len="8"] { font-size: 11.5px; }
+  #tela-mesa.modo-online.cheia .pote-ficha {
+    width: 48px;
+    height: 48px;
+    padding: 3.5px;
+  }
+  #tela-mesa.modo-online.cheia .pote-rotulo { font-size: 8px; }
+  #tela-mesa.modo-online.cheia .pote-valor { font-size: 17px; }
+  #tela-mesa.modo-online.cheia .pote-valor[data-len="5"] { font-size: 14px; }
+  #tela-mesa.modo-online.cheia .pote-valor[data-len="6"] { font-size: 12px; }
   #tela-mesa.modo-online .centro-roda .board {
     width: 100%;
-    max-width: 194px;
+    max-width: 184px;
     z-index: 4;
   }
-  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 186px; }
-  #tela-mesa.modo-online #board.online .slots { gap: 3.5px; }
+  #tela-mesa.modo-online.cheia .centro-roda .board { max-width: 174px; }
+  #tela-mesa.modo-online #board.online .slots { gap: 3px; }
+  #tela-mesa.modo-online .centro-roda .pilula.destaque { font-size: 10px; padding: 2px 8px; }
 
-  /* Assentos com exatamente a mesma arte do PC/Presencial, apenas proporcionais para caber até 9 jogadores */
-  #tela-mesa.modo-online .l-cartas .carta { width: 19px; border-radius: 3px; }
-  #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 23px; border-radius: 3.5px; }
+  /* Assentos com exatamente a mesma arte do PC/Presencial, posicionados na borda externa */
+  #tela-mesa.modo-online .lugar.assento-redondo {
+    top: clamp(28px, var(--y, 50%), calc(100% - 28px));
+  }
+  #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 21px; border-radius: 3.5px; }
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     padding: 3.5px 5px 3px;
     border-radius: 12px;
     gap: 1px;
   }
-  #tela-mesa.modo-online.cheia .l-cartas .carta { width: 17px; border-radius: 2.5px; }
-  #tela-mesa.modo-online.cheia .l-cartas.reveladas .carta { width: 20px; border-radius: 3px; }
+  #tela-mesa.modo-online.cheia .l-cartas.fechadas .carta { width: 13px; border-radius: 2.5px; }
+  #tela-mesa.modo-online.cheia .l-cartas.reveladas .carta { width: 19px; border-radius: 3px; }
   #tela-mesa.modo-online.cheia .l-mao-nome { font-size: 8.5px; padding: 1px 3px; margin-top: 1px; }
   #tela-mesa.modo-online.cheia .l-tags { min-height: 13px; gap: 2px; }
   #tela-mesa.modo-online.cheia .lugar .tag { font-size: 8.5px; line-height: 13px; padding: 0 4px; }
   #tela-mesa.modo-online.cheia .lugar .tag.d { width: 13px; height: 13px; padding: 0; }
 
-  /* Dock inferior com o mesmo estilo da mesa */
+  /* Dock inferior: quando o menu de aposta ("Aumentar") abre, recolhe as cartas 3D para NUNCA cobrir seu perfil! */
   #barra-acoes.modo-online { padding: 7px 10px calc(9px + env(safe-area-inset-bottom)); }
   #barra-acoes.modo-online .minha-mao-wrap { gap: 4px; margin-bottom: 5px; }
   #barra-acoes.modo-online .carta-3d { width: 58px; height: 81px; }
+  #barra-acoes.modo-online.apostando #minha-mao-wrap,
+  #barra-acoes.modo-online.apostando #barra-titulo { display: none !important; }
 }
 
 
@@ -876,25 +913,27 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     font-size: 16.5px;
   }
 
-  /* Mesa oval horizontal de poker (aproveitando melhor a tela do PC) */
+  /* Mesa oval horizontal de poker no PC: dimensionada para os perfis ficarem na borda sem invadir o feltro */
   #tela-mesa.modo-online .mesa-wrap {
     max-width: min(1340px, 96vw);
     width: 100%;
-    min-height: 360px;
-    margin: 14px auto 0;
+    min-height: 0;
+    margin: 8px auto 0;
   }
-  #tela-mesa.modo-online .anuncio-mesa { bottom: 18px; }
-  #tela-mesa.modo-online .anuncio-mesa .anuncio-titulo { font-size: 40px; }
-  #tela-mesa.modo-online .anuncio-mesa .anuncio-sub { font-size: 13.5px; }
+  #tela-mesa.modo-online .anuncio-mesa { left: 24px; right: auto; top: auto; bottom: 14px; }
+  #tela-mesa.modo-online .anuncio-mesa .anuncio-titulo { font-size: 30px; }
+  #tela-mesa.modo-online .anuncio-mesa .anuncio-sub { font-size: 12.5px; }
+  #tela-mesa.modo-online .anuncio-vez { right: 24px; bottom: 14px; }
+  #tela-mesa.modo-online .anuncio-vez .anuncio-titulo { font-size: 21px; padding: 7px 22px; }
   #tela-mesa.modo-online .centro-roda {
-    top: 48%;
-    width: 73%;
-    height: 68%;
+    top: 49%;
+    width: 62%;
+    height: 60%;
     border-radius: 999px;
-    padding: 16px 42px;
-    gap: 10px;
+    padding: 10px 32px;
+    gap: 5px;
     background: radial-gradient(ellipse at 50% 42%, #2455ab 0%, #143370 60%, #0c204a 100%);
-    border: 11px solid #08132c;
+    border: 10px solid #08132c;
     box-shadow:
       inset 0 0 0 1.5px rgba(244, 247, 255, 0.22),
       inset 0 0 42px rgba(0, 0, 0, 0.35),
@@ -902,61 +941,64 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
       0 0 0 2px rgba(244, 247, 255, 0.14);
   }
   #tela-mesa.modo-online .centro-roda .fase-nome {
-    padding: 4px 16px;
-    font-size: 13.5px;
+    padding: 2px 12px;
+    font-size: 11.5px;
   }
   #tela-mesa.modo-online .pote-ficha {
-    width: 96px;
-    height: 96px;
+    width: 70px;
+    height: 70px;
+    padding: 5px;
   }
-  #tela-mesa.modo-online .pote-rotulo { font-size: 12.5px; }
-  #tela-mesa.modo-online .pote-valor { font-size: 34px; }
-  #tela-mesa.modo-online .pote-valor[data-len="5"] { font-size: 27px; }
-  #tela-mesa.modo-online .pote-valor[data-len="6"] { font-size: 22px; }
+  #tela-mesa.modo-online .pote-rotulo { font-size: 10.5px; }
+  #tela-mesa.modo-online .pote-valor { font-size: 25px; }
+  #tela-mesa.modo-online .pote-valor[data-len="5"] { font-size: 20px; }
+  #tela-mesa.modo-online .pote-valor[data-len="6"] { font-size: 17px; }
   #tela-mesa.modo-online .centro-roda button.potes-resumo {
-    padding: 5px 14px;
-    font-size: 14px;
+    padding: 3px 11px;
+    font-size: 12px;
   }
-  #tela-mesa.modo-online .potes-resumo .pote-mini b { font-size: 16px; }
+  #tela-mesa.modo-online .potes-resumo .pote-mini b { font-size: 14px; }
 
   /* Cartas comunitárias grandes e bem legíveis no centro */
   #tela-mesa.modo-online #board.online {
-    max-width: 430px;
-    gap: 6px;
-  }
-  #tela-mesa.modo-online #board.online .slots { gap: 10px; }
-  #tela-mesa.modo-online .carta-slot-vazio { border-radius: 9px; }
-  #tela-mesa.modo-online .carta-board .carta { box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(13, 27, 54, 0.14); }
-  #tela-mesa.modo-online #board.online .rotulos span { font-size: 11.5px; letter-spacing: 0.1em; }
-  #tela-mesa.modo-online .centro-roda .pilula.destaque { padding: 5px 16px; font-size: 14.5px; }
-
-  /* Assentos amplos e bem legíveis ao redor do feltro horizontal */
-  #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(70px, var(--y, 50%), calc(100% - 46px));
-    padding: 9px 13px 8px;
-    border-radius: 17px;
+    max-width: 340px;
     gap: 4px;
+  }
+  #tela-mesa.modo-online #board.online .slots { gap: 8px; }
+  #tela-mesa.modo-online .carta-slot-vazio { border-radius: 8px; }
+  #tela-mesa.modo-online .carta-board .carta { box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(13, 27, 54, 0.14); }
+  #tela-mesa.modo-online #board.online .rotulos span { font-size: 10.5px; letter-spacing: 0.1em; }
+  #tela-mesa.modo-online .centro-roda .pilula.destaque { padding: 3px 12px; font-size: 12.5px; }
+
+  /* Assentos ao redor do feltro horizontal (sem invadir o interior da mesa) */
+  #tela-mesa.modo-online .lugar.assento-redondo {
+    top: clamp(44px, var(--y, 50%), calc(100% - 42px));
+    padding: 7px 11px 6px;
+    border-radius: 16px;
+    gap: 3px;
     box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   #tela-mesa.modo-online .lugar .tag {
-    padding: 0 7px;
-    line-height: 20px;
+    padding: 0 6px;
+    line-height: 18px;
   }
-  #tela-mesa.modo-online .lugar .tag.d { width: 20px; height: 20px; padding: 0; }
-  #tela-mesa.modo-online .l-tags { gap: 4px; min-height: 20px; }
-  #tela-mesa.modo-online .l-cartas { gap: 5px; margin-top: 3px; }
-  #tela-mesa.modo-online .l-cartas .carta { width: 38px; border-radius: 6px; }
+  #tela-mesa.modo-online .lugar .tag.d { width: 18px; height: 18px; padding: 0; }
+  #tela-mesa.modo-online .l-tags { gap: 4px; min-height: 18px; }
+  #tela-mesa.modo-online .l-cartas.fechadas { top: -8px; right: 8px; }
+  #tela-mesa.modo-online .l-cartas.fechadas .carta { width: 20px; border-radius: 3.5px; }
+  #tela-mesa.modo-online .l-cartas.reveladas { gap: 4px; margin-top: 2px; }
+  #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 32px; border-radius: 5px; }
   #tela-mesa.modo-online .l-mao-nome {
-    margin-top: 3px;
-    padding: 2px 9px;
-    font-size: 12.5px;
+    margin-top: 2px;
+    padding: 2px 8px;
+    font-size: 11.5px;
   }
 
-  /* Dock inferior flutuante em 2 colunas (Suas 2 cartas 3D à esquerda + Controles à direita) */
+  /* Dock inferior flutuante em 2 colunas (altura constante mesmo ao abrir "Aumentar"!) */
   #barra-acoes.modo-online {
-    bottom: 12px;
-    max-width: min(1220px, 96vw);
-    padding: 14px 24px;
+    bottom: 10px;
+    max-width: min(1200px, 96vw);
+    padding: 12px 22px;
     border: 1px solid rgba(244, 247, 255, 0.18);
     border-radius: 20px;
     background: linear-gradient(180deg, rgba(14, 33, 72, 0.96), rgba(6, 13, 36, 0.98));
@@ -970,8 +1012,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
-    column-gap: 28px;
-    row-gap: 8px;
+    column-gap: 24px;
+    row-gap: 6px;
   }
   #barra-acoes.modo-online.visivel:has(#minha-mao-wrap[hidden]) {
     grid-template-columns: 1fr;
@@ -979,81 +1021,79 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
   #barra-acoes.modo-online .timer-turno-wrap {
     grid-column: 1 / -1;
     margin-bottom: 2px;
-    height: 6px;
+    height: 5px;
   }
   #barra-acoes.modo-online .minha-mao-wrap {
     margin-bottom: 0;
-    padding-right: 24px;
+    padding-right: 22px;
     border-right: 1px solid rgba(244, 247, 255, 0.14);
   }
-  #barra-acoes.modo-online .minha-mao-cartas { gap: 14px; }
+  #barra-acoes.modo-online .minha-mao-cartas { gap: 12px; }
   #barra-acoes.modo-online .carta-3d {
-    width: 86px;
-    height: 120px;
-    border-radius: 12px;
+    width: 80px;
+    height: 112px;
+    border-radius: 11px;
   }
-  #barra-acoes.modo-online .carta-face { border-radius: 12px; }
-  #barra-acoes.modo-online .carta-face.frente .carta { border-radius: 12px; }
-  #barra-acoes.modo-online .carta-face.verso::after { font-size: 34px; }
-  #barra-acoes.modo-online .minha-mao-linha { min-width: 0; gap: 14px; }
-  #barra-acoes.modo-online .minha-mao-linha .btn-luz {
-    position: static;
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-  }
-  #barra-acoes.modo-online .minha-mao-linha .btn-luz .ic-luz { width: 22px; height: 22px; }
-  #barra-acoes.modo-online .minha-mao-nome { padding: 6px 16px 6px 11px; }
-  #barra-acoes.modo-online .mm-txt b { font-size: 16px; }
-  #barra-acoes.modo-online .mm-txt small { font-size: 13px; }
-  #barra-acoes.modo-online .minha-mao-dica { font-size: 13.5px; }
+  #barra-acoes.modo-online .carta-face { border-radius: 11px; }
+  #barra-acoes.modo-online .carta-face.frente .carta { border-radius: 11px; }
+  #barra-acoes.modo-online .carta-face.verso::after { font-size: 32px; }
+  #barra-acoes.modo-online .minha-mao-linha { min-width: 0; gap: 12px; }
+  #barra-acoes.modo-online .minha-mao-nome { padding: 4px 14px; }
+  #barra-acoes.modo-online .mm-txt b { font-size: 14.5px; }
+  #barra-acoes.modo-online .mm-txt small { font-size: 12px; }
+  #barra-acoes.modo-online .minha-mao-dica { font-size: 12.5px; }
   #barra-acoes.modo-online .barra-controles { min-width: 0; }
   #barra-acoes.modo-online .barra-titulo {
-    font-size: 16.5px;
-    margin-bottom: 9px;
+    font-size: 15.5px;
+    margin-bottom: 8px;
   }
+  #barra-acoes.modo-online.apostando .barra-titulo { display: none !important; }
   #barra-acoes.modo-online .grade-simples { gap: 12px; }
   #barra-acoes.modo-online .grade-simples button {
-    min-height: 58px;
-    font-size: 19px;
+    min-height: 54px;
+    font-size: 18px;
   }
+  /* Caixa de aposta em 1 única linha horizontal no PC para o dock não crescer nem 1px! */
   #barra-acoes.modo-online .caixa-aposta {
     display: grid;
-    grid-template-columns: 1fr 240px;
-    gap: 8px 16px;
+    grid-template-columns: auto minmax(120px, 1fr) 196px;
+    gap: 12px;
     align-items: center;
-    padding: 10px 14px;
-    margin-bottom: 10px;
+    padding: 7px 12px;
+    margin-bottom: 8px;
   }
   #barra-acoes.modo-online .caixa-aposta .presets {
-    grid-column: 1 / -1;
-    gap: 8px;
+    grid-column: auto;
+    display: flex;
+    gap: 6px;
     margin-bottom: 0;
   }
-  #barra-acoes.modo-online .caixa-aposta .presets button { min-height: 40px; font-size: 15px; }
+  #barra-acoes.modo-online .caixa-aposta .presets button {
+    width: auto;
+    min-width: 44px;
+    min-height: 38px;
+    padding: 4px 10px;
+    font-size: 14px;
+  }
   #barra-acoes.modo-online .caixa-aposta input[type=range] { margin-bottom: 0; }
-  #barra-acoes.modo-online .caixa-aposta .linha-aposta { grid-template-columns: 46px 1fr 46px; }
+  #barra-acoes.modo-online .caixa-aposta .linha-aposta { grid-template-columns: 40px 1fr 40px; }
   #barra-acoes.modo-online .caixa-aposta .linha-aposta button,
-  #barra-acoes.modo-online .caixa-aposta input { min-height: 46px; font-size: 22px; }
-  #barra-acoes.modo-online .grade-simples.modo-aposta #btn-confirmar-aposta { min-height: 58px; }
+  #barra-acoes.modo-online .caixa-aposta input { min-height: 38px; font-size: 20px; }
+  #barra-acoes.modo-online .grade-simples.modo-aposta button,
+  #barra-acoes.modo-online .grade-simples.modo-aposta #btn-confirmar-aposta { min-height: 48px; font-size: 17.5px; }
 
-  /* Não compactar a mesa nem encolher cartas 3D ao abrir a caixa de aposta no PC */
-  #tela-mesa.modo-online.apostando .centro-roda { padding: 18px 42px; gap: 11px; }
-  #tela-mesa.modo-online.apostando .centro-roda .pote-ficha { width: 96px; height: 96px; padding: 6px; }
-  #tela-mesa.modo-online.apostando .centro-roda .pote-valor { font-size: 34px; }
-  #tela-mesa.modo-online.apostando .centro-roda .pote-valor[data-len="5"] { font-size: 27px; }
-  #tela-mesa.modo-online.apostando .centro-roda .pote-valor[data-len="6"] { font-size: 22px; }
+  /* Não compactar a mesa ao abrir a caixa de aposta no PC */
+  #tela-mesa.modo-online.apostando .centro-roda { padding: 10px 32px; gap: 5px; }
+  #tela-mesa.modo-online.apostando .centro-roda .pote-ficha { width: 70px; height: 70px; padding: 5px; }
+  #tela-mesa.modo-online.apostando .centro-roda .pote-valor { font-size: 25px; }
+  #tela-mesa.modo-online.apostando .centro-roda .pote-valor[data-len="5"] { font-size: 20px; }
+  #tela-mesa.modo-online.apostando .centro-roda .pote-valor[data-len="6"] { font-size: 17px; }
   #tela-mesa.modo-online.apostando .centro-roda .pote-rotulo,
   #tela-mesa.modo-online.apostando .centro-roda .rotulos,
   #tela-mesa.modo-online.apostando .ultima { display: block; }
   #tela-mesa.modo-online.apostando .centro-roda .rotulos { display: grid; }
   #tela-mesa.modo-online.apostando .centro-roda .potes-resumo:not([hidden]) { display: inline-flex; }
-  #tela-mesa.modo-online.apostando .centro-roda .fase-nome { font-size: 13.5px; padding: 4px 16px; }
-  body.modo-online:has(#tela-mesa.apostando) #barra-titulo { display: block; }
-  #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 86px; height: 120px; }
-  #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-dica { display: block; }
-  #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-wrap.com-nome .minha-mao-dica { display: none; }
+  #tela-mesa.modo-online.apostando .centro-roda .fase-nome { font-size: 12.5px; padding: 3px 14px; }
 
   /* Gavetas (.folha) viram modais centralizados no PC (Modo Online) */
   body.modo-online .fundo-folha {
@@ -1101,19 +1141,18 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: none; }
 
 /* Notebooks compactos (ex.: 1366x768 com ~650-740px de altura útil) */
 @media (min-width: 820px) and (max-height: 760px) {
-  body.na-mesa.modo-online main { padding-top: 8px; }
-  #tela-mesa.modo-online .mesa-wrap { min-height: 300px; margin-top: 8px; }
+  body.na-mesa.modo-online main { padding-top: 6px; }
+  #tela-mesa.modo-online .mesa-wrap { min-height: 0; margin-top: 6px; }
   #tela-mesa.modo-online .centro-roda {
-    padding: 12px 30px;
-    gap: 7px;
+    padding: 10px 28px;
+    gap: 6px;
     border-width: 8px;
   }
-  #tela-mesa.modo-online .pote-ficha { width: 76px; height: 76px; padding: 5px; }
-  #tela-mesa.modo-online .pote-valor { font-size: 27px; }
-  #tela-mesa.modo-online #board.online { max-width: 340px; }
-  #tela-mesa.modo-online .l-cartas .carta { width: 32px; }
+  #tela-mesa.modo-online .pote-ficha { width: 68px; height: 68px; padding: 4.5px; }
+  #tela-mesa.modo-online .pote-valor { font-size: 24px; }
+  #tela-mesa.modo-online #board.online { max-width: 320px; }
+  #tela-mesa.modo-online .l-cartas.reveladas .carta { width: 28px; }
   #barra-acoes.modo-online { bottom: 8px; padding: 10px 18px; }
-  #barra-acoes.modo-online .carta-3d { width: 70px; height: 98px; }
-  #barra-acoes.modo-online .grade-simples button { min-height: 50px; font-size: 17px; }
-  #tela-mesa.modo-online.apostando ~ #barra-acoes .minha-mao-cartas .carta-3d { width: 70px; height: 98px; }
+  #barra-acoes.modo-online .carta-3d { width: 68px; height: 95px; }
+  #barra-acoes.modo-online .grade-simples button { min-height: 48px; font-size: 16.5px; }
 }

@@ -1,8 +1,8 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=8';
-import { estado, passoSala } from '../core/estado.js?v=8';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=8';
+import { banco } from '../core/supabase.js?v=9';
+import { estado, passoSala } from '../core/estado.js?v=9';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=9';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -150,6 +150,7 @@ export function alternarAposta() {
   $id('caixa-aposta').hidden = !estado.apostaAberta;
   $id('btn-aumentar').classList.toggle('aberto', estado.apostaAberta);
   $id('tela-mesa').classList.toggle('apostando', estado.apostaAberta);
+  $id('barra-acoes').classList.toggle('apostando', estado.apostaAberta);
   sincronizarModoAposta();
   if (estado.apostaAberta) {
     estado.apostaEditada = false;
@@ -189,6 +190,7 @@ export function modoEnviando() {
   estado.apostaAberta = false;
   sincronizarModoAposta();
   $id('tela-mesa').classList.remove('apostando');
+  $id('barra-acoes').classList.remove('apostando');
   $id('barra-normal').hidden = true;
   $id('barra-blind').hidden = true;
   $id('barra-titulo').textContent = 'Enviando…';
@@ -284,6 +286,7 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   if (!podeAumentar) estado.apostaAberta = false;
   $id('caixa-aposta').hidden = !estado.apostaAberta;
   $id('tela-mesa').classList.toggle('apostando', estado.apostaAberta);
+  $id('barra-acoes').classList.toggle('apostando', estado.apostaAberta);
   $id('btn-aumentar').disabled = !podeAumentar;
   $id('btn-aumentar').classList.toggle('aberto', estado.apostaAberta);
   $id('btn-confirmar-aposta').disabled = !podeAumentar;

@@ -1,14 +1,14 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=8';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=8';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=8';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=8';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=8';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=8';
-import { obterModo } from './modos.js?v=8';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=8';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=8';
+import { banco } from '../core/supabase.js?v=9';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=9';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=9';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=9';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=9';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=9';
+import { obterModo } from './modos.js?v=9';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=9';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=9';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -317,17 +317,28 @@ function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez })
   return 'Fim da partida: só resta um jogador com fichas.';
 }
 
-// Coordenadas (x%, y%) dos assentos no Mobile Online para 2 a 9 jogadores:
-// k=0 é sempre você (embaixo); a faixa central da mesa fica livre para as 5 cartas comunitárias!
+// Coordenadas (x%, y%) dos assentos no Modo Online para 2 a 9 jogadores:
+// k=0 é sempre você (embaixo); os demais assentos ficam na borda externa sem invadir o centro do feltro!
 const POSICOES_MOBILE_ONLINE = {
-  2: [[50, 89], [50, 11]],
-  3: [[50, 89], [16, 26], [84, 26]],
-  4: [[50, 89], [15, 28], [50, 11], [85, 28]],
-  5: [[50, 89], [15, 70], [16, 25], [84, 25], [85, 70]],
-  6: [[50, 89], [15, 70], [15, 28], [50, 11], [85, 28], [85, 70]],
-  7: [[50, 89], [15, 71], [14, 31], [33, 11], [67, 11], [86, 31], [85, 71]],
-  8: [[50, 89], [14, 73], [11, 50], [15, 26], [50, 10], [85, 26], [89, 50], [86, 73]],
-  9: [[50, 89], [14, 74], [11, 51], [14, 27], [34, 10], [66, 10], [86, 27], [89, 51], [86, 74]]
+  2: [[50, 91], [50, 9]],
+  3: [[50, 91], [14, 24], [86, 24]],
+  4: [[50, 91], [14, 26], [50, 9], [86, 26]],
+  5: [[50, 91], [14, 72], [15, 23], [85, 23], [86, 72]],
+  6: [[50, 91], [14, 72], [14, 26], [50, 9], [86, 26], [86, 72]],
+  7: [[50, 91], [14, 73], [13, 30], [33, 9], [67, 9], [87, 30], [86, 73]],
+  8: [[50, 91], [13, 74], [11, 50], [14, 25], [50, 9], [86, 25], [89, 50], [87, 74]],
+  9: [[50, 91], [13, 75], [11, 51], [13, 26], [34, 9], [66, 9], [87, 26], [89, 51], [87, 75]]
+};
+
+const POSICOES_DESKTOP_ONLINE = {
+  2: [[50, 91], [50, 9]],
+  3: [[50, 91], [10, 26], [90, 26]],
+  4: [[50, 91], [9, 50], [50, 9], [91, 50]],
+  5: [[50, 91], [11, 72], [13, 22], [87, 22], [89, 72]],
+  6: [[50, 91], [11, 74], [11, 26], [50, 9], [89, 26], [89, 74]],
+  7: [[50, 91], [12, 76], [9, 36], [31, 9], [69, 9], [91, 36], [88, 76]],
+  8: [[50, 91], [14, 80], [9, 50], [14, 20], [50, 9], [86, 20], [91, 50], [86, 80]],
+  9: [[50, 91], [15, 81], [9, 52], [13, 22], [34, 9], [66, 9], [87, 22], [91, 52], [85, 81]]
 };
 
 function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
@@ -353,18 +364,18 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   const nJ = jogadores.length;
   const meuIdx = Math.max(0, jogadores.findIndex((j) => j.id === estado.meuJogadorId));
   const larguraLugar = desktopOnline
-    ? (nJ <= 4 ? 182 : nJ <= 6 ? 170 : nJ <= 8 ? 156 : 146)
+    ? (nJ <= 4 ? 156 : nJ <= 6 ? 148 : nJ <= 8 ? 138 : 130)
     : mobileOnline
       ? (nJ <= 4 ? 82 : nJ <= 6 ? 78 : nJ <= 8 ? 70 : 68)
       : (nJ <= 4 ? 100 : nJ <= 6 ? 94 : nJ <= 8 ? 88 : 84);
   const escalaLugar = desktopOnline
-    ? (nJ <= 4 ? 1.2 : nJ <= 6 ? 1.15 : nJ <= 8 ? 1.08 : 1.02)
+    ? (nJ <= 4 ? 1.06 : nJ <= 6 ? 1.02 : nJ <= 8 ? 0.96 : 0.92)
     : mobileOnline
       ? (nJ <= 4 ? 0.94 : nJ <= 6 ? 0.88 : nJ <= 8 ? 0.8 : 0.76)
       : (nJ <= 4 ? 1.05 : nJ <= 6 ? 1 : nJ <= 8 ? 0.95 : 0.92);
   const raioX = desktopOnline ? 43.5 : 40;
   const raioY = desktopOnline ? 40.5 : 39;
-  const maxVw = desktopOnline ? '19vw' : (mobileOnline ? (nJ >= 7 ? '19.5vw' : '21.5vw') : '27vw');
+  const maxVw = desktopOnline ? '16vw' : (mobileOnline ? (nJ >= 7 ? '19.5vw' : '21.5vw') : '27vw');
 
   const htmlLista = jogadores.map((j, i) => {
     const souEu = (j.id === estado.meuJogadorId);
@@ -409,7 +420,9 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
 
     const corFicha = 'c' + (((Number(j.ordem) || 1) - 1) % 8 + 1);
     const k = (i - meuIdx + nJ) % nJ;
-    const mapaPos = mobileOnline && POSICOES_MOBILE_ONLINE[nJ];
+    const mapaPos = mobileOnline
+      ? POSICOES_MOBILE_ONLINE[nJ]
+      : (desktopOnline ? POSICOES_DESKTOP_ONLINE[nJ] : null);
     let x;
     let y;
     if (mapaPos && mapaPos[k]) {
@@ -420,7 +433,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       x = 50 + raioX * Math.cos(angulo);
       y = 50 + raioY * Math.sin(angulo);
     }
-    const largura = larguraLugar + (souEu ? (desktopOnline ? 10 : (mobileOnline ? 18 : 8)) : 0);
+    const largura = larguraLugar + (souEu ? (desktopOnline ? 8 : (mobileOnline ? 18 : 8)) : 0);
     const maxVwAssento = (mobileOnline && souEu) ? '27vw' : maxVw;
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVwAssento + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
