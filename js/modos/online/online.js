@@ -1,25 +1,25 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=64';
-import { estado, nomeDe } from '../../core/estado.js?v=64';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=64';
-import { lerDevSala } from '../../core/storage.js?v=64';
-import { registrarModo } from '../../mesa/modos.js?v=64';
-import { executar } from '../../mesa/apostas.js?v=64';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=64';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=64';
-import { avaliarMaoLocal } from './maos.js?v=64';
-import { tocarSom } from '../../core/som.js?v=64';
+import { banco } from '../../core/supabase.js?v=65';
+import { estado, nomeDe } from '../../core/estado.js?v=65';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=65';
+import { lerDevSala } from '../../core/storage.js?v=65';
+import { registrarModo } from '../../mesa/modos.js?v=65';
+import { executar } from '../../mesa/apostas.js?v=65';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=65';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=65';
+import { avaliarMaoLocal } from './maos.js?v=65';
+import { tocarSom } from '../../core/som.js?v=65';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
-  antesCarta: 1100,   // aviso aparece e só depois as cartas caem na mesa
-  aposFlop: 2800,     // pausa depois do flop (3 cartas) antes da próxima etapa
-  aposCarta: 2300,    // pausa depois de Turn / River
-  showdown: 2400,     // aviso "Showdown" antes de revelar as mãos
-  anuncio: 2300,      // duração do aviso grande no centro da mesa
-  anuncioVez: 2000    // duração do aviso "Sua vez"
+  antesCarta: 1250,   // aviso aparece e só depois as cartas deslizam e viram na mesa
+  aposFlop: 3400,     // pausa confortável depois do flop (3 cartas) antes da próxima etapa
+  aposCarta: 2700,    // pausa depois de Turn / River
+  showdown: 2700,     // aviso "Showdown" antes de revelar as mãos
+  anuncio: 2500,      // duração do aviso grande no centro da mesa
+  anuncioVez: 2100    // duração do aviso "Sua vez"
 };
 const ROTULOS_RUA = { 3: 'FLOP', 4: 'TURN', 5: 'RIVER' };
 const SUBTITULOS_RUA = {
@@ -63,9 +63,18 @@ const onlineUI = {
   ultimaTxt: null,
   ultimoSegUrgente: null,
   campeaoSomChave: null,
+  embaralhandoAte: 0,
+  timersDeal: [],
   timerAnuncio: null,
   timerAnuncioVez: null
 };
+
+function limparTimersDeal() {
+  if (Array.isArray(onlineUI.timersDeal)) {
+    onlineUI.timersDeal.forEach((id) => clearTimeout(id));
+  }
+  onlineUI.timersDeal = [];
+}
 
 function cancelarCena() {
   if (onlineUI.cena && onlineUI.cena.timer) clearTimeout(onlineUI.cena.timer);
@@ -81,6 +90,8 @@ function cancelarCena() {
 
 export function resetarOnlineUI() {
   cancelarCena();
+  limparTimersDeal();
+  onlineUI.embaralhandoAte = 0;
   onlineUI.maoCarregada = null;
   onlineUI.jogadorCarregado = null;
   onlineUI.minhasCartas = null;
@@ -166,24 +177,116 @@ function premiosDoResultado(partida) {
   return mapa;
 }
 
-// Animação rápida de baralho embaralhando (riffle shuffle) no centro da mesa ao iniciar nova mão
+// Animação fluida de baralho embaralhando (duplo riffle shuffle 3D) seguida da distribuição para cada assento
 function animarEmbaralhar() {
   const wrap = document.querySelector('#tela-mesa.modo-online .mesa-wrap');
   if (!wrap) return;
-  const antiga = wrap.querySelector('.baralho-embaralhar');
-  if (antiga) antiga.remove();
+  limparTimersDeal();
+  wrap.querySelectorAll('.baralho-embaralhar, .carta-voo-deal').forEach((n) => n.remove());
+
+  onlineUI.embaralhandoAte = Date.now() + 1950;
 
   const el = document.createElement('div');
   el.className = 'baralho-embaralhar';
   el.setAttribute('aria-hidden', 'true');
   let html = '';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 10; i++) {
     const lado = i % 2 === 0 ? 'esq' : 'dir';
     html += '<span class="carta verso carta-shuf ' + lado + '" style="--i:' + i + '"></span>';
   }
   el.innerHTML = html;
   wrap.appendChild(el);
-  setTimeout(() => { el.remove(); }, 980);
+
+  // Esconde temporariamente as cartinhas dos oponentes enquanto o baralho é embaralhado
+  requestAnimationFrame(() => {
+    wrap.querySelectorAll('.lugar .l-cartas.fechadas').forEach((c) => {
+      c.classList.remove('recebeu-deal');
+      c.classList.add('aguardando-deal');
+    });
+  });
+
+  // Ao terminar os 2 ciclos de riffle shuffle (~1.88s), distribui 2 cartas voando em arco para cada jogador
+  const tDeal = setTimeout(() => {
+    if (!wrap.isConnected) return;
+    const wRect = wrap.getBoundingClientRect();
+    const dRect = el.getBoundingClientRect();
+    const ox = (dRect.width > 0 ? (dRect.left - wRect.left) + dRect.width / 2 : wRect.width / 2);
+    const oy = (dRect.height > 0 ? (dRect.top - wRect.top) + dRect.height / 2 : wRect.height * 0.49);
+
+    const assentos = Array.from(wrap.querySelectorAll('.lugar')).filter((l) => l.querySelector('.l-cartas.fechadas'));
+    const meuAlvo = $id('minha-mao-wrap') && !$id('minha-mao-wrap').hidden
+      ? $id('minha-mao-wrap')
+      : $id('meu-perfil-dock');
+    const alvos = assentos.slice();
+    if (meuAlvo && !meuAlvo.hidden) alvos.push(meuAlvo);
+
+    let passo = 0;
+    const intervalo = alvos.length >= 7 ? 95 : 120;
+    const duracaoVoo = 640;
+
+    for (let rodada = 0; rodada < 2; rodada++) {
+      alvos.forEach((alvo, idxAlvo) => {
+        const aRect = alvo.getBoundingClientRect();
+        const ehAssento = alvo.classList.contains('lugar');
+        const destX = (aRect.left - wRect.left) + (ehAssento ? aRect.width - 14 : aRect.width / 2);
+        const destY = (aRect.top - wRect.top) + (ehAssento ? 6 : aRect.height / 2);
+        const dx = destX - ox;
+        const dy = destY - oy;
+
+        const atraso = passo * intervalo;
+        passo++;
+
+        const card = document.createElement('span');
+        card.className = 'carta verso carta-voo-deal';
+        card.style.left = ox + 'px';
+        card.style.top = oy + 'px';
+        wrap.appendChild(card);
+
+        const curvaX = dx * 0.52 + (idxAlvo % 2 === 0 ? -16 : 16);
+        const curvaY = dy * 0.48 - 28;
+        const giroMeio = (idxAlvo % 2 === 0 ? -95 : 95) + (rodada * 25);
+        const giroFim = rodada === 0 ? -8 : 8;
+
+        if (card.animate) {
+          const anim = card.animate([
+            { transform: 'translate(-50%, -50%) scale(0.95) rotate(0deg)', opacity: 0 },
+            { transform: 'translate(-50%, -50%) scale(1) rotate(' + (giroMeio * 0.25) + 'deg)', opacity: 1, offset: 0.12 },
+            { transform: 'translate(calc(-50% + ' + curvaX + 'px), calc(-50% + ' + curvaY + 'px)) scale(0.88) rotate(' + giroMeio + 'deg)', opacity: 1, offset: 0.56 },
+            { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0.52) rotate(' + giroFim + 'deg)', opacity: 0.1 }
+          ], {
+            duration: duracaoVoo,
+            delay: atraso,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            fill: 'forwards'
+          });
+          anim.onfinish = () => card.remove();
+        } else {
+          setTimeout(() => card.remove(), atraso + duracaoVoo + 50);
+        }
+
+        if (ehAssento && rodada === 1) {
+          const tChegada = setTimeout(() => {
+            const fc = alvo.querySelector('.l-cartas.fechadas');
+            if (fc) {
+              fc.classList.remove('aguardando-deal');
+              fc.classList.add('recebeu-deal');
+            }
+          }, atraso + Math.floor(duracaoVoo * 0.72));
+          onlineUI.timersDeal.push(tChegada);
+        }
+      });
+    }
+  }, 1880);
+  onlineUI.timersDeal.push(tDeal);
+
+  const tFim = setTimeout(() => {
+    el.remove();
+    wrap.querySelectorAll('.lugar .l-cartas.fechadas.aguardando-deal').forEach((c) => {
+      c.classList.remove('aguardando-deal');
+      c.classList.add('recebeu-deal');
+    });
+  }, 4150);
+  onlineUI.timersDeal.push(tFim);
 }
 
 // Animação do pote voando em fichas até o(s) assento(s) vencedor(es)
@@ -392,7 +495,7 @@ function desenharBoardInterno(partida) {
       const c = parseCartaLocal(raw);
       if (!c) { html += '<div class="carta-slot-vazio"></div>'; continue; }
       const nova = k >= antes;
-      const atraso = nova ? ((k - antes) * 420) + 'ms' : '0ms';
+      const atraso = nova ? ((k - antes) * 580) + 'ms' : '0ms';
       const dest = !!melhores[c.raw];
       html += '<div class="carta-board' + (nova ? '' : ' ja') + (dest ? ' destaque' : '') + '" data-raw="' + c.raw + '" style="--atraso:' + atraso + '">'
         + htmlCarta(c.raw)
@@ -401,7 +504,7 @@ function desenharBoardInterno(partida) {
     boardEl.querySelector('.slots').innerHTML = html;
     if (antes < n) {
       for (let k = antes; k < n; k++) {
-        tocarSom('carta-dar', (k - antes) * 420);
+        tocarSom('carta-dar', (k - antes) * 580);
       }
     }
   }
@@ -580,19 +683,21 @@ function desenharMinhaMao(partida, eu) {
 
   const chaveMao = onlineUI.maoCarregada + ':' + onlineUI.jogadorCarregado + ':' + onlineUI.minhasCartas.join(',');
   const animarAgora = chaveMao !== onlineUI.maoAnimada;
+  const atrasoDeal = animarAgora ? Math.max(0, onlineUI.embaralhandoAte - Date.now()) : 0;
   if (animarAgora) {
     onlineUI.maoAnimada = chaveMao;
-    tocarSom('carta-dar', 0);
-    tocarSom('carta-dar', 220);
+    tocarSom('carta-dar', atrasoDeal);
+    tocarSom('carta-dar', atrasoDeal + 420);
   }
 
+  const estiloSlot = (animarAgora && atrasoDeal > 0) ? ' style="--atraso-deal:' + atrasoDeal + 'ms"' : '';
   const cartasHtml = onlineUI.minhasCartas.map((raw, idx) => {
     const c = parseCartaLocal(raw);
     if (!c) return '';
     const virada = abertas[idx];
     const dest = !!melhores[c.raw];
     return `
-      <div class="carta-3d-slot${animarAgora ? ' animar-entrada' : ''}">
+      <div class="carta-3d-slot${animarAgora ? ' animar-entrada' : ''}"${estiloSlot}>
         <button type="button" class="carta-3d${virada ? ' virada' : ''}${dest ? ' destaque' : ''}"
                 data-idx="${idx}" data-raw="${c.raw}" onclick="virarMinhaCarta(${idx})"
                 aria-label="Carta ${idx + 1}: toque para virar">
@@ -629,7 +734,7 @@ function desenharMinhaMao(partida, eu) {
   // evitando que a animação repita ao abrir/fechar "Aumentar" no celular!
   setTimeout(() => {
     wrap.querySelectorAll('.carta-3d-slot.animar-entrada').forEach((el) => el.classList.remove('animar-entrada'));
-  }, 1150);
+  }, atrasoDeal + 1950);
   atualizarLuzes();
 }
 
@@ -775,8 +880,20 @@ function avisarMinhaVez(partida, eu) {
   const emJogo = partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4;
   const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id && !onlineUI.segurando;
   if (minhaVez && !onlineUI.eraMinhaVez) {
-    anunciar('SUA VEZ', null, 'vez', T.anuncioVez);
-    tocarSom('sua-vez');
+    const esperaDeal = Math.max(0, onlineUI.embaralhandoAte - Date.now());
+    const atraso = esperaDeal > 0 ? esperaDeal + 950 : 0;
+    if (atraso > 0) {
+      const tVez = setTimeout(() => {
+        if (estado.partidaAtual && estado.partidaAtual.vez_jogador_id === estado.meuJogadorId) {
+          anunciar('SUA VEZ', null, 'vez', T.anuncioVez);
+          tocarSom('sua-vez');
+        }
+      }, atraso);
+      onlineUI.timersDeal.push(tVez);
+    } else {
+      anunciar('SUA VEZ', null, 'vez', T.anuncioVez);
+      tocarSom('sua-vez');
+    }
   }
   onlineUI.eraMinhaVez = minhaVez;
 }

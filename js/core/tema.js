@@ -1,15 +1,17 @@
-// Gerenciamento de tema visual ('classico' = Sinuca [padrão] | 'preto' = Preto & Vermelho | 'liberdade' = EUA)
+// Gerenciamento de tema visual ('classico' = Sinuca [padrão] | 'preto' = Preto & Vermelho | 'liberdade' = EUA | 'tropical' = Praia Tropical)
 const CHAVE_TEMA = 'poker-tema';
-const ORDEM_TEMAS = ['classico', 'preto', 'liberdade'];
+const ORDEM_TEMAS = ['classico', 'preto', 'liberdade', 'tropical'];
 const CORES_META = {
   classico: '#1b130e',
   preto: '#14161c',
-  liberdade: '#0a3161'
+  liberdade: '#0a3161',
+  tropical: '#04384f'
 };
 const TITULOS_TEMA = {
   classico: 'Tema: Sinuca (clique para trocar para Preto)',
   preto: 'Tema: Preto (clique para trocar para USA)',
-  liberdade: 'Tema: USA (clique para trocar para Sinuca)'
+  liberdade: 'Tema: USA (clique para trocar para Tropical)',
+  tropical: 'Tema: Tropical (clique para trocar para Sinuca)'
 };
 
 function normalizarTema(tema) {

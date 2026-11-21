@@ -112,11 +112,11 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   border: 1.5px dashed rgba(244, 247, 255, 0.22);
   background: rgba(0, 0, 0, 0.18);
 }
-.carta-board { position: relative; perspective: 700px; }
+.carta-board { position: relative; perspective: 800px; }
 .carta-board .carta {
-  animation: cartaEntrar 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cartaEntrar 1.38s cubic-bezier(0.19, 1, 0.22, 1) both;
   animation-delay: var(--atraso, 0ms);
-  transition: filter 0.5s ease;
+  transition: filter 0.55s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
 .carta-board.ja .carta { animation: none; }
 .carta-board.apagada .carta { filter: brightness(0.55) saturate(0.65); }
@@ -125,9 +125,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   transform: translateY(-3px);
 }
 @keyframes cartaEntrar {
-  0% { opacity: 0; transform: translateY(-48px) rotateY(100deg) scale(0.78); }
-  55% { opacity: 1; }
-  100% { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); }
+  0%   { opacity: 0; transform: translate3d(-26px, -58px, 34px) rotateY(155deg) rotateZ(-11deg) scale(0.72); }
+  38%  { opacity: 1; transform: translate3d(-8px, -14px, 18px) rotateY(70deg) rotateZ(-4deg) scale(1.03); }
+  72%  { opacity: 1; transform: translate3d(0, 2px, 0) rotateY(-6deg) rotateZ(0.8deg) scale(1.01); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0deg) rotateZ(0deg) scale(1); }
 }
 
 /* Luzinha do assistente: contorno azul-claro pulsando nas cartas que formam a sua mão */
@@ -161,11 +162,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-.l-cartas .carta.frente-mini { animation: miniVirar 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.l-cartas .carta.frente-mini { animation: miniVirar 1.15s cubic-bezier(0.19, 1, 0.22, 1) both; }
 .l-cartas .carta.destaque { box-shadow: 0 0 0 2px #ffd866, 0 0 10px rgba(255, 216, 102, 0.75); }
 @keyframes miniVirar {
-  0% { opacity: 0.2; transform: rotateY(90deg) scale(0.8); }
-  100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+  0%   { opacity: 0.15; transform: translateY(-6px) rotateY(110deg) scale(0.76); }
+  58%  { opacity: 1; transform: translateY(1px) rotateY(-8deg) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); }
 }
 
 
@@ -216,9 +218,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   perspective: 900px;
 }
 .carta-3d-slot.animar-entrada {
-  animation: distribuirCarta 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: distribuirCarta 1.38s cubic-bezier(0.19, 1, 0.22, 1) both;
+  animation-delay: var(--atraso-deal, 0ms);
 }
-.carta-3d-slot.animar-entrada:nth-child(2) { animation-delay: 220ms; }
+.carta-3d-slot.animar-entrada:nth-child(2) {
+  animation-delay: calc(var(--atraso-deal, 0ms) + 420ms);
+}
 .carta-3d {
   position: relative;
   display: block;
@@ -234,7 +239,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   cursor: pointer;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
   transform: rotateY(0deg);
 }
 .carta-3d:active:not(:disabled) { transform: scale(0.96); box-shadow: none; }
@@ -244,8 +249,10 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   box-shadow: 0 0 0 2.5px #ffd866, 0 8px 20px rgba(255, 216, 102, 0.45);
 }
 @keyframes distribuirCarta {
-  0% { opacity: 0; transform: translateY(-36px) scale(0.7) rotate(-8deg); }
-  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+  0%   { opacity: 0; transform: translate3d(0, -68px, 36px) scale(0.58) rotateZ(-15deg) rotateX(26deg); }
+  45%  { opacity: 1; transform: translate3d(0, -10px, 14px) scale(1.03) rotateZ(3deg) rotateX(6deg); }
+  78%  { opacity: 1; transform: translate3d(0, 2px, 0) scale(0.995) rotateZ(-0.8deg) rotateX(0deg); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotateZ(0deg) rotateX(0deg); }
 }
 
 .carta-face {
@@ -776,46 +783,81 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   box-shadow: 0 2px 8px rgba(255, 213, 79, 0.45);
 }
 
-/* Animação de baralho embaralhando (riffle shuffle) no início de cada mão */
+/* Animação de baralho embaralhando (duplo riffle shuffle 3D + bridge arc) e distribuição para os assentos */
 .baralho-embaralhar {
   position: absolute;
   left: 50%;
   top: 49%;
-  width: 44px;
-  height: 62px;
+  width: 48px;
+  height: 67px;
   transform: translate(-50%, -50%);
   z-index: 11;
   pointer-events: none;
-  animation: baralhoSumir 960ms ease forwards;
+  perspective: 750px;
+  animation: baralhoCiclo 4100ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.baralho-embaralhar::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.58) 0%, transparent 72%);
+  filter: blur(3px);
 }
 .baralho-embaralhar .carta-shuf {
   position: absolute;
   inset: 0;
-  border-radius: 6px;
-  animation-duration: 760ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 7px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  animation-duration: 2050ms;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.38, 1);
   animation-fill-mode: both;
-  animation-delay: calc(var(--i, 0) * 42ms);
+  animation-delay: calc(var(--i, 0) * 58ms);
 }
 .baralho-embaralhar .carta-shuf.esq { animation-name: shufEsq; }
 .baralho-embaralhar .carta-shuf.dir { animation-name: shufDir; }
 @keyframes shufEsq {
-  0%   { transform: translate(0, 0) rotate(0deg) scale(0.85); opacity: 0; }
-  18%  { transform: translate(-28px, -4px) rotate(-14deg) scale(1); opacity: 1; }
-  52%  { transform: translate(-24px, -10px) rotate(-9deg) scale(1.04); opacity: 1; }
-  84%  { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(1); opacity: 1; }
-  100% { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(0.95); opacity: 1; }
+  0%   { transform: translate3d(0, 0, 0) rotateZ(0deg) rotateY(0deg) scale(0.84); opacity: 0; }
+  12%  { transform: translate3d(-36px, -4px, 12px) rotateZ(-16deg) rotateY(22deg) scale(1); opacity: 1; }
+  26%  { transform: translate3d(-18px, -18px, 26px) rotateZ(-8deg) rotateY(10deg) scale(1.06); opacity: 1; }
+  44%  { transform: translate3d(0, calc(var(--i, 0) * -1.1px), 4px) rotateZ(0deg) rotateY(0deg) scale(1); opacity: 1; }
+  58%  { transform: translate3d(-30px, -3px, 10px) rotateZ(-13deg) rotateY(18deg) scale(1.01); opacity: 1; }
+  72%  { transform: translate3d(-14px, -15px, 22px) rotateZ(-6deg) rotateY(8deg) scale(1.05); opacity: 1; }
+  88%  { transform: translate3d(0, calc(var(--i, 0) * -1.3px), 0) rotateZ(-1deg) rotateY(0deg) scale(1.01); opacity: 1; }
+  100% { transform: translate3d(0, calc(var(--i, 0) * -1.2px), 0) rotateZ(0deg) rotateY(0deg) scale(0.98); opacity: 1; }
 }
 @keyframes shufDir {
-  0%   { transform: translate(0, 0) rotate(0deg) scale(0.85); opacity: 0; }
-  18%  { transform: translate(28px, -4px) rotate(14deg) scale(1); opacity: 1; }
-  52%  { transform: translate(24px, -10px) rotate(9deg) scale(1.04); opacity: 1; }
-  84%  { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(1); opacity: 1; }
-  100% { transform: translate(0, calc(var(--i, 0) * -1.2px)) rotate(0deg) scale(0.95); opacity: 1; }
+  0%   { transform: translate3d(0, 0, 0) rotateZ(0deg) rotateY(0deg) scale(0.84); opacity: 0; }
+  12%  { transform: translate3d(36px, -4px, 12px) rotateZ(16deg) rotateY(-22deg) scale(1); opacity: 1; }
+  26%  { transform: translate3d(18px, -18px, 26px) rotateZ(8deg) rotateY(-10deg) scale(1.06); opacity: 1; }
+  44%  { transform: translate3d(0, calc(var(--i, 0) * -1.1px), 4px) rotateZ(0deg) rotateY(0deg) scale(1); opacity: 1; }
+  58%  { transform: translate3d(30px, -3px, 10px) rotateZ(13deg) rotateY(-18deg) scale(1.01); opacity: 1; }
+  72%  { transform: translate3d(14px, -15px, 22px) rotateZ(6deg) rotateY(-8deg) scale(1.05); opacity: 1; }
+  88%  { transform: translate3d(0, calc(var(--i, 0) * -1.3px), 0) rotateZ(1deg) rotateY(0deg) scale(1.01); opacity: 1; }
+  100% { transform: translate3d(0, calc(var(--i, 0) * -1.2px), 0) rotateZ(0deg) rotateY(0deg) scale(0.98); opacity: 1; }
 }
-@keyframes baralhoSumir {
-  0%, 76% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100%    { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+@keyframes baralhoCiclo {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.86); }
+  8%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  62%  { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
+  68%  { opacity: 1; transform: translate(-50%, -50%) scale(0.97); }
+  88%  { opacity: 1; transform: translate(-50%, -50%) scale(0.94); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.76); }
+}
+
+/* Cartas voando do monte central para cada jogador durante a distribuição */
+.carta-voo-deal {
+  position: absolute;
+  z-index: 12;
+  width: 24px;
+  height: 34px;
+  border-radius: 4.5px;
+  pointer-events: none;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.35);
+  will-change: transform, opacity;
 }
 
 /* Fichas voando do pote para o vencedor */
@@ -839,6 +881,19 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   margin: 0;
   gap: 0;
   pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#tela-mesa.modo-online .l-cartas.fechadas.aguardando-deal {
+  opacity: 0;
+  transform: translateY(8px) scale(0.5);
+}
+#tela-mesa.modo-online .l-cartas.fechadas.recebeu-deal {
+  animation: cartaAssentoChegar 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cartaAssentoChegar {
+  0%   { opacity: 0; transform: translateY(-10px) scale(0.6) rotate(-12deg); }
+  65%  { opacity: 1; transform: translateY(1px) scale(1.08) rotate(2deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
 }
 #tela-mesa.modo-online .l-cartas.fechadas .carta {
   width: 15px;
@@ -875,17 +930,29 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 #btn-menu-online, #topo-resumo-online { display: none; }
 .menu-tema-linha {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 10px 0 4px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  margin: 8px 0 4px;
   padding: 8px 10px;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.24);
   border: 1px solid var(--linha);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--marfim);
+}
+.menu-tema-linha .seletor-tema.compacto {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+.menu-tema-linha .seletor-tema.compacto button.tema-btn {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding: 5px 4px;
 }
 .menu-online-acoes {
   display: flex;

@@ -1,0 +1,213 @@
+/* =====================================================================
+   TEMA 4: TROPICAL / PRAIA PARADISÍACA  (data-tema="tropical")
+   Fundo fotográfico de praia tropical (coqueiros, mar turquesa e areia clara),
+   combinado com painéis translúcidos em azul-oceano, feltro verde-lagoa,
+   madeira bambu/coco dourada e botões em coral-sol vibrante.
+   ===================================================================== */
+
+:root[data-tema="tropical"] {
+  --feltro-950: #032230;
+  --feltro-900: #05354a;
+  --feltro-800: #094a66;
+  --feltro-700: #0e6082;
+  --feltro-600: #15789e;
+  --linha: rgba(255, 238, 198, 0.28);
+
+  --marfim: #fffdf7;
+  --estrela: #ffffff;
+  --marfim-suave: rgba(255, 246, 224, 0.88);
+  --texto-escuro: #042433;
+
+  /* Ação principal: Coral / Sol Tropical */
+  --ouro: #e8642c;
+  --ouro-escuro: #993812;
+  --ouro-suave: rgba(232, 100, 44, 0.30);
+  --ouro-borda: rgba(255, 196, 92, 0.88);
+
+  --vermelho: #d93829;
+  --verde: #0d9488;
+  --verde-escuro: #075952;
+  --verde-suave: rgba(13, 148, 136, 0.34);
+  --verde-borda: rgba(94, 234, 212, 0.72);
+  --verde-texto: #d5fff7;
+
+  /* Acento = Sol Dourado / Areia Quente */
+  --acento: #ffd166;
+  --acento-suave: rgba(255, 209, 102, 0.24);
+  --luz-cor: #ffe07d;
+  --luz-sombra: rgba(255, 224, 125, 0.78);
+
+  --bg-topo: rgba(0, 180, 216, 0.25);
+  --faixa-topo: linear-gradient(
+    90deg,
+    #2b9348 0 25%,
+    #ffd166 25% 50%,
+    #00b4d8 50% 75%,
+    #e8642c 75% 100%
+  );
+
+  /* Mesa com feltro verde-esmeralda tropical e borda de madeira coco/bambu */
+  --feltro-mesa: #117a65;
+  --feltro-mesa-borda: #09473b;
+  --feltro-trilha: rgba(255, 209, 102, 0.62);
+  --borda-mesa: #8a4f1d;
+  --borda-interna: #452408;
+  --borda-aro: rgba(255, 218, 130, 0.92);
+
+  --pote-bg: #085068;
+  --pote-bg-2: #032634;
+  --assento-bg: #074259;
+  --assento-bg-2: #042b3b;
+  --assento-eu-bg: #0d617d;
+  --assento-eu-bg-2: #084359;
+  --vez-bg: #e59812;
+  --vez-bg-2: #b56f04;
+  --vez-tag-bg: #032230;
+
+  --dock-bg: rgba(4, 43, 60, 0.86);
+  --dock-bg-2: rgba(2, 28, 40, 0.92);
+  --faixa-bg: rgba(7, 66, 89, 0.88);
+  --faixa-bg-2: rgba(4, 43, 59, 0.92);
+  --faixa-borda: rgba(255, 209, 102, 0.82);
+
+  --cartao-bg: rgba(4, 40, 56, 0.82);
+  --cartao-bg-pc: rgba(4, 40, 56, 0.84);
+  --cartao-borda: rgba(255, 214, 122, 0.40);
+
+  --verso-bg: #09728c;
+  --verso-simbolo: "☀";
+  --marca-selo: "☀   🌴   🌊   🌴   ☀";
+  --mesa-orn-esq: "☀  🌴";
+  --mesa-orn-dir: "🌴  ☀";
+  --mesa-orn-cor: rgba(255, 209, 102, 0.45);
+}
+
+/* ----- Imagem de fundo tropical em todas as telas com véu suave para leitura perfeita ----- */
+:root[data-tema="tropical"] body,
+:root[data-tema="tropical"] body:not(.na-mesa),
+:root[data-tema="tropical"] body.na-mesa,
+:root[data-tema="tropical"] body.na-mesa.modo-online {
+  background-color: #04384f;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(2, 34, 50, 0.42) 0%,
+      rgba(3, 52, 70, 0.28) 45%,
+      rgba(5, 32, 44, 0.56) 100%
+    ),
+    url("../img/fundo-tropical.jpg") !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-position: center center, center center !important;
+  background-size: cover, cover !important;
+  background-attachment: fixed, fixed !important;
+}
+
+/* Painéis translúcidos estilo vidro praiano para deixar a paisagem tropical respirar ao fundo */
+:root[data-tema="tropical"] .cartao,
+:root[data-tema="tropical"] button.sala,
+:root[data-tema="tropical"] .barra-acoes,
+:root[data-tema="tropical"] .folha {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+:root[data-tema="tropical"] button.sala {
+  background: rgba(5, 53, 74, 0.80);
+  border-color: rgba(255, 214, 122, 0.34);
+}
+:root[data-tema="tropical"] button.sala.minha {
+  background: rgba(11, 82, 107, 0.86);
+  border-color: rgba(255, 209, 102, 0.78);
+  border-left-color: #ffd166;
+}
+:root[data-tema="tropical"] .seletor-tema,
+:root[data-tema="tropical"] button.perfil-atalho,
+:root[data-tema="tropical"] #tela-mesa .topo {
+  background: rgba(3, 34, 48, 0.72) !important;
+  border-color: rgba(255, 214, 122, 0.35) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Título principal com sombra quente de pôr-do-sol tropical */
+:root[data-tema="tropical"] .marca h1 {
+  color: #fffdf7;
+  text-shadow: 0 3px 0 #8a4f1d, 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+:root[data-tema="tropical"] .marca p,
+:root[data-tema="tropical"] .subtitulo-tela {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+:root[data-tema="tropical"] #tela-salas h2,
+:root[data-tema="tropical"] .topo-criar h2 {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* Botões principais em Coral-Sol com filete dourado */
+:root[data-tema="tropical"] button:not([class]),
+:root[data-tema="tropical"] .faixa-online-acoes button.positivo,
+:root[data-tema="tropical"] #btn-iniciar-rapido {
+  background: linear-gradient(180deg, #f47b38, #e8642c 55%, #c94c1a);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 218, 130, 0.82), 0 3px 0 #872f0d;
+}
+:root[data-tema="tropical"] button:not([class]):active:not(:disabled),
+:root[data-tema="tropical"] .faixa-online-acoes button.positivo:active:not(:disabled),
+:root[data-tema="tropical"] #btn-iniciar-rapido:active:not(:disabled) {
+  box-shadow: inset 0 0 0 1.5px rgba(255, 218, 130, 0.82), 0 1px 0 #872f0d;
+}
+:root[data-tema="tropical"] button.positivo {
+  background: linear-gradient(180deg, #14b8a6, #0d9488 60%, #0b7a6f);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 218, 130, 0.55), 0 3px 0 #064e47;
+}
+
+/* Assentos com contorno dourado-areia e solzinho discreto */
+:root[data-tema="tropical"] .lugar {
+  border-color: rgba(255, 214, 122, 0.52);
+}
+:root[data-tema="tropical"] .lugar.eu {
+  border-color: #ffd166;
+  box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.4), 0 6px 18px -6px rgba(0, 0, 0, 0.65);
+}
+:root[data-tema="tropical"] .lugar.vez {
+  border-color: #fffdf7;
+}
+
+/* Ficha do pote tricolor tropical: Turquesa, Areia e Coral */
+:root[data-tema="tropical"] .pote-ficha {
+  background: repeating-conic-gradient(
+    #00b4d8 0deg 15deg,
+    #fff8e7 15deg 30deg,
+    #e8642c 30deg 45deg
+  );
+}
+:root[data-tema="tropical"] .pote-ficha .miolo {
+  border-color: #ffd166;
+}
+:root[data-tema="tropical"] .pote-valor {
+  color: #ffe07d;
+}
+
+/* Cartas com fundo marfim-areia quente */
+:root[data-tema="tropical"] .carta:not(.verso) {
+  background: #fffdf8;
+}
+:root[data-tema="tropical"] .n-s,
+:root[data-tema="tropical"] .n-c {
+  --cn: #072a3a;
+}
+:root[data-tema="tropical"] .n-h,
+:root[data-tema="tropical"] .n-d {
+  --cn: #d62828;
+}
+
+/* Barra de ações na sua vez */
+:root[data-tema="tropical"] .barra-acoes.minha-vez,
+:root[data-tema="tropical"] #barra-acoes.modo-online.minha-vez {
+  border-color: rgba(255, 209, 102, 0.78) !important;
+  border-top-color: #ffd166 !important;
+}
+
+/* Amostra do seletor de tema: Folha de Coqueiro + Sol + Mar Turquesa */
+.amostra-tropical,
+:root[data-tema="tropical"] .amostra-dupla {
+  background: linear-gradient(135deg, #2b9348 0 32%, #ffd166 32% 62%, #00b4d8 62% 100%);
+}

@@ -602,18 +602,18 @@ button.stack.especial b { font-size: 16.5px; }
   #tela-login .seletor-tema {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
     padding: 4px;
   }
   #tela-login button.tema-btn {
     width: 100%;
-    min-width: 48px;
-    min-height: 48px;
-    padding: 6px 8px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 4px;
     justify-content: center;
-    gap: 6px;
-    font-size: 14px;
+    gap: 5px;
+    font-size: 13px;
   }
   #tela-login .login-grade {
     min-height: 0;
@@ -820,18 +820,18 @@ button.stack.especial b { font-size: 16.5px; }
     width: 100%;
     min-width: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3px;
     padding: 3px;
   }
   #tela-salas .seletor-tema.compacto button.tema-btn {
     width: 100%;
-    min-width: 48px;
-    min-height: 48px;
-    padding: 4px 4px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 4px 3px;
     justify-content: center;
-    font-size: 14px;
-    gap: 4px;
+    font-size: 12.5px;
+    gap: 3px;
   }
   #tela-salas button.sair-conta {
     min-height: 48px;
