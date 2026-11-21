@@ -1,9 +1,10 @@
 // Modo Presencial (baralho físico): ações do criador, blinds, abertura de rodadas e registro do modo
-import { estado, QUALQUER_UM_ABRE_RODADA, nomeDe, credC, passoSala } from '../../core/estado.js?v=18';
-import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid } from '../../core/ui.js?v=18';
-import { executar, modoEnviando } from '../../mesa/apostas.js?v=18';
-import { registrarModo } from '../../mesa/modos.js?v=18';
-import { fecharDistribuicao } from './distribuir.js?v=18';
+import { estado, QUALQUER_UM_ABRE_RODADA, nomeDe, credC, passoSala } from '../../core/estado.js?v=19';
+import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid } from '../../core/ui.js?v=19';
+import { executar, modoEnviando } from '../../mesa/apostas.js?v=19';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=19';
+import { registrarModo } from '../../mesa/modos.js?v=19';
+import { fecharDistribuicao } from './distribuir.js?v=19';
 
 export function abrirCriador() {
   limparErro('erro-criador');
@@ -73,6 +74,8 @@ export function iniciarOuProximaMao() {
 }
 
 export function pagarBlind() {
+  marcarAcaoLocal();
+  tocarSom('ficha');
   return executar('pagar_blind', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo

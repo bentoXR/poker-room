@@ -715,6 +715,7 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online .sala-pill,
   #tela-mesa.modo-online #btn-sair-mesa,
   #tela-mesa.modo-online #btn-hist,
+  #tela-mesa.modo-online #btn-som-mesa,
   #tela-mesa.modo-online #btn-tema-mesa,
   #tela-mesa.modo-online #btn-reais,
   #tela-mesa.modo-online #btn-dev,
@@ -890,6 +891,8 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   }
   #tela-mesa.modo-online button.icone-btn .ic { width: 22px; height: 22px; }
   #tela-mesa.modo-online #btn-guia { font-size: 23px !important; }
+  #tela-mesa.modo-online #btn-som-mesa { font-size: 20px !important; }
+  #btn-som-mesa.mutado { opacity: 0.62; }
   #tela-mesa.modo-online .topo #btn-reais,
   #tela-mesa.modo-online .topo #btn-dev { font-size: 15px !important; }
   #tela-mesa.modo-online .barra-info { margin-top: 5px; }

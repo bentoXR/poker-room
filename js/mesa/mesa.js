@@ -1,17 +1,26 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=18';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=18';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=18';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=18';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=18';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=18';
-import { obterModo } from './modos.js?v=18';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=18';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=18';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=18';
+import { banco } from '../core/supabase.js?v=19';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=19';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=19';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=19';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=19';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=19';
+import { obterModo } from './modos.js?v=19';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=19';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=19';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=19';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=19';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
+
+// Rastreia transições da mesa para disparar sons sem repetir em polling ou na entrada da sala
+const somMesa = {
+  partidaId: null,
+  iniciada: false,
+  mao: null,
+  ultimoHist: null
+};
 
 let hooksApp = {
   abrirSalas: () => {},
@@ -180,8 +189,37 @@ export function desenharMesa(dados) {
   if (minhaVez && !estado.eraMinhaVez && navigator.vibrate) {
     try { navigator.vibrate([150, 80, 150]); } catch (erro) {}
   }
+  if (minhaVez && !estado.eraMinhaVez && !ehModoOnline) {
+    tocarSom('sua-vez');
+  }
   if (minhaVez && !estado.eraMinhaVez) { estado.apostaEditada = false; estado.apostaAberta = false; }
   estado.eraMinhaVez = minhaVez;
+
+  // Sons sincronizados de nova mão e jogadas de outros jogadores em tempo real
+  const primeiroHist = (dados.historico && dados.historico[0])
+    ? (dados.historico[0].mao + ':' + dados.historico[0].texto)
+    : null;
+  if (somMesa.partidaId !== partida.id) {
+    somMesa.partidaId = partida.id;
+    somMesa.iniciada = !!partida.iniciada;
+    somMesa.mao = partida.mao;
+    somMesa.ultimoHist = primeiroHist;
+  } else {
+    const novaMaoComecou = (!somMesa.iniciada && partida.iniciada)
+      || (partida.iniciada && !partida.aguardando_proxima_mao && somMesa.mao !== null && partida.mao > somMesa.mao);
+    if (novaMaoComecou) {
+      tocarSom('embaralhar');
+    } else if (!congelado && primeiroHist && primeiroHist !== somMesa.ultimoHist && !foiAcaoLocalRecente()) {
+      const txt = dados.historico[0].texto || '';
+      if (/all-in/i.test(txt)) tocarSom('allin');
+      else if (/desistiu/i.test(txt)) tocarSom('desistir');
+      else if (/\bcheck\b|passou/i.test(txt)) tocarSom('check');
+      else if (/pagou|apostou|aumentou/i.test(txt)) tocarSom('ficha');
+    }
+    somMesa.iniciada = !!partida.iniciada;
+    if (!partida.aguardando_proxima_mao) somMesa.mao = partida.mao;
+    if (!congelado) somMesa.ultimoHist = primeiroHist;
+  }
 
   // ----- Topo e ficha do pote -----
   $id('mesa-sala').textContent = nomeDe(partida.nome || ('Sala ' + partida.codigo));

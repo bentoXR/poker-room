@@ -1,15 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=18';
-import { estado, nomeDe } from '../../core/estado.js?v=18';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=18';
-import { lerDevSala } from '../../core/storage.js?v=18';
-import { registrarModo } from '../../mesa/modos.js?v=18';
-import { executar } from '../../mesa/apostas.js?v=18';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=18';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=18';
-import { avaliarMaoLocal } from './maos.js?v=18';
+import { banco } from '../../core/supabase.js?v=19';
+import { estado, nomeDe } from '../../core/estado.js?v=19';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=19';
+import { lerDevSala } from '../../core/storage.js?v=19';
+import { registrarModo } from '../../mesa/modos.js?v=19';
+import { executar } from '../../mesa/apostas.js?v=19';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=19';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=19';
+import { avaliarMaoLocal } from './maos.js?v=19';
+import { tocarSom } from '../../core/som.js?v=19';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -60,6 +61,8 @@ const onlineUI = {
 
   eraMinhaVez: false,
   ultimaTxt: null,
+  ultimoSegUrgente: null,
+  campeaoSomChave: null,
   timerAnuncio: null,
   timerAnuncioVez: null
 };
@@ -95,6 +98,8 @@ export function resetarOnlineUI() {
   onlineUI.ultimaVisao = null;
   onlineUI.eraMinhaVez = false;
   onlineUI.ultimaTxt = null;
+  onlineUI.ultimoSegUrgente = null;
+  onlineUI.campeaoSomChave = null;
   const wrap = $id('minha-mao-wrap');
   if (wrap) { wrap.innerHTML = ''; wrap.hidden = true; }
   const faixa = $id('faixa-online');
@@ -184,6 +189,7 @@ function animarPoteParaVencedor(partida) {
       .map((id) => wrap.querySelector('.lugar[data-jogador-id="' + id + '"]'))
       .filter(Boolean);
     if (!destinos.length) return;
+    tocarSom('ganhar-pote');
 
     const totalFichas = Math.max(6, destinos.length * 4);
     for (let i = 0; i < totalFichas; i++) {
@@ -312,6 +318,7 @@ function proximaEtapa() {
 
   if (etapa.showdown) {
     anunciar('SHOWDOWN', 'Hora de mostrar as cartas', 'showdown', T.showdown);
+    tocarSom('showdown');
     cena.timer = setTimeout(proximaEtapa, T.showdown);
     return;
   }
@@ -331,7 +338,10 @@ function terminarCena() {
   onlineUI.segurando = false;
   onlineUI.chaveEmCena = null;
   onlineUI.congelado = null;
-  if (eraSegurando) recalcularLayoutMesa();
+  if (eraSegurando) {
+    tocarSom('carta-virar');
+    recalcularLayoutMesa();
+  }
 }
 
 // ----- Cartas da mesa (board) -----
@@ -366,6 +376,11 @@ function desenharBoardInterno(partida) {
         + '</div>';
     }
     boardEl.querySelector('.slots').innerHTML = html;
+    if (antes < n) {
+      for (let k = antes; k < n; k++) {
+        tocarSom('carta-dar', (k - antes) * 420);
+      }
+    }
   }
 
   boardEl.querySelectorAll('.rotulos span').forEach((el) => {
@@ -471,6 +486,7 @@ export function virarMinhaCarta(_indice) {
   const abrir = !(onlineUI.viradas[0] && onlineUI.viradas[1]);
   onlineUI.viradas = [abrir, abrir];
   onlineUI.mostrouDica = true;
+  tocarSom('carta-virar');
   try { if (navigator.vibrate) navigator.vibrate(10); } catch (erro) {}
   document.querySelectorAll('#minha-mao-wrap .carta-3d').forEach((btn) => {
     btn.classList.toggle('virada', abrir);
@@ -527,7 +543,11 @@ function desenharMinhaMao(partida, eu) {
 
   const chaveMao = onlineUI.maoCarregada + ':' + onlineUI.jogadorCarregado + ':' + onlineUI.minhasCartas.join(',');
   const animarAgora = chaveMao !== onlineUI.maoAnimada;
-  if (animarAgora) onlineUI.maoAnimada = chaveMao;
+  if (animarAgora) {
+    onlineUI.maoAnimada = chaveMao;
+    tocarSom('carta-dar', 0);
+    tocarSom('carta-dar', 220);
+  }
 
   const cartasHtml = onlineUI.minhasCartas.map((raw, idx) => {
     const c = parseCartaLocal(raw);
@@ -576,6 +596,7 @@ function desenharMinhaMao(partida, eu) {
 
 // ----- Ações RPC do modo Online -----
 export function confirmarMao() {
+  tocarSom('clique');
   return executar('confirmar_mao', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo
@@ -583,6 +604,7 @@ export function confirmarMao() {
 }
 
 export function mostrarCartasOnline(qual) {
+  tocarSom('carta-virar');
   return executar('mostrar_cartas_online', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo,
@@ -599,6 +621,7 @@ export function mostrarCartasOnline(qual) {
 }
 
 export function revancheOnline() {
+  tocarSom('clique');
   return executar('revanche_online', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo
@@ -670,6 +693,14 @@ export function tickOnline() {
     }
 
     const minhaVez = p.vez_jogador_id === estado.meuJogadorId;
+    if (minhaVez && restanteSeg <= 7 && restanteSeg > 0) {
+      if (onlineUI.ultimoSegUrgente !== restanteSeg) {
+        onlineUI.ultimoSegUrgente = restanteSeg;
+        tocarSom('tempo-urgente');
+      }
+    } else {
+      onlineUI.ultimoSegUrgente = null;
+    }
     if (timerWrap && timerFill) {
       timerWrap.hidden = !minhaVez;
       if (minhaVez) {
@@ -682,8 +713,9 @@ export function tickOnline() {
     if (restanteMs <= 0 && (decorrido - totalMs) >= 350) {
       dispararAvancoTempo(p.id);
     }
-  } else if (timerWrap) {
-    timerWrap.hidden = true;
+  } else {
+    onlineUI.ultimoSegUrgente = null;
+    if (timerWrap) timerWrap.hidden = true;
   }
 
   // 2) Contagem regressiva de 30s entre mãos (ou início da 1ª mão)
@@ -705,6 +737,7 @@ function avisarMinhaVez(partida, eu) {
   const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id && !onlineUI.segurando;
   if (minhaVez && !onlineUI.eraMinhaVez && !partida.fase_blind) {
     anunciar('SUA VEZ', null, 'vez', T.anuncioVez);
+    tocarSom('sua-vez');
   }
   onlineUI.eraMinhaVez = minhaVez;
 }
@@ -850,6 +883,11 @@ registrarModo('online', {
 
     // 1) Fim da partida (Campeão!)
     if (fimTorneio) {
+      const chaveCamp = partida.id + ':' + partida.mao;
+      if (onlineUI.campeaoSomChave !== chaveCamp) {
+        onlineUI.campeaoSomChave = chaveCamp;
+        tocarSom('campeao');
+      }
       const camp = comFichas[0] ? nomeDe(comFichas[0].nome) : (res && res.campeao ? nomeDe(res.campeao) : '—');
       faixa.innerHTML = `
         <div class="faixa-online-res">🏆 Campeão: ${escapar(camp)}!</div>

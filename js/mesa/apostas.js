@@ -1,8 +1,9 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=18';
-import { estado, passoSala } from '../core/estado.js?v=18';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=18';
+import { banco } from '../core/supabase.js?v=19';
+import { estado, passoSala } from '../core/estado.js?v=19';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=19';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=19';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -89,12 +90,14 @@ export function ajustarAposta(direcao) {
   if (!lim) return;
   const atual = parseInt($id('campo-valor').value) || lim.min;
   definirAposta(atual + direcao * lim.passoBotoes, true);
+  tocarSom('clique');
 }
 
 export function apostaPote(fracao) {
   const lim = limitesAposta();
   if (!lim || !(lim.max > 0)) return;
   const bruto = lim.falta + fracao * (estado.partidaAtual.pote + lim.falta);
+  tocarSom('clique');
   if (lim.passo > 1) { definirAposta(bruto, true); return; }
   const passo = Math.max(1, estado.partidaAtual.small_blind);
   definirAposta(Math.round(bruto / passo) * passo, true);
@@ -104,6 +107,7 @@ export function apostaAllIn() {
   const lim = limitesAposta();
   if (!lim || !(lim.max > 0)) return;
   definirAposta(lim.max, true);
+  tocarSom('clique');
 }
 
 function infoSlider(lim) {
@@ -145,6 +149,7 @@ export function aoDigitarAposta() {
 }
 
 export function alternarAposta() {
+  tocarSom('clique');
   estado.apostaAberta = !estado.apostaAberta;
   estado.apostaAbertaEm = Date.now();
   $id('caixa-aposta').hidden = !estado.apostaAberta;
@@ -198,6 +203,18 @@ export function modoEnviando() {
 }
 
 export function agir(acao) {
+  marcarAcaoLocal();
+  if (acao === 'check') {
+    tocarSom('check');
+  } else if (acao === 'desistir') {
+    tocarSom('desistir');
+  } else if (acao === 'pagar') {
+    const eu = estado.jogadoresAtuais.find((j) => j.id === estado.meuJogadorId);
+    const falta = (estado.partidaAtual && eu)
+      ? Math.max(0, estado.partidaAtual.aposta_atual - eu.apostou)
+      : 0;
+    tocarSom(eu && falta >= eu.saldo ? 'allin' : 'ficha');
+  }
   return executar('jogar', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo,
@@ -223,6 +240,8 @@ export async function apostar() {
       return;
     }
   }
+  marcarAcaoLocal();
+  tocarSom(lim && valor >= lim.max ? 'allin' : 'ficha');
   const deuCerto = await executar('jogar', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo,

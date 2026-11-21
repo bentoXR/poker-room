@@ -14,11 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=18">
-  <link rel="stylesheet" href="./css/telas.css?v=18">
-  <link rel="stylesheet" href="./css/mesa.css?v=18">
-  <link rel="stylesheet" href="./css/gavetas.css?v=18">
-  <link rel="stylesheet" href="./css/online.css?v=18">
+  <link rel="stylesheet" href="./css/base.css?v=19">
+  <link rel="stylesheet" href="./css/telas.css?v=19">
+  <link rel="stylesheet" href="./css/mesa.css?v=19">
+  <link rel="stylesheet" href="./css/gavetas.css?v=19">
+  <link rel="stylesheet" href="./css/online.css?v=19">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -369,6 +369,7 @@
       <button id="btn-hist" class="icone-btn" onclick="abrirHistorico()" aria-label="Histórico">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       </button>
+      <button id="btn-som-mesa" class="icone-btn" style="font-size:18px" onclick="alternarSom()" aria-label="Som da mesa" aria-pressed="true">🔊</button>
       <button id="btn-tema-mesa" class="icone-btn btn-tema-ico" onclick="alternarTema()" aria-label="Mudar cores da mesa">
         <span class="amostra-dupla" aria-hidden="true"></span>
       </button>
@@ -452,6 +453,7 @@
           </div>
         </div>
         <div class="menu-online-acoes">
+          <button type="button" id="menu-btn-som" class="secundario" onclick="alternarSom()" aria-pressed="true">🔊 Som: Ligado</button>
           <button type="button" class="secundario" onclick="abrirHistorico()">Histórico da partida</button>
           <button type="button" id="menu-btn-reais" class="secundario" onclick="abrirReais()" hidden>Fichas em reais (R$)</button>
           <button type="button" id="menu-btn-dev" class="secundario" onclick="abrirPainelDev()" hidden>Painel DEV</button>
@@ -722,6 +724,6 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=18"></script>
+<script type="module" src="./js/main.js?v=19"></script>
 </body>
 </html>
