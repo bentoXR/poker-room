@@ -21,6 +21,10 @@ const carregando = new Map();
 
 let ativo = true;
 let ultimaAcaoLocalEm = 0;
+let ultimoCliqueEm = 0;
+
+// Botões que já têm som próprio (evita misturar o clique tátil com o som da jogada)
+const SELETOR_SEM_CLIQUE = '#btn-desistir, #btn-check, #btn-pagar, #btn-confirmar-aposta, #btn-apostar, #btn-blind, #btn-som-mesa, #menu-btn-som, .carta-3d';
 
 function lerPreferenciaSom() {
   try { return localStorage.getItem(CHAVE_SOM) !== '0'; } catch (erro) { return true; }
@@ -376,6 +380,11 @@ export function foiAcaoLocalRecente() {
 
 export function tocarSom(nome, atrasoMs) {
   if (!ativo) return;
+  if (nome === 'clique') {
+    const agora = Date.now();
+    if (agora - ultimoCliqueEm < 60) return;
+    ultimoCliqueEm = agora;
+  }
   const audioCtx = garantirContexto();
   if (!audioCtx) return;
 
@@ -432,4 +441,11 @@ export function iniciarSom() {
   ['pointerdown', 'touchstart', 'keydown'].forEach((ev) => {
     document.addEventListener(ev, aoPrimeiroGesto, { passive: true, once: true });
   });
+
+  // Feedback tátil sutil em todos os botões da interface (exceto os que já têm som próprio)
+  document.addEventListener('click', (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest('button:not(:disabled)') : null;
+    if (!btn || btn.matches(SELETOR_SEM_CLIQUE)) return;
+    tocarSom('clique');
+  }, { passive: true });
 }
