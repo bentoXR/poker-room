@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=24';
-import { estado, nomeDe } from '../../core/estado.js?v=24';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=24';
-import { lerDevSala } from '../../core/storage.js?v=24';
-import { registrarModo } from '../../mesa/modos.js?v=24';
-import { executar } from '../../mesa/apostas.js?v=24';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=24';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=24';
-import { avaliarMaoLocal } from './maos.js?v=24';
-import { tocarSom } from '../../core/som.js?v=24';
+import { banco } from '../../core/supabase.js?v=25';
+import { estado, nomeDe } from '../../core/estado.js?v=25';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=25';
+import { lerDevSala } from '../../core/storage.js?v=25';
+import { registrarModo } from '../../mesa/modos.js?v=25';
+import { executar } from '../../mesa/apostas.js?v=25';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=25';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=25';
+import { avaliarMaoLocal } from './maos.js?v=25';
+import { tocarSom } from '../../core/som.js?v=25';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
