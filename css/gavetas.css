@@ -495,11 +495,13 @@ button.chat-preview-item {
   font-weight: 500;
   line-height: 1.3;
   color: var(--marfim);
-  background: var(--dock-bg);
-  border: 1px solid var(--linha);
+  background: color-mix(in srgb, var(--dock-bg) 58%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-left: 3px solid var(--acento);
   border-radius: 12px;
-  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.72);
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.52);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

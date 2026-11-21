@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=48';
-import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=48';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=48';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=48';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=48';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=48';
-import { obterModo } from './modos.js?v=48';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=48';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=48';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=48';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=48';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=48';
+import { banco } from '../core/supabase.js?v=49';
+import { estado, ICONE_COROA, nomeDe, contaParams, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=49';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala } from '../core/storage.js?v=49';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=49';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=49';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=49';
+import { obterModo } from './modos.js?v=49';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=49';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=49';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=49';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=49';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat } from './chat.js?v=49';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 

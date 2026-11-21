@@ -846,12 +846,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online .linha-ultima { margin-top: 4px; gap: 8px; }
   #tela-mesa.modo-online .ultima { font-size: 14px; padding: 2px 12px; }
 
-  /* Feltro oval dimensionado para os perfis ficarem na borda externa sem invadir a mesa */
-  #tela-mesa.modo-online .mesa-wrap { margin-top: 4px; min-height: 0; }
+  /* Feltro oval dimensionado para os perfis ficarem na borda externa sem invadir a mesa nem a barra superior */
+  #tela-mesa.modo-online .mesa-wrap { margin-top: 8px; min-height: 0; }
   #tela-mesa.modo-online .centro-roda {
-    top: 49%;
+    top: 50%;
     width: 63%;
-    height: 58%;
+    height: 56%;
     justify-content: center;
     gap: 5px;
     padding: 8px 6px;
@@ -886,9 +886,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online #board.online .slots { gap: 3px; }
   #tela-mesa.modo-online .centro-roda .pilula.destaque { font-size: 10px; padding: 2px 8px; }
 
-  /* Assentos com exatamente a mesma arte do PC/Presencial, posicionados na borda externa */
+  /* Assentos com exatamente a mesma arte do PC/Presencial, sem sobrepor a linha de última jogada no topo */
   #tela-mesa.modo-online .lugar.assento-redondo {
-    top: clamp(28px, var(--y, 50%), calc(100% - 36px));
+    top: clamp(50px, var(--y, 50%), calc(100% - 40px));
+  }
+  #tela-mesa.modo-online.cheia .lugar.assento-redondo {
+    top: clamp(40px, var(--y, 50%), calc(100% - 34px));
   }
   /* No celular, as cartinhas fechadas espiam acima da borda superior para deixar o nome 100% livre */
   #tela-mesa.modo-online .lugar:not(.eu) .l-topo { padding-right: 0; }
@@ -907,8 +910,68 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   #tela-mesa.modo-online.cheia .lugar .tag { font-size: 8.5px; line-height: 13px; padding: 0 4px; }
   #tela-mesa.modo-online.cheia .lugar .tag.d { width: 13px; height: 13px; padding: 0; }
 
-  /* Dock inferior: quando o menu de aposta ("Aumentar") abre, recolhe as cartas 3D para NUNCA cobrir seu perfil! */
+  /* Dock inferior: cartas à esquerda + dica da mão e "Sua vez" ao lado delas, abrindo +55px para a mesa! */
   #barra-acoes.modo-online { padding: 6px 10px calc(8px + env(safe-area-inset-bottom)); }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 10px;
+    row-gap: 4px;
+    align-items: center;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #timer-turno-wrap {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin-bottom: 4px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #minha-mao-wrap,
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .barra-controles {
+    display: contents;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-linha {
+    position: static;
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    width: auto;
+    justify-content: flex-start;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-cartas {
+    gap: 8px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-linha .btn-luz {
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-nome,
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-dica {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
+    justify-self: start;
+    text-align: left;
+    max-width: calc(100% - 48px);
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-titulo {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: start;
+    text-align: left;
+    margin: 0 0 4px;
+    max-width: calc(100% - 48px);
+  }
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) .minha-mao-revelar,
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #erro-barra,
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-blind,
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-dev-prox,
+  #barra-acoes.modo-online.visivel:not(.apostando):has(#minha-mao-wrap:not([hidden])) #barra-normal {
+    grid-column: 1 / -1;
+  }
   #barra-acoes.modo-online .minha-mao-wrap { gap: 4px; margin-bottom: 5px; }
   #barra-acoes.modo-online .carta-3d { width: clamp(46px, 9.5dvh, 58px); height: clamp(64px, 13.2dvh, 81px); }
   #barra-acoes.modo-online .grade-simples { gap: 8px; }
