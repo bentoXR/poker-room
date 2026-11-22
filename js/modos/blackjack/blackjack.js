@@ -1,14 +1,14 @@
 // Modo Blackjack: multiplayer 1-6 jogadores contra a Banca automática (1 baralho 52 cartas, S17, 3:2)
 // Reutiliza animações (riffle shuffle, cartas voando, fichas voando, anúncios) e sons reais de som.js
-import { banco } from '../../core/supabase.js?v=89';
-import { estado, nomeDe } from '../../core/estado.js?v=89';
-import { lerDevSala } from '../../core/storage.js?v=89';
-import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=89';
-import { registrarModo } from '../../mesa/modos.js?v=89';
-import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=89';
-import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=89';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=89';
-import { t } from '../../core/i18n.js?v=89';
+import { banco } from '../../core/supabase.js?v=95';
+import { estado, nomeDe } from '../../core/estado.js?v=95';
+import { lerDevSala } from '../../core/storage.js?v=95';
+import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=95';
+import { registrarModo } from '../../mesa/modos.js?v=95';
+import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=95';
+import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=95';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=95';
+import { t } from '../../core/i18n.js?v=95';
 
 const bjUI = {
   partidaId: null,
