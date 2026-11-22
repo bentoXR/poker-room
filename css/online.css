@@ -556,13 +556,30 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   padding: 1px 7px;
 }
 
+.barra-online-espera .espera-status {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--marfim-suave);
+  text-align: center;
+  line-height: 1.3;
+}
+.barra-online-espera .espera-status strong {
+  color: #fff;
+  font-weight: 700;
+}
+.barra-online-espera .espera-status [data-contagem-online] {
+  color: var(--acento);
+  font-family: var(--fonte-numero);
+  font-size: 1.08em;
+}
 .barra-online-espera .faixa-online-acoes {
   margin-top: 0;
   gap: 8px;
 }
 .barra-online-espera .faixa-online-acoes button {
-  min-height: 52px;
-  font-size: 16.5px;
+  min-height: 48px;
+  font-size: 15.5px;
+  border-radius: 13px;
 }
 
 /* Quando o perfil próprio sai da elipse e vai pro dock, o feltro fica maior e melhor centralizado */
@@ -615,8 +632,16 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
   color: #fff;
   line-height: 1.3;
 }
-.faixa-online-res .res-linha { margin-top: 2px; }
+.faixa-online-res .res-linha {
+  margin-top: 3px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
 .faixa-online-res .res-linha:first-child { margin-top: 0; }
+.faixa-online-res .res-trofeu { font-size: 1.05em; line-height: 1; }
 .faixa-online-res .res-nome { color: #fff; font-weight: 800; }
 .faixa-online-res .res-valor {
   color: #ffd866;
@@ -626,12 +651,12 @@ button.op-chip.sel { background: var(--verde); color: #fff; box-shadow: 0 2px 0 
 }
 .faixa-online-res .res-mao {
   display: inline-block;
-  margin-left: 3px;
-  padding: 1px 8px;
+  margin-left: 2px;
+  padding: 2px 9px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   color: #e2eeff;
-  font-size: 0.86em;
+  font-size: 0.84em;
   font-weight: 700;
 }
 .faixa-online-res .res-pote { color: var(--marfim-suave); font-weight: 600; }
@@ -1189,7 +1214,7 @@ button.menu-tile {
     left: clamp(calc(var(--w, 88px) / 2 + 6px), var(--x, 50%), calc(100% - var(--w, 88px) / 2 - 3px));
     top: clamp(32px, var(--y, 50%), calc(100% - 30px));
     min-height: 54px;
-    padding: 5px 6px 4px 21px;
+    padding: 5px 6px 4px 27px;
     border-radius: 15px;
   }
   #tela-mesa.modo-online .lugar.assento-redondo .l-timer {
@@ -1204,7 +1229,7 @@ button.menu-tile {
     left: clamp(calc(var(--w, 82px) / 2 + 5px), var(--x, 50%), calc(100% - var(--w, 82px) / 2 - 2px));
     top: clamp(30px, var(--y, 50%), calc(100% - 28px));
     min-height: 48px;
-    padding: 4px 5px 4px 19px;
+    padding: 4px 5px 4px 24px;
     border-radius: 13px;
     gap: 1px;
   }
@@ -1335,15 +1360,16 @@ button.menu-tile {
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button {
     width: auto;
     flex: 1 1 0;
     min-width: 0;
-    min-height: 36px;
-    font-size: 12.5px;
-    padding: 4px 8px;
+    min-height: 44px;
+    font-size: 13.5px;
+    padding: 8px 12px;
+    border-radius: 12px;
     white-space: nowrap;
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button.secundario:not(.ativo):not(.btn-rabbit) {
@@ -1355,8 +1381,9 @@ button.menu-tile {
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button.confirmado {
     flex: 1 1 100%;
     width: 100%;
-    min-height: 44px;
-    font-size: 15px;
+    min-height: 48px;
+    font-size: 15.5px;
+    border-radius: 13px;
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-dev-prox button {
     min-height: 44px;
@@ -1462,7 +1489,7 @@ button.menu-tile {
   #tela-mesa.modo-online.cheia .lugar.assento-redondo {
     top: clamp(26px, var(--y, 50%), calc(100% - 24px));
     min-height: 43px;
-    padding: 3px 5px 3px 18px;
+    padding: 3px 5px 3px 23px;
     border-radius: 12px;
   }
   #tela-mesa.modo-online .lugar.assento-redondo > .l-avatar,
@@ -1507,14 +1534,14 @@ button.menu-tile {
     font-size: 15.5px;
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button {
-    min-height: 32px;
-    font-size: 12px;
-    padding: 3px 6px;
+    min-height: 40px;
+    font-size: 13px;
+    padding: 6px 10px;
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button.positivo,
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-online-espera .faixa-online-acoes button.confirmado {
-    min-height: 40px;
-    font-size: 14.5px;
+    min-height: 44px;
+    font-size: 15px;
   }
   #barra-acoes.modo-online.visivel:not(.apostando) #barra-dev-prox button {
     min-height: 38px;

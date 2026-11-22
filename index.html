@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=99">
+  <link rel="manifest" href="./manifest.webmanifest?v=100">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,19 +20,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=99">
-  <link rel="stylesheet" href="./css/telas.css?v=99">
-  <link rel="stylesheet" href="./css/mesa.css?v=99">
-  <link rel="stylesheet" href="./css/gavetas.css?v=99">
-  <link rel="stylesheet" href="./css/online.css?v=99">
-  <link rel="stylesheet" href="./css/blackjack.css?v=99">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=99">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=99">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=99">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=99">
-  <link rel="stylesheet" href="./css/tema-branco.css?v=99">
-  <link rel="stylesheet" href="./css/desktop.css?v=99">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=99">
+  <link rel="stylesheet" href="./css/base.css?v=100">
+  <link rel="stylesheet" href="./css/telas.css?v=100">
+  <link rel="stylesheet" href="./css/mesa.css?v=100">
+  <link rel="stylesheet" href="./css/gavetas.css?v=100">
+  <link rel="stylesheet" href="./css/online.css?v=100">
+  <link rel="stylesheet" href="./css/blackjack.css?v=100">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=100">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=100">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=100">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=100">
+  <link rel="stylesheet" href="./css/tema-branco.css?v=100">
+  <link rel="stylesheet" href="./css/desktop.css?v=100">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=100">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -172,90 +172,72 @@
       <h2 data-i18n="criar.titulo">Nova sala</h2>
     </div>
 
-    <div class="cartao">
+    <div class="cartao criar-simples">
       <div class="nome-sala-linha">
         <label class="etiqueta-sala" for="criar-nome-sala" data-i18n="criar.nome_sala">Nome da sala</label>
         <input id="criar-nome-sala" type="text" maxlength="32" placeholder="Ex.: Poker de Sexta" data-i18n-ph="criar.ph_nome_sala"
                autocomplete="off" autocapitalize="sentences" spellcheck="false">
       </div>
 
-      <div class="secao-titulo"><span class="passo-num">1</span> <span data-i18n="criar.modo">Escolha o modo de jogo</span></div>
-      <div class="seletor-modo" id="seletor-modo">
+      <div class="seletor-modo seletor-modo-compacto" id="seletor-modo" role="group" aria-label="Modo de jogo">
         <button type="button" class="modo-btn" data-modo="presencial" onclick="escolherModoSala('presencial','')">
           <span class="modo-icone" aria-hidden="true">🪙</span>
           <b data-i18n="criar.presencial_nome">Presencial</b>
-          <small data-i18n-html="criar.presencial_desc"><strong>Baralho físico</strong> · só fichas e pote</small>
         </button>
         <button type="button" class="modo-btn sel" data-modo="online" onclick="escolherModoSala('online','')">
           <span class="modo-icone" aria-hidden="true">🃏</span>
           <b data-i18n="criar.online_nome">Online</b>
-          <small data-i18n-html="criar.online_desc"><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
         <button type="button" class="modo-btn" data-modo="blackjack" onclick="escolherModoSala('blackjack','')">
           <span class="modo-icone" aria-hidden="true">🂡</span>
           <b data-i18n="criar.bj_nome">Blackjack</b>
-          <small data-i18n-html="criar.bj_desc"><strong>Banca automática</strong> · 21</small>
         </button>
       </div>
 
-      <div class="opcoes-online" id="opcoes-online">
-        <div class="opcoes-grupo">
-          <label data-i18n="criar.tempo">Tempo por jogada</label>
-          <div class="opcoes-chips" id="chips-turno">
-            <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'')">20s</button>
-            <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'')">30s</button>
-            <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'')">45s</button>
-            <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'')">60s</button>
-            <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'')" data-i18n="criar.sem_limite">Sem limite</button>
-          </div>
+      <div class="grade-config-rapida" id="grade-config-rapida">
+        <button type="button" class="cfg-tile" id="btn-ciclo-tempo" onclick="ciclarTempoTurno('')">
+          <span class="cfg-rotulo" data-i18n="criar.tempo_curto">Tempo</span>
+          <span class="cfg-val-linha"><b id="val-ciclo-tempo">30s</b><span class="cfg-seta" aria-hidden="true">↻</span></span>
+        </button>
+        <button type="button" class="cfg-tile" id="btn-ciclo-blinds" onclick="ciclarSubirBlinds('')">
+          <span class="cfg-rotulo" data-i18n="criar.blinds_curto">Subir blinds</span>
+          <span class="cfg-val-linha"><b id="val-ciclo-blinds">10m</b><span class="cfg-seta" aria-hidden="true">↻</span></span>
+        </button>
+        <button type="button" class="cfg-tile" id="btn-toggle-bots" onclick="alternarBotsCriar()" aria-pressed="false">
+          <span class="cfg-rotulo" data-i18n="criar.bots_curto">Bots</span>
+          <span class="cfg-val-linha"><b id="val-toggle-bots" data-i18n="criar.bots_off">Desligado</b></span>
+        </button>
+        <button type="button" class="cfg-tile" id="btn-toggle-privada" onclick="alternarPrivadaCriar()" aria-pressed="false">
+          <span class="cfg-rotulo" data-i18n="criar.privada_curto">Privacidade</span>
+          <span class="cfg-val-linha"><b id="val-toggle-privada" data-i18n="criar.privada_off">Pública</b></span>
+        </button>
+      </div>
+
+      <div class="opcoes-grupo" id="grupo-bj-min" hidden>
+        <label for="campo-bj-min" data-i18n="criar.aposta_min">Aposta mínima (Blackjack)</label>
+        <input id="campo-bj-min" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('')">
+      </div>
+
+      <div id="wrap-criar-senha" class="wrap-senha-simples" hidden>
+        <input id="campo-criar-senha" type="text" maxlength="32" placeholder="Digite a senha da sala" data-i18n-ph="criar.ph_senha"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+
+      <div class="secao-fichas-simples">
+        <div class="secao-fichas-topo">
+          <span class="secao-rotulo-simples" data-i18n="criar.fichas">Fichas iniciais</span>
+          <button type="button" class="pill-real" id="stack-real" onclick="alternarReal('')" aria-pressed="false">
+            <span data-i18n="criar.ref_reais">Referência em R$</span>
+          </button>
         </div>
-        <div class="opcoes-grupo" id="grupo-blinds">
-          <label data-i18n="criar.subir_blinds">Subir blinds automaticamente</label>
-          <div class="opcoes-chips" id="chips-blinds">
-            <button type="button" class="op-chip" data-v="0" onclick="escolherSubirBlinds(0,'')" data-i18n="criar.fixos">Fixos</button>
-            <button type="button" class="op-chip sel" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
-            <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'')">15m</button>
-            <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'')">20m</button>
-            <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'')">30m</button>
-          </div>
-        </div>
-        <div class="opcoes-grupo" id="grupo-bj-min" hidden>
-          <label for="campo-bj-min" data-i18n="criar.aposta_min">Aposta mínima (Blackjack)</label>
-          <input id="campo-bj-min" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('')">
-        </div>
-        <div class="opcoes-grupo" id="grupo-bots-criar">
-          <label data-i18n="criar.bots">Preencher com Bots</label>
-          <div class="opcoes-chips" id="chips-bots-criar">
-            <button type="button" class="op-chip sel" data-v="0" onclick="escolherBotsCriar(false)" data-i18n="criar.bots_off">Desligado</button>
-            <button type="button" class="op-chip" data-v="1" onclick="escolherBotsCriar(true)" data-i18n="criar.bots_on">Ligado</button>
-          </div>
-          <p class="dica" id="dica-bots-criar" style="margin:6px 0 0" data-i18n="criar.bots_dica">Bots híbridos entram e saem naturalmente e sempre cedem lugar para jogadores reais.</p>
+        <div class="stacks" id="stacks">
+          <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
+          <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
+          <button type="button" class="stack" data-s="5000" onclick="escolherStack(5000)"><b>5.000</b></button>
+          <button type="button" class="stack sel" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
         </div>
       </div>
 
-      <div class="opcoes-grupo" id="grupo-privada-criar" style="margin-top:12px">
-        <label data-i18n="criar.privada">Privacidade da sala</label>
-        <div class="opcoes-chips" id="chips-privada-criar">
-          <button type="button" class="op-chip sel" data-v="0" onclick="escolherPrivadaCriar(false)" data-i18n="criar.privada_off">Pública</button>
-          <button type="button" class="op-chip" data-v="1" onclick="escolherPrivadaCriar(true)" data-i18n="criar.privada_on">Privada (com senha)</button>
-        </div>
-        <div id="wrap-criar-senha" style="margin-top:8px" hidden>
-          <input id="campo-criar-senha" type="text" maxlength="32" placeholder="Digite a senha da sala" data-i18n-ph="criar.ph_senha"
-                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
-
-      <div class="secao-titulo"><span class="passo-num">2</span> <span data-i18n="criar.fichas">Fichas iniciais</span></div>
-      <div class="stacks" id="stacks">
-        <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
-        <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
-        <button type="button" class="stack" data-s="5000" onclick="escolherStack(5000)"><b>5.000</b></button>
-        <button type="button" class="stack sel" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
-      </div>
-      <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')">
-        <b data-i18n="criar.ref_reais">Referência em R$</b>
-        <small data-i18n="criar.opcional">opcional</small>
-      </button>
       <div class="painel-real" id="painel-real" hidden>
         <label for="campo-reais" data-i18n="criar.valor_jogador">Valor por jogador (R$)</label>
         <input id="campo-reais" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('')">
@@ -266,7 +248,7 @@
       <input id="campo-small" type="number" value="50" hidden>
       <input id="campo-big" type="number" value="100" hidden>
 
-      <div class="profund">
+      <div class="profund profund-simples">
         <div><span id="prof-rotulo" data-i18n="criar.ritmo">Ritmo da mesa</span><small id="prof-det"></small></div>
         <strong id="prof-val"></strong>
       </div>
@@ -959,11 +941,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=99"></script>
+<script type="module" src="./js/main.js?v=100"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=99').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=100').catch(() => {});
     });
   }
 </script>

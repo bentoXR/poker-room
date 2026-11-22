@@ -1,14 +1,14 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=99';
-import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=99';
-import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=99';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=99';
-import { desligarTempoReal } from '../core/realtime.js?v=99';
-import { tratarErroConta } from './auth.js?v=99';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=99';
-import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=99';
-import { abrirMesa } from '../mesa/mesa.js?v=99';
-import { t, termo } from '../core/i18n.js?v=99';
+import { banco } from '../core/supabase.js?v=100';
+import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=100';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=100';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=100';
+import { desligarTempoReal } from '../core/realtime.js?v=100';
+import { tratarErroConta } from './auth.js?v=100';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=100';
+import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=100';
+import { abrirMesa } from '../mesa/mesa.js?v=100';
+import { t, termo } from '../core/i18n.js?v=100';
 
 let hooksSalas = {
   cancelarCriacaoDev: () => {},

@@ -1,76 +1,78 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=99';
-import { estado, ehContaDev } from './core/estado.js?v=99';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=99';
+import { banco } from './core/supabase.js?v=100';
+import { estado, ehContaDev } from './core/estado.js?v=100';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=100';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=99';
-import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=99';
-import { iniciarSom, alternarSom } from './core/som.js?v=99';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=99';
-import { escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma } from './core/i18n.js?v=99';
+} from './core/ui.js?v=100';
+import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=100';
+import { iniciarSom, alternarSom } from './core/som.js?v=100';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=100';
+import { escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma } from './core/i18n.js?v=100';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, sairDaConta
-} from './lobby/auth.js?v=99';
+} from './lobby/auth.js?v=100';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil
-} from './lobby/perfil.js?v=99';
+} from './lobby/perfil.js?v=100';
 import {
   registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador,
   abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo,
   fecharSenhaSala, confirmarSenhaSala
-} from './lobby/salas.js?v=99';
+} from './lobby/salas.js?v=100';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
-  escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev,
-  escolherBotsDev, escolherNivelBotsDev, escolherBotsCriar, escolherPrivadaCriar
-} from './lobby/config-sala.js?v=99';
+  escolherModoSala, escolherTempoTurno, ciclarTempoTurno, escolherSubirBlinds, ciclarSubirBlinds,
+  escolherQtdDev, escolherBotsDev, escolherNivelBotsDev,
+  escolherBotsCriar, alternarBotsCriar, escolherPrivadaCriar, alternarPrivadaCriar,
+  atualizarControlesCriar
+} from './lobby/config-sala.js?v=100';
 
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
-} from './mesa/mesa.js?v=99';
+} from './mesa/mesa.js?v=100';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=99';
+} from './mesa/apostas.js?v=100';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal, copiarAcertoMesa
-} from './mesa/extras.js?v=99';
+} from './mesa/extras.js?v=100';
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
   receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
-} from './mesa/chat.js?v=99';
+} from './mesa/chat.js?v=100';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=99';
+} from './modos/presencial/acoes.js?v=100';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=99';
+} from './modos/presencial/distribuir.js?v=100';
 import {
   registrarHooksDev, cancelarCriacaoDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=99';
+} from './modos/presencial/dev.js?v=100';
 import {
   virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline, comprarRebuyOnline, espectarOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=99';
+} from './modos/online/online.js?v=100';
 import {
   bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
   bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev, tickBlackjack, tratarTeclaBlackjack
-} from './modos/blackjack/blackjack.js?v=99';
+} from './modos/blackjack/blackjack.js?v=100';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {
@@ -176,8 +178,9 @@ Object.assign(window, {
   fecharSenhaSala, confirmarSenhaSala,
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade,
-  escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev,
-  escolherBotsDev, escolherNivelBotsDev, escolherBotsCriar, escolherPrivadaCriar,
+  escolherModoSala, escolherTempoTurno, ciclarTempoTurno, escolherSubirBlinds, ciclarSubirBlinds,
+  escolherQtdDev, escolherBotsDev, escolherNivelBotsDev,
+  escolherBotsCriar, alternarBotsCriar, escolherPrivadaCriar, alternarPrivadaCriar,
   esquecerPartida, iniciarApp,
 
   // Mesa compartilhada e apostas
@@ -212,6 +215,7 @@ iniciarSom();
 aplicarIdiomaDOM();
 registrarHookIdioma(() => {
   escolherModoLogin($id('grupo-confirmar-senha') && !$id('grupo-confirmar-senha').hidden ? 'criar' : 'entrar');
+  atualizarControlesCriar();
   atualizarProfundidade('');
   atualizarProfundidade('dev');
   if ($id('tela-salas') && $id('tela-salas').classList.contains('ativa')) {

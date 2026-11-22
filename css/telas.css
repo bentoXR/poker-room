@@ -511,6 +511,141 @@ button.stack.especial b { font-size: 16.5px; }
 #tela-criar #botao-criar, #tela-dev #botao-criar-dev { margin-top: 12px; min-height: 54px; }
 #tela-criar .erro, #tela-dev .erro { margin-top: 8px; }
 
+/* ----- Menu de criação simplificado (#tela-criar) ----- */
+#tela-criar .cartao.criar-simples {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#tela-criar .seletor-modo-compacto {
+  margin-top: 0;
+  gap: 8px;
+}
+#tela-criar .seletor-modo-compacto button.modo-btn {
+  min-height: 54px;
+  padding: 8px 6px;
+  gap: 3px;
+}
+#tela-criar .seletor-modo-compacto .modo-icone {
+  font-size: 19px;
+  margin-bottom: 0;
+}
+#tela-criar .seletor-modo-compacto button.modo-btn b {
+  font-size: 14.5px;
+}
+.grade-config-rapida {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+button.cfg-tile {
+  width: 100%;
+  min-height: 54px;
+  margin: 0;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  text-align: left;
+  background: var(--feltro-800);
+  color: var(--marfim);
+  border-radius: var(--raio-md);
+  box-shadow: inset 0 0 0 1.5px var(--linha);
+  transition: background-color 0.14s ease, box-shadow 0.14s ease, transform 0.1s ease;
+}
+button.cfg-tile:active:not(:disabled) {
+  transform: scale(0.98);
+}
+button.cfg-tile.ativo {
+  background: var(--verde-suave);
+  box-shadow: inset 0 0 0 1.5px var(--verde-borda);
+}
+.cfg-rotulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--marfim-suave);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cfg-val-linha {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.cfg-val-linha b {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+}
+button.cfg-tile.ativo .cfg-val-linha b {
+  color: var(--verde-texto);
+}
+.cfg-seta {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--marfim-suave);
+  opacity: 0.7;
+  line-height: 1;
+}
+button.cfg-tile.ativo .cfg-seta {
+  color: var(--verde-texto);
+  opacity: 0.95;
+}
+.wrap-senha-simples {
+  margin-top: -2px;
+}
+.secao-fichas-simples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.secao-fichas-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.secao-rotulo-simples {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--marfim-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+button.pill-real {
+  width: auto;
+  min-height: 32px;
+  margin: 0;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: var(--feltro-800);
+  color: var(--marfim-suave);
+  box-shadow: inset 0 0 0 1.5px var(--linha);
+}
+button.pill-real.sel {
+  background: var(--ouro);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--ouro-escuro);
+}
+#tela-criar .painel-real {
+  margin-top: -2px;
+}
+#tela-criar .profund.profund-simples {
+  margin-top: 0;
+  padding: 8px 12px;
+}
+#tela-criar .profund.profund-simples strong {
+  font-size: 24px;
+}
+
 /* ----- Escolha de entrada ----- */
 .cartao-convite { text-align: center; }
 .convite { text-align: center; padding: 6px 0 6px; }
@@ -1120,6 +1255,15 @@ button.stack.especial b { font-size: 16.5px; }
     filter: none;
     background: var(--feltro-700);
     box-shadow: inset 0 0 0 1.5px rgba(244, 247, 255, 0.34);
+  }
+  button.cfg-tile:hover:not(:disabled):not(.ativo),
+  button.pill-real:hover:not(:disabled):not(.sel) {
+    filter: none;
+    background: var(--feltro-700);
+    box-shadow: inset 0 0 0 1.5px rgba(244, 247, 255, 0.34);
+  }
+  button.cfg-tile.ativo:hover:not(:disabled) {
+    filter: brightness(1.08);
   }
   button.atalho:hover:not(:disabled) {
     filter: none;

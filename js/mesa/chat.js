@@ -1,10 +1,10 @@
 // Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
-import { banco } from '../core/supabase.js?v=99';
-import { estado, nomeDe } from '../core/estado.js?v=99';
-import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=99';
-import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=99';
-import { tocarSom } from '../core/som.js?v=99';
-import { executar } from './apostas.js?v=99';
+import { banco } from '../core/supabase.js?v=100';
+import { estado, nomeDe } from '../core/estado.js?v=100';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=100';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=100';
+import { tocarSom } from '../core/som.js?v=100';
+import { executar } from './apostas.js?v=100';
 
 const JANELA_DIGITANDO_MS = 3400;
 
@@ -415,14 +415,15 @@ function desenharPainelVotacao() {
   const podeExpulsarQtd = jogadores.length >= 3;
 
   const tipoMesa = p.pausada ? 'retomar' : 'pausar';
-  const rotuloMesa = p.pausada ? '▶ Propor retomar a mesa' : '⏸ Propor pausar a mesa';
+  const iconeMesa = p.pausada ? '▶' : '⏸';
+  const tituloMesa = p.pausada ? 'Retomar mesa' : 'Pausar mesa';
+  const subMesa = p.pausada ? 'Mesa pausada' : 'Propor pausa';
   const classeMesa = p.pausada ? 'positivo' : 'secundario';
 
   const rabbitAtivo = !!p.rabbit_hunt_ativo;
   const tipoRabbit = rabbitAtivo ? 'rabbit_off' : 'rabbit_on';
-  const rotuloRabbit = rabbitAtivo
-    ? '🐰 Desativar Rabbit Hunt (ver cartas)'
-    : '🐰 Ativar Rabbit Hunt (ver cartas)';
+  const tituloRabbit = rabbitAtivo ? 'Desativar Rabbit Hunt' : 'Ativar Rabbit Hunt';
+  const subRabbit = rabbitAtivo ? 'Ativado · ver cartas' : 'Desativado · ver cartas';
 
   const listaJog = outros.length
     ? outros.map((j) => (
@@ -442,9 +443,18 @@ function desenharPainelVotacao() {
     + (bloqueado ? '<div class="votacao-aviso">Há uma votação aberta acima. Aguarde concluir para iniciar outra.</div>' : '')
     + '<div class="votacao-bloco">'
     +   '<div class="votacao-sec-titulo">Controle da partida</div>'
-    +   '<button type="button" class="' + classeMesa + '" onclick="iniciarVotacao(\'' + tipoMesa + '\')"' + (bloqueado ? ' disabled' : '') + '>' + rotuloMesa + '</button>'
-    +   '<button type="button" class="secundario" onclick="iniciarVotacao(\'' + tipoRabbit + '\')"' + (bloqueado ? ' disabled' : '') + '>' + rotuloRabbit + '</button>'
-    +   '<div class="votacao-nota">Rabbit Hunt (ver cartas seguintes): <strong>' + (rabbitAtivo ? 'Ativado' : 'Desativado') + '</strong></div>'
+    +   '<div class="votacao-grade-acoes">'
+    +     '<button type="button" class="votacao-card-btn ' + classeMesa + '" onclick="iniciarVotacao(\'' + tipoMesa + '\')"' + (bloqueado ? ' disabled' : '') + '>'
+    +       '<span class="vc-ico" aria-hidden="true">' + iconeMesa + '</span>'
+    +       '<strong>' + tituloMesa + '</strong>'
+    +       '<small>' + subMesa + '</small>'
+    +     '</button>'
+    +     '<button type="button" class="votacao-card-btn secundario' + (rabbitAtivo ? ' ativo' : '') + '" onclick="iniciarVotacao(\'' + tipoRabbit + '\')"' + (bloqueado ? ' disabled' : '') + '>'
+    +       '<span class="vc-ico" aria-hidden="true">🐰</span>'
+    +       '<strong>' + tituloRabbit + '</strong>'
+    +       '<small>' + subRabbit + '</small>'
+    +     '</button>'
+    +   '</div>'
     + '</div>'
     + '<div class="votacao-bloco">'
     +   '<div class="votacao-sec-titulo">Remover jogador' + (podeExpulsarQtd ? '' : ' <small>(mín. 3 na mesa)</small>') + '</div>'

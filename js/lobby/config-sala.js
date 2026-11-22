@@ -1,11 +1,13 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=99';
-import { estado, marcarReal } from '../core/estado.js?v=99';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=99';
-import { t, termo } from '../core/i18n.js?v=99';
+import { banco } from '../core/supabase.js?v=100';
+import { estado, marcarReal } from '../core/estado.js?v=100';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=100';
+import { t, termo } from '../core/i18n.js?v=100';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
+const TEMPOS_TURNO = [20, 30, 45, 60, 0];
+const SUBIR_BLINDS = [0, 10, 15, 20, 30];
 const cfgReal = { '': false, dev: false };
 const cfgModo = { '': 'presencial', dev: 'presencial' };
 const cfgTempoTurno = { '': 30, dev: 30 };
@@ -59,6 +61,12 @@ export function escolherModoSala(modo, p) {
     const grpBots = $id('grupo-bots-dev');
     if (grpBots) grpBots.hidden = (cfgModo.dev !== 'online');
   } else if (p === '') {
+    const btnTempo = $id('btn-ciclo-tempo');
+    if (btnTempo) btnTempo.hidden = (cfgModo[''] === 'presencial');
+    const btnBlinds = $id('btn-ciclo-blinds');
+    if (btnBlinds) btnBlinds.hidden = (cfgModo[''] !== 'online');
+    const btnBots = $id('btn-toggle-bots');
+    if (btnBots) btnBots.hidden = (cfgModo[''] !== 'online' || !!cfgReal['']);
     const grpBotsCriar = $id('grupo-bots-criar');
     if (grpBotsCriar) grpBotsCriar.hidden = (cfgModo[''] !== 'online' || !!cfgReal['']);
   }
@@ -91,6 +99,20 @@ export function escolherTempoTurno(seg, p) {
       b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
   }
+  if (p === '') {
+    const valEl = $id('val-ciclo-tempo');
+    const btnEl = $id('btn-ciclo-tempo');
+    if (valEl) valEl.textContent = cfgTempoTurno[''] === 0 ? t('criar.sem_limite') : (cfgTempoTurno[''] + 's');
+    if (btnEl) btnEl.classList.toggle('ativo', cfgTempoTurno[''] > 0);
+  }
+}
+
+export function ciclarTempoTurno(p) {
+  p = p || '';
+  const atual = cfgTempoTurno[p] === 0 ? 0 : (cfgTempoTurno[p] || 30);
+  const idx = TEMPOS_TURNO.indexOf(atual);
+  const prox = TEMPOS_TURNO[(idx + 1) % TEMPOS_TURNO.length];
+  escolherTempoTurno(prox, p);
 }
 
 export function escolherSubirBlinds(min, p) {
@@ -104,6 +126,20 @@ export function escolherSubirBlinds(min, p) {
       b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
   }
+  if (p === '') {
+    const valEl = $id('val-ciclo-blinds');
+    const btnEl = $id('btn-ciclo-blinds');
+    if (valEl) valEl.textContent = cfgSubirBlinds[''] === 0 ? t('criar.fixos') : (cfgSubirBlinds[''] + 'm');
+    if (btnEl) btnEl.classList.toggle('ativo', cfgSubirBlinds[''] > 0);
+  }
+}
+
+export function ciclarSubirBlinds(p) {
+  p = p || '';
+  const atual = cfgSubirBlinds[p] || 0;
+  const idx = SUBIR_BLINDS.indexOf(atual);
+  const prox = SUBIR_BLINDS[(idx + 1) % SUBIR_BLINDS.length];
+  escolherSubirBlinds(prox, p);
 }
 
 export function escolherBotsDev(ativo) {
@@ -142,9 +178,21 @@ export function escolherBotsCriar(ativo) {
       b.setAttribute('aria-pressed', sel ? 'true' : 'false');
     });
   }
+  const btn = $id('btn-toggle-bots');
+  const val = $id('val-toggle-bots');
+  if (btn) {
+    btn.classList.toggle('ativo', cfgBotsCriar);
+    btn.setAttribute('aria-pressed', cfgBotsCriar ? 'true' : 'false');
+  }
+  if (val) val.textContent = t(cfgBotsCriar ? 'criar.bots_on' : 'criar.bots_off');
 }
 
-export function escolherPrivadaCriar(ativo) {
+export function alternarBotsCriar() {
+  escolherBotsCriar(!cfgBotsCriar);
+}
+
+export function escolherPrivadaCriar(ativo, focar) {
+  const mudouParaAtivo = !!ativo && !cfgPrivadaCriar;
   cfgPrivadaCriar = !!ativo;
   const wrap = $id('chips-privada-criar');
   if (wrap) {
@@ -154,13 +202,31 @@ export function escolherPrivadaCriar(ativo) {
       b.setAttribute('aria-pressed', sel ? 'true' : 'false');
     });
   }
+  const btn = $id('btn-toggle-privada');
+  const val = $id('val-toggle-privada');
+  if (btn) {
+    btn.classList.toggle('ativo', cfgPrivadaCriar);
+    btn.setAttribute('aria-pressed', cfgPrivadaCriar ? 'true' : 'false');
+  }
+  if (val) val.textContent = t(cfgPrivadaCriar ? 'criar.privada_on_curto' : 'criar.privada_off');
   const wrapSenha = $id('wrap-criar-senha');
   if (wrapSenha) wrapSenha.hidden = !cfgPrivadaCriar;
   const campo = $id('campo-criar-senha');
   if (campo) {
     if (!cfgPrivadaCriar) campo.value = '';
-    else setTimeout(() => campo.focus(), 40);
+    else if (mudouParaAtivo || focar) setTimeout(() => campo.focus(), 40);
   }
+}
+
+export function alternarPrivadaCriar() {
+  escolherPrivadaCriar(!cfgPrivadaCriar, true);
+}
+
+export function atualizarControlesCriar() {
+  escolherTempoTurno(cfgTempoTurno[''], '');
+  escolherSubirBlinds(cfgSubirBlinds[''], '');
+  escolherBotsCriar(cfgBotsCriar);
+  escolherPrivadaCriar(cfgPrivadaCriar, false);
 }
 
 export function escolherQtdDev(qtd) {
@@ -202,6 +268,8 @@ export function alternarReal(p) {
   cfgReal[p] = !cfgReal[p];
   if (p === '') {
     if (cfgReal['']) escolherBotsCriar(false);
+    const btnBots = $id('btn-toggle-bots');
+    if (btnBots) btnBots.hidden = (cfgModo[''] !== 'online' || !!cfgReal['']);
     const grpBotsCriar = $id('grupo-bots-criar');
     if (grpBotsCriar) grpBotsCriar.hidden = (cfgModo[''] !== 'online' || !!cfgReal['']);
   }
@@ -247,7 +315,11 @@ export function atualizarProfundidade(p) {
     const k = Number(b.dataset.s);
     b.classList.toggle('sel', s === k && sb === STACKS[k][0] && bb === STACKS[k][1]);
   });
-  $id('stack-real' + i.s).classList.toggle('sel', real);
+  const stackRealEl = $id('stack-real' + i.s);
+  if (stackRealEl) {
+    stackRealEl.classList.toggle('sel', real);
+    stackRealEl.setAttribute('aria-pressed', real ? 'true' : 'false');
+  }
   $id('painel-real' + i.s).hidden = !real;
 
   const reais = parseFloat($id('campo-reais' + i.s).value);

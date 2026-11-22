@@ -1,10 +1,10 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=99';
-import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=99';
-import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=99';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=99';
-import { t, termo } from '../core/i18n.js?v=99';
+import { banco } from '../core/supabase.js?v=100';
+import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=100';
+import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=100';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=100';
+import { t, termo } from '../core/i18n.js?v=100';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -383,7 +383,8 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
         ? (termo('call') + ' ' + valorPagarPre + (valorPagarPre >= eu.saldo ? ' (' + termo('allin') + ')' : ''))
         : (termo('check') + ' auto');
       preEl.innerHTML =
-        '<button type="button" class="pre-btn perigo' + (sel === 'check_fold' ? ' sel' : '') + '" onclick="alternarPreAcao(\'check_fold\')" aria-pressed="' + (sel === 'check_fold') + '">' + b1Rot + '</button>'
+        '<div class="pre-acao-dica">' + t('mesa.pre_acao_dica') + '</div>'
+        + '<button type="button" class="pre-btn perigo' + (sel === 'check_fold' ? ' sel' : '') + '" onclick="alternarPreAcao(\'check_fold\')" aria-pressed="' + (sel === 'check_fold') + '">' + b1Rot + '</button>'
         + '<button type="button" class="pre-btn positivo' + (sel === b2Tipo ? ' sel' : '') + '" onclick="alternarPreAcao(\'' + b2Tipo + '\')" aria-pressed="' + (sel === b2Tipo) + '">' + b2Rot + '</button>';
       preEl.hidden = false;
     } else {

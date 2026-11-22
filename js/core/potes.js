@@ -1,6 +1,6 @@
 // Motor puro de potes principal/laterais e divisão oficial de empates
 // 100% independente da interface — reutilizável nos modos Presencial e Online
-import { estado, nomeDe, passoSala } from './estado.js?v=99';
+import { estado, nomeDe, passoSala } from './estado.js?v=100';
 
 export function nomePote(indice, total) {
   if (indice === 0) return 'Pote Principal';

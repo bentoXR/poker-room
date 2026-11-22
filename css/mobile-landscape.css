@@ -457,6 +457,29 @@
     padding: 1px 4px !important;
     font-size: 11px !important;
   }
+  #tela-criar .cartao.criar-simples {
+    gap: 6px !important;
+  }
+  #tela-criar .grade-config-rapida {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+    gap: 6px !important;
+  }
+  #tela-criar button.cfg-tile {
+    min-height: 38px !important;
+    padding: 4px 8px !important;
+    gap: 1px !important;
+  }
+  #tela-criar .cfg-rotulo {
+    font-size: 9.5px !important;
+  }
+  #tela-criar .cfg-val-linha b {
+    font-size: 13px !important;
+  }
+  #tela-criar button.pill-real {
+    min-height: 26px !important;
+    padding: 2px 9px !important;
+    font-size: 11px !important;
+  }
   #tela-dev .chips-qtd {
     grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
     gap: 4px !important;
@@ -937,7 +960,7 @@
     left: clamp(calc(var(--w, 100px) / 2 + 10px), var(--x, 50%), calc(100% - var(--w, 100px) / 2 - 4px)) !important;
     top: clamp(18px, var(--y, 50%), calc(100% - 24px)) !important;
     min-height: 34px !important;
-    padding: 3px 6px 3px 19px !important;
+    padding: 3px 6px 3px 22px !important;
     border-radius: 10px !important;
     gap: 0 !important;
     box-shadow: 0 5px 14px -5px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;

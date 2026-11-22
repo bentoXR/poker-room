@@ -213,6 +213,18 @@
   color: #0f172a;
   border: 1.5px solid rgba(15, 23, 42, 0.2);
 }
+:root[data-tema="branco"] .pre-acao-dica,
+:root[data-tema="branco"] .barra-online-espera .espera-status {
+  color: #475569;
+}
+:root[data-tema="branco"] .barra-online-espera .espera-status strong {
+  color: #0f172a;
+}
+:root[data-tema="branco"] button.votacao-card-btn.ativo {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #166534;
+}
 :root[data-tema="branco"] .barra-pre-acao button.pre-btn.perigo.sel {
   background: #dc2626;
   color: #fff;
@@ -233,10 +245,28 @@
 :root[data-tema="branco"] .op-chip,
 :root[data-tema="branco"] button.stack,
 :root[data-tema="branco"] button.modo-btn,
+:root[data-tema="branco"] button.cfg-tile,
+:root[data-tema="branco"] button.pill-real,
 :root[data-tema="branco"] .tema-btn {
   background: #e8edf5;
   color: #0f172a;
   border-color: rgba(15, 23, 42, 0.16);
+}
+:root[data-tema="branco"] button.cfg-tile .cfg-val-linha b {
+  color: #0f172a;
+}
+:root[data-tema="branco"] button.cfg-tile .cfg-rotulo,
+:root[data-tema="branco"] button.cfg-tile .cfg-seta,
+:root[data-tema="branco"] .secao-rotulo-simples {
+  color: #475569;
+}
+:root[data-tema="branco"] button.cfg-tile.ativo {
+  background: #dcfce7;
+  box-shadow: inset 0 0 0 1.5px #16a34a;
+}
+:root[data-tema="branco"] button.cfg-tile.ativo .cfg-val-linha b,
+:root[data-tema="branco"] button.cfg-tile.ativo .cfg-seta {
+  color: #166534;
 }
 :root[data-tema="branco"] button.secundario:hover {
   background: #dbe3ef;
@@ -244,6 +274,7 @@
 :root[data-tema="branco"] .op-chip.sel,
 :root[data-tema="branco"] button.stack.sel,
 :root[data-tema="branco"] button.modo-btn.sel,
+:root[data-tema="branco"] button.pill-real.sel,
 :root[data-tema="branco"] .tema-btn.sel {
   background: #0f172a;
   color: #ffffff;
