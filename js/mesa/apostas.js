@@ -1,10 +1,10 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=97';
-import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=97';
-import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=97';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=97';
-import { t, termo } from '../core/i18n.js?v=97';
+import { banco } from '../core/supabase.js?v=98';
+import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=98';
+import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=98';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=98';
+import { t, termo } from '../core/i18n.js?v=98';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -353,22 +353,27 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   }
 
   const preEl = $id('barra-pre-acao');
-  if (podeAgir && estado.preAcao && !estado.ocupado) {
+  if (podeAgir && estado.preAcao) {
     const acaoFila = estado.preAcao;
     estado.preAcao = null;
     if (preEl) { preEl.hidden = true; preEl.innerHTML = ''; }
     const mSnap = partida.mao;
     const fSnap = partida.fase;
-    setTimeout(() => {
+    const tentarExecutar = (tentativas) => {
       const pAt = estado.partidaAtual;
       if (!pAt || pAt.pausada || pAt.mao !== mSnap || pAt.fase !== fSnap) return;
-      if (pAt.vez_jogador_id !== eu.id || estado.ocupado) return;
+      if (pAt.vez_jogador_id !== eu.id) return;
+      if (estado.ocupado) {
+        if (tentativas < 10) setTimeout(() => tentarExecutar(tentativas + 1), 150);
+        return;
+      }
       const euAt = (estado.jogadoresAtuais || []).find((x) => x.id === eu.id);
       const faltaAt = euAt ? Math.max(0, pAt.aposta_atual - euAt.apostou) : 0;
       if (acaoFila.tipo === 'check_fold') agir(faltaAt > 0 ? 'desistir' : 'check');
       else if (acaoFila.tipo === 'check' && faltaAt === 0) agir('check');
       else if (acaoFila.tipo === 'pagar' && faltaAt > 0) agir('pagar');
-    }, 260);
+    };
+    setTimeout(() => tentarExecutar(0), 240);
   } else if (preEl) {
     if (podePreAcao) {
       const sel = estado.preAcao ? estado.preAcao.tipo : '';

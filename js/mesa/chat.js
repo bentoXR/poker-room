@@ -1,10 +1,10 @@
 // Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
-import { banco } from '../core/supabase.js?v=97';
-import { estado, nomeDe } from '../core/estado.js?v=97';
-import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=97';
-import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=97';
-import { tocarSom } from '../core/som.js?v=97';
-import { executar } from './apostas.js?v=97';
+import { banco } from '../core/supabase.js?v=98';
+import { estado, nomeDe } from '../core/estado.js?v=98';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=98';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=98';
+import { tocarSom } from '../core/som.js?v=98';
+import { executar } from './apostas.js?v=98';
 
 const JANELA_DIGITANDO_MS = 3400;
 
@@ -700,25 +700,7 @@ export function receberReacao(payload) {
   mostrarPreviewReacao(payload);
 
   const jid = payload.jogador_id;
-  const alvo = jid
-    ? (document.querySelector('#tela-mesa .lugar[data-jogador-id="' + jid + '"]')
-       || document.querySelector('#meu-perfil-dock[data-jogador-id="' + jid + '"]'))
-    : null;
-
   if (!jid || jid !== estado.meuJogadorId) tocarSom('clique');
-  if (!alvo) return;
-
-  alvo.querySelectorAll('.reacao-balao').forEach((n) => n.remove());
-  const balao = document.createElement('div');
-  balao.className = 'reacao-balao' + (payload.texto.length <= 3 ? ' emoji' : '');
-  balao.textContent = payload.texto;
-  alvo.appendChild(balao);
-
-  setTimeout(() => {
-    if (!balao.isConnected) return;
-    balao.classList.add('saindo');
-    setTimeout(() => { if (balao.isConnected) balao.remove(); }, 280);
-  }, 2400);
 }
 
 export function enviarReacao(texto) {

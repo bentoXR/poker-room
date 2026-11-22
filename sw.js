@@ -1,5 +1,5 @@
 // Service Worker do Poker Room (PWA): estratégia network-first para sempre entregar a versão mais recente
-const CACHE_NOME = 'poker-room-v97';
+const CACHE_NOME = 'poker-room-v98';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

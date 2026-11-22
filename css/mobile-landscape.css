@@ -1225,8 +1225,8 @@
     margin: -2px 0 !important;
   }
   #barra-acoes.modo-online #minha-mao-wrap .carta-3d {
-    width: 32px !important;
-    height: 45px !important;
+    width: 40px !important;
+    height: 48px !important;
     border-radius: 6px !important;
   }
   #barra-acoes.modo-online #minha-mao-wrap .carta-3d.virada {
@@ -1654,8 +1654,8 @@
     padding: 2px 5px !important;
   }
   #barra-acoes.modo-online #minha-mao-wrap .carta-3d {
-    width: 30px !important;
-    height: 42px !important;
+    width: 36px !important;
+    height: 44px !important;
   }
   #barra-acoes .caixa-aposta:not([hidden]),
   #barra-acoes.modo-online .caixa-aposta:not([hidden]),

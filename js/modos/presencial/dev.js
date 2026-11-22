@@ -1,11 +1,11 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=97';
-import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=97';
-import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=97';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=97';
-import { desligarTempoReal } from '../../core/realtime.js?v=97';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=97';
-import { executar } from '../../mesa/apostas.js?v=97';
+import { banco } from '../../core/supabase.js?v=98';
+import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=98';
+import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=98';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=98';
+import { desligarTempoReal } from '../../core/realtime.js?v=98';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=98';
+import { executar } from '../../mesa/apostas.js?v=98';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const NIVEIS_BOT = ['facil', 'medio', 'dificil'];
