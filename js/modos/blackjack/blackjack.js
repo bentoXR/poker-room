@@ -1,12 +1,12 @@
 // Modo Blackjack: multiplayer 1-6 jogadores contra a Banca automática (1 baralho de 52 cartas, S17, 3:2)
-import { banco } from '../../core/supabase.js?v=85';
-import { estado, nomeDe } from '../../core/estado.js?v=85';
-import { lerDevSala } from '../../core/storage.js?v=85';
-import { $id, escapar, aviso, mostrarErro, limparErro } from '../../core/ui.js?v=85';
-import { registrarModo } from '../../mesa/modos.js?v=85';
-import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=85';
-import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=85';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=85';
+import { banco } from '../../core/supabase.js?v=86';
+import { estado, nomeDe } from '../../core/estado.js?v=86';
+import { lerDevSala } from '../../core/storage.js?v=86';
+import { $id, escapar, aviso, mostrarErro, limparErro } from '../../core/ui.js?v=86';
+import { registrarModo } from '../../mesa/modos.js?v=86';
+import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=86';
+import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=86';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=86';
 
 const bjUI = {
   partidaId: null,

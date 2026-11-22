@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=85';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=85';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=85';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=85';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=85';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=85';
-import { obterModo, limparTodosModos } from './modos.js?v=85';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=85';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=85';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=85';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=85';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=85';
+import { banco } from '../core/supabase.js?v=86';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=86';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=86';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=86';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=86';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=86';
+import { obterModo, limparTodosModos } from './modos.js?v=86';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=86';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=86';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=86';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=86';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=86';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 

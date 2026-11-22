@@ -1,8 +1,8 @@
 // Sincronização em tempo real (Broadcast + Postgres Changes + fallback + heartbeat)
 // Compartilhada por todos os modos de jogo
-import { banco } from './supabase.js?v=85';
-import { estado } from './estado.js?v=85';
-import { lerDevSala } from './storage.js?v=85';
+import { banco } from './supabase.js?v=86';
+import { estado } from './estado.js?v=86';
+import { lerDevSala } from './storage.js?v=86';
 
 let canal = null;
 let temporizadorReserva = null;
@@ -16,7 +16,11 @@ export function canalAtivo() {
 export function publicarBroadcast(payload) {
   if (!canal) return;
   try {
-    canal.send({ type: 'broadcast', event: 'estado', payload }).catch(() => {});
+    const sinal = {
+      id: (payload && payload.partida && payload.partida.id) || (estado.partidaAtual && estado.partidaAtual.id) || null,
+      versao: (payload && payload.partida && Number(payload.partida.versao)) || 0
+    };
+    canal.send({ type: 'broadcast', event: 'estado', payload: sinal }).catch(() => {});
   } catch (erro) {}
 }
 
@@ -54,7 +58,8 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReac
     .channel('mesa-' + idSala)
     .on('broadcast', { event: 'estado' }, (msg) => {
       if (!ativo()) return;
-      if (msg && msg.payload && msg.payload.partida) onEstado(msg.payload, false);
+      const v = msg && msg.payload ? Number(msg.payload.versao) : NaN;
+      if (!(v <= estado.ultimaVersao)) onBuscar(false);
     })
     .on('broadcast', { event: 'chat' }, (msg) => {
       if (!ativo()) return;
