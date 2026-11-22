@@ -1,9 +1,9 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=98';
-import { estado, marcarReal } from '../core/estado.js?v=98';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=98';
-import { t, termo } from '../core/i18n.js?v=98';
+import { banco } from '../core/supabase.js?v=99';
+import { estado, marcarReal } from '../core/estado.js?v=99';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=99';
+import { t, termo } from '../core/i18n.js?v=99';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -12,6 +12,7 @@ const cfgTempoTurno = { '': 30, dev: 30 };
 const cfgSubirBlinds = { '': 0, dev: 0 };
 const cfgBotsDev = { ativo: false, nivel: 'medio' };
 let cfgBotsCriar = false;
+let cfgPrivadaCriar = false;
 
 function idsCfg(p) {
   return p
@@ -31,7 +32,8 @@ export function obterConfigOnline(p) {
     apostaMin: apostaMin > 0 ? apostaMin : 50,
     usarBots: p === 'dev' ? !!cfgBotsDev.ativo : false,
     nivelBots: p === 'dev' ? (cfgBotsDev.nivel || 'medio') : 'medio',
-    comBots: p === '' ? (!!cfgBotsCriar && !cfgReal['']) : false
+    comBots: p === '' ? (!!cfgBotsCriar && !cfgReal['']) : false,
+    privada: p === '' ? !!cfgPrivadaCriar : false
   };
 }
 
@@ -139,6 +141,25 @@ export function escolherBotsCriar(ativo) {
       b.classList.toggle('sel', sel);
       b.setAttribute('aria-pressed', sel ? 'true' : 'false');
     });
+  }
+}
+
+export function escolherPrivadaCriar(ativo) {
+  cfgPrivadaCriar = !!ativo;
+  const wrap = $id('chips-privada-criar');
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      const sel = (b.dataset.v === '1') === cfgPrivadaCriar;
+      b.classList.toggle('sel', sel);
+      b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+    });
+  }
+  const wrapSenha = $id('wrap-criar-senha');
+  if (wrapSenha) wrapSenha.hidden = !cfgPrivadaCriar;
+  const campo = $id('campo-criar-senha');
+  if (campo) {
+    if (!cfgPrivadaCriar) campo.value = '';
+    else setTimeout(() => campo.focus(), 40);
   }
 }
 
@@ -277,6 +298,7 @@ export async function registrarRealCriacao(p, id, saldo, jid, seg) {
 export function aplicarPadraoCriarSala() {
   if (cfgReal['']) cfgReal[''] = false;
   escolherBotsCriar(false);
+  escolherPrivadaCriar(false);
   escolherStack(10000);
   escolherModoSala('online', '');
   escolherTempoTurno(30, '');

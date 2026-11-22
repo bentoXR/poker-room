@@ -375,7 +375,17 @@ const DICIONARIO = {
     'mesa.espectar': 'Espectar',
     'mesa.espectando_rebuy': 'Você está espectando. Compre fichas para voltar à mesa.',
     'mesa.espectando': 'Você está espectando a mesa.',
-    'mesa.sem_fichas_rebuy': 'Você ficou sem fichas. Compre mais ou especte a mesa.'
+    'mesa.sem_fichas_rebuy': 'Você ficou sem fichas. Compre mais ou especte a mesa.',
+    'criar.privada': 'Privacidade da sala',
+    'criar.privada_off': 'Pública',
+    'criar.privada_on': 'Privada (com senha)',
+    'criar.ph_senha': 'Digite a senha da sala',
+    'criar.erro_senha': 'Digite uma senha para a sala privada.',
+    'salas.privada': '🔒 Privada',
+    'salas.senha_titulo': 'Sala privada',
+    'salas.senha_desc': 'Digite a senha para entrar na mesa:',
+    'salas.senha_ph': 'Senha da sala',
+    'salas.senha_entrar': 'Entrar na mesa'
   },
   es: {
     'app.entrar': 'Entrar',
@@ -626,7 +636,17 @@ const DICIONARIO = {
     'mesa.espectar': 'Observar',
     'mesa.espectando_rebuy': 'Estás observando. Compra fichas para volver a la mesa.',
     'mesa.espectando': 'Estás observando la mesa.',
-    'mesa.sem_fichas_rebuy': 'Te quedaste sin fichas. Compra más u observa la mesa.'
+    'mesa.sem_fichas_rebuy': 'Te quedaste sin fichas. Compra más u observa la mesa.',
+    'criar.privada': 'Privacidad de la sala',
+    'criar.privada_off': 'Pública',
+    'criar.privada_on': 'Privada (con contraseña)',
+    'criar.ph_senha': 'Ingresa la contraseña de la sala',
+    'criar.erro_senha': 'Ingresa una contraseña para la sala privada.',
+    'salas.privada': '🔒 Privada',
+    'salas.senha_titulo': 'Sala privada',
+    'salas.senha_desc': 'Ingresa la contraseña para entrar a la mesa:',
+    'salas.senha_ph': 'Contraseña de la sala',
+    'salas.senha_entrar': 'Entrar a la mesa'
   },
   en: {
     'app.entrar': 'Sign in',
@@ -877,7 +897,17 @@ const DICIONARIO = {
     'mesa.espectar': 'Spectate',
     'mesa.espectando_rebuy': 'You are spectating. Buy chips to return to the table.',
     'mesa.espectando': 'You are spectating the table.',
-    'mesa.sem_fichas_rebuy': 'You are out of chips. Rebuy or spectate the table.'
+    'mesa.sem_fichas_rebuy': 'You are out of chips. Rebuy or spectate the table.',
+    'criar.privada': 'Room privacy',
+    'criar.privada_off': 'Public',
+    'criar.privada_on': 'Private (password)',
+    'criar.ph_senha': 'Enter room password',
+    'criar.erro_senha': 'Enter a password for the private room.',
+    'salas.privada': '🔒 Private',
+    'salas.senha_titulo': 'Private room',
+    'salas.senha_desc': 'Enter the password to join this table:',
+    'salas.senha_ph': 'Room password',
+    'salas.senha_entrar': 'Join table'
   }
 };
 

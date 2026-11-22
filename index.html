@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=98">
+  <link rel="manifest" href="./manifest.webmanifest?v=99">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,19 +20,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=98">
-  <link rel="stylesheet" href="./css/telas.css?v=98">
-  <link rel="stylesheet" href="./css/mesa.css?v=98">
-  <link rel="stylesheet" href="./css/gavetas.css?v=98">
-  <link rel="stylesheet" href="./css/online.css?v=98">
-  <link rel="stylesheet" href="./css/blackjack.css?v=98">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=98">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=98">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=98">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=98">
-  <link rel="stylesheet" href="./css/tema-branco.css?v=98">
-  <link rel="stylesheet" href="./css/desktop.css?v=98">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=98">
+  <link rel="stylesheet" href="./css/base.css?v=99">
+  <link rel="stylesheet" href="./css/telas.css?v=99">
+  <link rel="stylesheet" href="./css/mesa.css?v=99">
+  <link rel="stylesheet" href="./css/gavetas.css?v=99">
+  <link rel="stylesheet" href="./css/online.css?v=99">
+  <link rel="stylesheet" href="./css/blackjack.css?v=99">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=99">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=99">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=99">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=99">
+  <link rel="stylesheet" href="./css/tema-branco.css?v=99">
+  <link rel="stylesheet" href="./css/desktop.css?v=99">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=99">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -230,6 +230,18 @@
             <button type="button" class="op-chip" data-v="1" onclick="escolherBotsCriar(true)" data-i18n="criar.bots_on">Ligado</button>
           </div>
           <p class="dica" id="dica-bots-criar" style="margin:6px 0 0" data-i18n="criar.bots_dica">Bots híbridos entram e saem naturalmente e sempre cedem lugar para jogadores reais.</p>
+        </div>
+      </div>
+
+      <div class="opcoes-grupo" id="grupo-privada-criar" style="margin-top:12px">
+        <label data-i18n="criar.privada">Privacidade da sala</label>
+        <div class="opcoes-chips" id="chips-privada-criar">
+          <button type="button" class="op-chip sel" data-v="0" onclick="escolherPrivadaCriar(false)" data-i18n="criar.privada_off">Pública</button>
+          <button type="button" class="op-chip" data-v="1" onclick="escolherPrivadaCriar(true)" data-i18n="criar.privada_on">Privada (com senha)</button>
+        </div>
+        <div id="wrap-criar-senha" style="margin-top:8px" hidden>
+          <input id="campo-criar-senha" type="text" maxlength="32" placeholder="Digite a senha da sala" data-i18n-ph="criar.ph_senha"
+                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         </div>
       </div>
 
@@ -758,6 +770,21 @@
   </div>
 </div>
 
+<div id="fundo-senha-sala" class="fundo-folha" onclick="fecharSenhaSala()" hidden></div>
+<div id="folha-senha-sala" class="folha folha-modal-pc" hidden>
+  <div class="folha-topo">
+    <div class="folha-titulo" data-i18n="salas.senha_titulo">Sala privada</div>
+    <button class="fechar" onclick="fecharSenhaSala()" aria-label="Fechar">✕</button>
+  </div>
+  <div class="folha-corpo">
+    <p class="dica" style="margin-top:0"><span data-i18n="salas.senha_desc">Digite a senha para entrar na mesa:</span> <strong id="senha-sala-nome"></strong></p>
+    <input id="campo-entrar-senha" type="password" maxlength="32" placeholder="Senha da sala" data-i18n-ph="salas.senha_ph"
+           autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+    <button type="button" id="btn-confirmar-senha-sala" style="margin-top:10px" onclick="confirmarSenhaSala()" data-i18n="salas.senha_entrar">Entrar na mesa</button>
+    <div id="erro-senha-sala" class="erro" role="alert"></div>
+  </div>
+</div>
+
 <div id="fundo-perfil" class="fundo-folha" onclick="fecharPerfil()" hidden></div>
 <div id="folha-perfil" class="folha folha-modal-pc" hidden>
   <div class="folha-topo">
@@ -932,11 +959,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=98"></script>
+<script type="module" src="./js/main.js?v=99"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=98').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=99').catch(() => {});
     });
   }
 </script>

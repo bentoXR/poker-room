@@ -1,14 +1,14 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=98';
-import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=98';
-import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=98';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=98';
-import { desligarTempoReal } from '../core/realtime.js?v=98';
-import { tratarErroConta } from './auth.js?v=98';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=98';
-import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=98';
-import { abrirMesa } from '../mesa/mesa.js?v=98';
-import { t, termo } from '../core/i18n.js?v=98';
+import { banco } from '../core/supabase.js?v=99';
+import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=99';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=99';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=99';
+import { desligarTempoReal } from '../core/realtime.js?v=99';
+import { tratarErroConta } from './auth.js?v=99';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=99';
+import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=99';
+import { abrirMesa } from '../mesa/mesa.js?v=99';
+import { t, termo } from '../core/i18n.js?v=99';
 
 let hooksSalas = {
   cancelarCriacaoDev: () => {},
@@ -118,12 +118,13 @@ export function desenharSalas() {
           ? '<span class="tag modo-online">' + t('salas.modo_online') + '</span>'
           : '<span class="tag modo-presencial">' + t('salas.modo_presencial') + '</span>');
       const tag = s.sou_jogador ? '<span class="tag vez">' + t('salas.continuar') + '</span>' : '';
+      const privTag = s.tem_senha ? '<span class="tag">' + t('salas.privada') + '</span>' : '';
       return `
         <button type="button" class="sala ${ehBlackjack ? 'eh-blackjack' : (ehOnline ? 'eh-online' : 'eh-presencial')} ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
           <div class="sala-info">
             <div class="sala-topo-linha">
               <div class="sala-nome">${!ehOnline && s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
-              <div class="sala-badges">${modoTag}${tag}</div>
+              <div class="sala-badges">${privTag}${modoTag}${tag}</div>
             </div>
             <div class="sala-meta">
               ${statusChip}
@@ -151,6 +152,11 @@ export async function abrirSala(id) {
 
   try {
     const sala = estado.salasAtuais.find((x) => x.id === id);
+
+    if (sala && !sala.sou_jogador && sala.tem_senha) {
+      abrirSenhaSala(sala);
+      return;
+    }
 
     if (sala && sala.sou_jogador) {
       pararSalas();
@@ -203,6 +209,12 @@ export async function criarSala() {
   const small = parseInt($id('campo-small').value);
   const big = parseInt($id('campo-big').value);
   const cfg = obterConfigOnline('');
+  const senhaSala = cfg.privada ? ($id('campo-criar-senha') ? $id('campo-criar-senha').value : '').trim() : '';
+
+  if (cfg.privada && !senhaSala) {
+    mostrarErro('erro-criar', t('criar.erro_senha'));
+    return;
+  }
 
   if (cfg.modo === 'blackjack') {
     if (!(saldo > 0) || !(cfg.apostaMin > 0)) {
@@ -274,6 +286,15 @@ export async function criarSala() {
       pararSalas();
       limparContextoDev();
       guardarMeuJogador(estado.minhaConta.id, dados.partida_id, dados.jogador_id, dados.segredo);
+      if (cfg.privada && senhaSala) {
+        try {
+          await banco.rpc('definir_senha_sala', {
+            p_jogador: dados.jogador_id,
+            p_segredo: dados.segredo,
+            p_senha: senhaSala
+          });
+        } catch (erro) {}
+      }
       await registrarRealCriacao('', dados.partida_id, saldo, dados.jogador_id, dados.segredo);
       await abrirMesa({ id: dados.partida_id, modo: cfg.modo, dev: false });
     }
@@ -284,7 +305,7 @@ export async function criarSala() {
   }
 }
 
-export async function conectarNaSala(partida, idDoErro) {
+export async function conectarNaSala(partida, idDoErro, senhaOpcional) {
   limparContextoDev();
   if (!partida || !partida.id || partida.dev) {
     mostrarErro(idDoErro, 'Essa sala não está disponível.');
@@ -292,12 +313,18 @@ export async function conectarNaSala(partida, idDoErro) {
   }
   let resp;
   try {
-    resp = await banco.rpc('entrar_sala', Object.assign({}, contaParams(), { p_partida_id: partida.id }));
+    resp = typeof senhaOpcional === 'string'
+      ? await banco.rpc('entrar_sala_senha', Object.assign({}, contaParams(), { p_partida_id: partida.id, p_senha: senhaOpcional }))
+      : await banco.rpc('entrar_sala', Object.assign({}, contaParams(), { p_partida_id: partida.id }));
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
 
   if (resp.error) {
+    if (typeof senhaOpcional !== 'string' && /privada|senha/i.test(resp.error.message || '')) {
+      abrirSenhaSala(partida);
+      return false;
+    }
     if (!tratarErroConta(resp.error)) mostrarErro(idDoErro, resp.error.message);
     return false;
   }
@@ -383,4 +410,56 @@ export function jogarAgoraOnline() {
 
 export function jogarAgoraSolo() {
   return executarJogarAgora('criar_sala_solo_bots', 'btn-ja-solo');
+}
+
+let salaSenhaAlvo = null;
+
+function abrirSenhaSala(sala) {
+  salaSenhaAlvo = sala;
+  limparErro('erro-senha-sala');
+  const nomeEl = $id('senha-sala-nome');
+  if (nomeEl) nomeEl.textContent = sala.nome || ('Sala ' + (sala.codigo || ''));
+  const campo = $id('campo-entrar-senha');
+  if (campo) campo.value = '';
+  const fundo = $id('fundo-senha-sala');
+  const folha = $id('folha-senha-sala');
+  if (fundo) fundo.hidden = false;
+  if (folha) folha.hidden = false;
+  if (campo) setTimeout(() => campo.focus(), 40);
+}
+
+export function fecharSenhaSala() {
+  salaSenhaAlvo = null;
+  const fundo = $id('fundo-senha-sala');
+  const folha = $id('folha-senha-sala');
+  if (fundo) fundo.hidden = true;
+  if (folha) folha.hidden = true;
+}
+
+export async function confirmarSenhaSala() {
+  if (!salaSenhaAlvo || estado.abrindoSala || estado.criandoSala) return;
+  const campo = $id('campo-entrar-senha');
+  const senha = (campo ? campo.value : '').trim();
+  if (!senha) {
+    mostrarErro('erro-senha-sala', t('criar.erro_senha'));
+    return;
+  }
+  limparErro('erro-senha-sala');
+  const btn = $id('btn-confirmar-senha-sala');
+  if (btn) btn.disabled = true;
+  estado.abrindoSala = true;
+  try {
+    const alvo = salaSenhaAlvo;
+    pararSalas();
+    const entrou = await conectarNaSala(alvo, 'erro-senha-sala', senha);
+    if (entrou) {
+      fecharSenhaSala();
+    } else if ($id('tela-salas').classList.contains('ativa')) {
+      carregarSalas();
+      estado.temporizadorSalas = setInterval(carregarSalas, 4000);
+    }
+  } finally {
+    estado.abrindoSala = false;
+    if (btn) btn.disabled = false;
+  }
 }
