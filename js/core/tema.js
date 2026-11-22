@@ -1,10 +1,11 @@
 // Gerenciamento de tema visual ('preto' = Preto & Vermelho [padrão] | 'classico' = Sinuca | 'cassino' = Cassino | 'liberdade' = EUA | 'tropical' = Praia Tropical)
 const CHAVE_TEMA = 'poker-tema';
-const ORDEM_TEMAS = ['preto', 'classico', 'cassino', 'liberdade', 'tropical'];
+const ORDEM_TEMAS = ['preto', 'branco', 'classico', 'cassino', 'liberdade', 'tropical'];
 const CORES_META = {
   classico: '#140c08',
   cassino: '#2e040c',
   preto: '#0b0c0e',
+  branco: '#f4f6fa',
   liberdade: '#0a3161',
   tropical: '#04384f'
 };

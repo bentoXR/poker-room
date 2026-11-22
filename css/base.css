@@ -197,12 +197,24 @@
   );
 }
 
-/* Fundo escuro sólido e limpo no tema Preto (padrão) */
+/* Fundo escuro no tema Preto (padrão) com naipes pretos em movimento lento */
+@keyframes naipesPretoMover {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 260px -260px, 0 0; }
+}
 :root[data-tema="preto"] body,
 :root[data-tema="preto"] body:not(.na-mesa),
+:root[data-tema="preto"] body.na-mesa,
 :root[data-tema="preto"] body.na-mesa.modo-online {
   background-color: #0b0c0e;
-  background-image: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22260%22 height=%22260%22%3E%3Ctext x=%2234%22 y=%2246%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%23040507%22 stroke=%22%23ffffff%22 stroke-opacity=%220.15%22 stroke-width=%220.7%22%3E%E2%99%A0%3C/text%3E%3Ctext x=%22156%22 y=%2228%22 font-size=%2214%22 text-anchor=%22middle%22 fill=%22%23040507%22 stroke=%22%23ffffff%22 stroke-opacity=%220.13%22 stroke-width=%220.7%22%3E%E2%99%A5%3C/text%3E%3Ctext x=%22218%22 y=%22106%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%23040507%22 stroke=%22%23ffffff%22 stroke-opacity=%220.15%22 stroke-width=%220.7%22%3E%E2%99%A3%3C/text%3E%3Ctext x=%2282%22 y=%22158%22 font-size=%2215%22 text-anchor=%22middle%22 fill=%22%23040507%22 stroke=%22%23ffffff%22 stroke-opacity=%220.13%22 stroke-width=%220.7%22%3E%E2%99%A6%3C/text%3E%3Ctext x=%22192%22 y=%22216%22 font-size=%2214%22 text-anchor=%22middle%22 fill=%22%23040507%22 stroke=%22%23ffffff%22 stroke-opacity=%220.14%22 stroke-width=%220.7%22%3E%E2%99%A0%3C/text%3E%3Ctext x=%2228%22 y=%22236%22 font-size=%2215%22 text-anchor=%22middle%22 fill=%22%23040507%22 stroke=%22%23ffffff%22 stroke-opacity=%220.13%22 stroke-width=%220.7%22%3E%E2%99%A5%3C/text%3E%3C/svg%3E"),
+    linear-gradient(180deg, #0c0e11 0%, #090a0c 100%);
+  background-repeat: repeat, no-repeat;
+  background-position: 0 0, 0 0;
+  background-size: 260px 260px, auto;
+  background-attachment: fixed, scroll;
+  animation: naipesPretoMover 75s linear infinite;
 }
 
 /* Fundo com textura de madeira mogno escura no tema Sinuca */
@@ -467,6 +479,7 @@ button.tema-btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none
 .amostra-azul { background: linear-gradient(135deg, #1d4ed8 0 40%, #ffffff 40% 58%, #d92638 58% 100%); }
 .amostra-classico { background: linear-gradient(135deg, #1d7a4e 0 46%, #6b3416 46% 100%); }
 .amostra-preto { background: linear-gradient(135deg, #16181f 0 50%, #e3243b 50% 100%); }
+.amostra-branco { background: linear-gradient(135deg, #ffffff 0 50%, #111827 50% 100%); }
 .amostra-dupla {
   width: 18px;
   height: 18px;
@@ -479,6 +492,9 @@ button.tema-btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none
 }
 :root[data-tema="liberdade"] .amostra-dupla {
   background: linear-gradient(135deg, #0a3161 0 34%, #ffffff 34% 52%, #b31942 52% 78%, #c9a24b 78% 100%);
+}
+:root[data-tema="branco"] .amostra-dupla {
+  background: linear-gradient(135deg, #ffffff 0 50%, #111827 50% 100%);
 }
 
 /* ----- Botões ----- */

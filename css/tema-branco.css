@@ -1,0 +1,133 @@
+/* =====================================================================
+   TEMA 6: BRANCO  (data-tema="branco")
+   Claro, limpo e minimalista com alto contraste.
+   ===================================================================== */
+
+:root[data-tema="branco"] {
+  --feltro-950: #e5e7eb;
+  --feltro-900: #f4f6fa;
+  --feltro-800: #ffffff;
+  --feltro-700: #eef2f7;
+  --feltro-600: #d1d5db;
+  --linha: rgba(15, 23, 42, 0.14);
+
+  --marfim: #0f172a;
+  --estrela: #0f172a;
+  --marfim-suave: rgba(15, 23, 42, 0.7);
+  --texto-escuro: #ffffff;
+
+  --ouro: #111827;
+  --ouro-escuro: #030712;
+  --ouro-suave: rgba(17, 24, 39, 0.16);
+  --ouro-borda: rgba(17, 24, 39, 0.38);
+
+  --vermelho: #dc2626;
+  --verde: #15803d;
+  --verde-escuro: #14532d;
+  --verde-suave: rgba(21, 128, 61, 0.16);
+  --verde-borda: rgba(21, 128, 61, 0.45);
+  --verde-texto: #14532d;
+
+  --acento: #2563eb;
+  --acento-suave: rgba(37, 99, 235, 0.14);
+  --luz-cor: #111827;
+  --luz-sombra: rgba(17, 24, 39, 0.25);
+
+  --bg-topo: rgba(255, 255, 255, 0.88);
+  --faixa-topo: linear-gradient(90deg, #e2e8f0 0%, #94a3b8 50%, #e2e8f0 100%);
+
+  --feltro-mesa: #1d6b42;
+  --feltro-mesa-borda: #144d2f;
+  --feltro-trilha: rgba(255, 255, 255, 0.45);
+  --borda-mesa: #d1d5db;
+  --borda-interna: #9ca3af;
+  --borda-aro: rgba(15, 23, 42, 0.22);
+
+  --pote-bg: #ffffff;
+  --pote-bg-2: #f1f5f9;
+  --assento-bg: #ffffff;
+  --assento-bg-2: #f1f5f9;
+  --assento-eu-bg: #f8fafc;
+  --assento-eu-bg-2: #e2e8f0;
+  --vez-bg: #111827;
+  --vez-bg-2: #1f2937;
+  --vez-tag-bg: #0f172a;
+
+  --dock-bg: #ffffff;
+  --dock-bg-2: #f1f5f9;
+  --faixa-bg: #ffffff;
+  --faixa-bg-2: #f1f5f9;
+  --faixa-borda: rgba(15, 23, 42, 0.16);
+
+  --cartao-bg: #ffffff;
+  --cartao-bg-pc: #ffffff;
+  --cartao-borda: rgba(15, 23, 42, 0.14);
+
+  --verso-bg: #1e293b;
+  --verso-simbolo: "♠";
+  --marca-selo: "♠   ♥   ♣   ♦";
+  --mesa-orn-esq: "♠  ♣";
+  --mesa-orn-dir: "♥  ♦";
+  --mesa-orn-cor: rgba(255, 255, 255, 0.45);
+}
+
+:root[data-tema="branco"] body,
+:root[data-tema="branco"] body:not(.na-mesa),
+:root[data-tema="branco"] body.na-mesa,
+:root[data-tema="branco"] body.na-mesa.modo-online {
+  background-color: #f4f6fa;
+  background-image: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+  color: #0f172a;
+}
+
+:root[data-tema="branco"] .cabecalho-conta .ola strong,
+:root[data-tema="branco"] .sala-nome,
+:root[data-tema="branco"] .folha-titulo,
+:root[data-tema="branco"] h1,
+:root[data-tema="branco"] h2,
+:root[data-tema="branco"] h3 {
+  color: #0f172a;
+}
+
+:root[data-tema="branco"] button.secundario,
+:root[data-tema="branco"] .op-chip,
+:root[data-tema="branco"] button.stack,
+:root[data-tema="branco"] button.modo-btn,
+:root[data-tema="branco"] .tema-btn {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+:root[data-tema="branco"] button.secundario:hover {
+  background: #e2e8f0;
+}
+
+:root[data-tema="branco"] .op-chip.sel,
+:root[data-tema="branco"] button.stack.sel,
+:root[data-tema="branco"] button.modo-btn.sel,
+:root[data-tema="branco"] .tema-btn.sel {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+:root[data-tema="branco"] input {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.2);
+}
+
+:root[data-tema="branco"] .sala {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.14);
+  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.1);
+}
+
+:root[data-tema="branco"] .lugar:not(.vez) {
+  color: #0f172a;
+}
+:root[data-tema="branco"] .lugar.vez {
+  color: #ffffff;
+}
