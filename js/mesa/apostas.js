@@ -1,9 +1,10 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=87';
-import { estado, passoSala, nomeDe } from '../core/estado.js?v=87';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=87';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=87';
+import { banco } from '../core/supabase.js?v=88';
+import { estado, passoSala, nomeDe } from '../core/estado.js?v=88';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=88';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=88';
+import { termo } from '../core/i18n.js?v=88';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -132,12 +133,12 @@ function atualizarPresetsAposta(partida) {
       + '<button type="button" class="secundario" onclick="apostaBB(2.5)">2.5x</button>'
       + '<button type="button" class="secundario" onclick="apostaBB(3)">3x</button>'
       + '<button type="button" class="secundario" onclick="apostaBB(4)">4x</button>'
-      + '<button type="button" class="secundario allin" onclick="apostaAllIn()">All-in</button>'
-    : '<button type="button" class="secundario" onclick="apostaPote(1/3)" aria-label="Um terço do pote">⅓</button>'
-      + '<button type="button" class="secundario" onclick="apostaPote(1/2)" aria-label="Metade do pote">½</button>'
-      + '<button type="button" class="secundario" onclick="apostaPote(2/3)" aria-label="Dois terços do pote">⅔</button>'
-      + '<button type="button" class="secundario" onclick="apostaPote(1)" aria-label="Valor do pote">Pote</button>'
-      + '<button type="button" class="secundario allin" onclick="apostaAllIn()" aria-label="Apostar todas as fichas">All-in</button>';
+      + '<button type="button" class="secundario allin" onclick="apostaAllIn()">' + termo('allin') + '</button>'
+    : '<button type="button" class="secundario" onclick="apostaPote(1/3)" aria-label="1/3">⅓</button>'
+      + '<button type="button" class="secundario" onclick="apostaPote(1/2)" aria-label="1/2">½</button>'
+      + '<button type="button" class="secundario" onclick="apostaPote(2/3)" aria-label="2/3">⅔</button>'
+      + '<button type="button" class="secundario" onclick="apostaPote(1)">' + termo('pot') + '</button>'
+      + '<button type="button" class="secundario allin" onclick="apostaAllIn()">' + termo('allin') + '</button>';
 }
 
 function infoSlider(lim) {

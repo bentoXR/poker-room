@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=87">
+  <link rel="manifest" href="./manifest.webmanifest?v=88">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,18 +20,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=87">
-  <link rel="stylesheet" href="./css/telas.css?v=87">
-  <link rel="stylesheet" href="./css/mesa.css?v=87">
-  <link rel="stylesheet" href="./css/gavetas.css?v=87">
-  <link rel="stylesheet" href="./css/online.css?v=87">
-  <link rel="stylesheet" href="./css/blackjack.css?v=87">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=87">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=87">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=87">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=87">
-  <link rel="stylesheet" href="./css/desktop.css?v=87">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=87">
+  <link rel="stylesheet" href="./css/base.css?v=88">
+  <link rel="stylesheet" href="./css/telas.css?v=88">
+  <link rel="stylesheet" href="./css/mesa.css?v=88">
+  <link rel="stylesheet" href="./css/gavetas.css?v=88">
+  <link rel="stylesheet" href="./css/online.css?v=88">
+  <link rel="stylesheet" href="./css/blackjack.css?v=88">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=88">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=88">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=88">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=88">
+  <link rel="stylesheet" href="./css/desktop.css?v=88">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=88">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -145,11 +145,11 @@
 
     <div class="salas-topo">
       <div>
-        <h2>Salas abertas</h2>
-        <p class="subtitulo-tela">Entre em uma mesa ou <strong>crie a sua</strong> em segundos.</p>
+        <h2 data-i18n="salas.titulo">Salas abertas</h2>
+        <p class="subtitulo-tela" data-i18n-html="salas.sub">Entre em uma mesa ou <strong>crie a sua</strong> em segundos.</p>
       </div>
       <div class="linha-botoes">
-        <button onclick="abrirCriar()">+ Criar sala</button>
+        <button onclick="abrirCriar()" data-i18n="salas.criar">+ Criar sala</button>
         <button type="button" id="btn-sala-dev" class="secundario botao-dev-entrada" onclick="abrirSalaDev()" hidden>Sala DEV</button>
       </div>
     </div>
@@ -162,9 +162,9 @@
   <section id="tela-criar" class="tela">
     <div class="topo-criar">
       <button class="voltar" onclick="abrirSalas()">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span data-i18n="app.voltar">Voltar</span>
       </button>
-      <h2>Nova sala</h2>
+      <h2 data-i18n="criar.titulo">Nova sala</h2>
     </div>
 
     <div class="cartao">
@@ -439,7 +439,7 @@
         <div class="fase-nome" id="mesa-fase"></div>
         <div class="pote-ficha" id="pote-ficha">
           <div class="miolo">
-            <span class="pote-rotulo">Pote</span>
+            <span class="pote-rotulo" data-termo="pot">Pot</span>
             <span class="pote-valor" id="mesa-pote" data-len="1">0</span>
           </div>
         </div>
@@ -731,8 +731,21 @@
     </div>
 
     <div class="perfil-secao">
-      <div class="perfil-secao-titulo">Preferências da mesa</div>
-      <label>Tema visual</label>
+      <div class="perfil-secao-titulo" data-i18n="perfil.prefs">Preferências da mesa</div>
+      <label data-i18n="perfil.idioma">Idioma</label>
+      <div class="opcoes-chips" id="seletor-idioma" role="group" aria-label="Idioma">
+        <button type="button" class="op-chip idioma-btn sel" data-lang="pt" onclick="escolherIdioma('pt')" aria-pressed="true">🇧🇷 Português BR</button>
+        <button type="button" class="op-chip idioma-btn" data-lang="es" onclick="escolherIdioma('es')" aria-pressed="false">🇪🇸 Español</button>
+        <button type="button" class="op-chip idioma-btn" data-lang="en" onclick="escolherIdioma('en')" aria-pressed="false">🇺🇸 English</button>
+      </div>
+      <div class="perfil-pref-linha" id="linha-termos-traduzidos">
+        <div class="perfil-pref-txt">
+          <strong data-i18n="perfil.termos_titulo">Traduzir termos do poker</strong>
+          <small data-i18n="perfil.termos_desc">Por padrão, termos como Raise, Call, Check, Fold, Stack e Pot ficam em inglês.</small>
+        </div>
+        <button type="button" id="btn-perfil-termos" class="btn-pref-toggle" onclick="alternarTermosTraduzidos()" aria-pressed="false">Desativado</button>
+      </div>
+      <label data-i18n="perfil.tema">Tema visual</label>
       <div class="seletor-tema perfil-temas" role="group" aria-label="Escolher tema visual">
         <button type="button" class="tema-btn sel" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="true">
           <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
@@ -823,8 +836,8 @@
           <button type="button" class="secundario" onclick="apostaPote(1/3)" aria-label="Um terço do pote">⅓</button>
           <button type="button" class="secundario" onclick="apostaPote(1/2)" aria-label="Metade do pote">½</button>
           <button type="button" class="secundario" onclick="apostaPote(2/3)" aria-label="Dois terços do pote">⅔</button>
-          <button type="button" class="secundario" onclick="apostaPote(1)" aria-label="Valor do pote">Pote</button>
-          <button type="button" class="secundario allin" onclick="apostaAllIn()" aria-label="Apostar todas as fichas">All-in</button>
+          <button type="button" class="secundario" onclick="apostaPote(1)" aria-label="Valor do pote" data-termo="pot">Pot</button>
+          <button type="button" class="secundario allin" onclick="apostaAllIn()" aria-label="Apostar todas as fichas" data-termo="allin">All-in</button>
         </div>
         <input id="campo-slider" type="range" min="0" max="0" step="1" value="0" aria-label="Valor da aposta" oninput="aoMoverSlider()">
         <div class="linha-aposta">
@@ -836,22 +849,22 @@
       </div>
 
       <div class="grade-simples">
-        <button id="btn-desistir" class="perigo" onclick="agir('desistir')">Desistir</button>
-        <button id="btn-check" class="positivo" onclick="agir('check')">Check</button>
-        <button id="btn-pagar" class="positivo" onclick="agir('pagar')">Pagar</button>
-        <button id="btn-confirmar-aposta" class="positivo" onclick="apostar()">Apostar</button>
-        <button id="btn-aumentar" onclick="alternarAposta()">Aumentar</button>
+        <button id="btn-desistir" class="perigo" onclick="agir('desistir')" data-termo="fold">Fold</button>
+        <button id="btn-check" class="positivo" onclick="agir('check')" data-termo="check">Check</button>
+        <button id="btn-pagar" class="positivo" onclick="agir('pagar')" data-termo="call">Call</button>
+        <button id="btn-confirmar-aposta" class="positivo" onclick="apostar()" data-termo="bet">Bet</button>
+        <button id="btn-aumentar" onclick="alternarAposta()" data-termo="raise">Raise</button>
       </div>
       <div id="dica-pagar" class="dica-barra"></div>
     </div>
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=87"></script>
+<script type="module" src="./js/main.js?v=88"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=87').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=88').catch(() => {});
     });
   }
 </script>

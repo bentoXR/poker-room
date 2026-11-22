@@ -1,13 +1,14 @@
 // Modo Blackjack: multiplayer 1-6 jogadores contra a Banca automática (1 baralho 52 cartas, S17, 3:2)
 // Reutiliza animações (riffle shuffle, cartas voando, fichas voando, anúncios) e sons reais de som.js
-import { banco } from '../../core/supabase.js?v=87';
-import { estado, nomeDe } from '../../core/estado.js?v=87';
-import { lerDevSala } from '../../core/storage.js?v=87';
-import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=87';
-import { registrarModo } from '../../mesa/modos.js?v=87';
-import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=87';
-import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=87';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=87';
+import { banco } from '../../core/supabase.js?v=88';
+import { estado, nomeDe } from '../../core/estado.js?v=88';
+import { lerDevSala } from '../../core/storage.js?v=88';
+import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=88';
+import { registrarModo } from '../../mesa/modos.js?v=88';
+import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=88';
+import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=88';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=88';
+import { t } from '../../core/i18n.js?v=88';
 
 const bjUI = {
   partidaId: null,
@@ -663,10 +664,10 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
 
       barra.innerHTML = `
         <div class="bj-acoes-grid">
-          <button type="button" class="positivo bj-btn-pedir" onclick="bjAgir('pedir')"${travado}>Pedir<small>+1 carta</small></button>
-          <button type="button" class="neutro bj-btn-parar" onclick="bjAgir('parar')"${travado}>Parar<small>Manter</small></button>
-          <button type="button" class="secundario bj-btn-dobrar" onclick="bjAgir('dobrar')"${podeDobrar ? '' : ' disabled'}>Dobrar<small>2x + 1</small></button>
-          <button type="button" class="secundario bj-btn-dividir" onclick="bjAgir('dividir')"${podeDividir ? '' : ' disabled'}>Dividir<small>2 mãos</small></button>
+          <button type="button" class="positivo bj-btn-pedir" onclick="bjAgir('pedir')"${travado}>${t('bj.pedir')}<small>+1 carta</small></button>
+          <button type="button" class="neutro bj-btn-parar" onclick="bjAgir('parar')"${travado}>${t('bj.parar')}<small>Manter</small></button>
+          <button type="button" class="secundario bj-btn-dobrar" onclick="bjAgir('dobrar')"${podeDobrar ? '' : ' disabled'}>${t('bj.dobrar')}<small>2x + 1</small></button>
+          <button type="button" class="secundario bj-btn-dividir" onclick="bjAgir('dividir')"${podeDividir ? '' : ' disabled'}>${t('bj.dividir')}<small>2 mãos</small></button>
         </div>
       `;
     } else {
@@ -711,7 +712,7 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
       <button type="button" class="secundario allin" onclick="bjAllInAposta()"${travado}>All-in</button>
       <button type="button" class="neutro" onclick="bjLimparAposta()"${travado}>Mín.</button>
     </div>
-    <button type="button" class="positivo bj-btn-cheio" onclick="bjConfirmarAposta()"${travado}>${bjUI.enviando ? 'Enviando…' : ('Apostar ' + valor)}</button>
+    <button type="button" class="positivo bj-btn-cheio" onclick="bjConfirmarAposta()"${travado}>${bjUI.enviando ? 'Enviando…' : t('bj.apostar', { v: valor })}</button>
   `;
 }
 

@@ -1,10 +1,10 @@
 // Autenticação de conta (nome único, senha protegida, criação com confirmação e sessão)
-import { banco } from '../core/supabase.js?v=87';
-import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=87';
-import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=87';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=87';
-import { desligarTempoReal } from '../core/realtime.js?v=87';
-import { limparTodosModos } from '../mesa/modos.js?v=87';
+import { banco } from '../core/supabase.js?v=88';
+import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=88';
+import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=88';
+import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=88';
+import { desligarTempoReal } from '../core/realtime.js?v=88';
+import { limparTodosModos } from '../mesa/modos.js?v=88';
 
 let modoLoginAtual = 'entrar';
 let hooksAuth = {

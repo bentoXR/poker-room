@@ -1,19 +1,20 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=87';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=87';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=87';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=87';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=87';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=87';
-import { obterModo, limparTodosModos } from './modos.js?v=87';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=87';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=87';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=87';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=87';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=87';
+import { banco } from '../core/supabase.js?v=88';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=88';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=88';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=88';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=88';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=88';
+import { obterModo, limparTodosModos } from './modos.js?v=88';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=88';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=88';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=88';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=88';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=88';
+import { t, termo } from '../core/i18n.js?v=88';
 
-const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
+const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
 
 // Rastreia transições da mesa para disparar sons sem repetir em polling ou na entrada da sala
 const somMesa = {
@@ -356,11 +357,11 @@ export function desenharMesa(dados) {
   estado.maoVista = partida.mao;
 
   const maoVis = partida.aguardando_proxima_mao ? Math.max(1, partida.mao - 1) : partida.mao;
-  $id('mesa-mao').textContent = partida.iniciada ? ((ehModoBlackjack ? 'Rodada ' : 'Mão ') + maoVis) : '';
+  $id('mesa-mao').textContent = partida.iniciada ? t(ehModoBlackjack ? 'mesa.rodada' : 'mesa.mao', { n: maoVis }) : '';
   $id('mesa-nivel').textContent = ehModoBlackjack ? '' : ('Nível ' + partida.nivel);
   $id('mesa-blinds').textContent = ehModoBlackjack
     ? ('Mín. ' + partida.small_blind)
-    : ('Blinds ' + partida.small_blind + '/' + partida.big_blind);
+    : (termo('blinds') + ' ' + partida.small_blind + '/' + partida.big_blind);
   $id('mesa-aposta').textContent = (!ehModoBlackjack && partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4)
     ? 'Maior aposta ' + partida.aposta_atual
     : '';
@@ -404,7 +405,7 @@ export function desenharMesa(dados) {
 
   // ----- Board (delegado ao modo: presencial = slots, online = cartas viradas, blackjack = banca) -----
   const faseVis = (modo && modo.faseExibida) ? modo.faseExibida(partida) : partida.fase;
-  $id('mesa-fase').textContent = ehModoBlackjack ? '' : (partida.iniciada ? NOMES_FASE[faseVis] : '');
+  $id('mesa-fase').textContent = ehModoBlackjack ? '' : (partida.iniciada ? termo(CHAVES_FASE[faseVis] || 'preflop') : '');
   if (modo && modo.desenharBoard) modo.desenharBoard(partida, jogadores);
 
   // ----- Assentos em elipse 360° -----
@@ -430,7 +431,7 @@ export function desenharMesa(dados) {
 
   // ----- Faixa de fase e painel do criador (delegados ao modo) -----
   const souCriador = (!!eu && eu.criador) || estado.modoDev;
-  const ctxModo = { eu, souCriador, potesMesa, nomesFase: NOMES_FASE };
+  const ctxModo = { eu, souCriador, potesMesa, nomesFase: CHAVES_FASE.map((k) => termo(k)) };
   if (modo && modo.desenharFaixa) modo.desenharFaixa(partida, jogadores, ctxModo);
   if (modo && modo.desenharCriador) modo.desenharCriador(partida, jogadores, ctxModo);
 
