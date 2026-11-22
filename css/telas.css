@@ -1248,29 +1248,30 @@ button.stack.especial b { font-size: 16.5px; }
   }
 }
 
-/* Botão circular flutuante JOGAR AGORA (sem gradiente) */
+/* Botão circular em destaque central JOGAR AGORA (sem gradiente) */
+.hero-jogar-agora {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 22px;
+}
 .cta-jogar-agora {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 40;
-  width: 112px;
-  height: 112px;
+  width: 124px;
+  height: 124px;
   padding: 12px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.22);
+  border: 3px solid rgba(255, 255, 255, 0.28);
   background: var(--ouro);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 0 0 8px var(--ouro-suave), 0 12px 26px rgba(0, 0, 0, 0.36);
   cursor: pointer;
   transition: transform 0.16s ease, filter 0.16s ease;
 }
@@ -1282,13 +1283,17 @@ button.stack.especial b { font-size: 16.5px; }
   transform: scale(0.97);
 }
 @media (max-width: 819px) {
+  #tela-salas .hero-jogar-agora {
+    order: 2;
+    flex-shrink: 0;
+    padding: 10px 0 8px;
+  }
   #tela-salas .cta-jogar-agora {
-    right: 16px;
-    bottom: 86px;
-    width: 96px;
-    height: 96px;
-    font-size: 14px;
+    width: 104px;
+    height: 104px;
+    font-size: 14.5px;
     padding: 10px;
+    box-shadow: 0 0 0 6px var(--ouro-suave), 0 10px 22px rgba(0, 0, 0, 0.34);
   }
 }
 
