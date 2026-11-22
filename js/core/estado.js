@@ -1,5 +1,5 @@
 // Estado compartilhado da aplicação (conta, sala ativa, mesa, caches de renderização e modo)
-import { lerContaSalva, lerDevSala } from './storage.js?v=83';
+import { lerContaSalva, lerDevSala } from './storage.js?v=85';
 
 export const QUALQUER_UM_ABRE_RODADA = false;
 export const CONTA_DEV_ID = 'ee2c172a-6865-4d19-b5eb-edbcf81c8790';
@@ -36,12 +36,12 @@ export const estado = {
   ocupado: false,
 
   // Caches de UI (evitam redesenho desnecessário)
-  htmlJogadoresVisto: '',
-  htmlHistoricoVisto: '',
-  htmlPotesVisto: '',
-  htmlOrdemVisto: '',
-  htmlSelFichasVisto: '',
-  htmlDevVisto: '',
+  htmlJogadoresVisto: null,
+  htmlHistoricoVisto: null,
+  htmlPotesVisto: null,
+  htmlOrdemVisto: null,
+  htmlSelFichasVisto: null,
+  htmlDevVisto: null,
 
   // Estado interativo da mesa
   eraMinhaVez: false,
@@ -121,8 +121,17 @@ export function limparCachesMesa() {
   estado.eraMinhaVez = false;
   estado.preAcao = null;
   estado.ultimoPote = null;
-  estado.htmlPotesVisto = '';
-  estado.htmlJogadoresVisto = '';
-  estado.htmlHistoricoVisto = '';
+  estado.htmlPotesVisto = null;
+  estado.htmlJogadoresVisto = null;
+  estado.htmlHistoricoVisto = null;
+  estado.htmlOrdemVisto = null;
+  estado.htmlSelFichasVisto = null;
+  estado.htmlDevVisto = null;
   estado.ultimaVersao = -1;
+}
+
+export function invalidarListaSalas() {
+  estado.salasAtuais = [];
+  estado.htmlSalas = '';
+  estado.versaoSalas++;
 }

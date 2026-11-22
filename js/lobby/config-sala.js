@@ -1,8 +1,8 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=83';
-import { estado, marcarReal } from '../core/estado.js?v=83';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=83';
+import { banco } from '../core/supabase.js?v=85';
+import { estado, marcarReal } from '../core/estado.js?v=85';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=85';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -18,16 +18,20 @@ function idsCfg(p) {
 
 export function obterConfigOnline(p) {
   p = p || '';
+  const s = idsCfg(p).s;
+  const minEl = $id('campo-bj-min' + s);
+  const apostaMin = minEl ? parseInt(minEl.value) : 0;
   return {
     modo: cfgModo[p] || 'presencial',
     tempoTurno: cfgTempoTurno[p] === 0 ? 0 : (cfgTempoTurno[p] || 30),
-    subirBlindsMin: cfgSubirBlinds[p] || 0
+    subirBlindsMin: cfgSubirBlinds[p] || 0,
+    apostaMin: apostaMin > 0 ? apostaMin : 50
   };
 }
 
 export function escolherModoSala(modo, p) {
   p = p || '';
-  cfgModo[p] = modo === 'online' ? 'online' : 'presencial';
+  cfgModo[p] = (modo === 'online' || modo === 'blackjack') ? modo : 'presencial';
   const s = idsCfg(p).s;
   const wrap = $id('seletor-modo' + s);
   if (wrap) {
@@ -38,7 +42,27 @@ export function escolherModoSala(modo, p) {
     });
   }
   const op = $id('opcoes-online' + s);
-  if (op) op.hidden = (cfgModo[p] !== 'online');
+  if (op) op.hidden = (cfgModo[p] === 'presencial');
+  const grpBlinds = $id('grupo-blinds' + s);
+  if (grpBlinds) grpBlinds.hidden = (cfgModo[p] !== 'online');
+  const grpBjMin = $id('grupo-bj-min' + s);
+  if (grpBjMin) grpBjMin.hidden = (cfgModo[p] !== 'blackjack');
+
+  if (p === 'dev') {
+    const ehBj = cfgModo.dev === 'blackjack';
+    const chipsQtd = $id('chips-dev-qtd');
+    if (chipsQtd) {
+      chipsQtd.querySelectorAll('.op-chip').forEach((b) => {
+        const q = Number(b.dataset.q);
+        b.hidden = ehBj ? (q > 6) : (q === 1);
+      });
+    }
+    const campoQtd = $id('campo-dev-qtd');
+    const qAtual = parseInt(campoQtd ? campoQtd.value : 4) || 4;
+    if (ehBj && qAtual > 6) escolherQtdDev(4);
+    else if (!ehBj && qAtual < 2) escolherQtdDev(2);
+  }
+  atualizarProfundidade(p);
 }
 
 export function escolherTempoTurno(seg, p) {
@@ -68,7 +92,9 @@ export function escolherSubirBlinds(min, p) {
 }
 
 export function escolherQtdDev(qtd) {
-  const v = Math.max(2, Math.min(9, parseInt(qtd) || 4));
+  const minQ = cfgModo.dev === 'blackjack' ? 1 : 2;
+  const maxQ = cfgModo.dev === 'blackjack' ? 6 : 9;
+  const v = Math.max(minQ, Math.min(maxQ, parseInt(qtd) || 4));
   const campo = $id('campo-dev-qtd');
   if (campo) campo.value = v;
   const wrap = $id('chips-dev-qtd');
@@ -91,6 +117,8 @@ function aplicarConfig(p, s, sb, bb) {
   $id(i.saldo).value = s;
   $id(i.small).value = sb;
   $id(i.big).value = bb;
+  const bjMinEl = $id('campo-bj-min' + i.s);
+  if (bjMinEl) bjMinEl.value = Math.max(10, Math.round(s / 100));
   if (!p) estado.bigEditado = false;
   atualizarProfundidade(p);
 }
@@ -149,6 +177,20 @@ export function atualizarProfundidade(p) {
   $id('reais-res' + i.s).textContent = (real && s > 0 && reais > 0)
     ? fmtNum(s) + ' fichas = ' + fmtReais(reais) + ' · 1.000 fichas = ' + fmtReais(reais / s * 1000) + '. Apenas referência.'
     : '';
+  if (cfgModo[p] === 'blackjack') {
+    const minEl = $id('campo-bj-min' + i.s);
+    const minBj = minEl ? parseInt(minEl.value) : 0;
+    const okBj = s > 0 && minBj > 0 && minBj <= s;
+    const apostas = okBj ? Math.floor(s / minBj) : 0;
+    const rotuloEl = $id('prof-rotulo' + i.s);
+    if (rotuloEl) rotuloEl.textContent = 'Banca · Blackjack';
+    $id('prof-val' + i.s).textContent = okBj ? apostas + ' mín.' : '—';
+    $id('prof-det' + i.s).innerHTML = okBj
+      ? '<b>' + fmtNum(s) + '</b> fichas · Aposta mínima <b>' + fmtNum(minBj) + '</b>'
+      : 'Informe fichas e aposta mínima válidos';
+    return;
+  }
+
   const ok = s > 0 && bb > 0;
   const bbs = ok ? (Math.round(s / bb * 10) / 10) : 0;
   const ritmo = !ok ? 'Ritmo da mesa'
@@ -176,6 +218,14 @@ export async function registrarRealCriacao(p, id, saldo, jid, seg) {
   aviso('Não consegui salvar o valor em reais: ' + estado.erroReal);
 }
 
+export function aplicarPadraoCriarSala() {
+  if (cfgReal['']) cfgReal[''] = false;
+  escolherStack(10000);
+  escolherModoSala('online', '');
+  escolherTempoTurno(30, '');
+  escolherSubirBlinds(10, '');
+}
+
 export function iniciarConfigSala() {
   const campoSmall = $id('campo-small');
   const campoBig = $id('campo-big');
@@ -184,13 +234,10 @@ export function iniciarConfigSala() {
     const s = parseInt(campoSmall.value);
     if (!estado.bigEditado && s > 0) campoBig.value = s * 2;
   });
-  atualizarProfundidade('');
+  aplicarPadraoCriarSala();
   atualizarProfundidade('dev');
-  escolherModoSala('presencial', '');
   escolherModoSala('presencial', 'dev');
-  escolherTempoTurno(30, '');
   escolherTempoTurno(30, 'dev');
-  escolherSubirBlinds(0, '');
   escolherSubirBlinds(0, 'dev');
   escolherQtdDev(4);
 }

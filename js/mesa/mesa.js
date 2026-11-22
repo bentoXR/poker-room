@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=83';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa } from '../core/estado.js?v=83';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=83';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=83';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=83';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=83';
-import { obterModo } from './modos.js?v=83';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=83';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=83';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=83';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=83';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=83';
+import { banco } from '../core/supabase.js?v=85';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=85';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=85';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=85';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=85';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=85';
+import { obterModo, limparTodosModos } from './modos.js?v=85';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=85';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=85';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=85';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=85';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=85';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -24,6 +24,42 @@ const somMesa = {
 };
 
 let versaoAbertura = 0;
+let saindoVoluntariamente = false;
+
+function resetarSomMesa() {
+  somMesa.partidaId = null;
+  somMesa.iniciada = false;
+  somMesa.mao = null;
+  somMesa.ultimoHist = null;
+}
+
+export function limparDomMesa() {
+  ['lista-jogadores', 'hist-lista', 'lista-ordem', 'sel-fichas-jogador', 'lista-dev'].forEach((id) => {
+    const el = $id(id);
+    if (el) el.innerHTML = '';
+  });
+  ['mesa-potes', 'meu-perfil-dock', 'barra-online-espera', 'barra-blackjack', 'barra-pre-acao', 'minha-mao-wrap', 'faixa-online'].forEach((id) => {
+    const el = $id(id);
+    if (el) { el.innerHTML = ''; el.hidden = true; }
+  });
+  const faixaFase = $id('faixa-fase');
+  if (faixaFase) faixaFase.hidden = true;
+  ['mesa-ultima', 'mesa-sala', 'mesa-papel', 'mesa-status', 'mesa-mao', 'mesa-nivel', 'mesa-blinds', 'mesa-aposta', 'mesa-fase', 'mesa-relogio', 'topo-resumo-online'].forEach((id) => {
+    const el = $id(id);
+    if (el) el.textContent = '';
+  });
+  const elPote = $id('mesa-pote');
+  if (elPote) { elPote.textContent = '0'; elPote.dataset.len = '1'; }
+  document.body.classList.remove('modo-online', 'modo-blackjack');
+  const barraAc = $id('barra-acoes');
+  if (barraAc) barraAc.classList.remove('modo-online', 'modo-blackjack');
+  const telaMesa = $id('tela-mesa');
+  if (telaMesa) {
+    telaMesa.classList.remove('modo-online', 'modo-blackjack', 'hero-no-dock', 'em-showdown', 'muitos', 'cheia', 'poucos-op', 'apostando');
+    const wrap = telaMesa.querySelector('.mesa-wrap');
+    if (wrap) wrap.querySelectorAll('.baralho-embaralhar, .carta-voo-deal, .ficha-voo').forEach((n) => n.remove());
+  }
+}
 
 let hooksApp = {
   abrirSalas: () => {},
@@ -61,11 +97,20 @@ export async function abrirMesa(partida, estadoInicial) {
   }
 
   const minhaAbertura = ++versaoAbertura;
+  saindoVoluntariamente = false;
   desligarTempoReal();
   limparChatMesa();
+  limparTodosModos();
+  limparDomMesa();
+  resetarSomMesa();
+  invalidarListaSalas();
   estado.promessaBusca = null;
   estado.buscaSuja = false;
   estado.forcarBusca = false;
+  estado.jogadoresAtuais = [];
+  estado.ultimoEstado = null;
+  estado.relogio.ini = null;
+  estado.relogio.vez = null;
 
   estado.partidaAtual = partida;
   estado.modoAtual = (partida && partida.modo) ? partida.modo : 'presencial';
@@ -81,13 +126,10 @@ export async function abrirMesa(partida, estadoInicial) {
   limparCachesMesa();
   limparErro('erro-barra');
   limparErro('erro-criador');
-  const modo = obterModo(estado.modoAtual);
-  if (modo && modo.aoSairDaMesa) modo.aoSairDaMesa();
 
   $id('campo-valor').value = '';
   estado.apostaEditada = false;
   estado.apostaAberta = false;
-  estado.ultimoEstado = null;
   estado.maoVista = null;
   estado.blindsVistos = null;
   estado.bigMesaEditado = false;
@@ -195,9 +237,14 @@ export function desenharMesa(dados) {
   if (!partida.dev && estado.modoDev) estado.modoDev = false;
   estado.modoAtual = partida.modo || 'presencial';
   const ehModoOnline = estado.modoAtual === 'online';
+  const ehModoBlackjack = estado.modoAtual === 'blackjack';
+  const ehModoCard = ehModoOnline || ehModoBlackjack;
   document.body.classList.toggle('modo-online', ehModoOnline);
+  document.body.classList.toggle('modo-blackjack', ehModoBlackjack);
   $id('tela-mesa').classList.toggle('modo-online', ehModoOnline);
+  $id('tela-mesa').classList.toggle('modo-blackjack', ehModoBlackjack);
   $id('barra-acoes').classList.toggle('modo-online', ehModoOnline);
+  $id('barra-acoes').classList.toggle('modo-blackjack', ehModoBlackjack);
   if (Number(partida.valor_real_mil) > 0) marcarReal(partida.id, Number(partida.valor_real_mil));
   estado.jogadoresAtuais = jogadores;
   estado.ultimoEstado = dados;
@@ -209,13 +256,13 @@ export function desenharMesa(dados) {
     if (salaDev) {
       salaDev.jogadores = salaDev.jogadores.filter((x, k) => k === 0 || jogadores.some((j) => j.id === x.id));
       salvarDevSala(salaDev);
-      estado.htmlDevVisto = '';
+      estado.htmlDevVisto = null;
       hooksApp.controlarDev(0, salaDev);
       buscarMesa(true);
       return;
     }
   }
-  if (estado.meuJogadorId && !eu) {
+  if (estado.meuJogadorId && !eu && !saindoVoluntariamente) {
     esquecerSegredo(estado.minhaConta ? estado.minhaConta.id : null, partida.id);
     aviso('Você não está mais nesta sala.');
     voltarParaSalas();
@@ -291,10 +338,12 @@ export function desenharMesa(dados) {
   estado.maoVista = partida.mao;
 
   const maoVis = partida.aguardando_proxima_mao ? Math.max(1, partida.mao - 1) : partida.mao;
-  $id('mesa-mao').textContent = partida.iniciada ? 'Mão ' + maoVis : '';
-  $id('mesa-nivel').textContent = 'Nível ' + partida.nivel;
-  $id('mesa-blinds').textContent = 'Blinds ' + partida.small_blind + '/' + partida.big_blind;
-  $id('mesa-aposta').textContent = (partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4)
+  $id('mesa-mao').textContent = partida.iniciada ? ((ehModoBlackjack ? 'Rodada ' : 'Mão ') + maoVis) : '';
+  $id('mesa-nivel').textContent = ehModoBlackjack ? '' : ('Nível ' + partida.nivel);
+  $id('mesa-blinds').textContent = ehModoBlackjack
+    ? ('Mín. ' + partida.small_blind)
+    : ('Blinds ' + partida.small_blind + '/' + partida.big_blind);
+  $id('mesa-aposta').textContent = (!ehModoBlackjack && partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4)
     ? 'Maior aposta ' + partida.aposta_atual
     : '';
   $id('mesa-papel').textContent = estado.modoDev
@@ -321,7 +370,7 @@ export function desenharMesa(dados) {
     elMesaPotes.hidden = false;
   } else {
     elMesaPotes.hidden = true;
-    if (estado.htmlPotesVisto) { estado.htmlPotesVisto = ''; elMesaPotes.innerHTML = ''; }
+    if (estado.htmlPotesVisto !== '') { estado.htmlPotesVisto = ''; elMesaPotes.innerHTML = ''; }
   }
   if (!$id('folha-potes').hidden) {
     if (potesMesa && potesMesa.length >= 2) desenharDetalhesPotes();
@@ -343,8 +392,8 @@ export function desenharMesa(dados) {
   // ----- Assentos em elipse 360° -----
   desenharAssentos({ partida, jogadores: jogadoresVis, vezAtivaId, modo, congelado: !!congelado });
   sincronizarAvataresMesa(jogadores, () => {
-    if (estado.ultimoEstado) {
-      estado.htmlJogadoresVisto = '';
+    if (estado.ultimoEstado && estado.partidaAtual && estado.partidaAtual.id === partida.id) {
+      estado.htmlJogadoresVisto = null;
       desenharMesa(estado.ultimoEstado);
     }
   });
@@ -385,7 +434,17 @@ export function desenharMesa(dados) {
   if (folhaMenu && !folhaMenu.hidden) preencherMenuOnline();
 
   // ----- Barra de ações e votação/chat -----
-  desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, falta, status });
+  if (ehModoBlackjack && modo && modo.desenharBarra) {
+    ['barra-normal', 'barra-blind', 'barra-pre-acao', 'barra-online-espera', 'barra-dev-prox'].forEach((id) => {
+      const el = $id(id);
+      if (el) el.hidden = true;
+    });
+    modo.desenharBarra(partida, jogadores, { eu, minhaVez });
+  } else {
+    const bjBarra = $id('barra-blackjack');
+    if (bjBarra) bjBarra.hidden = true;
+    desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, falta, status });
+  }
   atualizarVotacaoUI();
   if (modo && modo.aoAtualizarMesa) modo.aoAtualizarMesa(partida, jogadores, ctxModo);
 }
@@ -548,7 +607,7 @@ function classePosicaoBorda(j, partida) {
 function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnline, modo }) {
   const dock = $id('meu-perfil-dock');
   if (!dock) return;
-  if (!eu || partida.modo !== 'online') {
+  if (!eu || (partida.modo !== 'online' && partida.modo !== 'blackjack')) {
     dock.hidden = true;
     dock.innerHTML = '';
     return;
@@ -621,6 +680,8 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   }
 
   const ehOnline = partida.modo === 'online';
+  const ehBlackjack = partida.modo === 'blackjack';
+  const ehCardDock = ehOnline || ehBlackjack;
   const ehLandscapeMobile = window.innerWidth > window.innerHeight
     && window.innerHeight <= 520
     && window.innerWidth <= 1024;
@@ -630,7 +691,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   const nJ = jogadores.length;
   const meuIdx = jogadores.findIndex((j) => j.id === estado.meuJogadorId);
   const eu = meuIdx >= 0 ? jogadores[meuIdx] : null;
-  const heroNoDock = ehOnline && !!eu;
+  const heroNoDock = ehCardDock && !!eu;
 
   // Atualiza meu perfil integrado ao dock inferior no modo Online
   desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnline, modo });
@@ -865,6 +926,9 @@ function formatarTempo(ms) {
 let hookTickOnline = null;
 export function registrarTickOnline(fn) { hookTickOnline = fn; }
 
+let hookTickBlackjack = null;
+export function registrarTickBlackjack(fn) { hookTickBlackjack = fn; }
+
 export function tick() {
   const agora = Date.now() + estado.relogio.offset;
   const geral = $id('mesa-relogio');
@@ -873,6 +937,10 @@ export function tick() {
     atualizarResumoTopoOnline();
     if (estado.partidaAtual.votacao) atualizarContagemVotacao();
     if (hookTickOnline) hookTickOnline();
+    return;
+  }
+  if (estado.partidaAtual && estado.partidaAtual.modo === 'blackjack') {
+    if (hookTickBlackjack) hookTickBlackjack();
     return;
   }
   const turno = $id('tempo-turno');
@@ -895,14 +963,17 @@ export async function sairDaMesa() {
   if (!confirm('Sair da mesa? Suas fichas ficam guardadas e você volta com elas se entrar de novo.')) return;
 
   estado.ocupado = true;
+  saindoVoluntariamente = true;
   const partidaId = estado.partidaAtual.id;
   let resp;
   try {
     resp = await banco.rpc('sair_da_sala', { p_jogador: estado.meuJogadorId, p_segredo: estado.meuSegredo });
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+  } finally {
+    estado.ocupado = false;
+    saindoVoluntariamente = false;
   }
-  estado.ocupado = false;
 
   if (resp.error) {
     mostrarErro('erro-barra', resp.error.message);
@@ -919,21 +990,23 @@ export async function sairDaMesa() {
 export function voltarParaSalas() {
   const eraDev = estado.modoDev;
   versaoAbertura++;
+  saindoVoluntariamente = false;
   hooksApp.cancelarCriacaoDev();
   desligarTempoReal();
   fecharFolhas();
   limparChatMesa();
-  const dock = $id('meu-perfil-dock');
-  if (dock) { dock.hidden = true; dock.innerHTML = ''; }
-  const espera = $id('barra-online-espera');
-  if (espera) { espera.hidden = true; espera.innerHTML = ''; }
-  $id('tela-mesa').classList.remove('hero-no-dock');
-  const modo = obterModo(estado.modoAtual);
-  if (modo && modo.aoSairDaMesa) modo.aoSairDaMesa();
+  limparTodosModos();
+  limparDomMesa();
+  resetarSomMesa();
+  invalidarListaSalas();
 
   estado.partidaAtual = null;
   estado.meuJogadorId = null;
   estado.meuSegredo = null;
+  estado.jogadoresAtuais = [];
+  estado.ultimoEstado = null;
+  estado.relogio.ini = null;
+  estado.relogio.vez = null;
   estado.promessaBusca = null;
   estado.buscaSuja = false;
   estado.forcarBusca = false;

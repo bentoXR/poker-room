@@ -1,12 +1,13 @@
 // Sincronização em tempo real (Broadcast + Postgres Changes + fallback + heartbeat)
 // Compartilhada por todos os modos de jogo
-import { banco } from './supabase.js?v=83';
-import { estado } from './estado.js?v=83';
-import { lerDevSala } from './storage.js?v=83';
+import { banco } from './supabase.js?v=85';
+import { estado } from './estado.js?v=85';
+import { lerDevSala } from './storage.js?v=85';
 
 let canal = null;
 let temporizadorReserva = null;
 let temporizadorSinal = null;
+let geracaoCanal = 0;
 
 export function canalAtivo() {
   return canal;
@@ -43,30 +44,40 @@ export function publicarDigitando(payload) {
 export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReacao, onDigitando }) {
   desligarTempoReal();
   const idSala = estado.partidaAtual.id;
+  const minhaGeracao = geracaoCanal;
+  const ativo = () => minhaGeracao === geracaoCanal
+    && !!estado.partidaAtual
+    && estado.partidaAtual.id === idSala;
   let jaInscrito = false;
 
   canal = banco
     .channel('mesa-' + idSala)
     .on('broadcast', { event: 'estado' }, (msg) => {
+      if (!ativo()) return;
       if (msg && msg.payload && msg.payload.partida) onEstado(msg.payload, false);
     })
     .on('broadcast', { event: 'chat' }, (msg) => {
+      if (!ativo()) return;
       if (onChat && msg && msg.payload) onChat(msg.payload);
     })
     .on('broadcast', { event: 'reacao' }, (msg) => {
+      if (!ativo()) return;
       if (onReacao && msg && msg.payload) onReacao(msg.payload);
     })
     .on('broadcast', { event: 'digitando' }, (msg) => {
+      if (!ativo()) return;
       if (onDigitando && msg && msg.payload) onDigitando(msg.payload);
     })
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'partidas', filter: 'id=eq.' + idSala },
       (p) => {
+        if (!ativo()) return;
         if (p.eventType === 'DELETE') { onBuscar(true); return; }
         const v = p.new ? Number(p.new.versao) : NaN;
         if (!(v <= estado.ultimaVersao)) onBuscar(false);
       })
     .subscribe((status) => {
+      if (!ativo()) return;
       if (status === 'SUBSCRIBED') {
         if (jaInscrito) onBuscar(false);
         jaInscrito = true;
@@ -75,6 +86,7 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReac
     });
 
   temporizadorReserva = setInterval(() => {
+    if (!ativo()) return;
     if (!document.hidden) onBuscar(false);
   }, 20000);
 
@@ -82,6 +94,7 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReac
 }
 
 export function desligarTempoReal() {
+  geracaoCanal++;
   desligarSinal();
   if (temporizadorReserva) {
     clearInterval(temporizadorReserva);

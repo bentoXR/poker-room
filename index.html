@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=83">
+  <link rel="manifest" href="./manifest.webmanifest?v=85">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,17 +20,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=83">
-  <link rel="stylesheet" href="./css/telas.css?v=83">
-  <link rel="stylesheet" href="./css/mesa.css?v=83">
-  <link rel="stylesheet" href="./css/gavetas.css?v=83">
-  <link rel="stylesheet" href="./css/online.css?v=83">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=83">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=83">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=83">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=83">
-  <link rel="stylesheet" href="./css/desktop.css?v=83">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=83">
+  <link rel="stylesheet" href="./css/base.css?v=85">
+  <link rel="stylesheet" href="./css/telas.css?v=85">
+  <link rel="stylesheet" href="./css/mesa.css?v=85">
+  <link rel="stylesheet" href="./css/gavetas.css?v=85">
+  <link rel="stylesheet" href="./css/online.css?v=85">
+  <link rel="stylesheet" href="./css/blackjack.css?v=85">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=85">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=85">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=85">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=85">
+  <link rel="stylesheet" href="./css/desktop.css?v=85">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=85">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -175,19 +176,24 @@
 
       <div class="secao-titulo"><span class="passo-num">1</span> Escolha o modo de jogo</div>
       <div class="seletor-modo" id="seletor-modo">
-        <button type="button" class="modo-btn sel" data-modo="presencial" onclick="escolherModoSala('presencial','')">
+        <button type="button" class="modo-btn" data-modo="presencial" onclick="escolherModoSala('presencial','')">
           <span class="modo-icone" aria-hidden="true">🪙</span>
           <b>Presencial</b>
           <small><strong>Baralho físico</strong> · só fichas e pote</small>
         </button>
-        <button type="button" class="modo-btn" data-modo="online" onclick="escolherModoSala('online','')">
+        <button type="button" class="modo-btn sel" data-modo="online" onclick="escolherModoSala('online','')">
           <span class="modo-icone" aria-hidden="true">🃏</span>
           <b>Online</b>
           <small><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
+        <button type="button" class="modo-btn" data-modo="blackjack" onclick="escolherModoSala('blackjack','')">
+          <span class="modo-icone" aria-hidden="true">🂡</span>
+          <b>Blackjack</b>
+          <small><strong>Banca automática</strong> · 21</small>
+        </button>
       </div>
 
-      <div class="opcoes-online" id="opcoes-online" hidden>
+      <div class="opcoes-online" id="opcoes-online">
         <div class="opcoes-grupo">
           <label>Tempo por jogada</label>
           <div class="opcoes-chips" id="chips-turno">
@@ -198,15 +204,19 @@
             <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'')">Sem limite</button>
           </div>
         </div>
-        <div class="opcoes-grupo">
+        <div class="opcoes-grupo" id="grupo-blinds">
           <label>Subir blinds automaticamente</label>
           <div class="opcoes-chips" id="chips-blinds">
-            <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'')">Fixos</button>
-            <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
+            <button type="button" class="op-chip" data-v="0" onclick="escolherSubirBlinds(0,'')">Fixos</button>
+            <button type="button" class="op-chip sel" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
             <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'')">15m</button>
             <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'')">20m</button>
             <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'')">30m</button>
           </div>
+        </div>
+        <div class="opcoes-grupo" id="grupo-bj-min" hidden>
+          <label for="campo-bj-min">Aposta mínima (Blackjack)</label>
+          <input id="campo-bj-min" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('')">
         </div>
       </div>
 
@@ -215,7 +225,7 @@
         <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
         <button type="button" class="stack" data-s="5000" onclick="escolherStack(5000)"><b>5.000</b></button>
-        <button type="button" class="stack" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
+        <button type="button" class="stack sel" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
       </div>
       <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')">
         <b>Referência em R$</b>
@@ -265,6 +275,11 @@
           <b>Online</b>
           <small><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
+        <button type="button" class="modo-btn" data-modo="blackjack" onclick="escolherModoSala('blackjack','dev')">
+          <span class="modo-icone" aria-hidden="true">🂡</span>
+          <b>Blackjack</b>
+          <small><strong>Banca automática</strong> · 21</small>
+        </button>
       </div>
 
       <div class="opcoes-online" id="opcoes-online-dev" hidden>
@@ -278,7 +293,7 @@
             <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'dev')">Sem limite</button>
           </div>
         </div>
-        <div class="opcoes-grupo">
+        <div class="opcoes-grupo" id="grupo-blinds-dev">
           <label>Subir blinds automaticamente</label>
           <div class="opcoes-chips" id="chips-blinds-dev">
             <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'dev')">Fixos</button>
@@ -288,10 +303,15 @@
             <button type="button" class="op-chip" data-v="30" onclick="escolherSubirBlinds(30,'dev')">30m</button>
           </div>
         </div>
+        <div class="opcoes-grupo" id="grupo-bj-min-dev" hidden>
+          <label for="campo-bj-min-dev">Aposta mínima (Blackjack)</label>
+          <input id="campo-bj-min-dev" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('dev')">
+        </div>
       </div>
 
       <div class="secao-titulo"><span class="passo-num">2</span> Quantidade de jogadores</div>
       <div class="opcoes-chips chips-qtd" id="chips-dev-qtd">
+        <button type="button" class="op-chip" data-q="1" onclick="escolherQtdDev(1)" aria-label="1 jogador" hidden>1</button>
         <button type="button" class="op-chip" data-q="2" onclick="escolherQtdDev(2)" aria-label="2 jogadores">2</button>
         <button type="button" class="op-chip" data-q="3" onclick="escolherQtdDev(3)" aria-label="3 jogadores">3</button>
         <button type="button" class="op-chip sel" data-q="4" onclick="escolherQtdDev(4)" aria-label="4 jogadores">4</button>
@@ -780,6 +800,9 @@
     <!-- Modo espera / pronto entre mãos (Online) -->
     <div id="barra-online-espera" class="barra-online-espera" hidden></div>
 
+    <!-- Modo Blackjack -->
+    <div id="barra-blackjack" class="barra-blackjack" hidden></div>
+
     <!-- Modo blind -->
     <div id="barra-blind" hidden>
       <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
@@ -824,11 +847,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=83"></script>
+<script type="module" src="./js/main.js?v=85"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=83').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=85').catch(() => {});
     });
   }
 </script>

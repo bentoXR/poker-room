@@ -1,11 +1,11 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=83';
-import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=83';
-import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=83';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=83';
-import { desligarTempoReal } from '../../core/realtime.js?v=83';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=83';
-import { executar } from '../../mesa/apostas.js?v=83';
+import { banco } from '../../core/supabase.js?v=85';
+import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=85';
+import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=85';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=85';
+import { desligarTempoReal } from '../../core/realtime.js?v=85';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=85';
+import { executar } from '../../mesa/apostas.js?v=85';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
 const MAX_DEV = 9;
@@ -77,18 +77,31 @@ export async function criarSalaDev() {
   const small = parseInt($id('campo-dev-small').value);
   const big = parseInt($id('campo-dev-big').value);
   const qtd = parseInt($id('campo-dev-qtd').value);
+  const cfg = obterConfigOnline('dev');
+  const ehBj = cfg.modo === 'blackjack';
 
-  if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
-    mostrarErro('erro-dev-criar', 'Saldo e blinds precisam ser números maiores que zero.');
-    return;
-  }
-  if (big <= small) {
-    mostrarErro('erro-dev-criar', 'O big blind precisa ser maior que o small blind.');
-    return;
-  }
-  if (!(qtd >= 2 && qtd <= MAX_DEV)) {
-    mostrarErro('erro-dev-criar', 'Escolha entre 2 e 9 jogadores.');
-    return;
+  if (ehBj) {
+    if (!(saldo > 0) || !(cfg.apostaMin > 0) || cfg.apostaMin > saldo) {
+      mostrarErro('erro-dev-criar', 'Saldo e aposta mínima inválidos.');
+      return;
+    }
+    if (!(qtd >= 1 && qtd <= 6)) {
+      mostrarErro('erro-dev-criar', 'No Blackjack, escolha entre 1 e 6 jogadores.');
+      return;
+    }
+  } else {
+    if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
+      mostrarErro('erro-dev-criar', 'Saldo e blinds precisam ser números maiores que zero.');
+      return;
+    }
+    if (big <= small) {
+      mostrarErro('erro-dev-criar', 'O big blind precisa ser maior que o small blind.');
+      return;
+    }
+    if (!(qtd >= 2 && qtd <= MAX_DEV)) {
+      mostrarErro('erro-dev-criar', 'Escolha entre 2 e 9 jogadores.');
+      return;
+    }
   }
 
   criandoDev = true;
@@ -111,24 +124,30 @@ export async function criarSalaDev() {
     }
     if (cancelado()) return;
 
-    const cfg = obterConfigOnline('dev');
     let resp;
     try {
-      resp = cfg.modo === 'online'
-        ? await banco.rpc('dev_criar_sala_online', Object.assign({}, contaParams(), {
+      resp = ehBj
+        ? await banco.rpc('dev_criar_sala_blackjack', Object.assign({}, contaParams(), {
             p_nome: NOMES_DEV[0],
             p_saldo: saldo,
-            p_small: small,
-            p_big: big,
-            p_tempo_turno: cfg.tempoTurno,
-            p_subir_blinds_min: cfg.subirBlindsMin
+            p_aposta_min: cfg.apostaMin,
+            p_tempo_turno: cfg.tempoTurno
           }))
-        : await banco.rpc('dev_criar_sala', Object.assign({}, contaParams(), {
-            p_nome: NOMES_DEV[0],
-            p_saldo: saldo,
-            p_small: small,
-            p_big: big
-          }));
+        : (cfg.modo === 'online'
+          ? await banco.rpc('dev_criar_sala_online', Object.assign({}, contaParams(), {
+              p_nome: NOMES_DEV[0],
+              p_saldo: saldo,
+              p_small: small,
+              p_big: big,
+              p_tempo_turno: cfg.tempoTurno,
+              p_subir_blinds_min: cfg.subirBlindsMin
+            }))
+          : await banco.rpc('dev_criar_sala', Object.assign({}, contaParams(), {
+              p_nome: NOMES_DEV[0],
+              p_saldo: saldo,
+              p_small: small,
+              p_big: big
+            })));
     } catch (erro) {
       resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
     }
@@ -137,7 +156,7 @@ export async function criarSalaDev() {
       return;
     }
 
-    const sala = { partida_id: resp.data.partida_id, jogadores: [jogadorDevDe(resp.data)] };
+    const sala = { partida_id: resp.data.partida_id, modo: cfg.modo, jogadores: [jogadorDevDe(resp.data)] };
     if (cancelado()) {
       await apagarSalaDev(sala);
       return;
@@ -199,7 +218,7 @@ export function abrirMesaDev(indice) {
   if (!sala) { hooksDev.abrirSalas(); return; }
   estado.modoDev = true;
   controlarDev(indice, sala);
-  hooksDev.abrirMesa({ id: sala.partida_id, dev: true });
+  hooksDev.abrirMesa({ id: sala.partida_id, modo: sala.modo || 'presencial', dev: true });
 }
 
 export function controlarDev(indice, sala) {
@@ -254,15 +273,18 @@ export function desenharPainelDev() {
   const iniciada = !!(estado.partidaAtual && estado.partidaAtual.iniciada);
   const pausa = iniciada && !!estado.partidaAtual.aguardando_proxima_mao;
   const ehOnline = !!(estado.partidaAtual && estado.partidaAtual.modo === 'online');
+  const ehBj = !!(estado.partidaAtual && estado.partidaAtual.modo === 'blackjack');
   const devDica = $id('dev-dica');
   if (devDica) {
-    devDica.textContent = ehOnline
-      ? 'Modo Online: escolha qual jogador você controla para testar cartas privadas, turnos e confirmações.'
-      : 'Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.';
+    devDica.textContent = ehBj
+      ? 'Modo Blackjack: alterne entre os jogadores para testar apostas, Pedir, Parar, Dobrar e Dividir contra a Banca.'
+      : (ehOnline
+        ? 'Modo Online: escolha qual jogador você controla para testar cartas privadas, turnos e confirmações.'
+        : 'Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.');
   }
   const devConf = $id('dev-confirmar-todos');
   if (devConf) devConf.hidden = !(ehOnline && (!iniciada || pausa));
-  $id('dev-acoes-presencial').hidden = ehOnline;
+  $id('dev-acoes-presencial').hidden = ehOnline || ehBj;
   $id('dev-iniciar').hidden = iniciada;
   $id('dev-proxima').hidden = !pausa;
 
@@ -311,7 +333,7 @@ export async function adicionarJogadorDev() {
 
   sala.jogadores.push(jogadorDevDe(resp.data));
   salvarDevSala(sala);
-  estado.htmlDevVisto = '';
+  estado.htmlDevVisto = null;
   desenharPainelDev();
   hooksDev.buscarMesa(true);
 }

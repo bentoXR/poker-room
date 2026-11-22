@@ -1,13 +1,13 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=83';
-import { estado, ICONE_COROA, contaParams, ehContaDev } from '../core/estado.js?v=83';
-import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=83';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=83';
-import { desligarTempoReal } from '../core/realtime.js?v=83';
-import { tratarErroConta } from './auth.js?v=83';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=83';
-import { registrarRealCriacao, obterConfigOnline } from './config-sala.js?v=83';
-import { abrirMesa } from '../mesa/mesa.js?v=83';
+import { banco } from '../core/supabase.js?v=85';
+import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=85';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=85';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=85';
+import { desligarTempoReal } from '../core/realtime.js?v=85';
+import { tratarErroConta } from './auth.js?v=85';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=85';
+import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=85';
+import { abrirMesa } from '../mesa/mesa.js?v=85';
 
 let hooksSalas = {
   cancelarCriacaoDev: () => {},
@@ -92,23 +92,28 @@ export function desenharSalas() {
   } else {
     html = estado.salasAtuais.map((s) => {
       const ehOnline = s.modo === 'online';
+      const ehBlackjack = s.modo === 'blackjack';
       const statusChip = s.iniciada
-        ? '<span class="meta-chip vivo"><i></i><b>Mão ' + s.mao + '</b></span>'
+        ? '<span class="meta-chip vivo"><i></i><b>' + (ehBlackjack ? 'Rodada ' : 'Mão ') + s.mao + '</b></span>'
         : '<span class="meta-chip">Aguardando</span>';
       const jogTxt = '<b>' + s.n_jogadores + '</b> ' + (s.n_jogadores === 1 ? 'jogador' : 'jogadores');
-      const blindsTxt = 'Blinds <b>' + s.small_blind + '/' + s.big_blind + '</b>';
-      const tempoChip = ehOnline
+      const blindsTxt = ehBlackjack
+        ? 'Mín. <b>' + s.small_blind + '</b>'
+        : 'Blinds <b>' + s.small_blind + '/' + s.big_blind + '</b>';
+      const tempoChip = (ehOnline || ehBlackjack)
         ? '<span class="meta-chip">' + (Number(s.tempo_turno) === 0 ? '<b>Sem limite</b>' : 'Turno <b>' + (s.tempo_turno || 30) + 's</b>') + '</span>'
         : '';
       const subirChip = (ehOnline && s.subir_blinds_min > 0)
         ? '<span class="meta-chip">↑ <b>' + s.subir_blinds_min + 'm</b></span>'
         : '';
-      const modoTag = ehOnline
-        ? '<span class="tag modo-online">🃏 Online</span>'
-        : '<span class="tag modo-presencial">🪙 Presencial</span>';
+      const modoTag = ehBlackjack
+        ? '<span class="tag modo-blackjack">🂡 Blackjack</span>'
+        : (ehOnline
+          ? '<span class="tag modo-online">🃏 Online</span>'
+          : '<span class="tag modo-presencial">🪙 Presencial</span>');
       const tag = s.sou_jogador ? '<span class="tag vez">Continuar</span>' : '';
       return `
-        <button type="button" class="sala ${ehOnline ? 'eh-online' : 'eh-presencial'} ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
+        <button type="button" class="sala ${ehBlackjack ? 'eh-blackjack' : (ehOnline ? 'eh-online' : 'eh-presencial')} ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
           <div class="sala-info">
             <div class="sala-topo-linha">
               <div class="sala-nome">${!ehOnline && s.sou_criador ? ICONE_COROA : ''}${escapar(s.nome)}</div>
@@ -132,7 +137,7 @@ export function desenharSalas() {
 }
 
 export async function abrirSala(id) {
-  if (estado.abrindoSala) return;
+  if (estado.abrindoSala || estado.criandoSala) return;
   estado.abrindoSala = true;
   limparContextoDev();
   limparErro('erro-salas');
@@ -142,7 +147,7 @@ export async function abrirSala(id) {
 
     if (sala && sala.sou_jogador) {
       pararSalas();
-      const entrou = await conectarNaSala({ id }, 'erro-salas');
+      const entrou = await conectarNaSala({ id: sala.id, modo: sala.modo, dev: false }, 'erro-salas');
       if (!entrou && $id('tela-salas').classList.contains('ativa')) {
         carregarSalas();
         estado.temporizadorSalas = setInterval(carregarSalas, 4000);
@@ -161,7 +166,11 @@ export async function abrirSala(id) {
       return;
     }
     pararSalas();
-    await conectarNaSala(resp.data, 'erro-salas');
+    const entrou = await conectarNaSala(resp.data, 'erro-salas');
+    if (!entrou && $id('tela-salas').classList.contains('ativa')) {
+      carregarSalas();
+      estado.temporizadorSalas = setInterval(carregarSalas, 4000);
+    }
   } finally {
     estado.abrindoSala = false;
   }
@@ -171,12 +180,13 @@ export function abrirCriar() {
   limparContextoDev();
   desligarTempoReal();
   limparErro('erro-criar');
+  aplicarPadraoCriarSala();
   $id('criar-nome-sala').value = 'Sala do ' + estado.minhaConta.nome;
   mostrar('tela-criar');
 }
 
 export async function criarSala() {
-  if (estado.criandoSala) return;
+  if (estado.criandoSala || estado.abrindoSala) return;
   limparContextoDev();
   desligarTempoReal();
   limparErro('erro-criar');
@@ -185,44 +195,66 @@ export async function criarSala() {
   const saldo = parseInt($id('campo-saldo').value);
   const small = parseInt($id('campo-small').value);
   const big = parseInt($id('campo-big').value);
+  const cfg = obterConfigOnline('');
 
-  if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
-    mostrarErro('erro-criar', 'Saldo e blinds precisam ser números maiores que zero.');
-    return;
-  }
-  if (big <= small) {
-    mostrarErro('erro-criar', 'O big blind precisa ser maior que o small blind.');
-    return;
+  if (cfg.modo === 'blackjack') {
+    if (!(saldo > 0) || !(cfg.apostaMin > 0)) {
+      mostrarErro('erro-criar', 'Saldo inicial e aposta mínima precisam ser maiores que zero.');
+      return;
+    }
+    if (cfg.apostaMin > saldo) {
+      mostrarErro('erro-criar', 'A aposta mínima não pode ser maior que as fichas iniciais.');
+      return;
+    }
+  } else {
+    if (!(saldo > 0) || !(small > 0) || !(big > 0)) {
+      mostrarErro('erro-criar', 'Saldo e blinds precisam ser números maiores que zero.');
+      return;
+    }
+    if (big <= small) {
+      mostrarErro('erro-criar', 'O big blind precisa ser maior que o small blind.');
+      return;
+    }
   }
 
   estado.criandoSala = true;
   esquecerPartida();
   estado.partidaAtual = null;
+  estado.meuJogadorId = null;
+  estado.meuSegredo = null;
+  estado.jogadoresAtuais = [];
   estado.ultimoEstado = null;
+  invalidarListaSalas();
 
   const botao = $id('botao-criar');
   botao.disabled = true;
   botao.textContent = 'Criando...';
 
   try {
-    const cfg = obterConfigOnline('');
     let resp;
     try {
-      resp = cfg.modo === 'online'
-        ? await banco.rpc('criar_sala_online', Object.assign({}, contaParams(), {
+      resp = cfg.modo === 'blackjack'
+        ? await banco.rpc('criar_sala_blackjack', Object.assign({}, contaParams(), {
             p_saldo: saldo,
-            p_small: small,
-            p_big: big,
+            p_aposta_min: cfg.apostaMin,
             p_tempo_turno: cfg.tempoTurno,
-            p_subir_blinds_min: cfg.subirBlindsMin,
             p_nome: nomeSala || null
           }))
-        : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
-            p_saldo: saldo,
-            p_small: small,
-            p_big: big,
-            p_nome: nomeSala || null
-          }));
+        : (cfg.modo === 'online'
+          ? await banco.rpc('criar_sala_online', Object.assign({}, contaParams(), {
+              p_saldo: saldo,
+              p_small: small,
+              p_big: big,
+              p_tempo_turno: cfg.tempoTurno,
+              p_subir_blinds_min: cfg.subirBlindsMin,
+              p_nome: nomeSala || null
+            }))
+          : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
+              p_saldo: saldo,
+              p_small: small,
+              p_big: big,
+              p_nome: nomeSala || null
+            })));
     } catch (erro) {
       resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
     }

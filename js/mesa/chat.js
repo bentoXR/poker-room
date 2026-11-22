@@ -1,10 +1,10 @@
 // Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
-import { banco } from '../core/supabase.js?v=83';
-import { estado, nomeDe } from '../core/estado.js?v=83';
-import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=83';
-import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=83';
-import { tocarSom } from '../core/som.js?v=83';
-import { executar } from './apostas.js?v=83';
+import { banco } from '../core/supabase.js?v=85';
+import { estado, nomeDe } from '../core/estado.js?v=85';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=85';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=85';
+import { tocarSom } from '../core/som.js?v=85';
+import { executar } from './apostas.js?v=85';
 
 const JANELA_DIGITANDO_MS = 3400;
 

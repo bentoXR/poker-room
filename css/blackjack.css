@@ -1,0 +1,245 @@
+/* Estilos específicos do modo Blackjack (reaproveitando mesa oval, cartas e temas do app) */
+
+.modo-blackjack #pote-ficha,
+.modo-blackjack #mesa-potes,
+.modo-blackjack #mesa-aposta,
+.modo-blackjack #mesa-nivel,
+.modo-blackjack #btn-guia,
+.modo-blackjack #btn-criador {
+  display: none !important;
+}
+
+.modo-blackjack .centro-roda {
+  gap: 6px;
+}
+
+.bj-dealer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+}
+
+.bj-dealer-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bj-dealer-titulo {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.bj-dealer-cartas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bj-dealer-vazio {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  padding: 6px 8px;
+}
+
+.bj-score {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(15, 23, 42, 0.75);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bj-score.blackjack {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #111827;
+  border-color: #fde68a;
+}
+
+.bj-score.estourou {
+  background: rgba(220, 38, 38, 0.88);
+  color: #fff;
+}
+
+.bj-mao-hero {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.bj-mao-hero.split .bj-mao-card {
+  flex: 1;
+  max-width: 240px;
+}
+
+.bj-mao-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+}
+
+.bj-mao-card.ativa {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.28);
+}
+
+.bj-mao-cartas {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bj-mao-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bj-aposta-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fde68a;
+}
+
+.bj-res {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.bj-res.ganhou,
+.bj-res.blackjack {
+  background: rgba(22, 163, 74, 0.9);
+  color: #fff;
+}
+
+.bj-res.empate {
+  background: rgba(100, 116, 139, 0.85);
+  color: #fff;
+}
+
+.bj-res.perdeu {
+  background: rgba(220, 38, 38, 0.82);
+  color: #fff;
+}
+
+.barra-blackjack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bj-fichas {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bj-fichas button {
+  padding: 8px 10px;
+  font-size: 13px;
+  min-height: 36px;
+  flex: 1 1 auto;
+}
+
+.bj-acoes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bj-btn-cheio {
+  width: 100%;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.bj-espera,
+.bj-aviso-fora {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.86);
+  padding: 6px 8px;
+}
+
+.bj-resumo-rodada {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bj-assento-maos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  align-items: center;
+}
+
+.bj-assento-mao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.bj-assento-st {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #e2e8f0;
+  margin-top: 2px;
+}
+
+.bj-assento-st.ok,
+.bj-assento-st.ganhou,
+.bj-assento-st.blackjack {
+  background: rgba(22, 163, 74, 0.85);
+  color: #fff;
+}
+
+.bj-assento-st.perdeu {
+  background: rgba(220, 38, 38, 0.8);
+  color: #fff;
+}
+
+.tag.modo-blackjack {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+@media (max-width: 520px) {
+  .bj-acoes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

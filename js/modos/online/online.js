@@ -1,16 +1,16 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=83';
-import { estado, nomeDe } from '../../core/estado.js?v=83';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=83';
-import { lerDevSala } from '../../core/storage.js?v=83';
-import { registrarModo } from '../../mesa/modos.js?v=83';
-import { executar } from '../../mesa/apostas.js?v=83';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=83';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=83';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=83';
-import { tocarSom } from '../../core/som.js?v=83';
+import { banco } from '../../core/supabase.js?v=85';
+import { estado, nomeDe } from '../../core/estado.js?v=85';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=85';
+import { lerDevSala } from '../../core/storage.js?v=85';
+import { registrarModo } from '../../mesa/modos.js?v=85';
+import { executar } from '../../mesa/apostas.js?v=85';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=85';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=85';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=85';
+import { tocarSom } from '../../core/som.js?v=85';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -130,6 +130,10 @@ export function resetarOnlineUI() {
   cancelarCena();
   limparTimersDeal();
   limparAutoPronto();
+  clearTimeout(onlineUI.timerAnuncio);
+  onlineUI.timerAnuncio = null;
+  clearTimeout(onlineUI.timerAnuncioVez);
+  onlineUI.timerAnuncioVez = null;
   onlineUI.autoProntoChave = '';
   onlineUI.embaralhandoAte = 0;
   onlineUI.maoCarregada = null;
@@ -152,6 +156,10 @@ export function resetarOnlineUI() {
   onlineUI.ultimaTxt = null;
   onlineUI.ultimoSegUrgente = null;
   onlineUI.campeaoSomChave = null;
+  const mesaWrap = document.querySelector('#tela-mesa .mesa-wrap');
+  if (mesaWrap) {
+    mesaWrap.querySelectorAll('.baralho-embaralhar, .carta-voo-deal, .ficha-voo').forEach((n) => n.remove());
+  }
   const wrap = $id('minha-mao-wrap');
   if (wrap) { wrap.innerHTML = ''; wrap.hidden = true; }
   const faixa = $id('faixa-online');
@@ -703,12 +711,13 @@ async function sincronizarMinhasCartas(partida, eu) {
   if (onlineUI.buscandoCartas) return;
 
   onlineUI.buscandoCartas = true;
+  const pid = partida.id;
   const jid = eu.id;
   const seg = estado.meuSegredo;
   try {
     const resp = await banco.rpc('minhas_cartas', { p_jogador: jid, p_segredo: seg });
     if (!resp.error && resp.data && Array.isArray(resp.data.cartas) && resp.data.cartas.length === 2) {
-      if (estado.meuJogadorId === jid) {
+      if (estado.meuJogadorId === jid && estado.partidaAtual && estado.partidaAtual.id === pid) {
         const mudouMao = (onlineUI.maoCarregada !== resp.data.mao || onlineUI.jogadorCarregado !== jid);
         onlineUI.maoCarregada = resp.data.mao;
         onlineUI.jogadorCarregado = jid;

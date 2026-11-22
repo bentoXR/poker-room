@@ -1,68 +1,72 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=83';
-import { estado, ehContaDev } from './core/estado.js?v=83';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=83';
+import { banco } from './core/supabase.js?v=85';
+import { estado, ehContaDev } from './core/estado.js?v=85';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=85';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=83';
-import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=83';
-import { iniciarSom, alternarSom } from './core/som.js?v=83';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=83';
+} from './core/ui.js?v=85';
+import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=85';
+import { iniciarSom, alternarSom } from './core/som.js?v=85';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=85';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, sairDaConta
-} from './lobby/auth.js?v=83';
+} from './lobby/auth.js?v=85';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil
-} from './lobby/perfil.js?v=83';
+} from './lobby/perfil.js?v=85';
 import {
   registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js?v=83';
+} from './lobby/salas.js?v=85';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev
-} from './lobby/config-sala.js?v=83';
+} from './lobby/config-sala.js?v=85';
 
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
-  abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline
-} from './mesa/mesa.js?v=83';
+  abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
+} from './mesa/mesa.js?v=85';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=83';
+} from './mesa/apostas.js?v=85';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal, copiarAcertoMesa
-} from './mesa/extras.js?v=83';
+} from './mesa/extras.js?v=85';
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
   receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
-} from './mesa/chat.js?v=83';
+} from './mesa/chat.js?v=85';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=83';
+} from './modos/presencial/acoes.js?v=85';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=83';
+} from './modos/presencial/distribuir.js?v=85';
 import {
   registrarHooksDev, cancelarCriacaoDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=83';
+} from './modos/presencial/dev.js?v=85';
 import {
   virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=83';
+} from './modos/online/online.js?v=85';
+import {
+  bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
+  bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev, tickBlackjack
+} from './modos/blackjack/blackjack.js?v=85';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {
@@ -82,7 +86,7 @@ registrarHooksSalas({ cancelarCriacaoDev, apagarSalaDev });
 registrarHooksAuth({
   abrirSalas,
   pararSalas,
-  onLogout: () => { cancelarCriacaoDev(); fecharPerfil(); limparCachePerfil(); },
+  onLogout: () => { cancelarCriacaoDev(); fecharPerfil(); limparCachePerfil(); limparDomMesa(); },
   onPosLogin: () => {
     if (estado.salaConviteId) {
       const idConvite = estado.salaConviteId;
@@ -93,6 +97,7 @@ registrarHooksAuth({
 });
 registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, cancelarCriacaoDev, autoSeguirVezDev });
 registrarTickOnline(tickOnline);
+registrarTickBlackjack(tickBlackjack);
 registrarHooksDev({
   abrirSalas,
   pararSalas,
@@ -186,7 +191,11 @@ Object.assign(window, {
 
   // Modo online (baralho virtual, cartas 3D, confirmação e revanche)
   virarMinhaCarta, alternarModoEspiar, confirmarMao, alternarAutoPronto, alternarAusenteOnline,
-  chamarRabbitHunt, mostrarCartasOnline, revancheOnline, confirmarTodosDev
+  chamarRabbitHunt, mostrarCartasOnline, revancheOnline, confirmarTodosDev,
+
+  // Modo Blackjack (banca automática, 21)
+  bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
+  bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev
 });
 
 // ----- Eventos globais e detalhes de conforto -----
@@ -318,8 +327,9 @@ document.addEventListener('visibilitychange', () => {
         onReacao: receberReacao,
         onDigitando: receberDigitando
       });
+    } else {
+      enviarSinal();
     }
-    enviarSinal();
   } else if (nasSalas) {
     carregarSalas();
   }
