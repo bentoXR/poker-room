@@ -1,9 +1,9 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=101';
-import { estado, marcarReal } from '../core/estado.js?v=101';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=101';
-import { t, termo } from '../core/i18n.js?v=101';
+import { banco } from '../core/supabase.js?v=102';
+import { estado, marcarReal } from '../core/estado.js?v=102';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=102';
+import { t, termo } from '../core/i18n.js?v=102';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const TEMPOS_TURNO = [20, 30, 45, 60, 0];

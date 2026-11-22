@@ -1,18 +1,18 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=101';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=101';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=101';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=101';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=101';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=101';
-import { obterModo, limparTodosModos } from './modos.js?v=101';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=101';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=101';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=101';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=101';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=101';
-import { t, termo } from '../core/i18n.js?v=101';
+import { banco } from '../core/supabase.js?v=102';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=102';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=102';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=102';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=102';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=102';
+import { obterModo, limparTodosModos } from './modos.js?v=102';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=102';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=102';
+import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=102';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=102';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=102';
+import { t, termo } from '../core/i18n.js?v=102';
 
 const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
 
@@ -646,10 +646,11 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
 
   const corFicha = 'c' + (((Number(eu.ordem) || 1) - 1) % 8 + 1);
   const posBorda = classePosicaoBorda(eu, partida);
-  const avatarUrl = obterAvatarUrl(eu.conta_id);
+  const avatarUrl = obterAvatarJogador(eu, partida.id);
+  const attrsReacoes = ' role="button" tabindex="0" title="Reações rápidas" aria-label="Enviar reação rápida" aria-expanded="false" onclick="event.stopPropagation(); alternarReacoes(false, this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}"';
   const badgePerfilHtml = avatarUrl
-    ? '<div class="l-avatar ' + corFicha + ' ' + posBorda + '"><img src="' + avatarUrl + '" alt=""></div>'
-    : '<div class="ficha ' + corFicha + ' ' + posBorda + '">' + eu.ordem + '</div>';
+    ? '<div class="l-avatar meu-avatar-reacoes ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '><img src="' + avatarUrl + '" alt=""></div>'
+    : '<div class="ficha meu-avatar-reacoes ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '>' + eu.ordem + '</div>';
 
   const tags = montarTagsAssento({
     j: eu,
@@ -794,10 +795,14 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
     const coroaHtml = (!ehCardDock && j.criador) ? ICONE_COROA : '';
     const posBorda = classePosicaoBorda(j, partida);
-    const avatarUrl = obterAvatarUrl(j.conta_id);
+    const avatarUrl = obterAvatarJogador(j, partida.id);
+    const attrsReacoes = souEu
+      ? ' role="button" tabindex="0" title="Reações rápidas" aria-label="Enviar reação rápida" aria-expanded="false" onclick="event.stopPropagation(); alternarReacoes(false, this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}"'
+      : '';
+    const clsReacoes = souEu ? ' meu-avatar-reacoes' : '';
     const badgePerfilHtml = avatarUrl
-      ? '<div class="l-avatar ' + corFicha + ' ' + posBorda + '"><img src="' + avatarUrl + '" alt=""></div>'
-      : '<div class="ficha ' + corFicha + ' ' + posBorda + '">' + j.ordem + '</div>';
+      ? '<div class="l-avatar' + clsReacoes + ' ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '><img src="' + avatarUrl + '" alt=""></div>'
+      : '<div class="ficha' + clsReacoes + ' ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '>' + j.ordem + '</div>';
     return `
       <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
         ${badgePerfilHtml}

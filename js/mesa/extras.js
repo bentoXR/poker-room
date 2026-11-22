@@ -1,13 +1,14 @@
 // Recursos compartilhados da mesa: histórico, conversão em R$, guia de mãos e detalhes dos potes
-import { banco } from '../core/supabase.js?v=101';
-import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=101';
-import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=101';
-import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=101';
-import { htmlCartaMini } from '../modos/online/cartas.js?v=101';
+import { banco } from '../core/supabase.js?v=102';
+import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=102';
+import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=102';
+import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=102';
+import { htmlCartaMini } from '../modos/online/cartas.js?v=102';
+import { abrirChat } from './chat.js?v=102';
 
 // ----- Histórico -----
 export function abrirHistorico() {
-  abrirFolha('folha-hist');
+  abrirChat('log');
 }
 
 export function desenharHistorico(linhas) {
@@ -24,7 +25,8 @@ export function desenharHistorico(linhas) {
   }
   if (html === estado.htmlHistoricoVisto) return;
   estado.htmlHistoricoVisto = html;
-  $id('hist-lista').innerHTML = html;
+  const lista = $id('hist-lista');
+  if (lista) lista.innerHTML = html;
 }
 
 // ----- Conversão em reais + Placar e Acerto da sessão (Quem paga quem) -----

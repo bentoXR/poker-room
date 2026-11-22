@@ -690,7 +690,6 @@
   }
   #tela-mesa.modo-online #btn-som-mesa,
   #tela-mesa.modo-online #btn-guia,
-  #tela-mesa.modo-online #btn-reacoes,
   #tela-mesa.modo-online #btn-chat {
     display: inline-flex !important;
   }
@@ -1388,8 +1387,6 @@
     white-space: nowrap;
   }
   .popover-reacoes {
-    top: 36px !important;
-    right: max(8px, env(safe-area-inset-right)) !important;
     padding: 8px !important;
   }
   .l-equity {

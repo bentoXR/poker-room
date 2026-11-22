@@ -1,16 +1,31 @@
 // Modo DEV: sala de teste com jogadores fictícios controlados no mesmo aparelho
-import { banco } from '../../core/supabase.js?v=101';
-import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=101';
-import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=101';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=101';
-import { desligarTempoReal } from '../../core/realtime.js?v=101';
-import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=101';
-import { executar } from '../../mesa/apostas.js?v=101';
+import { banco } from '../../core/supabase.js?v=102';
+import { estado, nomeDe, contaParams, ehContaDev, limparCachesMesa } from '../../core/estado.js?v=102';
+import { lerDevSala, salvarDevSala, esquecerDevSala, esquecerPartida } from '../../core/storage.js?v=102';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../../core/ui.js?v=102';
+import { desligarTempoReal } from '../../core/realtime.js?v=102';
+import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala.js?v=102';
+import { executar } from '../../mesa/apostas.js?v=102';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
+const NOMES_BOTS_DEV = [
+  'Kiro_99', 'xX_Nando', 'LéoShark', 'Biel_BR', 'Majuu', 'Tico77', 'Rafa_AK', 'DuduAllIn',
+  'ViniK9', 'Gabs_07', 'PatoLoko', 'ZéBlefe', 'Caio_SP', 'Lari_23', 'Gui_River', 'Niko.gg',
+  'MatheusX', 'Fefê_', 'Brabo_01', 'Kauan_RJ', 'Juju_x', 'TutuPoker', 'Digo_88', 'Luanzera',
+  'Mila_98', 'Rique_S', 'Peu_10', 'Cacá_BR', 'Sandro_K', 'Yuri_Flop', 'Danilo_7', 'Bia_Star',
+  'Vitão_MG', 'Lipe_04', 'Tati_gg', 'Renan_AA', 'Chico_X', 'Guto_92', 'Isa_Cards', 'Breno_V'
+];
 const NIVEIS_BOT = ['facil', 'medio', 'dificil'];
 const ROTULO_NIVEL_BOT = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil' };
 const MAX_DEV = 9;
+
+function sortearNomeBotDev(jogadoresAtuais) {
+  const usados = new Set((jogadoresAtuais || []).map((j) => String(j.nome || '').trim().toLowerCase()));
+  const livres = NOMES_BOTS_DEV.filter((n) => !usados.has(n.toLowerCase()));
+  if (livres.length) return livres[Math.floor(Math.random() * livres.length)];
+  const base = NOMES_BOTS_DEV[Math.floor(Math.random() * NOMES_BOTS_DEV.length)];
+  return base + '_' + (10 + Math.floor(Math.random() * 89));
+}
 
 function sortearNivelBot(nivelCfg) {
   if (nivelCfg === 'facil' || nivelCfg === 'medio' || nivelCfg === 'dificil') return nivelCfg;
@@ -204,7 +219,7 @@ export async function criarSalaDev() {
         r = comBots
           ? await banco.rpc('dev_adicionar_bot', Object.assign({}, contaParams(), {
               p_partida: sala.partida_id,
-              p_nome: NOMES_DEV[i],
+              p_nome: sortearNomeBotDev(sala.jogadores),
               p_nivel: sortearNivelBot(cfg.nivelBots)
             }))
           : await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
@@ -369,7 +384,7 @@ export async function adicionarJogadorDev() {
     resp = comBots
       ? await banco.rpc('dev_adicionar_bot', Object.assign({}, contaParams(), {
           p_partida: sala.partida_id,
-          p_nome: NOMES_DEV[sala.jogadores.length],
+          p_nome: sortearNomeBotDev(sala.jogadores),
           p_nivel: sortearNivelBot(sala.nivelBots)
         }))
       : await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {

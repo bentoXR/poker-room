@@ -971,6 +971,95 @@ body:has(#tela-mesa.apostando) #barra-titulo { display: none; }
   to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 }
 
+/* Avatar clicável para reações */
+.meu-avatar-reacoes {
+  cursor: pointer;
+  transition: transform 0.14s ease, filter 0.14s ease;
+}
+.meu-avatar-reacoes:hover {
+  transform: scale(1.06);
+  filter: brightness(1.08);
+}
+.meu-avatar-reacoes:active {
+  transform: scale(0.95);
+}
+
+/* Camada de notificações e emojis flutuando a partir do perfil */
+.camada-flutuantes {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 28;
+  overflow: hidden;
+}
+.perfil-flutuante {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: perfilFlutuarSubir var(--dur, 3.2s) cubic-bezier(0.22, 0.75, 0.36, 1) forwards;
+}
+.perfil-flutuante.emoji {
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55));
+  animation-name: perfilFlutuarEmoji;
+}
+.perfil-flutuante.frase,
+.perfil-flutuante.msg {
+  max-width: min(220px, 60vw);
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--marfim);
+  background: color-mix(in srgb, var(--dock-bg) 82%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 216, 102, 0.48);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+button.perfil-flutuante.msg {
+  pointer-events: auto;
+  cursor: pointer;
+  margin: 0;
+  min-height: 0;
+  width: auto;
+  border-color: rgba(255, 255, 255, 0.24);
+  border-left: 3px solid var(--acento);
+  border-radius: 12px;
+  text-align: left;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.perfil-flutuante-autor {
+  color: var(--acento);
+  font-weight: 800;
+  margin-right: 4px;
+}
+@keyframes perfilFlutuarEmoji {
+  0%   { opacity: 0; transform: translate(calc(-50% + 0px), -45%) scale(0.55); }
+  12%  { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px) * 0.25), -110%) scale(1.12); }
+  24%  { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px) * 0.4), -135%) scale(1); }
+  65%  { opacity: 0.75; transform: translate(calc(-50% + var(--dx, 0px) * 0.8), calc(-135% - 58px)) scale(0.98); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-135% - 102px)) scale(0.9); }
+}
+@keyframes perfilFlutuarSubir {
+  0%   { opacity: 0; transform: translate(calc(-50% + 0px), -45%) scale(0.72); }
+  11%  { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px) * 0.2), -108%) scale(1.03); }
+  22%  { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px) * 0.35), -122%) scale(1); }
+  68%  { opacity: 0.72; transform: translate(calc(-50% + var(--dx, 0px) * 0.75), calc(-122% - 52px)) scale(0.98); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-122% - 92px)) scale(0.94); }
+}
+
 /* Barra de Rebuy e Espectar */
 .barra-rebuy { margin-top: 4px; }
 .grade-rebuy {

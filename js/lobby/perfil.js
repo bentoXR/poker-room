@@ -1,15 +1,92 @@
 // Gestão de perfil do usuário: foto de perfil (compressão local), nome único, troca de senha e cache de avatares na mesa
-import { banco } from '../core/supabase.js?v=101';
-import { estado, contaParams } from '../core/estado.js?v=101';
-import { guardarConta, lembrarNome } from '../core/storage.js?v=101';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=101';
-import { tratarErroConta } from './auth.js?v=101';
-import { lerTemaSalvo, escolherTema } from '../core/tema.js?v=101';
+import { banco } from '../core/supabase.js?v=102';
+import { estado, contaParams } from '../core/estado.js?v=102';
+import { guardarConta, lembrarNome } from '../core/storage.js?v=102';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=102';
+import { tratarErroConta } from './auth.js?v=102';
+import { lerTemaSalvo, escolherTema } from '../core/tema.js?v=102';
 
 // Cache em memória de avatares: conta_id -> { versao, url }
 const avataresCache = new Map();
 const buscandoContas = new Set();
 let perfilSincronizadoId = null;
+
+// Fotos de perfil aleatórias para bots (sem repetir na mesma partida)
+const ICONES_BOTS = [
+  '27f9363d505ffa59c8653243a3d969cc.jpg',
+  'Captura de tela 2026-04-08 214040.png',
+  'Captura de tela 2026-04-16 000019.png',
+  'Captura de tela 2026-05-30 204403.png',
+  'Captura de tela 2026-08-23 213805.png',
+  'channels4_profile.jpg',
+  'drift miata.png',
+  'king sasuke.png',
+  'osvaldo.jpg',
+  'rogério.jfif'
+];
+
+let botAvataresPartidaId = null;
+let botAvataresPool = [];
+let botAvataresCursor = 0;
+let botAvataresMapa = new Map();
+
+function hashSeedBot(str) {
+  let h = 2166136261;
+  const s = String(str || '');
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function criarPrngBot(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function obterAvatarBot(partidaId, jogadorId) {
+  if (!jogadorId) return null;
+  const chavePartida = partidaId || 'global';
+  if (botAvataresPartidaId !== chavePartida) {
+    botAvataresPartidaId = chavePartida;
+    botAvataresMapa = new Map();
+    botAvataresCursor = 0;
+    const rngPool = criarPrngBot(hashSeedBot(chavePartida));
+    botAvataresPool = ICONES_BOTS.slice();
+    for (let i = botAvataresPool.length - 1; i > 0; i--) {
+      const j = Math.floor(rngPool() * (i + 1));
+      const tmp = botAvataresPool[i];
+      botAvataresPool[i] = botAvataresPool[j];
+      botAvataresPool[j] = tmp;
+    }
+  }
+
+  if (botAvataresMapa.has(jogadorId)) {
+    return botAvataresMapa.get(jogadorId);
+  }
+
+  const rngBot = criarPrngBot(hashSeedBot(chavePartida + ':' + jogadorId));
+  let url = null;
+  if (rngBot() < 0.62 && botAvataresCursor < botAvataresPool.length) {
+    const arquivo = botAvataresPool[botAvataresCursor++];
+    url = './img/icons-bots/' + encodeURIComponent(arquivo);
+  }
+  botAvataresMapa.set(jogadorId, url);
+  return url;
+}
+
+export function obterAvatarJogador(jogador, partidaId) {
+  if (!jogador) return null;
+  if (jogador.eh_bot) return obterAvatarBot(partidaId, jogador.id);
+  return obterAvatarUrl(jogador.conta_id);
+}
 
 export function limparCachePerfil() {
   perfilSincronizadoId = null;

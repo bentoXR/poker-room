@@ -25,9 +25,11 @@ AS $function$
 DECLARE
   v_p partidas;
   v_nomes constant text[] := array[
-    'Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo',
-    'Iris', 'João', 'Bia', 'Lucas', 'Marina', 'Neto', 'Paula', 'Rafa',
-    'Sofia', 'Tiago', 'Vini', 'Clara', 'Pedro', 'Luiza', 'Caio', 'Nina'
+    'Kiro_99', 'xX_Nando', 'LéoShark', 'Biel_BR', 'Majuu', 'Tico77', 'Rafa_AK', 'DuduAllIn',
+    'ViniK9', 'Gabs_07', 'PatoLoko', 'ZéBlefe', 'Caio_SP', 'Lari_23', 'Gui_River', 'Niko.gg',
+    'MatheusX', 'Fefê_', 'Brabo_01', 'Kauan_RJ', 'Juju_x', 'TutuPoker', 'Digo_88', 'Luanzera',
+    'Mila_98', 'Rique_S', 'Peu_10', 'Cacá_BR', 'Sandro_K', 'Yuri_Flop', 'Danilo_7', 'Bia_Star',
+    'Vitão_MG', 'Lipe_04', 'Tati_gg', 'Renan_AA', 'Chico_X', 'Guto_92', 'Isa_Cards', 'Breno_V'
   ];
   v_niveis constant text[] := array['facil', 'medio', 'dificil'];
   v_nivel text;

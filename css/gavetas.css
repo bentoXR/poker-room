@@ -61,8 +61,10 @@
 .grade-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .grade-2 button { margin-top: 10px; }
 
-/* ----- Histórico ----- */
-#hist-lista { max-height: none; padding: 0 16px 16px; }
+/* ----- Histórico / Log ----- */
+#aba-log #hist-lista,
+#hist-lista { max-height: none; padding: 6px 14px 16px; }
+.hist-linha:first-child { border-top: none; }
 .hist-linha {
   display: flex;
   gap: 12px;
@@ -473,14 +475,15 @@ button.btn-pref-toggle.ativo {
   max-height: 82dvh;
 }
 .chat-abas {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 6px;
   padding: 6px 14px 8px;
   border-bottom: 1px solid var(--linha);
   flex-shrink: 0;
 }
 button.chat-aba {
+  flex: 1;
+  min-width: 0;
   min-height: 36px;
   margin-top: 0;
   padding: 4px 10px;
@@ -495,6 +498,9 @@ button.chat-aba {
   align-items: center;
   justify-content: center;
   gap: 6px;
+}
+button.chat-aba[hidden] {
+  display: none !important;
 }
 button.chat-aba.ativa {
   background: var(--verde-suave);

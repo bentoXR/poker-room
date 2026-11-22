@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=101">
+  <link rel="manifest" href="./manifest.webmanifest?v=102">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,19 +20,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=101">
-  <link rel="stylesheet" href="./css/telas.css?v=101">
-  <link rel="stylesheet" href="./css/mesa.css?v=101">
-  <link rel="stylesheet" href="./css/gavetas.css?v=101">
-  <link rel="stylesheet" href="./css/online.css?v=101">
-  <link rel="stylesheet" href="./css/blackjack.css?v=101">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=101">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=101">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=101">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=101">
-  <link rel="stylesheet" href="./css/tema-branco.css?v=101">
-  <link rel="stylesheet" href="./css/desktop.css?v=101">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=101">
+  <link rel="stylesheet" href="./css/base.css?v=102">
+  <link rel="stylesheet" href="./css/telas.css?v=102">
+  <link rel="stylesheet" href="./css/mesa.css?v=102">
+  <link rel="stylesheet" href="./css/gavetas.css?v=102">
+  <link rel="stylesheet" href="./css/online.css?v=102">
+  <link rel="stylesheet" href="./css/blackjack.css?v=102">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=102">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=102">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=102">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=102">
+  <link rel="stylesheet" href="./css/tema-branco.css?v=102">
+  <link rel="stylesheet" href="./css/desktop.css?v=102">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=102">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -418,7 +418,6 @@
       <button id="btn-perfil-mesa" class="icone-btn" onclick="abrirPerfil()" aria-label="Meu perfil e preferências" title="Perfil, tema e cartas" data-label="Perfil">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
       </button>
-      <button id="btn-reacoes" class="icone-btn" style="font-size:18px" onclick="alternarReacoes()" aria-label="Reações rápidas" title="Reações rápidas" aria-expanded="false">😊</button>
       <button id="btn-chat" class="icone-btn btn-chat-ico" onclick="abrirChat()" aria-label="Chat da mesa" title="Chat da mesa" data-label="Chat">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span id="badge-chat" class="badge-chat" hidden></span>
@@ -482,6 +481,7 @@
     </div>
 
     <div id="chat-preview" class="chat-preview" aria-live="polite"></div>
+    <div id="camada-flutuantes" class="camada-flutuantes" aria-live="polite"></div>
 
     <div id="popover-reacoes" class="popover-reacoes" hidden role="dialog" aria-label="Enviar reação rápida">
       <div class="reacoes-emojis">
@@ -525,16 +525,7 @@
       </div>
     </div>
 
-    <!-- Gaveta: histórico -->
-    <div id="folha-hist" class="folha" hidden>
-      <div class="folha-topo">
-        <div class="folha-titulo" data-i18n="hist.titulo">Histórico</div>
-        <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
-      </div>
-      <div class="folha-corpo" id="hist-lista"></div>
-    </div>
-
-    <!-- Gaveta: chat de texto da mesa e votação coletiva -->
+    <!-- Gaveta: chat de texto da mesa, votação coletiva e log -->
     <div id="folha-chat" class="folha folha-chat" hidden>
       <div class="folha-topo">
         <div class="folha-titulo">
@@ -548,6 +539,7 @@
         <button type="button" id="aba-btn-votacao" class="chat-aba" role="tab" aria-selected="false" onclick="escolherAbaChat('votacao')">
           <span data-i18n="chat.aba_votacao">🗳 Votação</span> <span id="badge-aba-voto" class="badge-aba-voto" hidden></span>
         </button>
+        <button type="button" id="aba-btn-log" class="chat-aba" role="tab" aria-selected="false" onclick="escolherAbaChat('log')" data-i18n="chat.aba_log">📜 Log</button>
       </div>
       <div id="erro-votacao" class="erro votacao-erro" role="alert"></div>
       <div id="votacao-ativa-card" class="votacao-card" hidden></div>
@@ -568,6 +560,9 @@
       </div>
       <div id="aba-votacao" class="folha-corpo chat-painel" hidden>
         <div id="painel-votacao"></div>
+      </div>
+      <div id="aba-log" class="folha-corpo chat-painel" hidden>
+        <div id="hist-lista"></div>
       </div>
     </div>
 
@@ -941,11 +936,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=101"></script>
+<script type="module" src="./js/main.js?v=102"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=101').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=102').catch(() => {});
     });
   }
 </script>

@@ -1,10 +1,10 @@
 // Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
-import { banco } from '../core/supabase.js?v=101';
-import { estado, nomeDe } from '../core/estado.js?v=101';
-import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=101';
-import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=101';
-import { tocarSom } from '../core/som.js?v=101';
-import { executar } from './apostas.js?v=101';
+import { banco } from '../core/supabase.js?v=102';
+import { estado, nomeDe } from '../core/estado.js?v=102';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=102';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=102';
+import { tocarSom } from '../core/som.js?v=102';
+import { executar } from './apostas.js?v=102';
 
 const JANELA_DIGITANDO_MS = 3400;
 
@@ -173,6 +173,79 @@ function limparPreviewChat() {
   if (wrap) wrap.innerHTML = '';
 }
 
+function limparFlutuantesPerfil() {
+  const camada = $id('camada-flutuantes');
+  if (camada) camada.innerHTML = '';
+}
+
+function encontrarAncoraPerfil(jogadorId, autorId, autorNome) {
+  const jogadores = estado.jogadoresAtuais || [];
+  let jogador = null;
+  if (jogadorId) {
+    jogador = jogadores.find((j) => j.id === jogadorId) || null;
+  }
+  if (!jogador && autorId) {
+    jogador = jogadores.find((j) => j.id === autorId || j.conta_id === autorId) || null;
+  }
+  if (!jogador && autorNome) {
+    const alvo = String(autorNome).trim().toLowerCase();
+    if (alvo) {
+      jogador = jogadores.find((j) => String(j.nome || '').trim().toLowerCase() === alvo) || null;
+    }
+  }
+  if (!jogador) return null;
+
+  const dock = $id('meu-perfil-dock');
+  if (dock && !dock.hidden && dock.dataset.jogadorId === jogador.id) {
+    return dock.querySelector('.l-avatar, .ficha') || dock;
+  }
+  const assento = document.querySelector('#lista-jogadores .lugar[data-jogador-id="' + jogador.id + '"]');
+  if (assento) {
+    return assento.querySelector('.l-avatar, .ficha') || assento;
+  }
+  return null;
+}
+
+function lancarFlutuantePerfil({ ancoraEl, textoHtml, classeExtra, ariaLabel, onClick, duracaoMs = 3200 }) {
+  const camada = $id('camada-flutuantes');
+  if (!camada || !ancoraEl) return false;
+
+  const rect = ancoraEl.getBoundingClientRect();
+  if (!rect || (rect.width === 0 && rect.height === 0)) return false;
+
+  const item = document.createElement(onClick ? 'button' : 'div');
+  if (onClick) item.type = 'button';
+  item.className = 'perfil-flutuante' + (classeExtra ? ' ' + classeExtra : '');
+  if (ariaLabel) item.setAttribute('aria-label', ariaLabel);
+  item.innerHTML = textoHtml;
+  if (onClick) item.addEventListener('click', onClick);
+
+  const margemX = classeExtra && classeExtra.includes('emoji') ? 28 : 96;
+  const cx = Math.max(margemX, Math.min(window.innerWidth - margemX, rect.left + rect.width / 2));
+  const cy = Math.max(44, rect.top + Math.min(12, rect.height * 0.25));
+  const dx = Math.round((Math.random() * 28) - 14);
+
+  item.style.left = cx + 'px';
+  item.style.top = cy + 'px';
+  item.style.setProperty('--dx', dx + 'px');
+  item.style.setProperty('--dur', duracaoMs + 'ms');
+
+  camada.appendChild(item);
+  while (camada.children.length > 18) {
+    camada.removeChild(camada.firstElementChild);
+  }
+
+  let removido = false;
+  const remover = () => {
+    if (removido) return;
+    removido = true;
+    if (item.isConnected) item.remove();
+  };
+  item.addEventListener('animationend', remover, { once: true });
+  setTimeout(remover, duracaoMs + 180);
+  return true;
+}
+
 function adicionarBannerPreview({ textoHtml, ariaLabel, classeExtra, onClick, duracaoMs = 3600 }) {
   const wrap = $id('chat-preview');
   if (!wrap) return;
@@ -202,6 +275,18 @@ function mostrarPreviewChat(msg) {
   if (!msg) return;
   const autor = escapar(nomeDe(msg.autor_nome || 'Jogador'));
   const texto = escapar(msg.texto || '');
+  const ancora = encontrarAncoraPerfil(null, msg.autor_id, msg.autor_nome);
+  if (ancora && lancarFlutuantePerfil({
+    ancoraEl: ancora,
+    classeExtra: 'msg',
+    textoHtml: '<span class="perfil-flutuante-autor">' + autor + ':</span> ' + texto,
+    ariaLabel: 'Abrir chat: ' + nomeDe(msg.autor_nome || 'Jogador') + ' disse ' + (msg.texto || ''),
+    onClick: () => abrirChat('chat'),
+    duracaoMs: 3600
+  })) {
+    return;
+  }
+
   adicionarBannerPreview({
     textoHtml: '<strong class="chat-preview-autor">' + autor + '</strong> <span class="chat-preview-txt">' + texto + '</span>',
     ariaLabel: 'Abrir chat: ' + nomeDe(msg.autor_nome || 'Jogador') + ' disse ' + (msg.texto || ''),
@@ -215,6 +300,17 @@ function mostrarPreviewReacao(payload) {
   const autor = escapar(nomeDe(payload.autor_nome || 'Jogador'));
   const texto = escapar(payload.texto);
   const ehEmoji = payload.texto.length <= 3;
+  const ancora = encontrarAncoraPerfil(payload.jogador_id, null, payload.autor_nome);
+  if (ancora && lancarFlutuantePerfil({
+    ancoraEl: ancora,
+    classeExtra: ehEmoji ? 'emoji' : 'frase',
+    textoHtml: texto,
+    ariaLabel: nomeDe(payload.autor_nome || 'Jogador') + ' reagiu: ' + payload.texto,
+    duracaoMs: ehEmoji ? 2600 : 3200
+  })) {
+    return;
+  }
+
   adicionarBannerPreview({
     classeExtra: 'reacao' + (ehEmoji ? ' emoji' : ''),
     textoHtml: (ehEmoji ? '<span class="chat-preview-emoji">' + texto + '</span>' : '') +
@@ -311,34 +407,44 @@ export function receberDigitando(payload) {
 
 export function escolherAbaChat(aba) {
   const online = modoOnlineAtivo();
-  const alvo = (online && aba === 'votacao') ? 'votacao' : 'chat';
+  const alvo = aba === 'log'
+    ? 'log'
+    : ((online && aba === 'votacao') ? 'votacao' : 'chat');
   chat.abaAtual = alvo;
   limparErro('erro-votacao');
 
   const abas = $id('chat-abas');
-  if (abas) abas.hidden = !online;
+  if (abas) abas.hidden = false;
 
   const btnChat = $id('aba-btn-chat');
   const btnVoto = $id('aba-btn-votacao');
+  const btnLog = $id('aba-btn-log');
   const pChat = $id('aba-chat');
   const pVoto = $id('aba-votacao');
+  const pLog = $id('aba-log');
 
   if (btnChat) {
     btnChat.classList.toggle('ativa', alvo === 'chat');
     btnChat.setAttribute('aria-selected', alvo === 'chat' ? 'true' : 'false');
   }
   if (btnVoto) {
+    btnVoto.hidden = !online;
     btnVoto.classList.toggle('ativa', alvo === 'votacao');
     btnVoto.setAttribute('aria-selected', alvo === 'votacao' ? 'true' : 'false');
   }
+  if (btnLog) {
+    btnLog.classList.toggle('ativa', alvo === 'log');
+    btnLog.setAttribute('aria-selected', alvo === 'log' ? 'true' : 'false');
+  }
   if (pChat) pChat.hidden = alvo !== 'chat';
   if (pVoto) pVoto.hidden = alvo !== 'votacao';
+  if (pLog) pLog.hidden = alvo !== 'log';
 
   if (alvo === 'chat') {
     chat.naoLidas = 0;
     atualizarBadge();
     requestAnimationFrame(rolarFim);
-  } else {
+  } else if (alvo === 'votacao') {
     desenharPainelVotacao();
   }
 }
@@ -474,18 +580,18 @@ export function atualizarVotacaoUI() {
     chat.votacaoVistaId = null;
   }
 
+  const abas = $id('chat-abas');
+  if (abas) abas.hidden = false;
+  const btnVoto = $id('aba-btn-votacao');
+  if (btnVoto) btnVoto.hidden = !modoOnlineAtivo();
+
   if (!modoOnlineAtivo()) {
-    const abas = $id('chat-abas');
-    if (abas) abas.hidden = true;
     const card = $id('votacao-ativa-card');
     if (card) { card.hidden = true; card.innerHTML = ''; }
-    const pChat = $id('aba-chat');
-    const pVoto = $id('aba-votacao');
-    if (pChat) pChat.hidden = false;
-    if (pVoto) pVoto.hidden = true;
+    if (chat.abaAtual === 'votacao') {
+      escolherAbaChat('chat');
+    }
   } else {
-    const abas = $id('chat-abas');
-    if (abas) abas.hidden = false;
     desenharCardVotacaoAtiva();
     if (chatAberto() && chat.abaAtual === 'votacao') {
       desenharPainelVotacao();
@@ -546,6 +652,7 @@ export function limparChatMesa() {
   atualizarBadge();
   atualizarDigitandoUI();
   limparPreviewChat();
+  limparFlutuantesPerfil();
   limparErro('erro-votacao');
   const pop = $id('popover-reacoes');
   if (pop) pop.hidden = true;
@@ -617,9 +724,11 @@ export function abrirChat(abaInicial) {
   limparPreviewChat();
   limparErro('erro-votacao');
   const online = modoOnlineAtivo();
-  const alvoAba = (online && (abaInicial === 'votacao' || (!abaInicial && votacaoAguardandoMeuVoto())))
-    ? 'votacao'
-    : 'chat';
+  const alvoAba = abaInicial === 'log'
+    ? 'log'
+    : ((online && (abaInicial === 'votacao' || (!abaInicial && votacaoAguardandoMeuVoto())))
+        ? 'votacao'
+        : 'chat');
 
   abrirFolha('folha-chat');
   escolherAbaChat(alvoAba);
@@ -694,13 +803,38 @@ export function enviarAtalhoChat(texto) {
 }
 
 // ----- Reações rápidas sobre os avatares -----
-export function alternarReacoes(forcarFechar) {
+export function alternarReacoes(forcarFechar, ancoraEl) {
   const pop = $id('popover-reacoes');
   if (!pop) return;
   const fechar = forcarFechar === true || !pop.hidden;
   pop.hidden = fechar;
-  const btn = $id('btn-reacoes');
-  if (btn) btn.setAttribute('aria-expanded', fechar ? 'false' : 'true');
+  document.querySelectorAll('.meu-avatar-reacoes').forEach((el) => {
+    el.setAttribute('aria-expanded', fechar ? 'false' : 'true');
+  });
+  if (fechar) return;
+
+  const alvo = (ancoraEl && ancoraEl.getBoundingClientRect)
+    ? ancoraEl
+    : (document.querySelector('#meu-perfil-dock:not([hidden]) .meu-avatar-reacoes')
+      || document.querySelector('#lista-jogadores .lugar.eu .meu-avatar-reacoes'));
+
+  if (alvo) {
+    const rect = alvo.getBoundingClientRect();
+    const popW = pop.offsetWidth || 286;
+    const popH = pop.offsetHeight || 110;
+    let top = rect.top - popH - 10;
+    if (top < 10) top = Math.min(window.innerHeight - popH - 10, rect.bottom + 10);
+    const left = Math.max(10, Math.min(window.innerWidth - popW - 10, rect.left));
+    pop.style.top = Math.round(top) + 'px';
+    pop.style.left = Math.round(left) + 'px';
+    pop.style.right = 'auto';
+    pop.style.bottom = 'auto';
+  } else {
+    pop.style.top = '';
+    pop.style.left = '';
+    pop.style.right = '';
+    pop.style.bottom = '';
+  }
 }
 
 export function receberReacao(payload) {
