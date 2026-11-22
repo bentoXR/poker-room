@@ -138,9 +138,6 @@
           <span class="perfil-sub" data-i18n="salas.perfil_sub">Meu perfil · tema, cartas e senha</span>
         </span>
       </button>
-      <div class="conta-acoes">
-        <button class="sair-conta" onclick="sairDaConta()" data-i18n="app.sair">Sair</button>
-      </div>
     </div>
 
     <button type="button" id="btn-jogar-agora" class="cta-jogar-agora" onclick="abrirJogarAgora()">
@@ -860,6 +857,7 @@
       </div>
       <button type="button" id="btn-alterar-senha" class="secundario" onclick="alterarSenhaPerfil()" data-i18n="perfil.alterar_senha">Alterar senha</button>
       <button type="button" id="btn-encerrar-sessoes" class="contorno-perigo" onclick="encerrarOutrasSessoes()" data-i18n="perfil.sair_outros">Sair de outros aparelhos</button>
+      <button type="button" class="contorno-perigo" onclick="fecharPerfil(); sairDaConta()" data-i18n="app.sair" style="margin-top:8px">Sair</button>
       <div id="erro-senha-perfil" class="erro" role="alert"></div>
     </div>
   </div>
