@@ -1,60 +1,60 @@
 /* =====================================================================
    TEMA 6: BRANCO  (data-tema="branco")
-   Claro, limpo e minimalista com alto contraste.
+   Claro, limpo e minimalista com alto contraste em toda a interface.
    ===================================================================== */
 
 :root[data-tema="branco"] {
-  --feltro-950: #e5e7eb;
-  --feltro-900: #f4f6fa;
+  --feltro-950: #e2e8f0;
+  --feltro-900: #f1f5f9;
   --feltro-800: #ffffff;
-  --feltro-700: #eef2f7;
-  --feltro-600: #d1d5db;
+  --feltro-700: #e2e8f0;
+  --feltro-600: #cbd5e1;
   --linha: rgba(15, 23, 42, 0.14);
 
   --marfim: #0f172a;
   --estrela: #0f172a;
-  --marfim-suave: rgba(15, 23, 42, 0.7);
+  --marfim-suave: rgba(15, 23, 42, 0.68);
   --texto-escuro: #ffffff;
 
-  --ouro: #111827;
-  --ouro-escuro: #030712;
-  --ouro-suave: rgba(17, 24, 39, 0.16);
-  --ouro-borda: rgba(17, 24, 39, 0.38);
+  --ouro: #dc2626;
+  --ouro-escuro: #991b1b;
+  --ouro-suave: rgba(220, 38, 38, 0.16);
+  --ouro-borda: rgba(220, 38, 38, 0.45);
 
   --vermelho: #dc2626;
-  --verde: #15803d;
-  --verde-escuro: #14532d;
-  --verde-suave: rgba(21, 128, 61, 0.16);
-  --verde-borda: rgba(21, 128, 61, 0.45);
+  --verde: #16a34a;
+  --verde-escuro: #15803d;
+  --verde-suave: rgba(22, 163, 74, 0.14);
+  --verde-borda: rgba(22, 163, 74, 0.45);
   --verde-texto: #14532d;
 
   --acento: #2563eb;
-  --acento-suave: rgba(37, 99, 235, 0.14);
-  --luz-cor: #111827;
-  --luz-sombra: rgba(17, 24, 39, 0.25);
+  --acento-suave: rgba(37, 99, 235, 0.12);
+  --luz-cor: #0f172a;
+  --luz-sombra: rgba(15, 23, 42, 0.22);
 
-  --bg-topo: rgba(255, 255, 255, 0.88);
+  --bg-topo: rgba(255, 255, 255, 0.92);
   --faixa-topo: linear-gradient(90deg, #e2e8f0 0%, #94a3b8 50%, #e2e8f0 100%);
 
   --feltro-mesa: #1d6b42;
   --feltro-mesa-borda: #144d2f;
   --feltro-trilha: rgba(255, 255, 255, 0.45);
-  --borda-mesa: #d1d5db;
-  --borda-interna: #9ca3af;
-  --borda-aro: rgba(15, 23, 42, 0.22);
+  --borda-mesa: #cbd5e1;
+  --borda-interna: #94a3b8;
+  --borda-aro: rgba(15, 23, 42, 0.2);
 
   --pote-bg: #ffffff;
   --pote-bg-2: #f1f5f9;
   --assento-bg: #ffffff;
-  --assento-bg-2: #f1f5f9;
+  --assento-bg-2: #f8fafc;
   --assento-eu-bg: #f8fafc;
   --assento-eu-bg-2: #e2e8f0;
-  --vez-bg: #111827;
-  --vez-bg-2: #1f2937;
+  --vez-bg: #0f172a;
+  --vez-bg-2: #1e293b;
   --vez-tag-bg: #0f172a;
 
   --dock-bg: #ffffff;
-  --dock-bg-2: #f1f5f9;
+  --dock-bg-2: #f8fafc;
   --faixa-bg: #ffffff;
   --faixa-bg-2: #f1f5f9;
   --faixa-borda: rgba(15, 23, 42, 0.16);
@@ -75,18 +75,128 @@
 :root[data-tema="branco"] body:not(.na-mesa),
 :root[data-tema="branco"] body.na-mesa,
 :root[data-tema="branco"] body.na-mesa.modo-online {
-  background-color: #f4f6fa;
-  background-image: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+  background-color: #f1f5f9;
+  background-image: linear-gradient(180deg, #ffffff 0%, #e8edf5 100%);
   color: #0f172a;
 }
 
+/* Textos gerais, cabeçalho e cards */
 :root[data-tema="branco"] .cabecalho-conta .ola strong,
 :root[data-tema="branco"] .sala-nome,
 :root[data-tema="branco"] .folha-titulo,
+:root[data-tema="branco"] .barra-titulo,
 :root[data-tema="branco"] h1,
 :root[data-tema="branco"] h2,
 :root[data-tema="branco"] h3 {
   color: #0f172a;
+}
+
+/* Pílulas do topo da mesa e barra de status */
+:root[data-tema="branco"] .mesa-topo,
+:root[data-tema="branco"] .mesa-topo button {
+  color: #0f172a;
+}
+:root[data-tema="branco"] .mesa-meta .tag,
+:root[data-tema="branco"] .mesa-ultima,
+:root[data-tema="branco"] .meta-chip {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+/* Assentos e dock inferior (quando não é a vez) */
+:root[data-tema="branco"] .lugar:not(.vez),
+:root[data-tema="branco"] .lugar:not(.vez) .l-nome,
+:root[data-tema="branco"] .lugar:not(.vez) .l-nome .texto,
+:root[data-tema="branco"] .lugar:not(.vez) .l-saldo,
+:root[data-tema="branco"] .meu-perfil-dock:not(.vez),
+:root[data-tema="branco"] .meu-perfil-dock:not(.vez) .mp-nome,
+:root[data-tema="branco"] .meu-perfil-dock:not(.vez) .mp-saldo {
+  color: #0f172a;
+}
+:root[data-tema="branco"] .lugar.vez,
+:root[data-tema="branco"] .lugar.vez .l-nome,
+:root[data-tema="branco"] .lugar.vez .l-nome .texto,
+:root[data-tema="branco"] .lugar.vez .l-saldo,
+:root[data-tema="branco"] .meu-perfil-dock.vez,
+:root[data-tema="branco"] .meu-perfil-dock.vez .mp-nome,
+:root[data-tema="branco"] .meu-perfil-dock.vez .mp-saldo {
+  color: #ffffff;
+}
+
+/* Badges SB / BB / Dealer */
+:root[data-tema="branco"] .lugar:not(.vez) .tag.sb,
+:root[data-tema="branco"] .meu-perfil-dock:not(.vez) .tag.sb {
+  background: rgba(37, 99, 235, 0.14);
+  color: #1d4ed8;
+}
+:root[data-tema="branco"] .lugar:not(.vez) .tag.bb,
+:root[data-tema="branco"] .meu-perfil-dock:not(.vez) .tag.bb {
+  background: rgba(217, 119, 6, 0.16);
+  color: #b45309;
+}
+:root[data-tema="branco"] .lugar:not(.vez) .tag.d,
+:root[data-tema="branco"] .meu-perfil-dock:not(.vez) .tag.d {
+  background: #e2e8f0;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+/* Pote no centro da mesa */
+:root[data-tema="branco"] .pote-ficha {
+  border-color: rgba(15, 23, 42, 0.25);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.22);
+}
+:root[data-tema="branco"] .pote-rotulo {
+  color: #475569;
+}
+:root[data-tema="branco"] .pote-valor {
+  color: #0f172a;
+}
+
+/* Textos sobre o feltro verde (PRE-FLOP, FLOP/TURN/RIVER, Top bet) */
+:root[data-tema="branco"] .mesa-feltro .tag,
+:root[data-tema="branco"] .mesa-feltro .pote-aposta,
+:root[data-tema="branco"] .mesa-feltro .board-vazio,
+:root[data-tema="branco"] .mesa-feltro .board-rotulo {
+  color: rgba(255, 255, 255, 0.92);
+}
+:root[data-tema="branco"] .mesa-feltro .tag {
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* Dica de mão (assistente) */
+:root[data-tema="branco"] .minha-mao-dica {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1px solid rgba(21, 128, 61, 0.3);
+}
+
+/* Botões, pré-ações, inputs e listas */
+:root[data-tema="branco"] .barra-acoes {
+  border-top: 1px solid rgba(15, 23, 42, 0.14);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+}
+:root[data-tema="branco"] .barra-pre-acao button.pre-btn {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1.5px solid rgba(15, 23, 42, 0.18);
+}
+:root[data-tema="branco"] .barra-pre-acao button.pre-btn.perigo.sel {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+:root[data-tema="branco"] .barra-pre-acao button.pre-btn.positivo.sel {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+}
+:root[data-tema="branco"] .barra-acoes .grade-simples button#btn-check,
+:root[data-tema="branco"] .barra-acoes .grade-simples button#btn-pagar {
+  background: #0f172a;
+  color: #ffffff;
 }
 
 :root[data-tema="branco"] button.secundario,
@@ -98,36 +208,30 @@
   color: #0f172a;
   border-color: rgba(15, 23, 42, 0.16);
 }
-
 :root[data-tema="branco"] button.secundario:hover {
   background: #e2e8f0;
 }
-
 :root[data-tema="branco"] .op-chip.sel,
 :root[data-tema="branco"] button.stack.sel,
 :root[data-tema="branco"] button.modo-btn.sel,
 :root[data-tema="branco"] .tema-btn.sel {
-  background: #111827;
+  background: #0f172a;
   color: #ffffff;
-  border-color: #111827;
+  border-color: #0f172a;
 }
-
 :root[data-tema="branco"] input {
   background: #f8fafc;
   color: #0f172a;
   border-color: rgba(15, 23, 42, 0.2);
 }
-
-:root[data-tema="branco"] .sala {
+:root[data-tema="branco"] .sala,
+:root[data-tema="branco"] .folha {
   background: #ffffff;
   color: #0f172a;
   border-color: rgba(15, 23, 42, 0.14);
-  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 10px 28px -8px rgba(15, 23, 42, 0.14);
 }
-
-:root[data-tema="branco"] .lugar:not(.vez) {
-  color: #0f172a;
-}
-:root[data-tema="branco"] .lugar.vez {
-  color: #ffffff;
+:root[data-tema="branco"] .linha-dev,
+:root[data-tema="branco"] .hist-linha {
+  border-color: rgba(15, 23, 42, 0.1);
 }

@@ -1,9 +1,9 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=95';
-import { estado, marcarReal } from '../core/estado.js?v=95';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=95';
-import { t, termo } from '../core/i18n.js?v=95';
+import { banco } from '../core/supabase.js?v=96';
+import { estado, marcarReal } from '../core/estado.js?v=96';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=96';
+import { t, termo } from '../core/i18n.js?v=96';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
