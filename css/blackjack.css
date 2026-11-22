@@ -1,77 +1,149 @@
-/* Estilos específicos do modo Blackjack (reaproveitando mesa oval, cartas e temas do app) */
+/* Estilos do modo Blackjack: reaproveita mesa oval, cartas SVG, animações e temas */
 
 .modo-blackjack #pote-ficha,
 .modo-blackjack #mesa-potes,
 .modo-blackjack #mesa-aposta,
 .modo-blackjack #mesa-nivel,
+.modo-blackjack #mesa-fase,
 .modo-blackjack #btn-guia,
 .modo-blackjack #btn-criador {
   display: none !important;
 }
 
 .modo-blackjack .centro-roda {
-  gap: 6px;
+  gap: 8px;
+  width: min(92%, 440px);
+}
+
+.bj-board {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .bj-dealer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(6px);
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1.5px solid rgba(251, 191, 36, 0.28);
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .bj-dealer-topo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
 }
 
 .bj-dealer-titulo {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.14em;
+  color: #fde68a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .bj-dealer-cartas {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  min-height: 78px;
+  perspective: 800px;
 }
 
 .bj-dealer-vazio {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.72);
-  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.bj-dealer-vazio small {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Tamanhos reais das cartas + animação 3D cartaEntrar apenas em cartas novas */
+.bj-carta-slot {
+  position: relative;
+  perspective: 760px;
+  flex-shrink: 0;
+}
+
+.bj-dealer-cartas .bj-carta-slot {
+  width: 56px;
+}
+
+.bj-dealer-cartas .bj-carta-slot + .bj-carta-slot {
+  margin-left: -10px;
+}
+
+.bj-mao-cartas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 800px;
+}
+
+.bj-mao-cartas .bj-carta-slot {
+  width: 64px;
+}
+
+.bj-mao-cartas .bj-carta-slot + .bj-carta-slot {
+  margin-left: -14px;
+}
+
+.bj-carta-slot .carta {
+  width: 100%;
+  height: auto;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: cartaEntrar 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--atraso, 0ms);
+}
+
+.bj-carta-slot.ja .carta {
+  animation: none;
+  will-change: auto;
 }
 
 .bj-score {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
-  font-size: 12px;
+  font-family: var(--fonte-numero);
+  font-size: 13px;
   font-weight: 800;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.82);
   color: #f8fafc;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .bj-score.blackjack {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #fbbf24, #d97706);
   color: #111827;
-  border-color: #fde68a;
+  border-color: #fef3c7;
 }
 
 .bj-score.estourou {
-  background: rgba(220, 38, 38, 0.88);
+  background: rgba(220, 38, 38, 0.9);
+  border-color: rgba(254, 202, 202, 0.5);
   color: #fff;
 }
 
@@ -87,27 +159,36 @@
   max-width: 240px;
 }
 
+.bj-mao-hero.split .bj-mao-cartas .bj-carta-slot {
+  width: 52px;
+}
+
 .bj-mao-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.36);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bj-mao-card.ativa {
   border-color: #fbbf24;
-  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.28);
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.32), 0 8px 20px rgba(0, 0, 0, 0.45);
 }
 
-.bj-mao-cartas {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
+.bj-mao-card.ganhou,
+.bj-mao-card.blackjack {
+  border-color: rgba(34, 197, 94, 0.78);
+}
+
+.bj-mao-card.perdeu {
+  border-color: rgba(239, 68, 68, 0.65);
 }
 
 .bj-mao-meta {
@@ -119,31 +200,31 @@
 }
 
 .bj-aposta-tag {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #fde68a;
 }
 
 .bj-res {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
 }
 
 .bj-res.ganhou,
 .bj-res.blackjack {
-  background: rgba(22, 163, 74, 0.9);
+  background: rgba(22, 163, 74, 0.92);
   color: #fff;
 }
 
 .bj-res.empate {
-  background: rgba(100, 116, 139, 0.85);
+  background: rgba(100, 116, 139, 0.88);
   color: #fff;
 }
 
 .bj-res.perdeu {
-  background: rgba(220, 38, 38, 0.82);
+  background: rgba(220, 38, 38, 0.86);
   color: #fff;
 }
 
@@ -161,10 +242,15 @@
 }
 
 .bj-fichas button {
-  padding: 8px 10px;
+  padding: 7px 10px;
   font-size: 13px;
   min-height: 36px;
   flex: 1 1 auto;
+  border-radius: 10px;
+}
+
+.bj-fichas button.bj-chip {
+  border: 1.5px dashed rgba(251, 191, 36, 0.55);
 }
 
 .bj-acoes-grid {
@@ -173,18 +259,37 @@
   gap: 8px;
 }
 
+.bj-acoes-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 48px;
+  padding: 6px 8px;
+  font-size: 14.5px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.bj-acoes-grid button small {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.82;
+}
+
 .bj-btn-cheio {
   width: 100%;
-  min-height: 44px;
-  font-size: 15px;
+  min-height: 46px;
+  font-size: 15.5px;
   font-weight: 800;
 }
 
 .bj-espera,
 .bj-aviso-fora {
   text-align: center;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.86);
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.9);
   padding: 6px 8px;
 }
 
@@ -215,7 +320,7 @@
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.72);
+  background: rgba(15, 23, 42, 0.78);
   color: #e2e8f0;
   margin-top: 2px;
 }
@@ -223,12 +328,12 @@
 .bj-assento-st.ok,
 .bj-assento-st.ganhou,
 .bj-assento-st.blackjack {
-  background: rgba(22, 163, 74, 0.85);
+  background: rgba(22, 163, 74, 0.88);
   color: #fff;
 }
 
 .bj-assento-st.perdeu {
-  background: rgba(220, 38, 38, 0.8);
+  background: rgba(220, 38, 38, 0.85);
   color: #fff;
 }
 
@@ -238,8 +343,45 @@
   border: 1px solid rgba(245, 158, 11, 0.45);
 }
 
+@media (min-width: 820px) {
+  .bj-dealer-cartas .bj-carta-slot {
+    width: 68px;
+  }
+  .bj-mao-cartas .bj-carta-slot {
+    width: 74px;
+  }
+  .bj-mao-hero.split .bj-mao-cartas .bj-carta-slot {
+    width: 64px;
+  }
+}
+
 @media (max-width: 520px) {
   .bj-acoes-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bj-dealer {
+    padding: 9px 12px;
+  }
+  .bj-dealer-cartas .bj-carta-slot {
+    width: 48px;
+  }
+  .bj-mao-cartas .bj-carta-slot {
+    width: 56px;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .bj-dealer {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+  .bj-dealer-cartas {
+    min-height: 56px;
+  }
+  .bj-dealer-cartas .bj-carta-slot {
+    width: 44px;
+  }
+  .bj-mao-cartas .bj-carta-slot {
+    width: 48px;
   }
 }

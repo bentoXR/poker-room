@@ -1,17 +1,17 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=86';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=86';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=86';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=86';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=86';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=86';
-import { obterModo, limparTodosModos } from './modos.js?v=86';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=86';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=86';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=86';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=86';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=86';
+import { banco } from '../core/supabase.js?v=87';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=87';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=87';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=87';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=87';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=87';
+import { obterModo, limparTodosModos } from './modos.js?v=87';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=87';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=87';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=87';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=87';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=87';
 
 const NOMES_FASE = ['Pré-flop', 'Flop', 'Turn', 'River', 'Showdown'];
 
@@ -50,6 +50,16 @@ export function limparDomMesa() {
   });
   const elPote = $id('mesa-pote');
   if (elPote) { elPote.textContent = '0'; elPote.dataset.len = '1'; }
+  const board = $id('board');
+  if (board) {
+    board.className = 'board';
+    board.innerHTML = '<div class="slots"><i></i><i></i><i></i><i></i><i></i></div>'
+      + '<div class="rotulos"><span class="r-flop" data-f="1">FLOP</span><span data-f="2">TURN</span><span data-f="3">RIVER</span></div>';
+  }
+  ['anuncio-mesa', 'anuncio-vez'].forEach((id) => {
+    const el = $id(id);
+    if (el) { el.classList.remove('mostra'); el.innerHTML = ''; }
+  });
   document.body.classList.remove('modo-online', 'modo-blackjack');
   const barraAc = $id('barra-acoes');
   if (barraAc) barraAc.classList.remove('modo-online', 'modo-blackjack');
@@ -239,11 +249,11 @@ export function desenharMesa(dados) {
   const ehModoOnline = estado.modoAtual === 'online';
   const ehModoBlackjack = estado.modoAtual === 'blackjack';
   const ehModoCard = ehModoOnline || ehModoBlackjack;
-  document.body.classList.toggle('modo-online', ehModoOnline);
+  document.body.classList.toggle('modo-online', ehModoCard);
   document.body.classList.toggle('modo-blackjack', ehModoBlackjack);
-  $id('tela-mesa').classList.toggle('modo-online', ehModoOnline);
+  $id('tela-mesa').classList.toggle('modo-online', ehModoCard);
   $id('tela-mesa').classList.toggle('modo-blackjack', ehModoBlackjack);
-  $id('barra-acoes').classList.toggle('modo-online', ehModoOnline);
+  $id('barra-acoes').classList.toggle('modo-online', ehModoCard);
   $id('barra-acoes').classList.toggle('modo-blackjack', ehModoBlackjack);
   if (Number(partida.valor_real_mil) > 0) marcarReal(partida.id, Number(partida.valor_real_mil));
   estado.jogadoresAtuais = jogadores;
@@ -277,7 +287,10 @@ export function desenharMesa(dados) {
   const poteVis = (congelado && congelado.pote !== null && congelado.pote !== undefined) ? congelado.pote : partida.pote;
 
   const jogadorDaVez = jogadores.find((j) => j.id === partida.vez_jogador_id) || null;
-  const emJogo = partida.iniciada && !partida.aguardando_cartas && !partida.aguardando_proxima_mao && partida.fase < 4;
+  const bjEstado = ehModoBlackjack ? (partida.blackjack_estado || {}) : null;
+  const emJogo = ehModoBlackjack
+    ? (bjEstado.fase === 'jogando')
+    : (partida.iniciada && !partida.aguardando_cartas && !partida.aguardando_proxima_mao && partida.fase < 4);
   const vezAtivaId = emJogo ? partida.vez_jogador_id : null;
   const minhaVez = !!eu && emJogo && partida.vez_jogador_id === eu.id;
   const falta = eu ? Math.max(0, partida.aposta_atual - eu.apostou) : 0;
@@ -285,7 +298,7 @@ export function desenharMesa(dados) {
   if (minhaVez && !estado.eraMinhaVez && navigator.vibrate) {
     try { navigator.vibrate([150, 80, 150]); } catch (erro) {}
   }
-  if (minhaVez && !estado.eraMinhaVez && !ehModoOnline) {
+  if (minhaVez && !estado.eraMinhaVez && !ehModoCard) {
     tocarSom('sua-vez');
   }
   if (minhaVez && !estado.eraMinhaVez) { estado.apostaEditada = false; estado.apostaAberta = false; }
@@ -295,7 +308,12 @@ export function desenharMesa(dados) {
   const primeiroHist = (dados.historico && dados.historico[0])
     ? (dados.historico[0].mao + ':' + dados.historico[0].texto)
     : null;
-  if (somMesa.partidaId !== partida.id) {
+  if (ehModoBlackjack) {
+    somMesa.partidaId = partida.id;
+    somMesa.iniciada = !!partida.iniciada;
+    somMesa.mao = partida.mao;
+    somMesa.ultimoHist = primeiroHist;
+  } else if (somMesa.partidaId !== partida.id) {
     somMesa.partidaId = partida.id;
     somMesa.iniciada = !!partida.iniciada;
     somMesa.mao = partida.mao;
@@ -332,7 +350,7 @@ export function desenharMesa(dados) {
   }
   estado.ultimoPote = poteVis;
 
-  if (estado.maoVista !== null && partida.mao > estado.maoVista && !ehModoOnline) {
+  if (estado.maoVista !== null && partida.mao > estado.maoVista && !ehModoCard) {
     aviso('Mão ' + (partida.mao - 1) + ' terminou. Veja o histórico.');
   }
   estado.maoVista = partida.mao;
@@ -384,9 +402,9 @@ export function desenharMesa(dados) {
   elStatus.textContent = status;
   elStatus.classList.toggle('minha-vez', minhaVez);
 
-  // ----- Board (delegado ao modo: presencial = slots, online = cartas viradas) -----
+  // ----- Board (delegado ao modo: presencial = slots, online = cartas viradas, blackjack = banca) -----
   const faseVis = (modo && modo.faseExibida) ? modo.faseExibida(partida) : partida.fase;
-  $id('mesa-fase').textContent = partida.iniciada ? NOMES_FASE[faseVis] : '';
+  $id('mesa-fase').textContent = ehModoBlackjack ? '' : (partida.iniciada ? NOMES_FASE[faseVis] : '');
   if (modo && modo.desenharBoard) modo.desenharBoard(partida, jogadores);
 
   // ----- Assentos em elipse 360° -----
@@ -773,7 +791,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const maxVwAssento = (ehMobile && souEu) ? '30vw' : maxVw;
     const estiloLugar = '--x:' + x.toFixed(2) + '%;--y:' + y.toFixed(2) + '%;--w:min(' + largura + 'px,' + maxVwAssento + ');--escala-lugar:' + escalaLugar + ';';
     const cartasHtml = (modo && modo.htmlCartasAssento) ? modo.htmlCartasAssento(j, partida) : '';
-    const coroaHtml = (!ehOnline && j.criador) ? ICONE_COROA : '';
+    const coroaHtml = (!ehCardDock && j.criador) ? ICONE_COROA : '';
     const posBorda = classePosicaoBorda(j, partida);
     const avatarUrl = obterAvatarUrl(j.conta_id);
     const badgePerfilHtml = avatarUrl
@@ -791,7 +809,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
           ${tags ? '<div class="l-tags">' + tags + '</div>' : ''}
         </div>
         ${cartasHtml}
-        ${(naVez && ehOnline && Number(partida.tempo_turno) > 0) ? '<div class="l-timer"><i></i></div>' : ''}
+        ${(naVez && ehCardDock && Number(partida.tempo_turno) > 0) ? '<div class="l-timer"><i></i></div>' : ''}
       </div>
     `;
   }).join('');
@@ -805,17 +823,17 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   }
 }
 
-// ----- Menu compacto e resumo do topo (Mobile Online) -----
+// ----- Menu compacto e resumo do topo (Mobile Online / Blackjack) -----
 function atualizarResumoTopoOnline() {
   const el = $id('topo-resumo-online');
   const p = estado.partidaAtual;
-  if (!el || !p || p.modo !== 'online') return;
+  if (!el || !p || (p.modo !== 'online' && p.modo !== 'blackjack')) return;
   const partes = [];
   if (p.iniciada) {
     const maoVis = p.aguardando_proxima_mao ? Math.max(1, p.mao - 1) : p.mao;
-    partes.push('Mão ' + maoVis);
+    partes.push((p.modo === 'blackjack' ? 'Rodada ' : 'Mão ') + maoVis);
   }
-  partes.push(p.small_blind + '/' + p.big_blind);
+  partes.push(p.modo === 'blackjack' ? ('Mín. ' + p.small_blind) : (p.small_blind + '/' + p.big_blind));
   if (estado.relogio.ini) {
     const agora = Date.now() + estado.relogio.offset;
     partes.push(formatarTempo(agora - estado.relogio.ini));
@@ -870,14 +888,15 @@ function copiarFallback(texto, msgOk) {
 function preencherMenuOnline() {
   const p = estado.partidaAtual;
   if (!p) return;
+  const ehBj = p.modo === 'blackjack';
   const jogadores = estado.jogadoresAtuais || [];
   const eu = jogadores.find((j) => j.id === estado.meuJogadorId) || null;
   $id('menu-online-titulo').textContent = nomeDe(p.nome || ('Sala ' + p.codigo));
   const info = [];
   if (estado.modoDev) info.push('Modo DEV · ' + (eu ? nomeDe(eu.nome) : 'assistindo'));
   else if (eu) info.push('Jogador ' + eu.ordem);
-  if (p.iniciada) info.push('Mão ' + p.mao);
-  info.push('Nível ' + p.nivel + ' · Blinds ' + p.small_blind + '/' + p.big_blind);
+  if (p.iniciada) info.push((ehBj ? 'Rodada ' : 'Mão ') + p.mao);
+  info.push(ehBj ? ('Aposta mín. ' + p.small_blind) : ('Nível ' + p.nivel + ' · Blinds ' + p.small_blind + '/' + p.big_blind));
   if (p.pausada) info.push('⏸ PAUSADA');
   $id('menu-online-info').textContent = info.join(' · ');
 
@@ -900,10 +919,19 @@ function preencherMenuOnline() {
     }
   }
 
+  const btnGuiaMenu = document.querySelector('#folha-menu .menu-tile[onclick*="abrirGuia"]');
+  if (btnGuiaMenu) btnGuiaMenu.hidden = ehBj;
+
   $id('menu-btn-dev').hidden = !estado.modoDev;
   const btnSair = $id('menu-btn-sair');
   btnSair.hidden = !eu || estado.modoDev;
-  const emMaoAtiva = p.iniciada && !p.aguardando_proxima_mao && eu && !eu.desistiu && eu.saldo > 0;
+  let emMaoAtiva = p.iniciada && !p.aguardando_proxima_mao && eu && !eu.desistiu && eu.saldo > 0;
+  if (ehBj) {
+    const bj = p.blackjack_estado || {};
+    const ent = (eu && bj.maos && bj.maos[eu.id]) || null;
+    emMaoAtiva = bj.fase === 'jogando' && !!ent && Array.isArray(ent.lista)
+      && ent.lista.some((m) => m.status === 'jogando' || m.status === 'parou' || m.status === 'dobrou');
+  }
   btnSair.disabled = !!emMaoAtiva;
 }
 
@@ -940,6 +968,7 @@ export function tick() {
     return;
   }
   if (estado.partidaAtual && estado.partidaAtual.modo === 'blackjack') {
+    atualizarResumoTopoOnline();
     if (hookTickBlackjack) hookTickBlackjack();
     return;
   }
