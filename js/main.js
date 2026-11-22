@@ -24,7 +24,8 @@ import {
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
-  escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev
+  escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev,
+  escolherBotsDev, escolherNivelBotsDev
 } from './lobby/config-sala.js?v=89';
 
 import {
@@ -172,6 +173,7 @@ Object.assign(window, {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev,
+  escolherBotsDev, escolherNivelBotsDev,
   esquecerPartida, iniciarApp,
 
   // Mesa compartilhada e apostas

@@ -8,7 +8,18 @@ import { registrarRealCriacao, obterConfigOnline } from '../../lobby/config-sala
 import { executar } from '../../mesa/apostas.js?v=89';
 
 const NOMES_DEV = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Fábio', 'Gabi', 'Hugo', 'Iris'];
+const NIVEIS_BOT = ['facil', 'medio', 'dificil'];
+const ROTULO_NIVEL_BOT = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil' };
 const MAX_DEV = 9;
+
+function sortearNivelBot(nivelCfg) {
+  if (nivelCfg === 'facil' || nivelCfg === 'medio' || nivelCfg === 'dificil') return nivelCfg;
+  return NIVEIS_BOT[Math.floor(Math.random() * NIVEIS_BOT.length)];
+}
+
+function rotuloNivelBot(nivel) {
+  return ROTULO_NIVEL_BOT[nivel] || 'Médio';
+}
 const apagandoDevIds = new Set();
 let geracaoDev = 0;
 let criandoDev = false;
@@ -47,7 +58,9 @@ function jogadorDevDe(resp) {
     segredo: resp.segredo,
     conta_id: resp.conta_id,
     token: resp.token,
-    nome: resp.nome
+    nome: resp.nome,
+    eh_bot: !!resp.eh_bot,
+    bot_nivel: resp.bot_nivel || null
   };
 }
 
@@ -124,6 +137,11 @@ export async function criarSalaDev() {
     }
     if (cancelado()) return;
 
+    const comBots = cfg.modo === 'online' && !!cfg.usarBots;
+    const nomeCriador = comBots && estado.minhaConta && estado.minhaConta.nome
+      ? estado.minhaConta.nome
+      : NOMES_DEV[0];
+
     let resp;
     try {
       resp = ehBj
@@ -135,7 +153,7 @@ export async function criarSalaDev() {
           }))
         : (cfg.modo === 'online'
           ? await banco.rpc('dev_criar_sala_online', Object.assign({}, contaParams(), {
-              p_nome: NOMES_DEV[0],
+              p_nome: nomeCriador,
               p_saldo: saldo,
               p_small: small,
               p_big: big,
@@ -156,7 +174,13 @@ export async function criarSalaDev() {
       return;
     }
 
-    const sala = { partida_id: resp.data.partida_id, modo: cfg.modo, jogadores: [jogadorDevDe(resp.data)] };
+    const sala = {
+      partida_id: resp.data.partida_id,
+      modo: cfg.modo,
+      usarBots: comBots,
+      nivelBots: comBots ? cfg.nivelBots : null,
+      jogadores: [jogadorDevDe(resp.data)]
+    };
     if (cancelado()) {
       await apagarSalaDev(sala);
       return;
@@ -174,13 +198,19 @@ export async function criarSalaDev() {
         await apagarSalaDev(sala);
         return;
       }
-      botao.textContent = 'Adicionando jogador ' + (i + 1) + ' de ' + qtd + '...';
+      botao.textContent = (comBots ? 'Adicionando bot ' : 'Adicionando jogador ') + (i + 1) + ' de ' + qtd + '...';
       let r;
       try {
-        r = await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
-          p_partida: sala.partida_id,
-          p_nome: NOMES_DEV[i]
-        }));
+        r = comBots
+          ? await banco.rpc('dev_adicionar_bot', Object.assign({}, contaParams(), {
+              p_partida: sala.partida_id,
+              p_nome: NOMES_DEV[i],
+              p_nivel: sortearNivelBot(cfg.nivelBots)
+            }))
+          : await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
+              p_partida: sala.partida_id,
+              p_nome: NOMES_DEV[i]
+            }));
       } catch (erro) {
         r = { error: { message: 'Não consegui falar com o servidor.' } };
       }
@@ -248,16 +278,24 @@ export function autoSeguirVezDev() {
 export function proximoJogadorDev() {
   const sala = lerDevSala();
   if (!sala || sala.jogadores.length < 2) return;
+  const manuais = sala.jogadores.filter((j) => !j.eh_bot);
+  if (manuais.length < 2) return;
   const p = estado.partidaAtual;
   if (p && p.vez_jogador_id && p.vez_jogador_id !== estado.meuJogadorId) {
-    const idxVez = sala.jogadores.findIndex((j) => j.id === p.vez_jogador_id);
+    const idxVez = sala.jogadores.findIndex((j) => j.id === p.vez_jogador_id && !j.eh_bot);
     if (idxVez >= 0) {
       trocarJogadorDev(idxVez);
       return;
     }
   }
-  const i = sala.jogadores.findIndex((j) => j.id === estado.meuJogadorId);
-  trocarJogadorDev((i + 1) % sala.jogadores.length);
+  const atualIdx = sala.jogadores.findIndex((j) => j.id === estado.meuJogadorId);
+  for (let offset = 1; offset <= sala.jogadores.length; offset++) {
+    const cand = (Math.max(0, atualIdx) + offset) % sala.jogadores.length;
+    if (!sala.jogadores[cand].eh_bot) {
+      trocarJogadorDev(cand);
+      return;
+    }
+  }
 }
 
 export function abrirPainelDev() {
@@ -274,34 +312,40 @@ export function desenharPainelDev() {
   const pausa = iniciada && !!estado.partidaAtual.aguardando_proxima_mao;
   const ehOnline = !!(estado.partidaAtual && estado.partidaAtual.modo === 'online');
   const ehBj = !!(estado.partidaAtual && estado.partidaAtual.modo === 'blackjack');
+  const comBots = !!(ehOnline && sala.usarBots);
   const devDica = $id('dev-dica');
   if (devDica) {
     devDica.textContent = ehBj
       ? 'Modo Blackjack: alterne entre os jogadores para testar apostas, Pedir, Parar, Dobrar e Dividir contra a Banca.'
-      : (ehOnline
-        ? 'Modo Online: escolha qual jogador você controla para testar cartas privadas, turnos e confirmações.'
-        : 'Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.');
+      : (comBots
+        ? 'Modo Online com Bots: você joga a sua mão normalmente e os bots jogam e confirmam automaticamente após você.'
+        : (ehOnline
+          ? 'Modo Online: escolha qual jogador você controla para testar cartas privadas, turnos e confirmações.'
+          : 'Escolha qual jogador você controla: as jogadas valem para ele. Iniciar, próxima mão, subir nível e reiniciar são feitos pelo criador da sala.'));
   }
   const devConf = $id('dev-confirmar-todos');
-  if (devConf) devConf.hidden = !(ehOnline && (!iniciada || pausa));
+  if (devConf) devConf.hidden = !(ehOnline && !comBots && (!iniciada || pausa));
   $id('dev-acoes-presencial').hidden = ehOnline || ehBj;
   $id('dev-iniciar').hidden = iniciada;
   $id('dev-proxima').hidden = !pausa;
 
   const add = $id('botao-add-dev');
   add.disabled = sala.jogadores.length >= MAX_DEV;
-  add.textContent = 'Adicionar jogador (' + sala.jogadores.length + ' de ' + MAX_DEV + ')';
+  add.textContent = (comBots ? 'Adicionar bot (' : 'Adicionar jogador (') + sala.jogadores.length + ' de ' + MAX_DEV + ')';
 
   const html = sala.jogadores.map((j, i) => {
     const naMesa = estado.jogadoresAtuais.find((x) => x.id === j.id);
+    const ehBot = !!(j.eh_bot || (naMesa && naMesa.eh_bot));
+    const botNivel = (naMesa && naMesa.bot_nivel) || j.bot_nivel;
     const controlando = j.id === estado.meuJogadorId;
     const partes = [];
     if (i === 0) partes.push('criador');
+    if (ehBot) partes.push('bot · ' + rotuloNivelBot(botNivel));
     if (controlando) partes.push('você está controlando');
     partes.push('fichas: ' + (naMesa ? naMesa.saldo : '—'));
     return '<div class="linha-dev' + (controlando ? ' atual' : '') + '">'
       + '<div class="info-dev">' + escapar(nomeDe(j.nome)) + '<small>' + partes.join(' · ') + '</small></div>'
-      + (controlando ? '' : '<button type="button" class="secundario" onclick="trocarJogadorDev(' + i + ')">Controlar</button>')
+      + (controlando || ehBot ? '' : '<button type="button" class="secundario" onclick="trocarJogadorDev(' + i + ')">Controlar</button>')
       + '</div>';
   }).join('');
 
@@ -319,12 +363,19 @@ export async function adicionarJogadorDev() {
 
   const botao = $id('botao-add-dev');
   botao.disabled = true;
+  const comBots = !!(sala.usarBots && (sala.modo === 'online' || (estado.partidaAtual && estado.partidaAtual.modo === 'online')));
   let resp;
   try {
-    resp = await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
-      p_partida: sala.partida_id,
-      p_nome: NOMES_DEV[sala.jogadores.length]
-    }));
+    resp = comBots
+      ? await banco.rpc('dev_adicionar_bot', Object.assign({}, contaParams(), {
+          p_partida: sala.partida_id,
+          p_nome: NOMES_DEV[sala.jogadores.length],
+          p_nivel: sortearNivelBot(sala.nivelBots)
+        }))
+      : await banco.rpc('dev_adicionar_jogador', Object.assign({}, contaParams(), {
+          p_partida: sala.partida_id,
+          p_nome: NOMES_DEV[sala.jogadores.length]
+        }));
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }

@@ -358,10 +358,10 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   const barraDevProx = $id('barra-dev-prox');
   const btnDevPassar = $id('btn-dev-passar');
   if (barraDevProx && btnDevPassar) {
-    const mostrarPassarDev = estado.modoDev && !minhaVez && emJogo;
+    const daVez = jogadores.find((j) => j.id === partida.vez_jogador_id);
+    const mostrarPassarDev = estado.modoDev && !minhaVez && emJogo && !(daVez && daVez.eh_bot);
     barraDevProx.hidden = !mostrarPassarDev;
     if (mostrarPassarDev) {
-      const daVez = jogadores.find((j) => j.id === partida.vez_jogador_id);
       btnDevPassar.textContent = daVez
         ? 'Passar para ' + nomeDe(daVez.nome) + ' ▶'
         : 'Próximo jogador ▶';

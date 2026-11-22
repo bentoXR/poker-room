@@ -76,8 +76,25 @@ const onlineUI = {
   embaralhandoAte: 0,
   timersDeal: [],
   timerAnuncio: null,
-  timerAnuncioVez: null
+  timerAnuncioVez: null,
+  timerBot: null,
+  chaveBot: '',
+  botOcupado: false,
+  timerBotConf: null,
+  chaveBotConf: '',
+  botConfOcupado: false
 };
+
+function limparTimersBot() {
+  clearTimeout(onlineUI.timerBot);
+  onlineUI.timerBot = null;
+  onlineUI.chaveBot = '';
+  onlineUI.botOcupado = false;
+  clearTimeout(onlineUI.timerBotConf);
+  onlineUI.timerBotConf = null;
+  onlineUI.chaveBotConf = '';
+  onlineUI.botConfOcupado = false;
+}
 
 function limparAutoPronto() {
   if (onlineUI.timerAutoPronto) {
@@ -110,6 +127,7 @@ function cancelarCena() {
 // Limpa apenas a mão privada e avisos de vez do jogador atual (usado ao alternar de jogador no modo DEV sem apagar o estado das cartas da mesa!)
 export function trocarJogadorOnlineUI() {
   limparAutoPronto();
+  limparTimersBot();
   onlineUI.autoProntoChave = '';
   onlineUI.maoCarregada = null;
   onlineUI.jogadorCarregado = null;
@@ -131,6 +149,7 @@ export function resetarOnlineUI() {
   cancelarCena();
   limparTimersDeal();
   limparAutoPronto();
+  limparTimersBot();
   clearTimeout(onlineUI.timerAnuncio);
   onlineUI.timerAnuncio = null;
   clearTimeout(onlineUI.timerAnuncioVez);
@@ -1036,10 +1055,86 @@ async function dispararAvancoTempo(partidaId) {
   }
 }
 
+function agendarBotOnline(p, jogadores) {
+  if (!p || p.modo !== 'online' || p.encerrada || p.pausada) return;
+
+  // Caso A: turno de um bot durante a mão
+  const emTurnoBot = p.iniciada
+    && !p.aguardando_proxima_mao
+    && p.fase < 4
+    && !p.aguardando_cartas
+    && !!p.vez_jogador_id;
+
+  if (emTurnoBot) {
+    const daVez = jogadores.find((j) => j.id === p.vez_jogador_id);
+    if (daVez && daVez.eh_bot && !daVez.desistiu && daVez.saldo > 0) {
+      if (onlineUI.segurando || Date.now() < onlineUI.embaralhandoAte) return;
+      const chave = p.id + ':' + p.mao + ':' + p.fase + ':' + p.fase_blind + ':' + p.versao + ':' + p.vez_jogador_id;
+      if (chave !== onlineUI.chaveBot && !onlineUI.botOcupado) {
+        onlineUI.chaveBot = chave;
+        clearTimeout(onlineUI.timerBot);
+        const decisaoPesada = Number(p.aposta_atual) > Number(daVez.apostou || 0) || Number(p.fase) >= 2;
+        const atraso = p.fase_blind > 0
+          ? (600 + Math.random() * 400)
+          : (decisaoPesada ? (1600 + Math.random() * 1200) : (1200 + Math.random() * 900));
+        onlineUI.timerBot = setTimeout(async () => {
+          const pAt = estado.partidaAtual;
+          if (!pAt || pAt.id !== p.id || pAt.pausada || pAt.encerrada || pAt.vez_jogador_id !== daVez.id) return;
+          if (estado.ocupado || onlineUI.segurando) {
+            onlineUI.chaveBot = '';
+            return;
+          }
+          onlineUI.botOcupado = true;
+          let ok = false;
+          try {
+            ok = await executar('bot_agir_online', { p_partida: p.id }, 'erro-barra');
+          } finally {
+            onlineUI.botOcupado = false;
+            if (!ok) onlineUI.chaveBot = '';
+          }
+        }, atraso);
+      }
+      return;
+    }
+  }
+
+  // Caso B: confirmação automática de "Pronto" somente após todos os humanos elegíveis confirmarem
+  if (!p.iniciada || p.aguardando_proxima_mao) {
+    if (onlineUI.segurando) return;
+    const temBotPendente = jogadores.some((j) => j.eh_bot && j.saldo > 0 && !j.ausente && !j.confirmado);
+    const temHumanoPendente = jogadores.some((j) => !j.eh_bot && j.saldo > 0 && !j.ausente && !j.confirmado);
+    if (temBotPendente && !temHumanoPendente) {
+      const chaveConf = p.id + ':' + p.mao + ':' + (p.iniciada ? '1' : '0') + ':' + (p.aguardando_proxima_mao ? '1' : '0') + ':' + p.versao;
+      if (chaveConf !== onlineUI.chaveBotConf && !onlineUI.botConfOcupado) {
+        onlineUI.chaveBotConf = chaveConf;
+        clearTimeout(onlineUI.timerBotConf);
+        onlineUI.timerBotConf = setTimeout(async () => {
+          const pAt = estado.partidaAtual;
+          if (!pAt || pAt.id !== p.id || pAt.pausada || pAt.encerrada) return;
+          if (estado.ocupado || onlineUI.segurando) {
+            onlineUI.chaveBotConf = '';
+            return;
+          }
+          onlineUI.botConfOcupado = true;
+          let ok = false;
+          try {
+            ok = await executar('bot_confirmar_online', { p_partida: p.id }, 'erro-barra');
+          } finally {
+            onlineUI.botConfOcupado = false;
+            if (!ok) onlineUI.chaveBotConf = '';
+          }
+        }, 650 + Math.random() * 300);
+      }
+    }
+  }
+}
+
 // Atualização a cada segundo (chamada pelo tick() de mesa.js)
 export function tickOnline() {
   const p = estado.partidaAtual;
   if (!p || p.modo !== 'online' || p.encerrada) return;
+
+  agendarBotOnline(p, estado.jogadoresAtuais || []);
 
   const agora = Date.now() + estado.relogio.offset;
 

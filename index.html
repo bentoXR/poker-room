@@ -307,6 +307,23 @@
           <label for="campo-bj-min-dev" data-i18n="criar.aposta_min">Aposta mínima (Blackjack)</label>
           <input id="campo-bj-min-dev" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('dev')">
         </div>
+        <div class="opcoes-grupo" id="grupo-bots-dev" hidden>
+          <label>Jogar com Bots</label>
+          <div class="opcoes-chips" id="chips-bots-dev">
+            <button type="button" class="op-chip sel" data-v="0" onclick="escolherBotsDev(false)">Desligado</button>
+            <button type="button" class="op-chip" data-v="1" onclick="escolherBotsDev(true)">Ligado</button>
+          </div>
+          <div id="grupo-bots-nivel-dev" style="margin-top:10px" hidden>
+            <label>Dificuldade dos Bots</label>
+            <div class="opcoes-chips" id="chips-bots-nivel-dev">
+              <button type="button" class="op-chip" data-v="facil" onclick="escolherNivelBotsDev('facil')">Fácil</button>
+              <button type="button" class="op-chip sel" data-v="medio" onclick="escolherNivelBotsDev('medio')">Médio</button>
+              <button type="button" class="op-chip" data-v="dificil" onclick="escolherNivelBotsDev('dificil')">Difícil</button>
+              <button type="button" class="op-chip" data-v="misto" onclick="escolherNivelBotsDev('misto')">Misto</button>
+            </div>
+            <p class="dica" style="margin:6px 0 0">Você joga como o 1º jogador e os demais lugares são preenchidos por bots.</p>
+          </div>
+        </div>
       </div>
 
       <div class="secao-titulo"><span class="passo-num">2</span> <span data-i18n="dev.qtd">Quantidade de jogadores</span></div>

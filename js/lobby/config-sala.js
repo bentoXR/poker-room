@@ -10,6 +10,7 @@ const cfgReal = { '': false, dev: false };
 const cfgModo = { '': 'presencial', dev: 'presencial' };
 const cfgTempoTurno = { '': 30, dev: 30 };
 const cfgSubirBlinds = { '': 0, dev: 0 };
+const cfgBotsDev = { ativo: false, nivel: 'medio' };
 
 function idsCfg(p) {
   return p
@@ -26,7 +27,9 @@ export function obterConfigOnline(p) {
     modo: cfgModo[p] || 'presencial',
     tempoTurno: cfgTempoTurno[p] === 0 ? 0 : (cfgTempoTurno[p] || 30),
     subirBlindsMin: cfgSubirBlinds[p] || 0,
-    apostaMin: apostaMin > 0 ? apostaMin : 50
+    apostaMin: apostaMin > 0 ? apostaMin : 50,
+    usarBots: p === 'dev' ? !!cfgBotsDev.ativo : false,
+    nivelBots: p === 'dev' ? (cfgBotsDev.nivel || 'medio') : 'medio'
   };
 }
 
@@ -48,6 +51,10 @@ export function escolherModoSala(modo, p) {
   if (grpBlinds) grpBlinds.hidden = (cfgModo[p] !== 'online');
   const grpBjMin = $id('grupo-bj-min' + s);
   if (grpBjMin) grpBjMin.hidden = (cfgModo[p] !== 'blackjack');
+  if (p === 'dev') {
+    const grpBots = $id('grupo-bots-dev');
+    if (grpBots) grpBots.hidden = (cfgModo.dev !== 'online');
+  }
 
   if (p === 'dev') {
     const ehBj = cfgModo.dev === 'blackjack';
@@ -88,6 +95,32 @@ export function escolherSubirBlinds(min, p) {
       const ativo = Number(b.dataset.v) === cfgSubirBlinds[p];
       b.classList.toggle('sel', ativo);
       b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+    });
+  }
+}
+
+export function escolherBotsDev(ativo) {
+  cfgBotsDev.ativo = !!ativo;
+  const wrap = $id('chips-bots-dev');
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      const sel = (b.dataset.v === '1') === cfgBotsDev.ativo;
+      b.classList.toggle('sel', sel);
+      b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+    });
+  }
+  const grpNivel = $id('grupo-bots-nivel-dev');
+  if (grpNivel) grpNivel.hidden = !cfgBotsDev.ativo;
+}
+
+export function escolherNivelBotsDev(nivel) {
+  cfgBotsDev.nivel = ['facil', 'medio', 'dificil', 'misto'].includes(nivel) ? nivel : 'medio';
+  const wrap = $id('chips-bots-nivel-dev');
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      const sel = b.dataset.v === cfgBotsDev.nivel;
+      b.classList.toggle('sel', sel);
+      b.setAttribute('aria-pressed', sel ? 'true' : 'false');
     });
   }
 }
@@ -240,5 +273,7 @@ export function iniciarConfigSala() {
   escolherModoSala('presencial', 'dev');
   escolherTempoTurno(30, 'dev');
   escolherSubirBlinds(0, 'dev');
+  escolherBotsDev(false);
+  escolherNivelBotsDev('medio');
   escolherQtdDev(4);
 }
