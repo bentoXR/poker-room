@@ -1,17 +1,17 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=103';
-import { estado, nomeDe } from '../../core/estado.js?v=103';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=103';
-import { lerDevSala } from '../../core/storage.js?v=103';
-import { registrarModo } from '../../mesa/modos.js?v=103';
-import { executar } from '../../mesa/apostas.js?v=103';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=103';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=103';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=103';
-import { tocarSom } from '../../core/som.js?v=103';
-import { t, obterIdioma } from '../../core/i18n.js?v=103';
+import { banco } from '../../core/supabase.js?v=104';
+import { estado, nomeDe } from '../../core/estado.js?v=104';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=104';
+import { lerDevSala } from '../../core/storage.js?v=104';
+import { registrarModo } from '../../mesa/modos.js?v=104';
+import { executar } from '../../mesa/apostas.js?v=104';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=104';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=104';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=104';
+import { tocarSom } from '../../core/som.js?v=104';
+import { t, obterIdioma } from '../../core/i18n.js?v=104';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -1367,7 +1367,7 @@ registrarModo('online', {
     };
 
     const comFichas = jogadores.filter((j) => j.saldo > 0);
-    const elegiveis = comFichas.filter((j) => !j.ausente);
+    const elegiveis = comFichas.filter((j) => !j.ausente && !j.espectando);
     const confirmados = elegiveis.filter((j) => j.confirmado);
     const fimTorneio = partida.iniciada && comFichas.length < 2;
     const res = partida.ultimo_resultado;
@@ -1420,7 +1420,7 @@ registrarModo('online', {
       estado.modoDev ? 'D' : 'R',
       elegiveis.length,
       confirmados.length,
-      eu ? (eu.id + ':' + (eu.saldo > 0 ? '1' : '0') + ':' + (eu.confirmado ? '1' : '0') + ':' + (eu.ausente ? 'S' : 'N')) : 'spec',
+      eu ? (eu.id + ':' + (eu.saldo > 0 ? '1' : '0') + ':' + (eu.confirmado ? '1' : '0') + ':' + (eu.ausente ? 'S' : 'N') + ':' + (eu.espectando ? 'E' : 'P')) : 'spec',
       onlineUI.autoPronto ? 'AP' : 'MP',
       podeRabbit ? 'RH' : 'rh',
       restanteSeg !== null ? 'T' : 'N',
@@ -1430,7 +1430,7 @@ registrarModo('online', {
     // Agenda Auto-Pronto (apenas entre mãos já iniciadas, após ver resultado, se o jogador não estiver ausente)
     const deveAutoPronto = onlineUI.autoPronto && !fimTorneio && !partida.pausada
       && partida.iniciada && partida.aguardando_proxima_mao
-      && eu && eu.saldo > 0 && !eu.confirmado && !eu.ausente
+      && eu && eu.saldo > 0 && !eu.confirmado && !eu.ausente && !eu.espectando
       && elegiveis.length >= 2 && !estado.modoDev;
     if (deveAutoPronto) {
       const apChave = partida.id + ':' + partida.mao + ':' + eu.id;
@@ -1504,8 +1504,8 @@ registrarModo('online', {
       const btnRabbit = podeRabbit
         ? '<button type="button" class="secundario btn-rabbit" onclick="chamarRabbitHunt()">' + t('online.rabbit') + '</button>'
         : '';
-      if (eu.ausente) {
-        const btnVoltar = '<button type="button" class="positivo" onclick="alternarAusenteOnline()">' + t('menu.voltar_jogo') + '</button>';
+      if (eu.ausente || eu.espectando) {
+        const btnVoltar = '<button type="button" class="positivo" onclick="' + (eu.espectando ? 'confirmarMao()' : 'alternarAusenteOnline()') + '">' + t('menu.voltar_jogo') + '</button>';
         acaoHtml = '<div class="faixa-online-acoes">' + btnVoltar + btnRabbit + '</div>';
       } else if (elegiveis.length >= 2) {
         let btnEu = '';
