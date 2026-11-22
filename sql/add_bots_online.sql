@@ -459,7 +459,7 @@ BEGIN
   v_nivel := coalesce(v_bot.bot_nivel, 'medio');
 
   IF v_nivel = 'facil' THEN
-    v_eff := least(1.0, greatest(0.0, v_forca + (random() - 0.45) * 0.28));
+    v_eff := least(1.0, greatest(0.0, v_forca + (random() - 0.30) * 0.26));
     IF v_falta = 0 THEN
       IF v_eff >= 0.72 AND v_pode_aumentar AND v_rng < 0.45 THEN
         v_acao := 'apostar';
@@ -471,31 +471,51 @@ BEGIN
         v_acao := 'check';
       END IF;
     ELSE
-      IF v_eff >= 0.80 AND v_pode_aumentar AND v_rng < 0.25 THEN
+      IF v_eff >= 0.76 AND v_pode_aumentar AND v_rng < 0.25 THEN
         v_acao := 'apostar';
         v_valor := v_min_aposta;
-      ELSIF v_eff >= 0.24 OR v_falta <= v_bb OR v_falta <= (v_bot.saldo * 0.35) THEN
-        v_acao := 'pagar';
+      ELSIF v_p.fase = 0 THEN
+        IF v_falta <= v_bb * 4 OR v_eff >= 0.14 OR v_falta <= (v_bot.saldo * 0.55) OR v_rng < 0.35 THEN
+          v_acao := 'pagar';
+        ELSE
+          v_acao := 'desistir';
+        END IF;
       ELSE
-        v_acao := 'desistir';
+        IF v_eff >= 0.16 OR coalesce(v_cat, 0) >= 1 OR v_flush_draw OR v_oesd OR v_falta <= (v_pote * 0.65) OR v_falta <= (v_bot.saldo * 0.45) OR v_rng < 0.30 THEN
+          v_acao := 'pagar';
+        ELSE
+          v_acao := 'desistir';
+        END IF;
       END IF;
     END IF;
 
   ELSIF v_nivel = 'medio' THEN
-    v_eff := least(1.0, greatest(0.0, v_forca + (random() - 0.50) * 0.12));
+    v_eff := least(1.0, greatest(0.0, v_forca + (random() - 0.45) * 0.14));
     IF v_p.fase = 0 THEN
       IF v_falta = 0 THEN
-        IF v_eff >= 0.62 AND v_pode_aumentar THEN
+        IF v_eff >= 0.54 AND v_pode_aumentar THEN
           v_acao := 'apostar';
           v_valor := greatest(v_min_aposta, round(v_bb * 2.5)::int - v_bot.apostou);
         ELSE
           v_acao := 'check';
         END IF;
       ELSE
-        IF v_eff >= 0.76 AND v_pode_aumentar AND v_p.aposta_atual <= v_bb * 4 AND v_rng < 0.55 THEN
+        IF v_eff >= 0.68 AND v_pode_aumentar AND v_p.aposta_atual <= v_bb * 4 AND v_rng < 0.50 THEN
           v_acao := 'apostar';
           v_valor := greatest(v_min_aposta, (v_p.aposta_atual * 3) - v_bot.apostou);
-        ELSIF v_eff >= least(0.75, 0.34 + (v_falta::numeric / greatest(1, v_bot.saldo)) * 0.65) THEN
+        ELSIF v_falta <= v_bb THEN
+          IF v_eff >= 0.18 OR v_rng < 0.55 THEN
+            v_acao := 'pagar';
+          ELSE
+            v_acao := 'desistir';
+          END IF;
+        ELSIF v_falta <= v_bb * 4 THEN
+          IF v_eff >= 0.24 OR (v_eff >= 0.18 AND v_rng < 0.45) THEN
+            v_acao := 'pagar';
+          ELSE
+            v_acao := 'desistir';
+          END IF;
+        ELSIF v_eff >= least(0.62, 0.28 + (v_falta::numeric / greatest(1, v_bot.saldo)) * 0.48) THEN
           v_acao := 'pagar';
         ELSE
           v_acao := 'desistir';
@@ -513,10 +533,13 @@ BEGIN
           v_acao := 'check';
         END IF;
       ELSE
-        IF v_eff >= 0.80 AND v_pode_aumentar AND v_rng < 0.48 THEN
+        IF v_eff >= 0.78 AND v_pode_aumentar AND v_rng < 0.48 THEN
           v_acao := 'apostar';
           v_valor := greatest(v_min_aposta, round(v_falta + v_pote * 0.55)::int);
-        ELSIF v_eff >= greatest(0.28, v_pot_odds + 0.08) THEN
+        ELSIF v_eff >= greatest(0.20, v_pot_odds - 0.04)
+           OR (coalesce(v_cat, 0) >= 1 AND coalesce(v_par_privado, false) AND v_falta <= v_pote * 1.15)
+           OR ((v_flush_draw OR v_oesd OR v_gutshot) AND v_falta <= v_pote)
+           OR (v_p.fase = 1 AND v_falta <= v_pote * 0.65 AND v_rng < 0.35) THEN
           v_acao := 'pagar';
         ELSE
           v_acao := 'desistir';
