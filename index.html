@@ -143,6 +143,17 @@
       </div>
     </div>
 
+    <button type="button" id="btn-jogar-agora" class="cta-jogar-agora" onclick="abrirJogarAgora()">
+      <div class="cta-jogar-esq">
+        <span class="cta-jogar-icone" aria-hidden="true">🃏</span>
+        <div>
+          <strong>JOGAR AGORA</strong>
+          <small>Entre direto em uma mesa online ou jogue contra bots</small>
+        </div>
+      </div>
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+
     <div class="salas-topo">
       <div>
         <h2 data-i18n="salas.titulo">Salas abertas</h2>
@@ -217,6 +228,14 @@
         <div class="opcoes-grupo" id="grupo-bj-min" hidden>
           <label for="campo-bj-min" data-i18n="criar.aposta_min">Aposta mínima (Blackjack)</label>
           <input id="campo-bj-min" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('')">
+        </div>
+        <div class="opcoes-grupo" id="grupo-bots-criar">
+          <label>Preencher com Bots</label>
+          <div class="opcoes-chips" id="chips-bots-criar">
+            <button type="button" class="op-chip sel" data-v="0" onclick="escolherBotsCriar(false)">Desligado</button>
+            <button type="button" class="op-chip" data-v="1" onclick="escolherBotsCriar(true)">Ligado</button>
+          </div>
+          <p class="dica" id="dica-bots-criar" style="margin:6px 0 0">Bots híbridos entram e saem naturalmente e sempre cedem lugar para jogadores reais.</p>
         </div>
       </div>
 
@@ -717,6 +736,34 @@
 
 </main>
 
+<div id="fundo-jogar-agora" class="fundo-folha" onclick="fecharJogarAgora()" hidden></div>
+<div id="folha-jogar-agora" class="folha folha-modal-pc" hidden>
+  <div class="folha-topo">
+    <div class="folha-titulo">Jogar Agora</div>
+    <button class="fechar" onclick="fecharJogarAgora()" aria-label="Fechar">✕</button>
+  </div>
+  <div class="folha-corpo">
+    <p class="dica" style="margin-top:0">Escolha como deseja começar sua partida de Poker Online:</p>
+    <div class="jogar-agora-opcoes">
+      <button type="button" id="btn-ja-online" class="ja-card" onclick="jogarAgoraOnline()">
+        <span class="ja-icone" aria-hidden="true">🌐</span>
+        <span class="ja-texto">
+          <strong>Entrar em partida</strong>
+          <small>Vai para uma mesa com jogadores reais (ou cria uma nova com bots)</small>
+        </span>
+      </button>
+      <button type="button" id="btn-ja-solo" class="ja-card secundario" onclick="jogarAgoraSolo()">
+        <span class="ja-icone" aria-hidden="true">🤖</span>
+        <span class="ja-texto">
+          <strong>Jogar solo com bots</strong>
+          <small>Partida privada rápida contra bots híbridos</small>
+        </span>
+      </button>
+    </div>
+    <div id="erro-jogar-agora" class="erro" role="alert"></div>
+  </div>
+</div>
+
 <div id="fundo-perfil" class="fundo-folha" onclick="fecharPerfil()" hidden></div>
 <div id="folha-perfil" class="folha folha-modal-pc" hidden>
   <div class="folha-topo">
@@ -836,6 +883,16 @@
     <!-- Modo blind -->
     <div id="barra-blind" hidden>
       <button id="btn-blind" class="grande" onclick="pagarBlind()" data-i18n="mesa.pagar_blind">PAGAR BLIND</button>
+    </div>
+
+    <!-- Rebuy + Espectar (Online com Referência em R$) -->
+    <div id="barra-rebuy" class="barra-rebuy" hidden>
+      <div class="grade-rebuy">
+        <button type="button" id="btn-rebuy-1" onclick="comprarRebuyOnline('1')">1 stack</button>
+        <button type="button" id="btn-rebuy-meio" onclick="comprarRebuyOnline('1/2')">½ stack</button>
+        <button type="button" id="btn-rebuy-quarto" onclick="comprarRebuyOnline('1/4')">¼ stack</button>
+        <button type="button" id="btn-espectar-online" class="secundario" onclick="espectarOnline()">Espectar</button>
+      </div>
     </div>
 
     <!-- Modo DEV: botão manual para passar para o jogador da vez / próximo jogador -->

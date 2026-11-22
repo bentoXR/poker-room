@@ -11,6 +11,7 @@ const cfgModo = { '': 'presencial', dev: 'presencial' };
 const cfgTempoTurno = { '': 30, dev: 30 };
 const cfgSubirBlinds = { '': 0, dev: 0 };
 const cfgBotsDev = { ativo: false, nivel: 'medio' };
+let cfgBotsCriar = false;
 
 function idsCfg(p) {
   return p
@@ -29,7 +30,8 @@ export function obterConfigOnline(p) {
     subirBlindsMin: cfgSubirBlinds[p] || 0,
     apostaMin: apostaMin > 0 ? apostaMin : 50,
     usarBots: p === 'dev' ? !!cfgBotsDev.ativo : false,
-    nivelBots: p === 'dev' ? (cfgBotsDev.nivel || 'medio') : 'medio'
+    nivelBots: p === 'dev' ? (cfgBotsDev.nivel || 'medio') : 'medio',
+    comBots: p === '' ? (!!cfgBotsCriar && !cfgReal['']) : false
   };
 }
 
@@ -54,6 +56,9 @@ export function escolherModoSala(modo, p) {
   if (p === 'dev') {
     const grpBots = $id('grupo-bots-dev');
     if (grpBots) grpBots.hidden = (cfgModo.dev !== 'online');
+  } else if (p === '') {
+    const grpBotsCriar = $id('grupo-bots-criar');
+    if (grpBotsCriar) grpBotsCriar.hidden = (cfgModo[''] !== 'online' || !!cfgReal['']);
   }
 
   if (p === 'dev') {
@@ -125,6 +130,18 @@ export function escolherNivelBotsDev(nivel) {
   }
 }
 
+export function escolherBotsCriar(ativo) {
+  cfgBotsCriar = !!ativo && !cfgReal[''];
+  const wrap = $id('chips-bots-criar');
+  if (wrap) {
+    wrap.querySelectorAll('.op-chip').forEach((b) => {
+      const sel = (b.dataset.v === '1') === cfgBotsCriar;
+      b.classList.toggle('sel', sel);
+      b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+    });
+  }
+}
+
 export function escolherQtdDev(qtd) {
   const minQ = cfgModo.dev === 'blackjack' ? 1 : 2;
   const maxQ = cfgModo.dev === 'blackjack' ? 6 : 9;
@@ -162,6 +179,11 @@ export function escolherStackDev(s) { aplicarConfig('dev', s, STACKS[s][0], STAC
 
 export function alternarReal(p) {
   cfgReal[p] = !cfgReal[p];
+  if (p === '') {
+    if (cfgReal['']) escolherBotsCriar(false);
+    const grpBotsCriar = $id('grupo-bots-criar');
+    if (grpBotsCriar) grpBotsCriar.hidden = (cfgModo[''] !== 'online' || !!cfgReal['']);
+  }
   if (cfgReal[p]) {
     const s = parseInt($id(idsCfg(p).saldo).value) || 1000;
     const b = blinds100(s);
@@ -254,6 +276,7 @@ export async function registrarRealCriacao(p, id, saldo, jid, seg) {
 
 export function aplicarPadraoCriarSala() {
   if (cfgReal['']) cfgReal[''] = false;
+  escolherBotsCriar(false);
   escolherStack(10000);
   escolherModoSala('online', '');
   escolherTempoTurno(30, '');

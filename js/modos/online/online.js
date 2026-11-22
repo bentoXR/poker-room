@@ -1016,6 +1016,21 @@ export function mostrarCartasOnline(qual) {
   });
 }
 
+export function comprarRebuyOnline(fracao) {
+  return executar('rebuy_online', {
+    p_jogador: estado.meuJogadorId,
+    p_segredo: estado.meuSegredo,
+    p_fracao: fracao || '1'
+  }, 'erro-barra');
+}
+
+export function espectarOnline() {
+  return executar('espectar_online', {
+    p_jogador: estado.meuJogadorId,
+    p_segredo: estado.meuSegredo
+  }, 'erro-barra');
+}
+
 export function revancheOnline() {
   tocarSom('clique');
   return executar('revanche_online', {
@@ -1098,12 +1113,12 @@ function agendarBotOnline(p, jogadores) {
     }
   }
 
-  // Caso B: confirmação automática de "Pronto" somente após todos os humanos elegíveis confirmarem
+  // Caso B: confirmação automática de "Pronto" somente após todos os humanos elegíveis confirmarem (ou após início do timer de 30s)
   if (!p.iniciada || p.aguardando_proxima_mao) {
     if (onlineUI.segurando) return;
     const temBotPendente = jogadores.some((j) => j.eh_bot && j.saldo > 0 && !j.ausente && !j.confirmado);
-    const temHumanoPendente = jogadores.some((j) => !j.eh_bot && j.saldo > 0 && !j.ausente && !j.confirmado);
-    if (temBotPendente && !temHumanoPendente) {
+    const temHumanoPendente = jogadores.some((j) => !j.eh_bot && !j.espectando && j.saldo > 0 && !j.ausente && !j.confirmado);
+    if (temBotPendente && (!temHumanoPendente || !!p.proxima_mao_em)) {
       const chaveConf = p.id + ':' + p.mao + ':' + (p.iniciada ? '1' : '0') + ':' + (p.aguardando_proxima_mao ? '1' : '0') + ':' + p.versao;
       if (chaveConf !== onlineUI.chaveBotConf && !onlineUI.botConfOcupado) {
         onlineUI.chaveBotConf = chaveConf;

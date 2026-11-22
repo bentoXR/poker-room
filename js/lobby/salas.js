@@ -97,7 +97,12 @@ export function desenharSalas() {
       const statusChip = s.iniciada
         ? '<span class="meta-chip vivo"><i></i><b>' + t(ehBlackjack ? 'mesa.rodada' : 'mesa.mao', { n: s.mao }) + '</b></span>'
         : '<span class="meta-chip">' + t('salas.aguardando') + '</span>';
-      const jogTxt = '<b>' + s.n_jogadores + '</b> ' + t(s.n_jogadores === 1 ? 'salas.jogador' : 'salas.jogadores');
+      const jogTxt = ehOnline
+        ? '<b>' + s.n_jogadores + '/9</b>'
+        : '<b>' + s.n_jogadores + '</b> ' + t(s.n_jogadores === 1 ? 'salas.jogador' : 'salas.jogadores');
+      const botsChip = (ehOnline && s.com_bots)
+        ? '<span class="meta-chip">Bots ativados</span>'
+        : '';
       const blindsTxt = ehBlackjack
         ? t('mesa.min', { v: '<b>' + s.small_blind + '</b>' })
         : termo('blinds') + ' <b>' + s.small_blind + '/' + s.big_blind + '</b>';
@@ -123,6 +128,7 @@ export function desenharSalas() {
             <div class="sala-meta">
               ${statusChip}
               <span class="meta-chip">${jogTxt}</span>
+              ${botsChip}
               <span class="meta-chip">${blindsTxt}</span>
               ${tempoChip}${subirChip}
             </div>
@@ -248,7 +254,8 @@ export async function criarSala() {
               p_big: big,
               p_tempo_turno: cfg.tempoTurno,
               p_subir_blinds_min: cfg.subirBlindsMin,
-              p_nome: nomeSala || null
+              p_nome: nomeSala || null,
+              p_com_bots: !!cfg.comBots
             }))
           : await banco.rpc('criar_sala', Object.assign({}, contaParams(), {
               p_saldo: saldo,
@@ -314,4 +321,66 @@ export async function entrarComoJogador() {
   await conectarNaSala(estado.partidaAtual, 'erro-escolha');
   botao.disabled = false;
   botao.textContent = 'Entrar como jogador';
+}
+
+export function abrirJogarAgora() {
+  if (!estado.minhaConta || estado.abrindoSala || estado.criandoSala) return;
+  limparErro('erro-jogar-agora');
+  const fundo = $id('fundo-jogar-agora');
+  const folha = $id('folha-jogar-agora');
+  if (fundo) fundo.hidden = false;
+  if (folha) folha.hidden = false;
+}
+
+export function fecharJogarAgora() {
+  const fundo = $id('fundo-jogar-agora');
+  const folha = $id('folha-jogar-agora');
+  if (fundo) fundo.hidden = true;
+  if (folha) folha.hidden = true;
+}
+
+async function executarJogarAgora(rpcNome, btnId) {
+  if (!estado.minhaConta || estado.abrindoSala || estado.criandoSala) return;
+  limparErro('erro-jogar-agora');
+  estado.abrindoSala = true;
+  const b1 = $id('btn-ja-online');
+  const b2 = $id('btn-ja-solo');
+  if (b1) b1.disabled = true;
+  if (b2) b2.disabled = true;
+
+  try {
+    let resp;
+    try {
+      resp = await banco.rpc(rpcNome, contaParams());
+    } catch (erro) {
+      resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+    }
+    if (resp.error) {
+      if (!tratarErroConta(resp.error)) mostrarErro('erro-jogar-agora', resp.error.message);
+      return;
+    }
+    const dados = resp.data;
+    if (!dados || !dados.partida_id) {
+      mostrarErro('erro-jogar-agora', 'Não foi possível entrar na partida.');
+      return;
+    }
+    fecharJogarAgora();
+    pararSalas();
+    limparContextoDev();
+    esquecerPartida();
+    guardarMeuJogador(estado.minhaConta.id, dados.partida_id, dados.jogador_id, dados.segredo);
+    await abrirMesa({ id: dados.partida_id, modo: 'online', dev: false });
+  } finally {
+    estado.abrindoSala = false;
+    if (b1) b1.disabled = false;
+    if (b2) b2.disabled = false;
+  }
+}
+
+export function jogarAgoraOnline() {
+  return executarJogarAgora('jogar_agora_online', 'btn-ja-online');
+}
+
+export function jogarAgoraSolo() {
+  return executarJogarAgora('criar_sala_solo_bots', 'btn-ja-solo');
 }

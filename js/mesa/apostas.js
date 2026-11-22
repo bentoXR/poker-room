@@ -1,8 +1,8 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
 import { banco } from '../core/supabase.js?v=89';
-import { estado, passoSala, nomeDe } from '../core/estado.js?v=89';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=89';
+import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=89';
+import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=89';
 import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=89';
 import { t, termo } from '../core/i18n.js?v=89';
 
@@ -231,6 +231,8 @@ export function modoEnviando() {
   $id('barra-acoes').classList.remove('apostando');
   $id('barra-normal').hidden = true;
   $id('barra-blind').hidden = true;
+  const barraRebuy = $id('barra-rebuy');
+  if (barraRebuy) barraRebuy.hidden = true;
   const devProx = $id('barra-dev-prox');
   if (devProx) devProx.hidden = true;
   $id('barra-titulo').textContent = t('bj.enviando');
@@ -307,6 +309,33 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   $id('barra-normal').hidden = !(podeAgir);
   atualizarPresetsAposta(partida);
 
+  const vMil = Number(valorPorMil(partida.id)) || 0;
+  const podeRebuy = partida.modo === 'online'
+    && vMil > 0
+    && eu.saldo <= 0
+    && !partida.pausada
+    && (!partida.iniciada || partida.aguardando_proxima_mao || eu.desistiu || eu.espectando);
+  const barraRebuy = $id('barra-rebuy');
+  if (barraRebuy) {
+    barraRebuy.hidden = !podeRebuy;
+    if (podeRebuy) {
+      const ini = Number(partida.saldo_inicial) || 0;
+      const bb = Math.max(1, Number(partida.big_blind) || 1);
+      const q1 = ini;
+      const q2 = Math.max(bb, Math.round(ini / 2));
+      const q4 = Math.max(bb, Math.round(ini / 4));
+      const rot = (txt, q) => txt + ' (' + fmtNum(q) + ' · ' + fmtReais((q / 1000) * vMil) + ')';
+      const b1 = $id('btn-rebuy-1');
+      const b2 = $id('btn-rebuy-meio');
+      const b4 = $id('btn-rebuy-quarto');
+      const bEsp = $id('btn-espectar-online');
+      if (b1) b1.textContent = rot('1 stack', q1);
+      if (b2) b2.textContent = rot('½ stack', q2);
+      if (b4) b4.textContent = rot('¼ stack', q4);
+      if (bEsp) bEsp.hidden = !!eu.espectando;
+    }
+  }
+
   const valorPagarPre = Math.min(Math.max(0, falta), eu.saldo);
   const podePreAcao = !minhaVez && emJogo && !emBlind && !eu.desistiu && !eu.esperando
     && eu.saldo > 0 && !partida.pausada && !estado.modoDev;
@@ -378,7 +407,9 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   }
 
   let titulo = status;
-  if (eu.esperando) titulo = 'Você está esperando a próxima mão. ' + status;
+  if (eu.espectando) titulo = podeRebuy ? 'Você está espectando. Compre fichas para voltar à mesa.' : 'Você está espectando a mesa.';
+  else if (podeRebuy) titulo = 'Você ficou sem fichas. Compre mais ou especte a mesa.';
+  else if (eu.esperando) titulo = 'Você está esperando a próxima mão. ' + status;
   else if (eu.desistiu && emJogo && !emBlind) titulo = 'Você desistiu desta mão. ' + status;
   $id('barra-titulo').textContent = titulo;
 

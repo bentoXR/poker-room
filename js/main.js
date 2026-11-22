@@ -19,13 +19,14 @@ import {
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil
 } from './lobby/perfil.js?v=89';
 import {
-  registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
+  registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador,
+  abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo
 } from './lobby/salas.js?v=89';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev,
-  escolherBotsDev, escolherNivelBotsDev
+  escolherBotsDev, escolherNivelBotsDev, escolherBotsCriar
 } from './lobby/config-sala.js?v=89';
 
 import {
@@ -62,7 +63,7 @@ import {
 import {
   virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
-  mostrarCartasOnline, revancheOnline,
+  mostrarCartasOnline, revancheOnline, comprarRebuyOnline, espectarOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
 } from './modos/online/online.js?v=89';
 import {
@@ -170,10 +171,11 @@ Object.assign(window, {
   escolherTema, alternarTema, alternarSom,
   escolherIdioma, alternarTermosTraduzidos,
   abrirSalas, abrirCriar, criarSala, abrirSala, entrarComoJogador,
+  abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo,
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev,
-  escolherBotsDev, escolherNivelBotsDev,
+  escolherBotsDev, escolherNivelBotsDev, escolherBotsCriar,
   esquecerPartida, iniciarApp,
 
   // Mesa compartilhada e apostas
@@ -195,7 +197,7 @@ Object.assign(window, {
 
   // Modo online (baralho virtual, cartas 3D, confirmação e revanche)
   virarMinhaCarta, alternarModoEspiar, confirmarMao, alternarAutoPronto, alternarAusenteOnline,
-  chamarRabbitHunt, mostrarCartasOnline, revancheOnline, confirmarTodosDev,
+  chamarRabbitHunt, mostrarCartasOnline, revancheOnline, comprarRebuyOnline, espectarOnline, confirmarTodosDev,
 
   // Modo Blackjack (banca automática, 21)
   bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,

@@ -682,6 +682,7 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
 }
 
 function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
+  jogadores = (jogadores || []).filter((j) => !j.espectando);
   let proximoId = null;
   if (partida.iniciada && partida.fase_blind === 1) proximoId = partida.bb_jogador_id;
   else if (partida.iniciada && partida.fase_blind === 2) proximoId = partida.primeiro_jogador_id;
