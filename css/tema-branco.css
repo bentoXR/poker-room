@@ -225,6 +225,11 @@
   border-color: #16a34a;
   color: #166534;
 }
+:root[data-tema="branco"] button.mp-mostrar-btn {
+  background: #e2e8f0;
+  border-color: rgba(15, 23, 42, 0.22);
+  color: #0f172a;
+}
 :root[data-tema="branco"] .barra-pre-acao button.pre-btn.perigo.sel {
   background: #dc2626;
   color: #fff;

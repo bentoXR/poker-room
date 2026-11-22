@@ -1,17 +1,17 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=100';
-import { estado, nomeDe } from '../../core/estado.js?v=100';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=100';
-import { lerDevSala } from '../../core/storage.js?v=100';
-import { registrarModo } from '../../mesa/modos.js?v=100';
-import { executar } from '../../mesa/apostas.js?v=100';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=100';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=100';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=100';
-import { tocarSom } from '../../core/som.js?v=100';
-import { t, obterIdioma } from '../../core/i18n.js?v=100';
+import { banco } from '../../core/supabase.js?v=101';
+import { estado, nomeDe } from '../../core/estado.js?v=101';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=101';
+import { lerDevSala } from '../../core/storage.js?v=101';
+import { registrarModo } from '../../mesa/modos.js?v=101';
+import { executar } from '../../mesa/apostas.js?v=101';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=101';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=101';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=101';
+import { tocarSom } from '../../core/som.js?v=101';
+import { t, obterIdioma } from '../../core/i18n.js?v=101';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -910,6 +910,16 @@ function desenharMinhaMao(partida, eu) {
     revelarHtml = '<div class="minha-mao-revelar">'
       + '<button type="button" class="secundario" onclick="mostrarCartasOnline(\'ambas\')">Mostrar cartas</button>'
       + '</div>';
+  }
+  const mpDicaEl = $id('mp-dica');
+  if (mpDicaEl && window.innerWidth < 820) {
+    if (podeRevelar) {
+      mpDicaEl.innerHTML = '<button type="button" class="mp-mostrar-btn" onclick="mostrarCartasOnline(\'ambas\')">Mostrar cartas</button>';
+      mpDicaEl.hidden = false;
+    } else if (mpDicaEl.querySelector('.mp-mostrar-btn')) {
+      mpDicaEl.innerHTML = '';
+      mpDicaEl.hidden = true;
+    }
   }
 
   const dica = podeRevelar
