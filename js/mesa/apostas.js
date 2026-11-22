@@ -329,10 +329,13 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
       const b2 = $id('btn-rebuy-meio');
       const b4 = $id('btn-rebuy-quarto');
       const bEsp = $id('btn-espectar-online');
-      if (b1) b1.textContent = rot('1 stack', q1);
-      if (b2) b2.textContent = rot('½ stack', q2);
-      if (b4) b4.textContent = rot('¼ stack', q4);
-      if (bEsp) bEsp.hidden = !!eu.espectando;
+      if (b1) b1.textContent = rot(t('mesa.rebuy_1'), q1);
+      if (b2) b2.textContent = rot(t('mesa.rebuy_meio'), q2);
+      if (b4) b4.textContent = rot(t('mesa.rebuy_quarto'), q4);
+      if (bEsp) {
+        bEsp.textContent = t('mesa.espectar');
+        bEsp.hidden = !!eu.espectando;
+      }
     }
   }
 
@@ -407,8 +410,8 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   }
 
   let titulo = status;
-  if (eu.espectando) titulo = podeRebuy ? 'Você está espectando. Compre fichas para voltar à mesa.' : 'Você está espectando a mesa.';
-  else if (podeRebuy) titulo = 'Você ficou sem fichas. Compre mais ou especte a mesa.';
+  if (eu.espectando) titulo = podeRebuy ? t('mesa.espectando_rebuy') : t('mesa.espectando');
+  else if (podeRebuy) titulo = t('mesa.sem_fichas_rebuy');
   else if (eu.esperando) titulo = 'Você está esperando a próxima mão. ' + status;
   else if (eu.desistiu && emJogo && !emBlind) titulo = 'Você desistiu desta mão. ' + status;
   $id('barra-titulo').textContent = titulo;

@@ -1255,43 +1255,81 @@ button.stack.especial b { font-size: 16.5px; }
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 16px 18px;
-  margin-bottom: 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 215, 110, 0.45);
-  background: linear-gradient(135deg, rgba(22, 163, 74, 0.92), rgba(15, 118, 110, 0.92));
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  border: 1.5px solid var(--ouro-borda);
+  background: linear-gradient(135deg, var(--ouro) 0%, var(--ouro-escuro) 100%);
   color: #fff;
   text-align: left;
-  box-shadow: 0 12px 28px -10px rgba(16, 185, 129, 0.55);
+  box-shadow: 0 14px 32px -10px var(--ouro-suave), inset 0 1px 0 rgba(255, 255, 255, 0.24);
   cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
 }
-.cta-jogar-agora:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.cta-jogar-agora:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -10px var(--ouro-suave), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
 .cta-jogar-agora:active { transform: translateY(0); }
 .cta-jogar-esq {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
 }
 .cta-jogar-icone {
-  font-size: 28px;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
   line-height: 1;
+  flex-shrink: 0;
 }
 .cta-jogar-agora strong {
   display: block;
-  font-size: 17px;
-  letter-spacing: 0.4px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
 }
 .cta-jogar-agora small {
   display: block;
   font-size: 13px;
-  opacity: 0.9;
+  opacity: 0.92;
   font-weight: 400;
   margin-top: 2px;
 }
-.cta-jogar-agora .ic {
-  width: 22px;
-  height: 22px;
+.cta-jogar-seta {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+}
+.cta-jogar-seta .ic {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 819px) {
+  #tela-salas .cta-jogar-agora {
+    order: 2;
+    flex-shrink: 0;
+    margin: 4px 0 6px;
+    padding: 13px 15px;
+  }
+  #tela-salas .cta-jogar-icone {
+    width: 40px;
+    height: 40px;
+    font-size: 21px;
+  }
+  #tela-salas .cta-jogar-agora strong { font-size: 16px; }
+  #tela-salas .cta-jogar-agora small { font-size: 12px; }
 }
 
 .jogar-agora-opcoes {

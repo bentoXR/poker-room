@@ -101,7 +101,7 @@ export function desenharSalas() {
         ? '<b>' + s.n_jogadores + '/9</b>'
         : '<b>' + s.n_jogadores + '</b> ' + t(s.n_jogadores === 1 ? 'salas.jogador' : 'salas.jogadores');
       const botsChip = (ehOnline && s.com_bots)
-        ? '<span class="meta-chip">Bots ativados</span>'
+        ? '<span class="meta-chip">' + t('salas.bots_ativados') + '</span>'
         : '';
       const blindsTxt = ehBlackjack
         ? t('mesa.min', { v: '<b>' + s.small_blind + '</b>' })
