@@ -1,73 +1,73 @@
 // Ponto de entrada da aplicação: conecta os módulos, expõe ações para o HTML e inicia o app
-import { banco } from './core/supabase.js?v=88';
-import { estado, ehContaDev } from './core/estado.js?v=88';
-import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=88';
+import { banco } from './core/supabase.js?v=89';
+import { estado, ehContaDev } from './core/estado.js?v=89';
+import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=89';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
   algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=88';
-import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=88';
-import { iniciarSom, alternarSom } from './core/som.js?v=88';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=88';
-import { escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma } from './core/i18n.js?v=88';
+} from './core/ui.js?v=89';
+import { iniciarTema, escolherTema, alternarTema } from './core/tema.js?v=89';
+import { iniciarSom, alternarSom } from './core/som.js?v=89';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=89';
+import { escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma } from './core/i18n.js?v=89';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, sairDaConta
-} from './lobby/auth.js?v=88';
+} from './lobby/auth.js?v=89';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil
-} from './lobby/perfil.js?v=88';
+} from './lobby/perfil.js?v=89';
 import {
-  registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
-} from './lobby/salas.js?v=88';
+  registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador
+} from './lobby/salas.js?v=89';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
   escolherModoSala, escolherTempoTurno, escolherSubirBlinds, escolherQtdDev
-} from './lobby/config-sala.js?v=88';
+} from './lobby/config-sala.js?v=89';
 
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
-} from './mesa/mesa.js?v=88';
+} from './mesa/mesa.js?v=89';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
-} from './mesa/apostas.js?v=88';
+} from './mesa/apostas.js?v=89';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal, copiarAcertoMesa
-} from './mesa/extras.js?v=88';
+} from './mesa/extras.js?v=89';
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
   receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
-} from './mesa/chat.js?v=88';
+} from './mesa/chat.js?v=89';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=88';
+} from './modos/presencial/acoes.js?v=89';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=88';
+} from './modos/presencial/distribuir.js?v=89';
 import {
   registrarHooksDev, cancelarCriacaoDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=88';
+} from './modos/presencial/dev.js?v=89';
 import {
   virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=88';
+} from './modos/online/online.js?v=89';
 import {
   bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
   bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev, tickBlackjack, tratarTeclaBlackjack
-} from './modos/blackjack/blackjack.js?v=88';
+} from './modos/blackjack/blackjack.js?v=89';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {
@@ -205,7 +205,19 @@ iniciarTema();
 iniciarSom();
 aplicarIdiomaDOM();
 registrarHookIdioma(() => {
-  if (estado.ultimoEstado && estado.partidaAtual) desenharMesa(estado.ultimoEstado);
+  escolherModoLogin($id('grupo-confirmar-senha') && !$id('grupo-confirmar-senha').hidden ? 'criar' : 'entrar');
+  atualizarProfundidade('');
+  atualizarProfundidade('dev');
+  if ($id('tela-salas') && $id('tela-salas').classList.contains('ativa')) {
+    estado.htmlSalas = '';
+    desenharSalas();
+  }
+  if (estado.ultimoEstado && estado.partidaAtual) {
+    estado.htmlJogadoresVisto = null;
+    const pre = document.querySelector('#caixa-aposta .presets');
+    if (pre) pre.dataset.modo = '';
+    desenharMesa(estado.ultimoEstado);
+  }
 });
 $id('campo-login-nome').value = lerNome();
 prepararCampoSenha('campo-login-senha');

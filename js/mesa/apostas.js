@@ -1,10 +1,10 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=88';
-import { estado, passoSala, nomeDe } from '../core/estado.js?v=88';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=88';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=88';
-import { termo } from '../core/i18n.js?v=88';
+import { banco } from '../core/supabase.js?v=89';
+import { estado, passoSala, nomeDe } from '../core/estado.js?v=89';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=89';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=89';
+import { t, termo } from '../core/i18n.js?v=89';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -212,10 +212,11 @@ export function sincronizarModoAposta() {
 export function atualizarRotuloApostar(semSlider) {
   const lim = limitesAposta();
   const valor = parseInt($id('campo-valor').value);
-  let texto = 'Apostar';
+  const labelBase = (estado.partidaAtual && estado.partidaAtual.aposta_atual > 0) ? termo('raise') : termo('bet');
+  let texto = labelBase;
   if (valor > 0) {
     texto += ' ' + valor;
-    if (lim && valor === lim.max) texto += ' (all-in)';
+    if (lim && valor === lim.max) texto += ' (' + termo('allin').toLowerCase() + ')';
   }
   $id('btn-apostar').textContent = texto;
   $id('btn-confirmar-aposta').textContent = texto;
@@ -232,7 +233,7 @@ export function modoEnviando() {
   $id('barra-blind').hidden = true;
   const devProx = $id('barra-dev-prox');
   if (devProx) devProx.hidden = true;
-  $id('barra-titulo').textContent = 'Enviando…';
+  $id('barra-titulo').textContent = t('bj.enviando');
   $id('barra-acoes').classList.remove('minha-vez');
 }
 
@@ -339,11 +340,11 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   } else if (preEl) {
     if (podePreAcao) {
       const sel = estado.preAcao ? estado.preAcao.tipo : '';
-      const b1Rot = falta > 0 ? 'Desistir' : 'Check / Desistir';
+      const b1Rot = falta > 0 ? termo('fold') : (termo('check') + ' / ' + termo('fold'));
       const b2Tipo = falta > 0 ? 'pagar' : 'check';
       const b2Rot = falta > 0
-        ? ('Pagar ' + valorPagarPre + (valorPagarPre >= eu.saldo ? ' (all-in)' : ''))
-        : 'Check auto';
+        ? (termo('call') + ' ' + valorPagarPre + (valorPagarPre >= eu.saldo ? ' (' + termo('allin') + ')' : ''))
+        : (termo('check') + ' auto');
       preEl.innerHTML =
         '<button type="button" class="pre-btn perigo' + (sel === 'check_fold' ? ' sel' : '') + '" onclick="alternarPreAcao(\'check_fold\')" aria-pressed="' + (sel === 'check_fold') + '">' + b1Rot + '</button>'
         + '<button type="button" class="pre-btn positivo' + (sel === b2Tipo ? ' sel' : '') + '" onclick="alternarPreAcao(\'' + b2Tipo + '\')" aria-pressed="' + (sel === b2Tipo) + '">' + b2Rot + '</button>';
@@ -391,11 +392,14 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
   $id('btn-check').hidden = falta > 0;
   $id('btn-pagar').hidden = falta <= 0;
   $id('campo-slider').disabled = !podeAumentar;
+  $id('btn-desistir').textContent = termo('fold');
+  $id('btn-check').textContent = termo('check');
+  $id('btn-aumentar').textContent = (partida.aposta_atual > 0) ? termo('raise') : termo('bet');
   $id('btn-pagar').textContent =
-    falta > 0 ? 'Pagar ' + valorPagar + (valorPagar >= eu.saldo ? ' (all-in)' : '') : 'Pagar';
+    falta > 0 ? (termo('call') + ' ' + valorPagar + (valorPagar >= eu.saldo ? ' (' + termo('allin').toLowerCase() + ')' : '')) : termo('call');
   $id('dica-pagar').textContent =
     (podeAgir && outrosComFichas === 0 && falta > 0)
-      ? 'Demais jogadores em all-in: pague ou desista.'
+      ? (termo('allin') + ': ' + termo('call') + ' / ' + termo('fold'))
       : '';
   $id('campo-valor').disabled = !podeAumentar;
   $id('btn-apostar').disabled = !podeAumentar;
@@ -460,7 +464,7 @@ function desenharSomentePreAcao(p, eu) {
     btn.classList.toggle('sel', ativo);
     btn.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     if (idx === 1 && falta > 0) {
-      btn.textContent = 'Pagar ' + valorPagar + (valorPagar >= eu.saldo ? ' (all-in)' : '');
+      btn.textContent = termo('call') + ' ' + valorPagar + (valorPagar >= eu.saldo ? ' (' + termo('allin').toLowerCase() + ')' : '');
     }
   });
 }

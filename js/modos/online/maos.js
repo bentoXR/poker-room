@@ -1,6 +1,6 @@
 // Avaliador local de mãos de poker: serve só de ASSISTENTE visual (luzinha + nome da mão).
 // O resultado oficial do showdown continua sendo decidido pelo servidor (avaliar_mao_online).
-import { parseCarta, NOMES_NAIPE } from './cartas.js?v=88';
+import { parseCarta, NOMES_NAIPE } from './cartas.js?v=89';
 
 const SING = { 14: 'Ás', 13: 'Rei', 12: 'Dama', 11: 'Valete', 10: '10', 9: '9', 8: '8', 7: '7', 6: '6', 5: '5', 4: '4', 3: '3', 2: '2' };
 const PLUR = { 14: 'Ases', 13: 'Reis', 12: 'Damas', 11: 'Valetes', 10: '10s', 9: '9s', 8: '8s', 7: '7s', 6: '6s', 5: '5s', 4: '4s', 3: '3s', 2: '2s' };

@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=88">
+  <link rel="manifest" href="./manifest.webmanifest?v=89">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,18 +20,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=88">
-  <link rel="stylesheet" href="./css/telas.css?v=88">
-  <link rel="stylesheet" href="./css/mesa.css?v=88">
-  <link rel="stylesheet" href="./css/gavetas.css?v=88">
-  <link rel="stylesheet" href="./css/online.css?v=88">
-  <link rel="stylesheet" href="./css/blackjack.css?v=88">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=88">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=88">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=88">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=88">
-  <link rel="stylesheet" href="./css/desktop.css?v=88">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=88">
+  <link rel="stylesheet" href="./css/base.css?v=89">
+  <link rel="stylesheet" href="./css/telas.css?v=89">
+  <link rel="stylesheet" href="./css/mesa.css?v=89">
+  <link rel="stylesheet" href="./css/gavetas.css?v=89">
+  <link rel="stylesheet" href="./css/online.css?v=89">
+  <link rel="stylesheet" href="./css/blackjack.css?v=89">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=89">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=89">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=89">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=89">
+  <link rel="stylesheet" href="./css/desktop.css?v=89">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=89">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -66,19 +66,19 @@
     <div class="topo-tema-login">
       <div class="seletor-tema" role="group" aria-label="Escolher cores do site">
         <button type="button" class="tema-btn sel" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="true">
-          <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
+          <span class="amostra amostra-preto" aria-hidden="true"></span><span data-i18n="perfil.tema_preto">Preto</span>
         </button>
         <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-          <span class="amostra amostra-classico" aria-hidden="true"></span>Sinuca
+          <span class="amostra amostra-classico" aria-hidden="true"></span><span data-i18n="perfil.tema_classico">Sinuca</span>
         </button>
         <button type="button" class="tema-btn" data-tema="cassino" onclick="escolherTema('cassino')" aria-pressed="false">
-          <span class="amostra amostra-cassino" aria-hidden="true"></span>Cassino
+          <span class="amostra amostra-cassino" aria-hidden="true"></span><span data-i18n="perfil.tema_cassino">Cassino</span>
         </button>
         <button type="button" class="tema-btn" data-tema="liberdade" onclick="escolherTema('liberdade')" aria-pressed="false">
-          <span class="amostra amostra-liberdade" aria-hidden="true"></span>USA
+          <span class="amostra amostra-liberdade" aria-hidden="true"></span><span data-i18n="perfil.tema_liberdade">USA</span>
         </button>
         <button type="button" class="tema-btn" data-tema="tropical" onclick="escolherTema('tropical')" aria-pressed="false">
-          <span class="amostra amostra-tropical" aria-hidden="true"></span>Tropical
+          <span class="amostra amostra-tropical" aria-hidden="true"></span><span data-i18n="perfil.tema_tropical">Tropical</span>
         </button>
       </div>
     </div>
@@ -89,35 +89,35 @@
           <span class="n-emblema">♠</span><span class="n-emblema r">♥</span><span class="n-emblema">♣</span><span class="n-emblema r">♦</span>
         </div>
         <h1>Poker Room</h1>
-        <p>Jogue com amigos <strong>online</strong> ou controle <strong>fichas e blinds</strong> na mesa presencial.</p>
+        <p data-i18n-html="login.slogan">Jogue com amigos <strong>online</strong> ou controle <strong>fichas e blinds</strong> na mesa presencial.</p>
       </div>
 
       <div class="cartao cartao-login">
         <div class="auth-abas" role="tablist" aria-label="Entrar ou criar conta">
-          <button type="button" class="auth-aba sel" data-auth="entrar" role="tab" aria-selected="true" onclick="escolherModoLogin('entrar')">Entrar</button>
-          <button type="button" class="auth-aba" data-auth="criar" role="tab" aria-selected="false" onclick="escolherModoLogin('criar')">Criar conta</button>
+          <button type="button" class="auth-aba sel" data-auth="entrar" role="tab" aria-selected="true" onclick="escolherModoLogin('entrar')" data-i18n="app.entrar">Entrar</button>
+          <button type="button" class="auth-aba" data-auth="criar" role="tab" aria-selected="false" onclick="escolherModoLogin('criar')" data-i18n="app.criar_conta">Criar conta</button>
         </div>
 
-        <label id="lbl-login-nome" for="campo-login-nome">Seu nome</label>
+        <label id="lbl-login-nome" for="campo-login-nome" data-i18n="login.seu_nome">Seu nome</label>
         <input id="campo-login-nome" type="text" placeholder="Ex.: Pedro" maxlength="20"
                name="poker-apelido" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
                data-lpignore="true" data-1p-ignore="true" enterkeyhint="next">
 
-        <label for="campo-login-senha">Sua senha</label>
+        <label for="campo-login-senha" data-i18n="login.sua_senha">Sua senha</label>
         <div class="campo-senha">
           <input id="campo-login-senha" class="senha" type="text" placeholder="Digite sua senha" maxlength="30"
                  name="poker-acesso" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                  data-lpignore="true" data-1p-ignore="true" enterkeyhint="go">
-          <button type="button" class="olho" onclick="alternarSenha('campo-login-senha', this)">Mostrar</button>
+          <button type="button" class="olho" onclick="alternarSenha('campo-login-senha', this)" data-i18n="app.mostrar">Mostrar</button>
         </div>
 
         <div id="grupo-confirmar-senha" hidden>
-          <label for="campo-login-senha-conf">Confirmar senha</label>
+          <label for="campo-login-senha-conf" data-i18n="login.conf_senha">Confirmar senha</label>
           <div class="campo-senha">
-            <input id="campo-login-senha-conf" class="senha" type="text" placeholder="Repita a senha" maxlength="30"
+            <input id="campo-login-senha-conf" class="senha" type="text" placeholder="Repita a senha" data-i18n-ph="login.ph_conf_senha" maxlength="30"
                    name="poker-acesso-conf" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                    data-lpignore="true" data-1p-ignore="true" enterkeyhint="go">
-            <button type="button" class="olho" onclick="alternarSenha('campo-login-senha-conf', this)">Mostrar</button>
+            <button type="button" class="olho" onclick="alternarSenha('campo-login-senha-conf', this)" data-i18n="app.mostrar">Mostrar</button>
           </div>
         </div>
 
@@ -134,12 +134,12 @@
       <button type="button" class="perfil-atalho" onclick="abrirPerfil()" aria-label="Editar meu perfil e preferências">
         <span class="avatar-conta" id="salas-avatar" aria-hidden="true">P</span>
         <span class="ola-txt">
-          <span class="ola">Olá, <strong id="salas-nome"></strong></span>
-          <span class="perfil-sub">Meu perfil · tema, cartas e senha</span>
+          <span class="ola"><span data-i18n="salas.ola">Olá, </span><strong id="salas-nome"></strong></span>
+          <span class="perfil-sub" data-i18n="salas.perfil_sub">Meu perfil · tema, cartas e senha</span>
         </span>
       </button>
       <div class="conta-acoes">
-        <button class="sair-conta" onclick="sairDaConta()">Sair</button>
+        <button class="sair-conta" onclick="sairDaConta()" data-i18n="app.sair">Sair</button>
       </div>
     </div>
 
@@ -150,7 +150,7 @@
       </div>
       <div class="linha-botoes">
         <button onclick="abrirCriar()" data-i18n="salas.criar">+ Criar sala</button>
-        <button type="button" id="btn-sala-dev" class="secundario botao-dev-entrada" onclick="abrirSalaDev()" hidden>Sala DEV</button>
+        <button type="button" id="btn-sala-dev" class="secundario botao-dev-entrada" onclick="abrirSalaDev()" data-i18n="salas.dev" hidden>Sala DEV</button>
       </div>
     </div>
     <div id="erro-salas" class="erro" role="alert"></div>
@@ -169,45 +169,45 @@
 
     <div class="cartao">
       <div class="nome-sala-linha">
-        <label class="etiqueta-sala" for="criar-nome-sala">Nome da sala</label>
-        <input id="criar-nome-sala" type="text" maxlength="32" placeholder="Ex.: Poker de Sexta"
+        <label class="etiqueta-sala" for="criar-nome-sala" data-i18n="criar.nome_sala">Nome da sala</label>
+        <input id="criar-nome-sala" type="text" maxlength="32" placeholder="Ex.: Poker de Sexta" data-i18n-ph="criar.ph_nome_sala"
                autocomplete="off" autocapitalize="sentences" spellcheck="false">
       </div>
 
-      <div class="secao-titulo"><span class="passo-num">1</span> Escolha o modo de jogo</div>
+      <div class="secao-titulo"><span class="passo-num">1</span> <span data-i18n="criar.modo">Escolha o modo de jogo</span></div>
       <div class="seletor-modo" id="seletor-modo">
         <button type="button" class="modo-btn" data-modo="presencial" onclick="escolherModoSala('presencial','')">
           <span class="modo-icone" aria-hidden="true">🪙</span>
-          <b>Presencial</b>
-          <small><strong>Baralho físico</strong> · só fichas e pote</small>
+          <b data-i18n="criar.presencial_nome">Presencial</b>
+          <small data-i18n-html="criar.presencial_desc"><strong>Baralho físico</strong> · só fichas e pote</small>
         </button>
         <button type="button" class="modo-btn sel" data-modo="online" onclick="escolherModoSala('online','')">
           <span class="modo-icone" aria-hidden="true">🃏</span>
-          <b>Online</b>
-          <small><strong>Baralho virtual</strong> · tudo automático</small>
+          <b data-i18n="criar.online_nome">Online</b>
+          <small data-i18n-html="criar.online_desc"><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
         <button type="button" class="modo-btn" data-modo="blackjack" onclick="escolherModoSala('blackjack','')">
           <span class="modo-icone" aria-hidden="true">🂡</span>
-          <b>Blackjack</b>
-          <small><strong>Banca automática</strong> · 21</small>
+          <b data-i18n="criar.bj_nome">Blackjack</b>
+          <small data-i18n-html="criar.bj_desc"><strong>Banca automática</strong> · 21</small>
         </button>
       </div>
 
       <div class="opcoes-online" id="opcoes-online">
         <div class="opcoes-grupo">
-          <label>Tempo por jogada</label>
+          <label data-i18n="criar.tempo">Tempo por jogada</label>
           <div class="opcoes-chips" id="chips-turno">
             <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'')">20s</button>
             <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'')">30s</button>
             <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'')">45s</button>
             <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'')">60s</button>
-            <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'')">Sem limite</button>
+            <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'')" data-i18n="criar.sem_limite">Sem limite</button>
           </div>
         </div>
         <div class="opcoes-grupo" id="grupo-blinds">
-          <label>Subir blinds automaticamente</label>
+          <label data-i18n="criar.subir_blinds">Subir blinds automaticamente</label>
           <div class="opcoes-chips" id="chips-blinds">
-            <button type="button" class="op-chip" data-v="0" onclick="escolherSubirBlinds(0,'')">Fixos</button>
+            <button type="button" class="op-chip" data-v="0" onclick="escolherSubirBlinds(0,'')" data-i18n="criar.fixos">Fixos</button>
             <button type="button" class="op-chip sel" data-v="10" onclick="escolherSubirBlinds(10,'')">10m</button>
             <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'')">15m</button>
             <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'')">20m</button>
@@ -215,12 +215,12 @@
           </div>
         </div>
         <div class="opcoes-grupo" id="grupo-bj-min" hidden>
-          <label for="campo-bj-min">Aposta mínima (Blackjack)</label>
+          <label for="campo-bj-min" data-i18n="criar.aposta_min">Aposta mínima (Blackjack)</label>
           <input id="campo-bj-min" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('')">
         </div>
       </div>
 
-      <div class="secao-titulo"><span class="passo-num">2</span> Fichas iniciais</div>
+      <div class="secao-titulo"><span class="passo-num">2</span> <span data-i18n="criar.fichas">Fichas iniciais</span></div>
       <div class="stacks" id="stacks">
         <button type="button" class="stack" data-s="1000" onclick="escolherStack(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStack(2000)"><b>2.000</b></button>
@@ -228,11 +228,11 @@
         <button type="button" class="stack sel" data-s="10000" onclick="escolherStack(10000)"><b>10.000</b></button>
       </div>
       <button type="button" class="stack especial" id="stack-real" onclick="alternarReal('')">
-        <b>Referência em R$</b>
-        <small>opcional</small>
+        <b data-i18n="criar.ref_reais">Referência em R$</b>
+        <small data-i18n="criar.opcional">opcional</small>
       </button>
       <div class="painel-real" id="painel-real" hidden>
-        <label for="campo-reais">Valor por jogador (R$)</label>
+        <label for="campo-reais" data-i18n="criar.valor_jogador">Valor por jogador (R$)</label>
         <input id="campo-reais" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('')">
         <p class="dica" id="reais-res"></p>
       </div>
@@ -242,12 +242,12 @@
       <input id="campo-big" type="number" value="100" hidden>
 
       <div class="profund">
-        <div><span id="prof-rotulo">Ritmo da mesa</span><small id="prof-det"></small></div>
+        <div><span id="prof-rotulo" data-i18n="criar.ritmo">Ritmo da mesa</span><small id="prof-det"></small></div>
         <strong id="prof-val"></strong>
       </div>
     </div>
 
-    <button id="botao-criar" onclick="criarSala()">Criar sala e abrir mesa</button>
+    <button id="botao-criar" onclick="criarSala()" data-i18n="criar.botao">Criar sala e abrir mesa</button>
     <div id="erro-criar" class="erro" role="alert"></div>
   </section>
 
@@ -255,48 +255,48 @@
   <section id="tela-dev" class="tela">
     <div class="topo-criar">
       <button class="voltar" onclick="abrirSalas()">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span data-i18n="app.voltar">Voltar</span>
       </button>
-      <h2>Sala DEV</h2>
+      <h2 data-i18n="dev.titulo">Sala DEV</h2>
     </div>
 
     <div class="cartao">
-      <p class="dica aviso-dev" style="margin-top:0">Sala de teste <strong>só neste aparelho</strong>, com jogadores fictícios controlados automaticamente.</p>
+      <p class="dica aviso-dev" style="margin-top:0" data-i18n-html="dev.aviso">Sala de teste <strong>só neste aparelho</strong>, com jogadores fictícios controlados automaticamente.</p>
 
-      <div class="secao-titulo"><span class="passo-num">1</span> Escolha o modo de jogo</div>
+      <div class="secao-titulo"><span class="passo-num">1</span> <span data-i18n="criar.modo">Escolha o modo de jogo</span></div>
       <div class="seletor-modo" id="seletor-modo-dev">
         <button type="button" class="modo-btn sel" data-modo="presencial" onclick="escolherModoSala('presencial','dev')">
           <span class="modo-icone" aria-hidden="true">🪙</span>
-          <b>Presencial</b>
-          <small><strong>Baralho físico</strong> · só fichas e pote</small>
+          <b data-i18n="criar.presencial_nome">Presencial</b>
+          <small data-i18n-html="criar.presencial_desc"><strong>Baralho físico</strong> · só fichas e pote</small>
         </button>
         <button type="button" class="modo-btn" data-modo="online" onclick="escolherModoSala('online','dev')">
           <span class="modo-icone" aria-hidden="true">🃏</span>
-          <b>Online</b>
-          <small><strong>Baralho virtual</strong> · tudo automático</small>
+          <b data-i18n="criar.online_nome">Online</b>
+          <small data-i18n-html="criar.online_desc"><strong>Baralho virtual</strong> · tudo automático</small>
         </button>
         <button type="button" class="modo-btn" data-modo="blackjack" onclick="escolherModoSala('blackjack','dev')">
           <span class="modo-icone" aria-hidden="true">🂡</span>
-          <b>Blackjack</b>
-          <small><strong>Banca automática</strong> · 21</small>
+          <b data-i18n="criar.bj_nome">Blackjack</b>
+          <small data-i18n-html="criar.bj_desc"><strong>Banca automática</strong> · 21</small>
         </button>
       </div>
 
       <div class="opcoes-online" id="opcoes-online-dev" hidden>
         <div class="opcoes-grupo">
-          <label>Tempo por jogada</label>
+          <label data-i18n="criar.tempo">Tempo por jogada</label>
           <div class="opcoes-chips" id="chips-turno-dev">
             <button type="button" class="op-chip" data-v="20" onclick="escolherTempoTurno(20,'dev')">20s</button>
             <button type="button" class="op-chip sel" data-v="30" onclick="escolherTempoTurno(30,'dev')">30s</button>
             <button type="button" class="op-chip" data-v="45" onclick="escolherTempoTurno(45,'dev')">45s</button>
             <button type="button" class="op-chip" data-v="60" onclick="escolherTempoTurno(60,'dev')">60s</button>
-            <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'dev')">Sem limite</button>
+            <button type="button" class="op-chip" data-v="0" onclick="escolherTempoTurno(0,'dev')" data-i18n="criar.sem_limite">Sem limite</button>
           </div>
         </div>
         <div class="opcoes-grupo" id="grupo-blinds-dev">
-          <label>Subir blinds automaticamente</label>
+          <label data-i18n="criar.subir_blinds">Subir blinds automaticamente</label>
           <div class="opcoes-chips" id="chips-blinds-dev">
-            <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'dev')">Fixos</button>
+            <button type="button" class="op-chip sel" data-v="0" onclick="escolherSubirBlinds(0,'dev')" data-i18n="criar.fixos">Fixos</button>
             <button type="button" class="op-chip" data-v="10" onclick="escolherSubirBlinds(10,'dev')">10m</button>
             <button type="button" class="op-chip" data-v="15" onclick="escolherSubirBlinds(15,'dev')">15m</button>
             <button type="button" class="op-chip" data-v="20" onclick="escolherSubirBlinds(20,'dev')">20m</button>
@@ -304,12 +304,12 @@
           </div>
         </div>
         <div class="opcoes-grupo" id="grupo-bj-min-dev" hidden>
-          <label for="campo-bj-min-dev">Aposta mínima (Blackjack)</label>
+          <label for="campo-bj-min-dev" data-i18n="criar.aposta_min">Aposta mínima (Blackjack)</label>
           <input id="campo-bj-min-dev" type="number" inputmode="numeric" value="100" oninput="atualizarProfundidade('dev')">
         </div>
       </div>
 
-      <div class="secao-titulo"><span class="passo-num">2</span> Quantidade de jogadores</div>
+      <div class="secao-titulo"><span class="passo-num">2</span> <span data-i18n="dev.qtd">Quantidade de jogadores</span></div>
       <div class="opcoes-chips chips-qtd" id="chips-dev-qtd">
         <button type="button" class="op-chip" data-q="1" onclick="escolherQtdDev(1)" aria-label="1 jogador" hidden>1</button>
         <button type="button" class="op-chip" data-q="2" onclick="escolherQtdDev(2)" aria-label="2 jogadores">2</button>
@@ -323,7 +323,7 @@
       </div>
       <input id="campo-dev-qtd" type="number" inputmode="numeric" value="4" hidden>
 
-      <div class="secao-titulo"><span class="passo-num">3</span> Fichas iniciais</div>
+      <div class="secao-titulo"><span class="passo-num">3</span> <span data-i18n="criar.fichas">Fichas iniciais</span></div>
       <div class="stacks" id="stacks-dev">
         <button type="button" class="stack" data-s="1000" onclick="escolherStackDev(1000)"><b>1.000</b></button>
         <button type="button" class="stack" data-s="2000" onclick="escolherStackDev(2000)"><b>2.000</b></button>
@@ -331,11 +331,11 @@
         <button type="button" class="stack" data-s="10000" onclick="escolherStackDev(10000)"><b>10.000</b></button>
       </div>
       <button type="button" class="stack especial" id="stack-real-dev" onclick="alternarReal('dev')">
-        <b>Referência em R$</b>
-        <small>opcional</small>
+        <b data-i18n="criar.ref_reais">Referência em R$</b>
+        <small data-i18n="criar.opcional">opcional</small>
       </button>
       <div class="painel-real" id="painel-real-dev" hidden>
-        <label for="campo-reais-dev">Valor por jogador (R$)</label>
+        <label for="campo-reais-dev" data-i18n="criar.valor_jogador">Valor por jogador (R$)</label>
         <input id="campo-reais-dev" type="number" inputmode="decimal" step="any" value="1" oninput="atualizarProfundidade('dev')">
         <p class="dica" id="reais-res-dev"></p>
       </div>
@@ -345,12 +345,12 @@
       <input id="campo-dev-big" type="number" value="100" hidden>
 
       <div class="profund">
-        <div><span id="prof-rotulo-dev">Ritmo da mesa</span><small id="prof-det-dev"></small></div>
+        <div><span id="prof-rotulo-dev" data-i18n="criar.ritmo">Ritmo da mesa</span><small id="prof-det-dev"></small></div>
         <strong id="prof-val-dev"></strong>
       </div>
     </div>
 
-    <button id="botao-criar-dev" onclick="criarSalaDev()">Criar sala DEV</button>
+    <button id="botao-criar-dev" onclick="criarSalaDev()" data-i18n="dev.criar">Criar sala DEV</button>
     <div id="erro-dev-criar" class="erro" role="alert"></div>
   </section>
 
@@ -480,23 +480,23 @@
     <!-- Gaveta: menu compacto da mesa Online (mobile) -->
     <div id="folha-menu" class="folha" hidden>
       <div class="folha-topo">
-        <div class="folha-titulo" id="menu-online-titulo">Menu da sala</div>
+        <div class="folha-titulo" id="menu-online-titulo" data-i18n="menu.titulo">Menu da sala</div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div class="folha-corpo">
         <p class="dica" id="menu-online-info" style="margin-top:0"></p>
         <div class="menu-online-grade">
-          <button type="button" class="secundario menu-tile" onclick="fecharFolhas(); abrirPerfil()">👤 Perfil e tema</button>
-          <button type="button" id="menu-btn-som" class="secundario menu-tile" onclick="alternarSom()" aria-pressed="true">🔊 Som: Ligado</button>
-          <button type="button" id="menu-btn-convidar" class="secundario menu-tile" onclick="fecharFolhas(); copiarConviteSala()">🔗 Convidar</button>
-          <button type="button" id="menu-btn-ausente" class="secundario menu-tile" onclick="fecharFolhas(); alternarAusenteOnline()" hidden>⏸ Ficar ausente</button>
-          <button type="button" class="secundario menu-tile" onclick="abrirGuia()">♠ Guia de mãos</button>
-          <button type="button" id="menu-btn-reais" class="secundario menu-tile" onclick="abrirReais()" hidden>🏆 Placar (R$)</button>
-          <button type="button" id="menu-btn-dev" class="secundario menu-tile" onclick="abrirPainelDev()" hidden>🛠 Painel DEV</button>
+          <button type="button" class="secundario menu-tile" onclick="fecharFolhas(); abrirPerfil()" data-i18n="menu.perfil">👤 Perfil e tema</button>
+          <button type="button" id="menu-btn-som" class="secundario menu-tile" onclick="alternarSom()" aria-pressed="true" data-i18n="menu.som_on">🔊 Som: Ligado</button>
+          <button type="button" id="menu-btn-convidar" class="secundario menu-tile" onclick="fecharFolhas(); copiarConviteSala()" data-i18n="menu.convidar">🔗 Convidar</button>
+          <button type="button" id="menu-btn-ausente" class="secundario menu-tile" onclick="fecharFolhas(); alternarAusenteOnline()" data-i18n="menu.ausente" hidden>⏸ Ficar ausente</button>
+          <button type="button" class="secundario menu-tile" onclick="abrirGuia()" data-i18n="menu.guia">♠ Guia de mãos</button>
+          <button type="button" id="menu-btn-reais" class="secundario menu-tile" onclick="abrirReais()" data-i18n="menu.reais" hidden>🏆 Placar (R$)</button>
+          <button type="button" id="menu-btn-dev" class="secundario menu-tile" onclick="abrirPainelDev()" data-i18n="menu.dev" hidden>🛠 Painel DEV</button>
         </div>
         <div class="menu-online-rodape">
-          <button type="button" id="menu-btn-sair" class="contorno-perigo" onclick="fecharFolhas(); sairDaMesa()" hidden>Sair da mesa</button>
-          <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()">← Salas</button>
+          <button type="button" id="menu-btn-sair" class="contorno-perigo" onclick="fecharFolhas(); sairDaMesa()" data-i18n="menu.sair" hidden>Sair da mesa</button>
+          <button type="button" class="neutro" onclick="fecharFolhas(); voltarParaSalas()" data-i18n="menu.salas">← Salas</button>
         </div>
       </div>
     </div>
@@ -504,7 +504,7 @@
     <!-- Gaveta: histórico -->
     <div id="folha-hist" class="folha" hidden>
       <div class="folha-topo">
-        <div class="folha-titulo">Histórico</div>
+        <div class="folha-titulo" data-i18n="hist.titulo">Histórico</div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div class="folha-corpo" id="hist-lista"></div>
@@ -515,14 +515,14 @@
       <div class="folha-topo">
         <div class="folha-titulo">
           <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Chat da mesa
+          <span data-i18n="chat.titulo">Chat da mesa</span>
         </div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div id="chat-abas" class="chat-abas" role="tablist">
-        <button type="button" id="aba-btn-chat" class="chat-aba ativa" role="tab" aria-selected="true" onclick="escolherAbaChat('chat')">💬 Chat</button>
+        <button type="button" id="aba-btn-chat" class="chat-aba ativa" role="tab" aria-selected="true" onclick="escolherAbaChat('chat')" data-i18n="chat.aba_chat">💬 Chat</button>
         <button type="button" id="aba-btn-votacao" class="chat-aba" role="tab" aria-selected="false" onclick="escolherAbaChat('votacao')">
-          🗳 Votação <span id="badge-aba-voto" class="badge-aba-voto" hidden></span>
+          <span data-i18n="chat.aba_votacao">🗳 Votação</span> <span id="badge-aba-voto" class="badge-aba-voto" hidden></span>
         </button>
       </div>
       <div id="erro-votacao" class="erro votacao-erro" role="alert"></div>
@@ -537,9 +537,9 @@
           <button type="button" class="chat-chip" onclick="enviarAtalhoChat('Volto já ⏳')">Volto já ⏳</button>
         </div>
         <form class="folha-rodape chat-form" onsubmit="event.preventDefault(); enviarChat();">
-          <input id="campo-chat" type="text" maxlength="240" placeholder="Digite uma mensagem..."
+          <input id="campo-chat" type="text" maxlength="240" placeholder="Digite uma mensagem..." data-i18n-ph="chat.ph"
                  autocomplete="off" enterkeyhint="send" aria-label="Mensagem do chat" oninput="aoDigitarChat()">
-          <button type="submit" id="btn-enviar-chat" class="positivo">Enviar</button>
+          <button type="submit" id="btn-enviar-chat" class="positivo" data-i18n="app.enviar">Enviar</button>
         </form>
       </div>
       <div id="aba-votacao" class="folha-corpo chat-painel" hidden>
@@ -601,16 +601,16 @@
     <!-- Gaveta: placar e acerto financeiro -->
     <div id="folha-reais" class="folha" hidden>
       <div class="folha-topo">
-        <div class="folha-titulo">Placar e Acerto</div>
+        <div class="folha-titulo" data-i18n="reais.titulo">Placar e Acerto</div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div class="folha-corpo">
         <p class="dica" id="info-real" style="margin-top:0;font-size:14.5px"></p>
         <div id="lista-reais"></div>
         <div class="acerto-bloco">
-          <div class="cartao-titulo" style="margin-top:14px">Quem paga quem</div>
+          <div class="cartao-titulo" style="margin-top:14px" data-i18n="reais.quem_paga">Quem paga quem</div>
           <div id="acerto-transferencias"></div>
-          <button type="button" class="secundario" style="margin-top:10px" onclick="copiarAcertoMesa()">Copiar resumo para WhatsApp</button>
+          <button type="button" class="secundario" style="margin-top:10px" onclick="copiarAcertoMesa()" data-i18n="reais.copiar">Copiar resumo para WhatsApp</button>
         </div>
       </div>
     </div>
@@ -618,11 +618,11 @@
     <!-- Gaveta: guia de mãos do poker -->
     <div id="folha-guia" class="folha" hidden>
       <div class="folha-topo">
-        <div class="folha-titulo">Guia de mãos</div>
+        <div class="folha-titulo" data-i18n="guia.titulo">Guia de mãos</div>
         <button class="fechar" onclick="fecharFolhas()" aria-label="Fechar">✕</button>
       </div>
       <div class="folha-corpo">
-        <p class="dica" style="margin-top:0">Da mais forte para a mais fraca. Cartas apagadas não fazem parte da combinação: só servem para desempatar.</p>
+        <p class="dica" style="margin-top:0" data-i18n="guia.dica">Da mais forte para a mais fraca. Cartas apagadas não fazem parte da combinação: só servem para desempatar.</p>
         <div id="guia-lista"></div>
       </div>
     </div>
@@ -690,10 +690,10 @@
   <section id="tela-carregando" class="tela">
     <div class="carregando">
       <div class="ficha-giro" aria-hidden="true"></div>
-      <p id="carregando-texto">Voltando para a mesa...</p>
+      <p id="carregando-texto" data-i18n="carregando.voltando">Voltando para a mesa...</p>
       <div id="carregando-acoes" class="carregando-acoes" hidden>
-        <button onclick="iniciarApp()">Tentar de novo</button>
-        <button class="secundario" onclick="esquecerPartida(); abrirSalas()">Ir para as salas</button>
+        <button onclick="iniciarApp()" data-i18n="carregando.tentar">Tentar de novo</button>
+        <button class="secundario" onclick="esquecerPartida(); abrirSalas()" data-i18n="carregando.salas">Ir para as salas</button>
       </div>
     </div>
   </section>
@@ -703,29 +703,29 @@
 <div id="fundo-perfil" class="fundo-folha" onclick="fecharPerfil()" hidden></div>
 <div id="folha-perfil" class="folha folha-modal-pc" hidden>
   <div class="folha-topo">
-    <div class="folha-titulo">Meu perfil</div>
+    <div class="folha-titulo" data-i18n="perfil.titulo">Meu perfil</div>
     <button class="fechar" onclick="fecharPerfil()" aria-label="Fechar">✕</button>
   </div>
   <div class="folha-corpo">
     <div class="perfil-foto-bloco">
       <div class="avatar-conta perfil-avatar-grande" id="perfil-avatar-preview" aria-hidden="true">P</div>
       <div class="perfil-foto-info">
-        <strong>Foto de perfil</strong>
-        <span>Aparece no seu assento durante as partidas</span>
+        <strong data-i18n="perfil.foto_titulo">Foto de perfil</strong>
+        <span data-i18n="perfil.foto_desc">Aparece no seu assento durante as partidas</span>
         <div class="perfil-foto-acoes">
-          <button type="button" id="btn-escolher-foto" class="positivo" onclick="acionarEscolhaFoto()">Escolher foto</button>
-          <button type="button" id="btn-remover-foto" class="contorno-perigo" onclick="removerFotoPerfil()" hidden>Remover</button>
+          <button type="button" id="btn-escolher-foto" class="positivo" onclick="acionarEscolhaFoto()" data-i18n="perfil.escolher_foto">Escolher foto</button>
+          <button type="button" id="btn-remover-foto" class="contorno-perigo" onclick="removerFotoPerfil()" data-i18n="app.remover" hidden>Remover</button>
         </div>
         <input id="input-foto-perfil" type="file" accept="image/*" hidden onchange="aoEscolherFotoPerfil(this)">
       </div>
     </div>
 
     <div class="perfil-secao">
-      <label for="campo-perfil-nome">Nome único da conta (até 10 caracteres)</label>
+      <label for="campo-perfil-nome" data-i18n="perfil.nome_unico">Nome único da conta (até 10 caracteres)</label>
       <div class="perfil-nome-linha">
-        <input id="campo-perfil-nome" type="text" maxlength="10" placeholder="Seu nome (máx. 10)"
+        <input id="campo-perfil-nome" type="text" maxlength="10" placeholder="Seu nome (máx. 10)" data-i18n-ph="perfil.ph_nome"
                autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false">
-        <button type="button" id="btn-salvar-nome" class="secundario" onclick="salvarNomePerfil()">Salvar</button>
+        <button type="button" id="btn-salvar-nome" class="secundario" onclick="salvarNomePerfil()" data-i18n="app.salvar">Salvar</button>
       </div>
       <div id="erro-perfil" class="erro" role="alert"></div>
     </div>
@@ -748,52 +748,52 @@
       <label data-i18n="perfil.tema">Tema visual</label>
       <div class="seletor-tema perfil-temas" role="group" aria-label="Escolher tema visual">
         <button type="button" class="tema-btn sel" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="true">
-          <span class="amostra amostra-preto" aria-hidden="true"></span>Preto
+          <span class="amostra amostra-preto" aria-hidden="true"></span><span data-i18n="perfil.tema_preto">Preto</span>
         </button>
         <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-          <span class="amostra amostra-classico" aria-hidden="true"></span>Sinuca
+          <span class="amostra amostra-classico" aria-hidden="true"></span><span data-i18n="perfil.tema_classico">Sinuca</span>
         </button>
         <button type="button" class="tema-btn" data-tema="cassino" onclick="escolherTema('cassino')" aria-pressed="false">
-          <span class="amostra amostra-cassino" aria-hidden="true"></span>Cassino
+          <span class="amostra amostra-cassino" aria-hidden="true"></span><span data-i18n="perfil.tema_cassino">Cassino</span>
         </button>
         <button type="button" class="tema-btn" data-tema="liberdade" onclick="escolherTema('liberdade')" aria-pressed="false">
-          <span class="amostra amostra-liberdade" aria-hidden="true"></span>USA
+          <span class="amostra amostra-liberdade" aria-hidden="true"></span><span data-i18n="perfil.tema_liberdade">USA</span>
         </button>
         <button type="button" class="tema-btn" data-tema="tropical" onclick="escolherTema('tropical')" aria-pressed="false">
-          <span class="amostra amostra-tropical" aria-hidden="true"></span>Tropical
+          <span class="amostra amostra-tropical" aria-hidden="true"></span><span data-i18n="perfil.tema_tropical">Tropical</span>
         </button>
       </div>
       <div class="perfil-pref-linha">
         <div class="perfil-pref-txt">
-          <strong>Segurar para espiar cartas</strong>
-          <small>Quando ativo, suas cartas só aparecem enquanto você segura o dedo (ou Espaço no PC)</small>
+          <strong data-i18n="perfil.espiar_titulo">Segurar para espiar cartas</strong>
+          <small data-i18n="perfil.espiar_desc">Quando ativo, suas cartas só aparecem enquanto você segura o dedo (ou Espaço no PC)</small>
         </div>
         <button type="button" id="btn-perfil-espiar" class="btn-pref-toggle" onclick="alternarModoEspiar()" aria-pressed="false">Desativado</button>
       </div>
     </div>
 
     <div class="perfil-secao">
-      <div class="perfil-secao-titulo">Segurança da conta</div>
-      <label for="campo-senha-atual">Senha atual</label>
+      <div class="perfil-secao-titulo" data-i18n="perfil.seguranca">Segurança da conta</div>
+      <label for="campo-senha-atual" data-i18n="perfil.senha_atual">Senha atual</label>
       <div class="campo-senha">
-        <input id="campo-senha-atual" class="senha" type="text" placeholder="Digite sua senha atual" maxlength="30"
+        <input id="campo-senha-atual" class="senha" type="text" placeholder="Digite sua senha atual" data-i18n-ph="perfil.ph_senha_atual" maxlength="30"
                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-atual', this)">Mostrar</button>
+        <button type="button" class="olho" onclick="alternarSenha('campo-senha-atual', this)" data-i18n="app.mostrar">Mostrar</button>
       </div>
-      <label for="campo-senha-nova">Nova senha</label>
+      <label for="campo-senha-nova" data-i18n="perfil.nova_senha">Nova senha</label>
       <div class="campo-senha">
-        <input id="campo-senha-nova" class="senha" type="text" placeholder="Mínimo 6 caracteres" maxlength="30"
+        <input id="campo-senha-nova" class="senha" type="text" placeholder="Mínimo 6 caracteres" data-i18n-ph="perfil.ph_nova_senha" maxlength="30"
                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova', this)">Mostrar</button>
+        <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova', this)" data-i18n="app.mostrar">Mostrar</button>
       </div>
-      <label for="campo-senha-nova-conf">Confirmar nova senha</label>
+      <label for="campo-senha-nova-conf" data-i18n="perfil.conf_nova_senha">Confirmar nova senha</label>
       <div class="campo-senha">
-        <input id="campo-senha-nova-conf" class="senha" type="text" placeholder="Repita a nova senha" maxlength="30"
+        <input id="campo-senha-nova-conf" class="senha" type="text" placeholder="Repita a nova senha" data-i18n-ph="perfil.ph_conf_nova_senha" maxlength="30"
                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova-conf', this)">Mostrar</button>
+        <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova-conf', this)" data-i18n="app.mostrar">Mostrar</button>
       </div>
-      <button type="button" id="btn-alterar-senha" class="secundario" onclick="alterarSenhaPerfil()">Alterar senha</button>
-      <button type="button" id="btn-encerrar-sessoes" class="contorno-perigo" onclick="encerrarOutrasSessoes()">Sair de outros aparelhos</button>
+      <button type="button" id="btn-alterar-senha" class="secundario" onclick="alterarSenhaPerfil()" data-i18n="perfil.alterar_senha">Alterar senha</button>
+      <button type="button" id="btn-encerrar-sessoes" class="contorno-perigo" onclick="encerrarOutrasSessoes()" data-i18n="perfil.sair_outros">Sair de outros aparelhos</button>
       <div id="erro-senha-perfil" class="erro" role="alert"></div>
     </div>
   </div>
@@ -818,7 +818,7 @@
 
     <!-- Modo blind -->
     <div id="barra-blind" hidden>
-      <button id="btn-blind" class="grande" onclick="pagarBlind()">PAGAR BLIND</button>
+      <button id="btn-blind" class="grande" onclick="pagarBlind()" data-i18n="mesa.pagar_blind">PAGAR BLIND</button>
     </div>
 
     <!-- Modo DEV: botão manual para passar para o jogador da vez / próximo jogador -->
@@ -860,11 +860,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=88"></script>
+<script type="module" src="./js/main.js?v=89"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=88').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=89').catch(() => {});
     });
   }
 </script>

@@ -1,10 +1,11 @@
 // Autenticação de conta (nome único, senha protegida, criação com confirmação e sessão)
-import { banco } from '../core/supabase.js?v=88';
-import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=88';
-import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=88';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=88';
-import { desligarTempoReal } from '../core/realtime.js?v=88';
-import { limparTodosModos } from '../mesa/modos.js?v=88';
+import { banco } from '../core/supabase.js?v=89';
+import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=89';
+import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=89';
+import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=89';
+import { desligarTempoReal } from '../core/realtime.js?v=89';
+import { limparTodosModos } from '../mesa/modos.js?v=89';
+import { t } from '../core/i18n.js?v=89';
 
 let modoLoginAtual = 'entrar';
 let hooksAuth = {
@@ -33,26 +34,24 @@ export function escolherModoLogin(modo) {
   if (grpConf) grpConf.hidden = !ehCriar;
 
   const lblNome = $id('lbl-login-nome');
-  if (lblNome) lblNome.textContent = ehCriar ? 'Escolha um nome único (até 10 caracteres)' : 'Seu nome';
+  if (lblNome) lblNome.textContent = t(ehCriar ? 'login.escolha_nome' : 'login.seu_nome');
 
   const campoNome = $id('campo-login-nome');
   if (campoNome) {
     campoNome.maxLength = ehCriar ? 10 : 20;
-    campoNome.placeholder = ehCriar ? 'Ex.: Pedro (máx. 10)' : 'Ex.: Pedro';
+    campoNome.placeholder = t(ehCriar ? 'login.ph_nome_criar' : 'login.ph_nome_entrar');
     if (ehCriar && campoNome.value.length > 10) campoNome.value = campoNome.value.slice(0, 10);
   }
 
   const campoSenha = $id('campo-login-senha');
-  if (campoSenha) campoSenha.placeholder = ehCriar ? 'Mínimo 6 caracteres' : 'Digite sua senha';
+  if (campoSenha) campoSenha.placeholder = t(ehCriar ? 'login.ph_senha_criar' : 'login.ph_senha_entrar');
 
   const btn = $id('botao-login');
-  if (btn) btn.textContent = ehCriar ? 'Criar minha conta' : 'Entrar';
+  if (btn) btn.textContent = t(ehCriar ? 'login.btn_criar' : 'login.btn_entrar');
 
   const dica = $id('dica-login');
   if (dica) {
-    dica.innerHTML = ehCriar
-      ? 'Seu <strong>nome é único</strong> e sua senha fica criptografada. Você poderá adicionar <strong>foto de perfil</strong> logo em seguida.'
-      : 'Use o mesmo <strong>nome</strong> e <strong>senha</strong> sempre que voltar. Ainda não tem? Toque em <strong>Criar conta</strong>.';
+    dica.innerHTML = t(ehCriar ? 'login.dica_criar' : 'login.dica_entrar');
   }
 }
 
@@ -99,7 +98,7 @@ async function entrarNaConta(funcao) {
   const textoOriginal = botao ? botao.textContent : '';
   if (botao) {
     botao.disabled = true;
-    botao.textContent = ehCriar ? 'Criando conta...' : 'Entrando...';
+    botao.textContent = t(ehCriar ? 'login.criando' : 'login.entrando');
   }
 
   let resp;

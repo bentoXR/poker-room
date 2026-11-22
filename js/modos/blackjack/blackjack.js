@@ -1,14 +1,14 @@
 // Modo Blackjack: multiplayer 1-6 jogadores contra a Banca automática (1 baralho 52 cartas, S17, 3:2)
 // Reutiliza animações (riffle shuffle, cartas voando, fichas voando, anúncios) e sons reais de som.js
-import { banco } from '../../core/supabase.js?v=88';
-import { estado, nomeDe } from '../../core/estado.js?v=88';
-import { lerDevSala } from '../../core/storage.js?v=88';
-import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=88';
-import { registrarModo } from '../../mesa/modos.js?v=88';
-import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=88';
-import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=88';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=88';
-import { t } from '../../core/i18n.js?v=88';
+import { banco } from '../../core/supabase.js?v=89';
+import { estado, nomeDe } from '../../core/estado.js?v=89';
+import { lerDevSala } from '../../core/storage.js?v=89';
+import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=89';
+import { registrarModo } from '../../mesa/modos.js?v=89';
+import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=89';
+import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=89';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=89';
+import { t } from '../../core/i18n.js?v=89';
 
 const bjUI = {
   partidaId: null,
@@ -197,7 +197,7 @@ function animarFichasVitoriaBJ() {
 function textoPontos(mao) {
   if (!mao) return '';
   if (mao.blackjack) return 'Blackjack! 21';
-  if (mao.estourou) return 'Estourou (' + mao.pontos + ')';
+  if (mao.estourou) return t('bj.estourou', { p: mao.pontos });
   if (mao.soft && mao.pontos <= 21) return (mao.pontos - 10) + ' / ' + mao.pontos;
   return String(mao.pontos || 0);
 }
@@ -213,9 +213,9 @@ function classeResultado(res) {
 function rotuloResultado(mao) {
   if (!mao || !mao.resultado) return '';
   if (mao.resultado === 'blackjack') return 'Blackjack! +' + mao.lucro;
-  if (mao.resultado === 'ganhou') return 'Ganhou +' + mao.lucro;
-  if (mao.resultado === 'empate') return 'Empate (devolveu)';
-  return 'Banca venceu';
+  if (mao.resultado === 'ganhou') return t('bj.ganhou', { v: mao.lucro });
+  if (mao.resultado === 'empate') return t('bj.empate');
+  return t('bj.banca_venceu');
 }
 
 function minhaEntrada(bj, eu) {
@@ -476,7 +476,7 @@ function prepararCenaBlackjack(partida, jogadores) {
     const atraso = (novaRodadaDeal ? 1050 : 0);
     agendarBJ(() => {
       if (estado.partidaAtual && estado.partidaAtual.id === partida.id && estado.partidaAtual.vez_jogador_id === eu.id) {
-        anunciarBJ('SUA VEZ', 'Pedir, Parar, Dobrar ou Dividir', 'vez', 2000);
+        anunciarBJ(t('bj.anuncio_vez'), t('bj.anuncio_vez_sub'), 'vez', 2000);
         tocarSom('sua-vez');
       }
     }, atraso);
@@ -503,17 +503,22 @@ function prepararCenaBlackjack(partida, jogadores) {
         tocarSom('campeao');
         tocarSom('ganhar-pote', 220);
         animarFichasVitoriaBJ();
-        anunciarBJ('BLACKJACK!', 'Paga 3:2 · +' + totalLucro + ' fichas', 'campeao', 2600);
+        anunciarBJ('BLACKJACK!', t('bj.anuncio_bj_sub', { v: totalLucro }), 'campeao', 2600);
       } else if (totalLucro > 0) {
         tocarSom('ganhar-pote');
         animarFichasVitoriaBJ();
-        anunciarBJ('VOCÊ GANHOU!', '+' + totalLucro + ' fichas', 'showdown', 2200);
+        anunciarBJ(t('bj.anuncio_ganhou'), t('bj.anuncio_ganhou_sub', { v: totalLucro }), 'showdown', 2200);
       } else if (todosEmpate || totalPag > 0 && totalLucro === 0) {
         tocarSom('check');
-        anunciarBJ('EMPATE', 'Aposta devolvida', 'flop', 1900);
+        anunciarBJ(t('bj.anuncio_empate'), t('bj.anuncio_empate_sub'), 'flop', 1900);
       } else {
         tocarSom('desistir');
-        anunciarBJ(todosEstourou ? 'ESTOUROU!' : 'BANCA VENCEU', dealer.blackjack ? 'Banca fez Blackjack' : ('Banca: ' + dealer.pontos), 'turn', 2000);
+        anunciarBJ(
+          todosEstourou ? t('bj.anuncio_estourou') : t('bj.anuncio_banca_venceu'),
+          dealer.blackjack ? t('bj.anuncio_banca_bj') : t('bj.anuncio_banca_pts', { p: dealer.pontos }),
+          'turn',
+          2000
+        );
       }
     }, atrasoRes);
   }
@@ -537,7 +542,7 @@ function desenharDealerBoard(partida) {
 
   let cartasHtml = '';
   if (cartas.length === 0) {
-    cartasHtml = '<div class="bj-dealer-vazio">Faça sua aposta para iniciar a rodada<small>Banca para no 17 · Blackjack paga 3:2</small></div>';
+    cartasHtml = '<div class="bj-dealer-vazio">' + escapar(t('bj.faca_aposta')) + '<small>' + escapar(t('bj.regra_dica')) + '</small></div>';
     bjUI.dealerQtdVisto = 0;
   } else {
     const slots = cartas.map((c, idx) => {
@@ -546,7 +551,7 @@ function desenharDealerBoard(partida) {
       return '<div class="bj-carta-slot' + (ja ? ' ja' : '') + '" style="--atraso:' + atraso + 'ms">' + htmlCarta(c) + '</div>';
     }).join('');
     const ocultaHtml = dealer.oculta
-      ? '<div class="bj-carta-slot' + (bjUI.dealerQtdVisto > 0 ? ' ja' : '') + '" style="--atraso:180ms"><span class="carta verso" aria-label="Carta oculta da banca"></span></div>'
+      ? '<div class="bj-carta-slot' + (bjUI.dealerQtdVisto > 0 ? ' ja' : '') + '" style="--atraso:180ms"><span class="carta verso" aria-label="Hidden card"></span></div>'
       : '';
     cartasHtml = '<div class="bj-dealer-cartas">' + slots + ocultaHtml + '</div>';
     bjUI.dealerQtdVisto = cartas.length;
@@ -562,7 +567,7 @@ function desenharDealerBoard(partida) {
   board.innerHTML = `
     <div class="bj-dealer">
       <div class="bj-dealer-topo">
-        <span class="bj-dealer-titulo">BANCA · DEALER</span>
+        <span class="bj-dealer-titulo">${escapar(t('bj.banca_titulo'))}</span>
         ${badgePts}
       </div>
       ${cartasHtml}
@@ -606,7 +611,7 @@ function desenharMinhaMao(bj, eu, minhaVez) {
         <div class="bj-mao-cartas">${cartasHtml}</div>
         <div class="bj-mao-meta">
           <span class="bj-score ${statusTxt}">${escapar(textoPontos(mao))}</span>
-          <span class="bj-aposta-tag">Aposta ${mao.aposta}${mao.dobrou ? ' (2x)' : ''}</span>
+          <span class="bj-aposta-tag">${escapar(t('bj.aposta_tag', { v: mao.aposta }))}${mao.dobrou ? ' (2x)' : ''}</span>
           ${rotRes ? '<span class="bj-res ' + clsRes + '">' + escapar(rotRes) + '</span>' : ''}
         </div>
       </div>
@@ -646,8 +651,8 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
 
   if (bj.fase === 'encerrada') {
     barra.innerHTML = `
-      <div class="bj-aviso-fora">Todos os jogadores ficaram sem fichas nesta mesa.</div>
-      <button type="button" class="positivo bj-btn-cheio" onclick="bjRevanche()"${travado}>Revanche (reiniciar fichas)</button>
+      <div class="bj-aviso-fora">${escapar(t('bj.todos_sem_fichas'))}</div>
+      <button type="button" class="positivo bj-btn-cheio" onclick="bjRevanche()"${travado}>${escapar(t('bj.revanche'))}</button>
     `;
     return;
   }
@@ -664,15 +669,15 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
 
       barra.innerHTML = `
         <div class="bj-acoes-grid">
-          <button type="button" class="positivo bj-btn-pedir" onclick="bjAgir('pedir')"${travado}>${t('bj.pedir')}<small>+1 carta</small></button>
-          <button type="button" class="neutro bj-btn-parar" onclick="bjAgir('parar')"${travado}>${t('bj.parar')}<small>Manter</small></button>
-          <button type="button" class="secundario bj-btn-dobrar" onclick="bjAgir('dobrar')"${podeDobrar ? '' : ' disabled'}>${t('bj.dobrar')}<small>2x + 1</small></button>
-          <button type="button" class="secundario bj-btn-dividir" onclick="bjAgir('dividir')"${podeDividir ? '' : ' disabled'}>${t('bj.dividir')}<small>2 mãos</small></button>
+          <button type="button" class="positivo bj-btn-pedir" onclick="bjAgir('pedir')"${travado}>${t('bj.pedir')}<small>${t('bj.pedir_sub')}</small></button>
+          <button type="button" class="neutro bj-btn-parar" onclick="bjAgir('parar')"${travado}>${t('bj.parar')}<small>${t('bj.parar_sub')}</small></button>
+          <button type="button" class="secundario bj-btn-dobrar" onclick="bjAgir('dobrar')"${podeDobrar ? '' : ' disabled'}>${t('bj.dobrar')}<small>${t('bj.dobrar_sub')}</small></button>
+          <button type="button" class="secundario bj-btn-dividir" onclick="bjAgir('dividir')"${podeDividir ? '' : ' disabled'}>${t('bj.dividir')}<small>${t('bj.dividir_sub')}</small></button>
         </div>
       `;
     } else {
       const vezJog = (jogadores || []).find((j) => j.id === partida.vez_jogador_id);
-      const txt = vezJog ? ('Vez de ' + nomeDe(vezJog.nome) + '…') : 'Banca jogando…';
+      const txt = vezJog ? t('mesa.vez_de', { nome: nomeDe(vezJog.nome) }) : t('bj.banca_jogando');
       barra.innerHTML = '<div class="bj-espera">' + escapar(txt) + '</div>';
     }
     return;
@@ -680,16 +685,16 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
 
   // Fases 'apostas' ou 'resultado'
   if (eu.saldo < min && !(bj.fase === 'apostas' && ent.confirmado)) {
-    barra.innerHTML = '<div class="bj-aviso-fora">Você ficou sem fichas suficientes (mín. ' + min + ') e está fora desta partida.</div>';
+    barra.innerHTML = '<div class="bj-aviso-fora">' + escapar(t('bj.sem_fichas_fora', { min })) + '</div>';
     return;
   }
 
   if (bj.fase === 'apostas' && ent.confirmado) {
     const devBtn = estado.modoDev
-      ? '<button type="button" class="secundario bj-btn-dev-conf" onclick="bjConfirmarTodosDev()"' + travado + '>Confirmar todos (DEV)</button>'
+      ? '<button type="button" class="secundario bj-btn-dev-conf" onclick="bjConfirmarTodosDev()"' + travado + '>' + escapar(t('bj.conf_todos_dev')) + '</button>'
       : '';
     barra.innerHTML = `
-      <div class="bj-espera">Aposta confirmada: <b>${ent.aposta_pendente}</b> · Aguardando outros jogadores…</div>
+      <div class="bj-espera">${t('bj.aposta_conf', { v: ent.aposta_pendente })}</div>
       ${devBtn}
     `;
     return;
@@ -704,15 +709,15 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
   barra.innerHTML = `
     ${resumoUlt}
     <div class="bj-fichas">
-      ${temUlt ? '<button type="button" class="secundario" onclick="bjRepetirAposta()"' + travado + '>Repetir</button>' : ''}
+      ${temUlt ? '<button type="button" class="secundario" onclick="bjRepetirAposta()"' + travado + '>' + escapar(t('bj.repetir')) + '</button>' : ''}
       <button type="button" class="secundario bj-chip" onclick="bjSomarFicha(1)"${(bjUI.enviando || eu.saldo < valor + min) ? ' disabled' : ''}>+${min}</button>
       <button type="button" class="secundario bj-chip" onclick="bjSomarFicha(2)"${(bjUI.enviando || eu.saldo < valor + min * 2) ? ' disabled' : ''}>+${min * 2}</button>
       <button type="button" class="secundario bj-chip" onclick="bjSomarFicha(5)"${(bjUI.enviando || eu.saldo < valor + min * 5) ? ' disabled' : ''}>+${min * 5}</button>
       <button type="button" class="secundario" onclick="bjDobrarAposta()"${(bjUI.enviando || eu.saldo < Math.max(min, valor) * 2) ? ' disabled' : ''}>2x</button>
       <button type="button" class="secundario allin" onclick="bjAllInAposta()"${travado}>All-in</button>
-      <button type="button" class="neutro" onclick="bjLimparAposta()"${travado}>Mín.</button>
+      <button type="button" class="neutro" onclick="bjLimparAposta()"${travado}>${escapar(t('bj.min_btn'))}</button>
     </div>
-    <button type="button" class="positivo bj-btn-cheio" onclick="bjConfirmarAposta()"${travado}>${bjUI.enviando ? 'Enviando…' : t('bj.apostar', { v: valor })}</button>
+    <button type="button" class="positivo bj-btn-cheio" onclick="bjConfirmarAposta()"${travado}>${bjUI.enviando ? escapar(t('bj.enviando')) : t('bj.apostar', { v: valor })}</button>
   `;
 }
 
@@ -802,9 +807,9 @@ registrarModo('blackjack', {
 
   textoStatus(partida) {
     const bj = obterBjEstado(partida);
-    if (bj.fase === 'encerrada') return 'Fim de jogo — todos ficaram sem fichas.';
-    if (bj.fase === 'resultado') return 'Rodada encerrada · Faça sua próxima aposta';
-    if (bj.fase === 'apostas') return 'Faça sua aposta para receber as cartas';
+    if (bj.fase === 'encerrada') return t('bj.status_encerrada');
+    if (bj.fase === 'resultado') return t('bj.status_resultado');
+    if (bj.fase === 'apostas') return t('bj.status_apostas');
     return null;
   },
 
@@ -816,15 +821,15 @@ registrarModo('blackjack', {
     if (jogador.id === estado.meuJogadorId) return '';
     const bj = obterBjEstado(partida);
     const ent = (bj.maos && bj.maos[jogador.id]) || null;
-    if (!ent) return '<div class="bj-assento-st">Aguardando</div>';
-    if (ent.eliminado) return '<div class="bj-assento-st perdido">Sem fichas</div>';
+    if (!ent) return '<div class="bj-assento-st">' + escapar(t('bj.aguardando')) + '</div>';
+    if (ent.eliminado) return '<div class="bj-assento-st perdido">' + escapar(t('bj.sem_fichas')) + '</div>';
     if (bj.fase === 'apostas') {
       return ent.confirmado
-        ? '<div class="bj-assento-st ok">Apostou ' + ent.aposta_pendente + '</div>'
-        : '<div class="bj-assento-st">Apostando…</div>';
+        ? '<div class="bj-assento-st ok">' + escapar(t('bj.apostou', { v: ent.aposta_pendente })) + '</div>'
+        : '<div class="bj-assento-st">' + escapar(t('bj.apostando')) + '</div>';
     }
     const lista = Array.isArray(ent.lista) ? ent.lista : [];
-    if (lista.length === 0) return '<div class="bj-assento-st">Fora da rodada</div>';
+    if (lista.length === 0) return '<div class="bj-assento-st">' + escapar(t('bj.fora_rodada')) + '</div>';
 
     return '<div class="bj-assento-maos">' + lista.map((m) => {
       const cartas = (m.cartas || []).map((c) => htmlCartaMini(c)).join('');

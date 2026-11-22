@@ -1,18 +1,18 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=88';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=88';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=88';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=88';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=88';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=88';
-import { obterModo, limparTodosModos } from './modos.js?v=88';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=88';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=88';
-import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=88';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=88';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=88';
-import { t, termo } from '../core/i18n.js?v=88';
+import { banco } from '../core/supabase.js?v=89';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=89';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=89';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=89';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=89';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=89';
+import { obterModo, limparTodosModos } from './modos.js?v=89';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=89';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=89';
+import { obterAvatarUrl, sincronizarAvataresMesa } from '../lobby/perfil.js?v=89';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=89';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=89';
+import { t, termo } from '../core/i18n.js?v=89';
 
 const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
 
@@ -358,16 +358,16 @@ export function desenharMesa(dados) {
 
   const maoVis = partida.aguardando_proxima_mao ? Math.max(1, partida.mao - 1) : partida.mao;
   $id('mesa-mao').textContent = partida.iniciada ? t(ehModoBlackjack ? 'mesa.rodada' : 'mesa.mao', { n: maoVis }) : '';
-  $id('mesa-nivel').textContent = ehModoBlackjack ? '' : ('Nível ' + partida.nivel);
+  $id('mesa-nivel').textContent = ehModoBlackjack ? '' : t('mesa.nivel', { n: partida.nivel });
   $id('mesa-blinds').textContent = ehModoBlackjack
-    ? ('Mín. ' + partida.small_blind)
+    ? t('mesa.min', { v: partida.small_blind })
     : (termo('blinds') + ' ' + partida.small_blind + '/' + partida.big_blind);
   $id('mesa-aposta').textContent = (!ehModoBlackjack && partida.iniciada && !partida.aguardando_proxima_mao && partida.fase < 4)
-    ? 'Maior aposta ' + partida.aposta_atual
+    ? t('mesa.maior_aposta', { v: partida.aposta_atual })
     : '';
   $id('mesa-papel').textContent = estado.modoDev
-    ? 'DEV · ' + (eu ? nomeDe(eu.nome) : 'só assistindo')
-    : (eu ? 'Você é o Jogador ' + eu.ordem : 'Você está só assistindo');
+    ? 'DEV · ' + (eu ? nomeDe(eu.nome) : t('mesa.assistindo'))
+    : (eu ? t('mesa.voce_jogador', { n: eu.ordem }) : t('mesa.assistindo'));
 
   $id('tela-mesa').classList.toggle(
     'em-showdown',
@@ -469,41 +469,40 @@ export function desenharMesa(dados) {
 }
 
 function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez }) {
-  if (partida.pausada) return '⏸ Mesa pausada por votação';
+  if (partida.pausada) return t('mesa.pausada');
   if (partida.modo === 'online') {
     const comFichas = jogadores.filter((j) => j.saldo > 0).length;
-    if (!partida.iniciada) return 'Aguardando jogadores confirmarem entrada';
+    if (!partida.iniciada) return t('mesa.aguardando_online');
     if (partida.aguardando_proxima_mao) {
-      if (comFichas < 2) return 'Fim da partida!';
-      return 'Mão ' + (partida.mao - 1) + ' terminou · confirme para a próxima mão';
+      if (comFichas < 2) return t('bj.status_encerrada');
+      return t('mesa.mao', { n: partida.mao - 1 }) + ' · ' + t('mesa.aguardando');
     }
     if (jogadorDaVez && partida.fase_blind === 1) {
-      return minhaVez ? 'Você deve pagar o small blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o small blind';
+      return termo('smallblind') + ' · ' + (minhaVez ? t('mesa.sua_vez_label') : nomeDe(jogadorDaVez.nome));
     }
     if (jogadorDaVez && partida.fase_blind === 2) {
-      return minhaVez ? 'Você deve pagar o big blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o big blind';
+      return termo('bigblind') + ' · ' + (minhaVez ? t('mesa.sua_vez_label') : nomeDe(jogadorDaVez.nome));
     }
-    if (jogadorDaVez) return minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + nomeDe(jogadorDaVez.nome);
-    return 'Atualizando mesa…';
+    if (jogadorDaVez) return minhaVez ? t('mesa.sua_vez') : t('mesa.vez_de', { nome: nomeDe(jogadorDaVez.nome) });
+    return t('mesa.aguardando');
   }
-  if (!partida.iniciada) return 'Aguardando o criador iniciar a partida';
+  if (!partida.iniciada) return t('mesa.aguardando_criador');
   if (partida.aguardando_proxima_mao) {
     const comFichas = jogadores.filter((j) => j.saldo > 0).length;
-    if (comFichas < 2) return 'Fim da partida: só resta um jogador com fichas.';
-    if (eu && eu.criador) return 'Mão ' + (partida.mao - 1) + ' terminou. Toque em "Próxima mão" quando quiser.';
-    return 'Mão ' + (partida.mao - 1) + ' terminou. Aguardando o criador.';
+    if (comFichas < 2) return t('bj.status_encerrada');
+    return t('mesa.mao', { n: partida.mao - 1 });
   }
   if (jogadorDaVez && partida.fase_blind === 1) {
-    return minhaVez ? 'Você deve pagar o small blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o small blind';
+    return termo('smallblind') + ' · ' + (minhaVez ? t('mesa.sua_vez_label') : nomeDe(jogadorDaVez.nome));
   }
   if (jogadorDaVez && partida.fase_blind === 2) {
-    return minhaVez ? 'Você deve pagar o big blind' : nomeDe(jogadorDaVez.nome) + ' deve pagar o big blind';
+    return termo('bigblind') + ' · ' + (minhaVez ? t('mesa.sua_vez_label') : nomeDe(jogadorDaVez.nome));
   }
-  if (partida.fase === 4) return 'Showdown: mostrem as cartas. O criador distribui o pote.';
-  if (partida.aguardando_cartas) return 'Virem as cartas do ' + NOMES_FASE[partida.fase] + '.';
-  if (jogadorDaVez) return minhaVez ? 'Sua vez de jogar!' : 'Vez de ' + nomeDe(jogadorDaVez.nome);
-  if (partida.pote > 0) return 'Aguardando o criador distribuir o pote.';
-  return 'Fim da partida: só resta um jogador com fichas.';
+  if (partida.fase === 4) return termo('showdown');
+  if (partida.aguardando_cartas) return termo(CHAVES_FASE[partida.fase] || 'preflop');
+  if (jogadorDaVez) return minhaVez ? t('mesa.sua_vez') : t('mesa.vez_de', { nome: nomeDe(jogadorDaVez.nome) });
+  if (partida.pote > 0) return t('mesa.aguardando');
+  return t('bj.status_encerrada');
 }
 
 // Coordenadas (x%, y%) dos assentos quando TODOS ficam na elipse (Presencial / espectador)
@@ -802,7 +801,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
         ${badgePerfilHtml}
         <div class="l-corpo">
-          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">você</span>' : ''}</div>
+          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">' + t('mesa.voce') + '</span>' : ''}</div>
           <div class="l-meio">
             <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${(ehDesktop || ehLandscapeMobile) ? Number(j.saldo).toLocaleString('pt-BR') : j.saldo}</div>
             ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
@@ -832,9 +831,9 @@ function atualizarResumoTopoOnline() {
   const partes = [];
   if (p.iniciada) {
     const maoVis = p.aguardando_proxima_mao ? Math.max(1, p.mao - 1) : p.mao;
-    partes.push((p.modo === 'blackjack' ? 'Rodada ' : 'Mão ') + maoVis);
+    partes.push(t(p.modo === 'blackjack' ? 'mesa.rodada' : 'mesa.mao', { n: maoVis }));
   }
-  partes.push(p.modo === 'blackjack' ? ('Mín. ' + p.small_blind) : (p.small_blind + '/' + p.big_blind));
+  partes.push(p.modo === 'blackjack' ? t('mesa.min', { v: p.small_blind }) : (p.small_blind + '/' + p.big_blind));
   if (estado.relogio.ini) {
     const agora = Date.now() + estado.relogio.offset;
     partes.push(formatarTempo(agora - estado.relogio.ini));

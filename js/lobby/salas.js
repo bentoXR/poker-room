@@ -1,13 +1,14 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=88';
-import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=88';
-import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=88';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=88';
-import { desligarTempoReal } from '../core/realtime.js?v=88';
-import { tratarErroConta } from './auth.js?v=88';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=88';
-import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=88';
-import { abrirMesa } from '../mesa/mesa.js?v=88';
+import { banco } from '../core/supabase.js?v=89';
+import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=89';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=89';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=89';
+import { desligarTempoReal } from '../core/realtime.js?v=89';
+import { tratarErroConta } from './auth.js?v=89';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=89';
+import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=89';
+import { abrirMesa } from '../mesa/mesa.js?v=89';
+import { t, termo } from '../core/i18n.js?v=89';
 
 let hooksSalas = {
   cancelarCriacaoDev: () => {},
@@ -39,7 +40,7 @@ export function abrirSalas() {
   limparErro('erro-salas');
   mostrar('tela-salas');
   if (!estado.htmlSalas) {
-    $id('lista-salas').innerHTML = '<div class="vazio"><p>Buscando salas abertas…</p></div>';
+    $id('lista-salas').innerHTML = '<div class="vazio"><p>' + t('salas.buscando') + '</p></div>';
   }
   carregarSalas();
   estado.temporizadorSalas = setInterval(carregarSalas, 4000);
@@ -80,12 +81,12 @@ export function desenharSalas() {
   let html;
   if (estado.salasAtuais.length === 0) {
     const textoVazio = ehContaDev()
-      ? 'Toque em <b>+ Criar sala</b> para chamar seus amigos ou teste sozinho na <b>Sala DEV</b>.'
-      : 'Toque em <b>+ Criar sala</b> para chamar seus amigos para a mesa.';
+      ? t('salas.vazio_dev')
+      : t('salas.vazio_txt');
     html = `
       <div class="vazio">
         <div class="vazio-naipes" aria-hidden="true"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
-        <strong>Nenhuma sala aberta agora</strong>
+        <strong>${t('salas.vazio_titulo')}</strong>
         <p>${textoVazio}</p>
       </div>
     `;
@@ -94,24 +95,24 @@ export function desenharSalas() {
       const ehOnline = s.modo === 'online';
       const ehBlackjack = s.modo === 'blackjack';
       const statusChip = s.iniciada
-        ? '<span class="meta-chip vivo"><i></i><b>' + (ehBlackjack ? 'Rodada ' : 'Mão ') + s.mao + '</b></span>'
-        : '<span class="meta-chip">Aguardando</span>';
-      const jogTxt = '<b>' + s.n_jogadores + '</b> ' + (s.n_jogadores === 1 ? 'jogador' : 'jogadores');
+        ? '<span class="meta-chip vivo"><i></i><b>' + t(ehBlackjack ? 'mesa.rodada' : 'mesa.mao', { n: s.mao }) + '</b></span>'
+        : '<span class="meta-chip">' + t('salas.aguardando') + '</span>';
+      const jogTxt = '<b>' + s.n_jogadores + '</b> ' + t(s.n_jogadores === 1 ? 'salas.jogador' : 'salas.jogadores');
       const blindsTxt = ehBlackjack
-        ? 'Mín. <b>' + s.small_blind + '</b>'
-        : 'Blinds <b>' + s.small_blind + '/' + s.big_blind + '</b>';
+        ? t('mesa.min', { v: '<b>' + s.small_blind + '</b>' })
+        : termo('blinds') + ' <b>' + s.small_blind + '/' + s.big_blind + '</b>';
       const tempoChip = (ehOnline || ehBlackjack)
-        ? '<span class="meta-chip">' + (Number(s.tempo_turno) === 0 ? '<b>Sem limite</b>' : 'Turno <b>' + (s.tempo_turno || 30) + 's</b>') + '</span>'
+        ? '<span class="meta-chip">' + (Number(s.tempo_turno) === 0 ? '<b>' + t('salas.sem_limite') + '</b>' : t('salas.turno', { s: (s.tempo_turno || 30) })) + '</span>'
         : '';
       const subirChip = (ehOnline && s.subir_blinds_min > 0)
         ? '<span class="meta-chip">↑ <b>' + s.subir_blinds_min + 'm</b></span>'
         : '';
       const modoTag = ehBlackjack
-        ? '<span class="tag modo-blackjack">🂡 Blackjack</span>'
+        ? '<span class="tag modo-blackjack">' + t('salas.modo_blackjack') + '</span>'
         : (ehOnline
-          ? '<span class="tag modo-online">🃏 Online</span>'
-          : '<span class="tag modo-presencial">🪙 Presencial</span>');
-      const tag = s.sou_jogador ? '<span class="tag vez">Continuar</span>' : '';
+          ? '<span class="tag modo-online">' + t('salas.modo_online') + '</span>'
+          : '<span class="tag modo-presencial">' + t('salas.modo_presencial') + '</span>');
+      const tag = s.sou_jogador ? '<span class="tag vez">' + t('salas.continuar') + '</span>' : '';
       return `
         <button type="button" class="sala ${ehBlackjack ? 'eh-blackjack' : (ehOnline ? 'eh-online' : 'eh-presencial')} ${s.sou_jogador ? 'minha' : ''}" onclick="abrirSala('${s.id}')">
           <div class="sala-info">
@@ -181,7 +182,7 @@ export function abrirCriar() {
   desligarTempoReal();
   limparErro('erro-criar');
   aplicarPadraoCriarSala();
-  $id('criar-nome-sala').value = 'Sala do ' + estado.minhaConta.nome;
+  $id('criar-nome-sala').value = t('criar.padrao_nome', { nome: estado.minhaConta.nome });
   mostrar('tela-criar');
 }
 
@@ -228,7 +229,7 @@ export async function criarSala() {
 
   const botao = $id('botao-criar');
   botao.disabled = true;
-  botao.textContent = 'Criando...';
+  botao.textContent = t('criar.criando');
 
   try {
     let resp;
@@ -272,7 +273,7 @@ export async function criarSala() {
   } finally {
     estado.criandoSala = false;
     botao.disabled = false;
-    botao.textContent = 'Criar sala e abrir mesa';
+    botao.textContent = t('criar.botao');
   }
 }
 

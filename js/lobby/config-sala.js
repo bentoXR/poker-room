@@ -1,8 +1,9 @@
 // Configuração de nova sala (stack, blinds, profundidade em BB e referência em R$)
 // Compartilhada por todos os modos (Presencial, DEV e futuro Online)
-import { banco } from '../core/supabase.js?v=88';
-import { estado, marcarReal } from '../core/estado.js?v=88';
-import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=88';
+import { banco } from '../core/supabase.js?v=89';
+import { estado, marcarReal } from '../core/estado.js?v=89';
+import { $id, fmtNum, fmtReais, aviso } from '../core/ui.js?v=89';
+import { t, termo } from '../core/i18n.js?v=89';
 
 const STACKS = { 1000: [5, 10], 2000: [10, 20], 5000: [25, 50], 10000: [50, 100] };
 const cfgReal = { '': false, dev: false };
@@ -183,24 +184,24 @@ export function atualizarProfundidade(p) {
     const okBj = s > 0 && minBj > 0 && minBj <= s;
     const apostas = okBj ? Math.floor(s / minBj) : 0;
     const rotuloEl = $id('prof-rotulo' + i.s);
-    if (rotuloEl) rotuloEl.textContent = 'Banca · Blackjack';
-    $id('prof-val' + i.s).textContent = okBj ? apostas + ' mín.' : '—';
+    if (rotuloEl) rotuloEl.textContent = t('criar.bj_rotulo');
+    $id('prof-val' + i.s).textContent = okBj ? (apostas + ' ' + t('bj.min_btn')) : '—';
     $id('prof-det' + i.s).innerHTML = okBj
-      ? '<b>' + fmtNum(s) + '</b> fichas · Aposta mínima <b>' + fmtNum(minBj) + '</b>'
-      : 'Informe fichas e aposta mínima válidos';
+      ? t('criar.bj_det', { s: fmtNum(s), m: fmtNum(minBj) })
+      : t('criar.bj_invalido');
     return;
   }
 
   const ok = s > 0 && bb > 0;
   const bbs = ok ? (Math.round(s / bb * 10) / 10) : 0;
-  const ritmo = !ok ? 'Ritmo da mesa'
-    : (bbs < 40 ? 'Jogo rápido' : bbs <= 120 ? 'Equilibrado (padrão)' : 'Jogo longo');
+  const ritmo = !ok ? t('criar.ritmo')
+    : (bbs < 40 ? t('criar.ritmo_rapido') : bbs <= 120 ? t('criar.ritmo_equilibrado') : t('criar.ritmo_longo'));
   const rotuloEl = $id('prof-rotulo' + i.s);
   if (rotuloEl) rotuloEl.textContent = ritmo;
   $id('prof-val' + i.s).textContent = ok ? bbs.toLocaleString('pt-BR') + ' BB' : '—';
   $id('prof-det' + i.s).innerHTML = ok
-    ? '<b>' + fmtNum(s) + '</b> fichas · Blinds <b>' + fmtNum(sb) + '/' + fmtNum(bb) + '</b>'
-    : 'Informe fichas e blinds válidos';
+    ? t('criar.poker_det', { s: fmtNum(s), blinds: termo('blinds'), sb: fmtNum(sb), bb: fmtNum(bb) })
+    : t('criar.poker_invalido');
 }
 
 export async function registrarRealCriacao(p, id, saldo, jid, seg) {

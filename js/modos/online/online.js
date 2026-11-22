@@ -1,16 +1,17 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=88';
-import { estado, nomeDe } from '../../core/estado.js?v=88';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=88';
-import { lerDevSala } from '../../core/storage.js?v=88';
-import { registrarModo } from '../../mesa/modos.js?v=88';
-import { executar } from '../../mesa/apostas.js?v=88';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=88';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=88';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=88';
-import { tocarSom } from '../../core/som.js?v=88';
+import { banco } from '../../core/supabase.js?v=89';
+import { estado, nomeDe } from '../../core/estado.js?v=89';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=89';
+import { lerDevSala } from '../../core/storage.js?v=89';
+import { registrarModo } from '../../mesa/modos.js?v=89';
+import { executar } from '../../mesa/apostas.js?v=89';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=89';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=89';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=89';
+import { tocarSom } from '../../core/som.js?v=89';
+import { t, obterIdioma } from '../../core/i18n.js?v=89';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -1293,6 +1294,7 @@ registrarModo('online', {
 
     const faixaChave = [
       fimTorneio ? 'F' : 'E',
+      obterIdioma(),
       partida.iniciada ? 'I' : 'L',
       partida.pausada ? 'P' : 'A',
       estado.modoDev ? 'D' : 'R',
@@ -1347,13 +1349,13 @@ registrarModo('online', {
       }
       const camp = comFichas[0] ? nomeDe(comFichas[0].nome) : (res && res.campeao ? nomeDe(res.campeao) : '—');
       faixa.innerHTML = `
-        <div class="faixa-online-res">🏆 Campeão: ${escapar(camp)}!</div>
+        <div class="faixa-online-res">${t('online.campeao', { nome: escapar(camp) })}</div>
         ${resHtml ? '<div class="faixa-online-sub">' + resHtml + '</div>' : ''}
       `;
       faixa.hidden = false;
 
-      const botoesFim = (eu && jogadores.length >= 2 ? '<button class="positivo" onclick="revancheOnline()">Jogar revanche</button>' : '')
-        + '<button class="secundario" onclick="voltarParaSalas()">Voltar às salas</button>';
+      const botoesFim = (eu && jogadores.length >= 2 ? '<button class="positivo" onclick="revancheOnline()">' + t('online.revanche') + '</button>' : '')
+        + '<button class="secundario" onclick="voltarParaSalas()">' + t('online.voltar_salas') + '</button>';
       if (esperaDock && eu) {
         esperaDock.innerHTML = '<div class="faixa-online-acoes">' + botoesFim + '</div>';
         esperaDock.hidden = false;
@@ -1366,51 +1368,49 @@ registrarModo('online', {
     // 2) Lobby antes da 1ª mão OU pausa entre mãos
     let sub = '';
     if (partida.pausada) {
-      sub = '⏸ <strong>Mesa pausada por votação</strong> · ' + confirmados.length + ' de ' + elegiveis.length + ' prontos';
+      sub = t('online.pausada_prontos', { c: confirmados.length, e: elegiveis.length });
     } else if (comFichas.length < 2) {
-      sub = 'Aguardando pelo menos <strong>2 jogadores</strong> entrarem na sala…';
+      sub = t('online.esperando_2');
     } else if (elegiveis.length < 2) {
-      sub = 'Jogadores ausentes · aguardando <strong>2 ativos</strong> para iniciar';
+      sub = t('online.esperando_ativos');
     } else if (restanteSeg !== null) {
-      sub = '<strong>' + confirmados.length + ' de ' + elegiveis.length + ' prontos</strong>'
-        + ' · inicia em <strong data-contagem-online>' + restanteSeg + 's</strong>';
+      sub = t('online.prontos_em', { c: confirmados.length, e: elegiveis.length, s: restanteSeg });
     } else {
-      sub = '<strong>' + confirmados.length + ' de ' + elegiveis.length + ' prontos</strong>'
-        + ' · precisa de <strong>2 jogadores</strong> para começar';
+      sub = t('online.prontos_precisa', { c: confirmados.length, e: elegiveis.length });
     }
 
     let acaoHtml = '';
     if (eu && eu.saldo > 0) {
       const btnRabbit = podeRabbit
-        ? '<button type="button" class="secundario btn-rabbit" onclick="chamarRabbitHunt()">🐰 Ver cartas</button>'
+        ? '<button type="button" class="secundario btn-rabbit" onclick="chamarRabbitHunt()">' + t('online.rabbit') + '</button>'
         : '';
       if (eu.ausente) {
-        const btnVoltar = '<button type="button" class="positivo" onclick="alternarAusenteOnline()">▶ Voltar ao jogo</button>';
+        const btnVoltar = '<button type="button" class="positivo" onclick="alternarAusenteOnline()">' + t('menu.voltar_jogo') + '</button>';
         acaoHtml = '<div class="faixa-online-acoes">' + btnVoltar + btnRabbit + '</div>';
       } else if (elegiveis.length >= 2) {
         let btnEu = '';
         if (eu.confirmado) {
-          btnEu = '<button type="button" class="confirmado" disabled>✓ Pronto'
-            + (!partida.pausada && restanteSeg !== null ? ' · <span data-contagem-online>' + restanteSeg + 's</span>' : ' · aguardando…')
+          btnEu = '<button type="button" class="confirmado" disabled>' + t('online.pronto')
+            + (!partida.pausada && restanteSeg !== null ? ' · <span data-contagem-online>' + restanteSeg + 's</span>' : ' · ' + t('online.aguardando_el'))
             + '</button>';
         } else {
-          const rot = partida.iniciada ? 'Entrar na próxima mão' : 'Estou pronto';
+          const rot = partida.iniciada ? t('online.entrar_proxima') : t('online.estou_pronto');
           btnEu = '<button type="button" class="positivo" onclick="confirmarMao()">'
             + rot + (!partida.pausada && restanteSeg !== null ? ' (<span data-contagem-online>' + restanteSeg + 's</span>)' : '')
             + '</button>';
         }
         const btnDevTodos = (estado.modoDev && confirmados.length < elegiveis.length)
-          ? '<button type="button" class="secundario" onclick="confirmarTodosDev()">Todos prontos</button>'
+          ? '<button type="button" class="secundario" onclick="confirmarTodosDev()">' + t('online.todos_prontos') + '</button>'
           : '';
-        const btnAuto = '<button type="button" class="secundario pill-toggle' + (onlineUI.autoPronto ? ' ativo' : '') + '" onclick="alternarAutoPronto()" aria-pressed="' + (onlineUI.autoPronto ? 'true' : 'false') + '" title="Confirmar automaticamente entre mãos">'
-          + (onlineUI.autoPronto ? '✓ Auto-pronto' : 'Auto-pronto') + '</button>';
-        const btnSitOut = '<button type="button" class="secundario" onclick="alternarAusenteOnline()" title="Ficar ausente (Sit Out)">⏸ Ausente</button>';
+        const btnAuto = '<button type="button" class="secundario pill-toggle' + (onlineUI.autoPronto ? ' ativo' : '') + '" onclick="alternarAutoPronto()" aria-pressed="' + (onlineUI.autoPronto ? 'true' : 'false') + '">'
+          + (onlineUI.autoPronto ? '✓ ' : '') + t('online.auto_pronto') + '</button>';
+        const btnSitOut = '<button type="button" class="secundario" onclick="alternarAusenteOnline()">' + t('online.ausente') + '</button>';
         acaoHtml = '<div class="faixa-online-acoes">' + btnEu + btnDevTodos + btnRabbit + btnAuto + btnSitOut + '</div>';
       } else if (btnRabbit) {
         acaoHtml = '<div class="faixa-online-acoes">' + btnRabbit + '</div>';
       }
     } else if (eu && eu.saldo <= 0) {
-      sub = 'Você ficou <strong>sem fichas</strong> · assistindo a mesa como espectador';
+      sub = t('online.sem_fichas_esp');
     }
 
     // Topo exibe apenas o aviso elaborado do vencedor + contador de prontos
