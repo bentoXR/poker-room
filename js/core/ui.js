@@ -1,5 +1,5 @@
 // Utilitários de interface: navegação entre telas, gavetas (.folha), toast, erros, formatação
-import { estado } from './estado.js?v=102';
+import { estado } from './estado.js?v=103';
 
 export const $id = (id) => document.getElementById(id);
 
@@ -10,7 +10,6 @@ export const FOLHAS = [
   'folha-menu',
   'painel-criador',
   'painel-distribuir',
-  'folha-hist',
   'folha-chat',
   'painel-dev',
   'folha-reais',
@@ -113,20 +112,30 @@ export function alternarSenha(idDoCampo, botao) {
 
 // Gavetas (.folha)
 export function algumaFolhaAberta() {
-  return FOLHAS.some((id) => !$id(id).hidden);
+  return FOLHAS.some((id) => {
+    const el = $id(id);
+    return el && !el.hidden;
+  });
 }
 
 export function atualizarFundo() {
-  $id('fundo-folha').hidden = !algumaFolhaAberta();
+  const fundo = $id('fundo-folha');
+  if (fundo) fundo.hidden = !algumaFolhaAberta();
 }
 
 export function abrirFolha(id) {
-  FOLHAS.forEach((outro) => { $id(outro).hidden = (outro !== id); });
+  FOLHAS.forEach((outro) => {
+    const el = $id(outro);
+    if (el) el.hidden = (outro !== id);
+  });
   atualizarFundo();
 }
 
 export function fecharFolhas() {
-  FOLHAS.forEach((id) => { $id(id).hidden = true; });
+  FOLHAS.forEach((id) => {
+    const el = $id(id);
+    if (el) el.hidden = true;
+  });
   atualizarFundo();
 }
 

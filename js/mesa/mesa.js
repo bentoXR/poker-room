@@ -1,18 +1,18 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=102';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=102';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=102';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=102';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=102';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=102';
-import { obterModo, limparTodosModos } from './modos.js?v=102';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=102';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=102';
-import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=102';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=102';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=102';
-import { t, termo } from '../core/i18n.js?v=102';
+import { banco } from '../core/supabase.js?v=103';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=103';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=103';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=103';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=103';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=103';
+import { obterModo, limparTodosModos } from './modos.js?v=103';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=103';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=103';
+import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=103';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=103';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=103';
+import { t, termo } from '../core/i18n.js?v=103';
 
 const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
 
