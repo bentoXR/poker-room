@@ -1,10 +1,10 @@
 // Gestão de perfil do usuário: foto de perfil (compressão local), nome único, troca de senha e cache de avatares na mesa
-import { banco } from '../core/supabase.js?v=104';
-import { estado, contaParams } from '../core/estado.js?v=104';
-import { guardarConta, lembrarNome } from '../core/storage.js?v=104';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=104';
-import { tratarErroConta } from './auth.js?v=104';
-import { lerTemaSalvo, escolherTema } from '../core/tema.js?v=104';
+import { banco } from '../core/supabase.js?v=105';
+import { estado, contaParams } from '../core/estado.js?v=105';
+import { guardarConta, lembrarNome } from '../core/storage.js?v=105';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=105';
+import { tratarErroConta } from './auth.js?v=105';
+import { lerTemaSalvo, escolherTema } from '../core/tema.js?v=105';
 
 // Cache em memória de avatares: conta_id -> { versao, url }
 const avataresCache = new Map();
@@ -202,6 +202,7 @@ export async function sincronizarMeuPerfil() {
       estado.minhaConta.nome = resp.data.nome || estado.minhaConta.nome;
       estado.minhaConta.avatar_url = validarUrlAvatar(resp.data.avatar_url);
       estado.minhaConta.avatar_versao = Number(resp.data.avatar_versao) || 0;
+      estado.minhaConta.convidado = !!resp.data.convidado;
       guardarConta(estado.minhaConta);
       lembrarNome(estado.minhaConta.nome);
       atualizarCabecalhoPerfil();
@@ -235,6 +236,12 @@ export function abrirPerfil() {
     const el = $id(id);
     if (el) el.value = '';
   });
+
+  const ehConvidado = !!estado.minhaConta.convidado;
+  const blocoSenhaAtual = $id('bloco-senha-atual');
+  if (blocoSenhaAtual) blocoSenhaAtual.hidden = ehConvidado;
+  const dicaConvidado = $id('dica-perfil-convidado');
+  if (dicaConvidado) dicaConvidado.hidden = !ehConvidado;
 
   escolherTema(lerTemaSalvo());
   const btnEspiar = $id('btn-perfil-espiar');
@@ -421,11 +428,12 @@ export async function alterarSenhaPerfil() {
   if (!estado.minhaConta) return;
   limparErro('erro-senha-perfil');
 
+  const ehConvidado = !!estado.minhaConta.convidado;
   const atual = ($id('campo-senha-atual').value || '').trim();
   const nova = ($id('campo-senha-nova').value || '').trim();
   const conf = ($id('campo-senha-nova-conf').value || '').trim();
 
-  if (!atual) { mostrarErro('erro-senha-perfil', 'Digite sua senha atual.'); return; }
+  if (!ehConvidado && !atual) { mostrarErro('erro-senha-perfil', 'Digite sua senha atual.'); return; }
   if (nova.length < 6) { mostrarErro('erro-senha-perfil', 'A nova senha precisa ter pelo menos 6 caracteres.'); return; }
   if (nova !== conf) { mostrarErro('erro-senha-perfil', 'A confirmação da nova senha não confere.'); return; }
 
@@ -435,7 +443,7 @@ export async function alterarSenhaPerfil() {
   try {
     const resp = await banco.rpc('alterar_senha', {
       ...contaParams(),
-      p_senha_atual: atual,
+      p_senha_atual: ehConvidado ? '' : atual,
       p_nova_senha: nova
     });
     if (resp.error) {
@@ -443,11 +451,16 @@ export async function alterarSenhaPerfil() {
       mostrarErro('erro-senha-perfil', resp.error.message || 'Não consegui alterar a senha.');
     } else if (resp.data) {
       estado.minhaConta.token = resp.data.token;
+      estado.minhaConta.convidado = false;
       guardarConta(estado.minhaConta);
       $id('campo-senha-atual').value = '';
       $id('campo-senha-nova').value = '';
       $id('campo-senha-nova-conf').value = '';
-      aviso('Senha alterada! Outras sessões foram desconectadas.');
+      const blocoSenhaAtual = $id('bloco-senha-atual');
+      if (blocoSenhaAtual) blocoSenhaAtual.hidden = false;
+      const dicaConvidado = $id('dica-perfil-convidado');
+      if (dicaConvidado) dicaConvidado.hidden = true;
+      aviso(ehConvidado ? 'Senha criada! Sua conta agora é permanente.' : 'Senha alterada! Outras sessões foram desconectadas.');
     }
   } catch (erro) {
     mostrarErro('erro-senha-perfil', 'Sem conexão. Tente novamente.');

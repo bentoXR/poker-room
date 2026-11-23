@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
   <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=104">
+  <link rel="manifest" href="./manifest.webmanifest?v=105">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -20,19 +20,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=104">
-  <link rel="stylesheet" href="./css/telas.css?v=104">
-  <link rel="stylesheet" href="./css/mesa.css?v=104">
-  <link rel="stylesheet" href="./css/gavetas.css?v=104">
-  <link rel="stylesheet" href="./css/online.css?v=104">
-  <link rel="stylesheet" href="./css/blackjack.css?v=104">
-  <link rel="stylesheet" href="./css/tema-sinuca.css?v=104">
-  <link rel="stylesheet" href="./css/tema-cassino.css?v=104">
-  <link rel="stylesheet" href="./css/tema-liberdade.css?v=104">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=104">
-  <link rel="stylesheet" href="./css/tema-branco.css?v=104">
-  <link rel="stylesheet" href="./css/desktop.css?v=104">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=104">
+  <link rel="stylesheet" href="./css/base.css?v=105">
+  <link rel="stylesheet" href="./css/telas.css?v=105">
+  <link rel="stylesheet" href="./css/mesa.css?v=105">
+  <link rel="stylesheet" href="./css/gavetas.css?v=105">
+  <link rel="stylesheet" href="./css/online.css?v=105">
+  <link rel="stylesheet" href="./css/blackjack.css?v=105">
+  <link rel="stylesheet" href="./css/tema-sinuca.css?v=105">
+  <link rel="stylesheet" href="./css/tema-cassino.css?v=105">
+  <link rel="stylesheet" href="./css/tema-liberdade.css?v=105">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=105">
+  <link rel="stylesheet" href="./css/tema-branco.css?v=105">
+  <link rel="stylesheet" href="./css/desktop.css?v=105">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=105">
 
   <!-- Biblioteca oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -126,7 +126,8 @@
         </div>
 
         <button id="botao-login" onclick="enviarAuth()">Entrar</button>
-        <p id="dica-login" class="dica">Use o mesmo <strong>nome</strong> e <strong>senha</strong> sempre que voltar. Ainda não tem? Toque em <strong>Criar conta</strong>.</p>
+        <button type="button" id="botao-convidado" class="secundario" onclick="entrarComoConvidado()" data-i18n="login.btn_convidado">👤 Jogar como convidado (Guest)</button>
+        <p id="dica-login" class="dica">Use o mesmo <strong>nome</strong> e <strong>senha</strong> sempre que voltar. No modo <strong>Convidado</strong>, se perder os cookies/cache você não conseguirá voltar às salas com as mesmas fichas.</p>
         <div id="erro-login" class="erro" role="alert"></div>
       </div>
     </div>
@@ -839,11 +840,14 @@
 
     <div class="perfil-secao">
       <div class="perfil-secao-titulo" data-i18n="perfil.seguranca">Segurança da conta</div>
-      <label for="campo-senha-atual" data-i18n="perfil.senha_atual">Senha atual</label>
-      <div class="campo-senha">
-        <input id="campo-senha-atual" class="senha" type="text" placeholder="Digite sua senha atual" data-i18n-ph="perfil.ph_senha_atual" maxlength="30"
-               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-atual', this)" data-i18n="app.mostrar">Mostrar</button>
+      <p id="dica-perfil-convidado" class="dica" style="margin:0 0 8px" data-i18n="perfil.dica_convidado" hidden>Conta Convidado (salva apenas nos cookies/cache deste navegador). Defina uma senha abaixo se quiser salvar sua conta permanentemente.</p>
+      <div id="bloco-senha-atual">
+        <label for="campo-senha-atual" data-i18n="perfil.senha_atual">Senha atual</label>
+        <div class="campo-senha">
+          <input id="campo-senha-atual" class="senha" type="text" placeholder="Digite sua senha atual" data-i18n-ph="perfil.ph_senha_atual" maxlength="30"
+                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+          <button type="button" class="olho" onclick="alternarSenha('campo-senha-atual', this)" data-i18n="app.mostrar">Mostrar</button>
+        </div>
       </div>
       <label for="campo-senha-nova" data-i18n="perfil.nova_senha">Nova senha</label>
       <div class="campo-senha">
@@ -936,11 +940,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=104"></script>
+<script type="module" src="./js/main.js?v=105"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=104').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=105').catch(() => {});
     });
   }
 </script>

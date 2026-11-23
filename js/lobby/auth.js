@@ -1,11 +1,11 @@
 // Autenticação de conta (nome único, senha protegida, criação com confirmação e sessão)
-import { banco } from '../core/supabase.js?v=104';
-import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=104';
-import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=104';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=104';
-import { desligarTempoReal } from '../core/realtime.js?v=104';
-import { limparTodosModos } from '../mesa/modos.js?v=104';
-import { t } from '../core/i18n.js?v=104';
+import { banco } from '../core/supabase.js?v=105';
+import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=105';
+import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=105';
+import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=105';
+import { desligarTempoReal } from '../core/realtime.js?v=105';
+import { limparTodosModos } from '../mesa/modos.js?v=105';
+import { t } from '../core/i18n.js?v=105';
 
 let modoLoginAtual = 'entrar';
 let hooksAuth = {
@@ -116,7 +116,8 @@ async function entrarNaConta(funcao) {
       token: resp.data.token,
       nome: resp.data.nome,
       avatar_url: resp.data.avatar_url || null,
-      avatar_versao: Number(resp.data.avatar_versao) || 0
+      avatar_versao: Number(resp.data.avatar_versao) || 0,
+      convidado: !!resp.data.convidado
     };
     guardarConta(estado.minhaConta);
     lembrarNome(estado.minhaConta.nome);
@@ -138,7 +139,66 @@ export function enviarAuth() {
 }
 export function fazerLogin() { return entrarNaConta('login_conta'); }
 export function criarConta() { return entrarNaConta('criar_conta'); }
-export function sairDaConta() { encerrarSessaoLocal(); }
+
+export async function entrarComoConvidado() {
+  limparErro('erro-login');
+  const campoNome = $id('campo-login-nome');
+  const nomeDigitado = campoNome ? (campoNome.value || '').trim().replace(/\s+/g, ' ').slice(0, 10) : '';
+
+  const btnGuest = $id('botao-convidado');
+  const btnLogin = $id('botao-login');
+  const txtOriginal = btnGuest ? btnGuest.textContent : '';
+  if (btnGuest) {
+    btnGuest.disabled = true;
+    btnGuest.textContent = t('login.entrando_convidado');
+  }
+  if (btnLogin) btnLogin.disabled = true;
+
+  let resp;
+  try {
+    resp = await banco.rpc('criar_conta_convidado', { p_nome: nomeDigitado.length >= 2 ? nomeDigitado : null });
+  } catch (erro) {
+    resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+  }
+
+  if (btnGuest) {
+    btnGuest.disabled = false;
+    btnGuest.textContent = txtOriginal;
+  }
+  if (btnLogin) btnLogin.disabled = false;
+
+  if (resp.error) {
+    mostrarErro('erro-login', resp.error.message);
+    return;
+  }
+
+  estado.minhaConta = {
+    id: resp.data.conta_id,
+    token: resp.data.token,
+    nome: resp.data.nome,
+    avatar_url: resp.data.avatar_url || null,
+    avatar_versao: Number(resp.data.avatar_versao) || 0,
+    convidado: true
+  };
+  guardarConta(estado.minhaConta);
+  lembrarNome(estado.minhaConta.nome);
+  const sEl = $id('campo-login-senha');
+  if (sEl) sEl.value = '';
+  const confEl = $id('campo-login-senha-conf');
+  if (confEl) confEl.value = '';
+  hooksAuth.abrirSalas();
+  hooksAuth.onPosLogin();
+}
+
+export function sairDaConta() {
+  if (estado.minhaConta && estado.minhaConta.convidado) {
+    const ok = window.confirm(
+      'Você está em uma conta Convidado (sem senha). Se sair agora, não poderá entrar nela novamente nem recuperar as fichas salvas nas salas. Deseja sair mesmo assim?'
+    );
+    if (!ok) return;
+  }
+  encerrarSessaoLocal();
+}
 
 export function encerrarSessaoLocal() {
   desligarTempoReal();
