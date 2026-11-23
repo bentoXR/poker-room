@@ -14,6 +14,7 @@ let perfilSincronizadoId = null;
 // Fotos de perfil aleatórias para bots (sem repetir na mesma partida)
 const ICONES_BOTS = [
   '27f9363d505ffa59c8653243a3d969cc.jpg',
+  '7eccac3f690d11e4856c364eb73573fa.jpg',
   'Captura de tela 2026-04-08 214040.png',
   'Captura de tela 2026-04-16 000019.png',
   'Captura de tela 2026-05-30 204403.png',
