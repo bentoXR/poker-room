@@ -5,8 +5,8 @@ import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=107';
 import { $id, escapar, aviso, fmtNum, mostrarErro, limparErro, confirmarDialogo } from '../core/ui.js?v=120';
 import { tratarErroConta } from './auth.js?v=120';
 import { validarUrlAvatar, abrirPerfil, alternarAcordeaoSenha } from './perfil.js?v=109';
-import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=123';
-import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=123';
+import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=125';
+import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=125';
 import { tocarSom } from '../core/som.js?v=123';
 
 const socialCache = {

@@ -179,7 +179,6 @@ export async function abrirMesa(partida, estadoInicial) {
   }
 
   mostrar('tela-mesa');
-  tocarSom('entrar-sala');
   hooksApp.onPresencaSala(partida.dev ? null : partida.id);
   iniciarChatMesa(partida.id);
   ligarTempoReal({
