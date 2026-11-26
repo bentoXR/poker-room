@@ -33,7 +33,7 @@
   <link rel="stylesheet" href="./css/tema-claro.css?v=108">
   <link rel="stylesheet" href="./css/desktop.css?v=105">
   <link rel="stylesheet" href="./css/mobile-landscape.css?v=119">
-  <link rel="stylesheet" href="./css/amigos.css?v=120">
+  <link rel="stylesheet" href="./css/amigos.css?v=124">
 
   <!-- Biblioteca oficial do Supabase -->
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -929,7 +929,7 @@
 
 <!-- ===== OVERLAY: AMIGOS ===== -->
 <div id="fundo-amigos" class="fundo-folha" onclick="fecharAmigos()" hidden></div>
-<div id="folha-amigos" class="folha folha-perfil folha-amigos" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-amigos">
+<div id="folha-amigos" class="folha folha-perfil folha-modal-pc folha-amigos" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-amigos">
   <div class="folha-topo">
     <div class="folha-titulo" id="titulo-amigos">Amigos</div>
     <button type="button" class="fechar" onclick="fecharAmigos()" aria-label="Fechar">✕</button>
@@ -947,7 +947,7 @@
 
 <!-- ===== OVERLAY: CONVIDAR AMIGOS PARA A SALA ===== -->
 <div id="fundo-convidar-amigos" class="fundo-folha" onclick="fecharConvidarAmigos()" hidden></div>
-<div id="folha-convidar-amigos" class="folha folha-perfil" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-convidar-amigos">
+<div id="folha-convidar-amigos" class="folha folha-perfil folha-modal-pc" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-convidar-amigos">
   <div class="folha-topo">
     <div class="folha-titulo" id="titulo-convidar-amigos">Convidar amigos</div>
     <button type="button" class="fechar" onclick="fecharConvidarAmigos()" aria-label="Fechar">✕</button>
@@ -960,7 +960,7 @@
 
 <!-- ===== OVERLAY: PERFIL PÚBLICO DE JOGADOR ===== -->
 <div id="fundo-perfil-publico" class="fundo-folha" onclick="fecharPerfilPublico()" hidden></div>
-<div id="folha-perfil-publico" class="folha folha-perfil folha-perfil-publico" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-perfil-publico">
+<div id="folha-perfil-publico" class="folha folha-perfil folha-modal-pc folha-perfil-publico" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-perfil-publico">
   <div class="folha-topo">
     <div class="folha-titulo" id="titulo-perfil-publico">Perfil do jogador</div>
     <button type="button" class="fechar" onclick="fecharPerfilPublico()" aria-label="Fechar">✕</button>
@@ -970,7 +970,7 @@
 
 <!-- ===== OVERLAY: DIÁLOGO DE CONFIRMAÇÃO DO SITE ===== -->
 <div id="fundo-confirmar" class="fundo-folha fundo-confirmar" hidden></div>
-<div id="folha-confirmar" class="folha folha-perfil folha-confirmar" hidden role="alertdialog" aria-modal="true" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-mensagem">
+<div id="folha-confirmar" class="folha folha-perfil folha-modal-pc folha-confirmar" hidden role="alertdialog" aria-modal="true" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-mensagem">
   <div class="folha-topo">
     <div class="folha-titulo" id="confirmar-titulo">Confirmar</div>
     <button type="button" class="fechar" id="btn-confirmar-fechar" aria-label="Fechar">✕</button>
@@ -1059,7 +1059,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=123').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=124').catch(() => {});
     });
   }
 </script>

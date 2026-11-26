@@ -1,5 +1,5 @@
 // Service Worker do Poker Room (PWA): network-first para HTML, cache-first para assets versionados/mídia
-const CACHE_NOME = 'poker-room-v123';
+const CACHE_NOME = 'poker-room-v124';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

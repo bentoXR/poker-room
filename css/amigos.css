@@ -418,6 +418,44 @@ button.btn-sm {
   color: var(--texto-escuro, #0f172a);
 }
 
+/* Centralização no meio da tela para modais sociais e de confirmação (PC e mobile) */
+#fundo-amigos,
+#fundo-convidar-amigos,
+#fundo-perfil-publico,
+#fundo-confirmar {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#folha-amigos,
+#folha-convidar-amigos,
+#folha-perfil-publico,
+#folha-confirmar {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  width: min(480px, 92vw);
+  max-width: 480px;
+  max-height: 86dvh;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--cartao-borda, var(--linha));
+  border-radius: 22px;
+  box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.85);
+  padding-bottom: 0;
+  animation: modalCentroEntrar 0.18s ease;
+}
+#folha-perfil-publico,
+#folha-confirmar {
+  width: min(390px, 92vw);
+  max-width: 390px;
+}
+@keyframes modalCentroEntrar {
+  from { opacity: 0; transform: translate(-50%, -47%) scale(0.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 /* Diálogo de confirmação estilizado do site (substitui confirm() do navegador) */
 .fundo-confirmar {
   z-index: 1200;
