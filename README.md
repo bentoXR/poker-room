@@ -19,9 +19,3 @@ Jogue **Poker Texas Hold'em online** com baralho virtual, **Blackjack 21** ou co
 - **100% estático no front:** HTML, CSS e ES Modules puros (sem build step) + backend Supabase.
 
 ---
-
-## 🤖 100% feito com IA & Uso totalmente livre
-
-> **Todo este jogo — código, interface, banco de dados, animações, temas e efeitos sonoros sintetizados — foi criado 100% com Inteligência Artificial.**
->
-> **Qualquer pessoa pode fazer o que quiser com este projeto:** usar, copiar, estudar, modificar, publicar, vender ou criar sua própria versão, sem precisar pedir permissão nem dar créditos. Divirta-se! 🎉
