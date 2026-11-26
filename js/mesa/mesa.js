@@ -5,9 +5,9 @@ import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valor
 import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=107';
 import { $id, escapar, aviso, fmtNum, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=107';
 import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=107';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=107';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=119';
 import { obterModo, limparTodosModos } from './modos.js?v=107';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=107';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=119';
 import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=107';
 import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=109';
 import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=107';
@@ -485,26 +485,10 @@ export function desenharMesa(dados) {
   if (modo && modo.desenharFaixa) modo.desenharFaixa(partida, jogadores, ctxModo);
   if (modo && modo.desenharCriador) modo.desenharCriador(partida, jogadores, ctxModo);
 
-  // ----- Botões globais do topo (DEV / Reais / Convidar / Ausente) -----
+  // ----- Botões globais do topo (DEV / Reais / Convidar) -----
   $id('btn-dev').hidden = !estado.modoDev;
   const btnConvidar = $id('btn-convidar');
   if (btnConvidar) btnConvidar.hidden = !!estado.modoDev;
-  const btnAusenteTopo = $id('btn-ausente-mesa');
-  if (btnAusenteTopo) {
-    const podeAusente = partida.modo === 'online' && !!eu && eu.saldo > 0 && !eu.espectando && !estado.modoDev;
-    btnAusenteTopo.hidden = !podeAusente;
-    if (podeAusente) {
-      const bloqueadoNaMao = !eu.ausente && estaEmMaoAtivaOnline(partida, eu);
-      btnAusenteTopo.disabled = bloqueadoNaMao;
-      btnAusenteTopo.textContent = eu.ausente ? '▶' : '⏸';
-      btnAusenteTopo.dataset.label = eu.ausente ? 'Voltar' : 'Ausente';
-      btnAusenteTopo.title = bloqueadoNaMao
-        ? 'Disponível após o fim da mão ou ao dar Fold'
-        : (eu.ausente ? 'Voltar ao jogo' : 'Ficar ausente');
-      btnAusenteTopo.setAttribute('aria-label', btnAusenteTopo.title);
-      btnAusenteTopo.classList.toggle('ouro', !!eu.ausente);
-    }
-  }
   const btnProx = $id('btn-dev-prox');
   btnProx.hidden = !estado.modoDev;
   if (estado.modoDev) {
@@ -1299,18 +1283,6 @@ function preencherMenuOnline() {
     btnReais.textContent = '🏆 Placar (R$)';
   }
 
-  const btnAusente = $id('menu-btn-ausente');
-  if (btnAusente) {
-    const podeAusente = p.modo === 'online' && !!eu && eu.saldo > 0 && !eu.espectando;
-    btnAusente.hidden = !podeAusente;
-    if (podeAusente) {
-      const bloqueadoNaMao = !eu.ausente && estaEmMaoAtivaOnline(p, eu);
-      btnAusente.disabled = bloqueadoNaMao;
-      btnAusente.textContent = eu.ausente ? '▶ Voltar ao jogo' : '⏸ Ficar ausente';
-      btnAusente.title = bloqueadoNaMao ? 'Disponível após o fim da mão ou ao dar Fold' : '';
-    }
-  }
-
   const btnGuiaMenu = document.querySelector('#folha-menu .menu-tile[onclick*="abrirGuia"]');
   if (btnGuiaMenu) btnGuiaMenu.hidden = ehBj;
 
@@ -1324,7 +1296,7 @@ function preencherMenuOnline() {
     emMaoAtiva = bj.fase === 'jogando' && !!ent && Array.isArray(ent.lista)
       && ent.lista.some((m) => m.status === 'jogando' || m.status === 'parou' || m.status === 'dobrou');
   }
-  btnSair.disabled = !!emMaoAtiva;
+  btnSair.disabled = (p.modo === 'online') ? false : !!emMaoAtiva;
 }
 
 export function abrirMenuOnline() {
@@ -1388,7 +1360,12 @@ export function iniciarRelogio() {
 // ----- Sair da mesa / voltar / encerrar sala -----
 export async function sairDaMesa() {
   if (estado.ocupado || !estado.partidaAtual || !estado.meuJogadorId || !estado.meuSegredo) return;
-  if (!confirm('Sair da mesa? Suas fichas ficam guardadas e você volta com elas se entrar de novo.')) return;
+  const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId) || null;
+  const emMao = estaEmMaoAtivaOnline(estado.partidaAtual, eu);
+  const msg = emMao
+    ? 'Você está no meio de uma mão. Se sair agora, sua mão será considerada Fold e as fichas já apostadas permanecerão no pote. Deseja sair mesmo assim?'
+    : 'Sair da mesa? Suas fichas ficam guardadas e você volta com elas se entrar de novo.';
+  if (!confirm(msg)) return;
 
   estado.ocupado = true;
   saindoVoluntariamente = true;

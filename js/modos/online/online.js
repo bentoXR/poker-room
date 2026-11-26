@@ -7,7 +7,7 @@ import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?
 import { lerDevSala } from '../../core/storage.js?v=107';
 import { registrarModo } from '../../mesa/modos.js?v=107';
 import { executar } from '../../mesa/apostas.js?v=107';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=118';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=119';
 import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=107';
 import { avaliarMaoLocal, calcularEquities } from './maos.js?v=107';
 import { tocarSom } from '../../core/som.js?v=107';
@@ -1272,6 +1272,13 @@ export function tickOnline() {
   const agora = Date.now() + estado.relogio.offset;
   const atrasoTimeout = atrasoEscalonadoHumano(jogadores, 600);
 
+  if (!p.pausada && !p.solo_bots && jogadores.some((j) => !j.eh_bot && j.id !== estado.meuJogadorId)) {
+    if (!onlineUI.ultimoCheckPresenca || (agora - onlineUI.ultimoCheckPresenca) >= 15000) {
+      onlineUI.ultimoCheckPresenca = agora;
+      dispararAvancoTempo(p.id);
+    }
+  }
+
   // 0) Votação expirada: limpa no servidor mesmo com mesa pausada
   if (p.votacao && p.votacao.expira_em && agora >= Date.parse(p.votacao.expira_em) + 600 + atrasoTimeout) {
     dispararAvancoTempo(p.id);
@@ -1680,8 +1687,7 @@ registrarModo('online', {
           : '';
         const btnAuto = '<button type="button" class="secundario pill-toggle' + (onlineUI.autoPronto ? ' ativo' : '') + '" onclick="alternarAutoPronto()" aria-pressed="' + (onlineUI.autoPronto ? 'true' : 'false') + '">'
           + (onlineUI.autoPronto ? '✓ ' : '') + t('online.auto_pronto') + '</button>';
-        const btnSitOut = '<button type="button" class="secundario" onclick="alternarAusenteOnline()">' + t('online.ausente') + '</button>';
-        acaoHtml = '<div class="faixa-online-acoes">' + btnEu + btnDevTodos + btnRabbit + btnAuto + btnSitOut + '</div>';
+        acaoHtml = '<div class="faixa-online-acoes">' + btnEu + btnDevTodos + btnRabbit + btnAuto + '</div>';
       } else if (btnRabbit) {
         acaoHtml = '<div class="faixa-online-acoes">' + btnRabbit + '</div>';
       }

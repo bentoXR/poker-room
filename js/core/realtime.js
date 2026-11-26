@@ -132,7 +132,7 @@ export function ligarSinal() {
   enviarSinal();
   temporizadorSinal = setInterval(() => {
     if (!document.hidden) enviarSinal();
-  }, 45000);
+  }, 15000);
 }
 
 export function desligarSinal() {

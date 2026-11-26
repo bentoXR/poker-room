@@ -5,8 +5,8 @@ import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=107';
 import { $id, escapar, aviso, fmtNum, mostrarErro, limparErro } from '../core/ui.js?v=107';
 import { tratarErroConta } from './auth.js?v=107';
 import { validarUrlAvatar, abrirPerfil, alternarAcordeaoSenha } from './perfil.js?v=109';
-import { pararSalas, abrirSala } from './salas.js?v=118';
-import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=118';
+import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=119';
+import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=119';
 
 const socialCache = {
   carregado: false,
@@ -1025,6 +1025,10 @@ export async function aceitarConviteSala(conviteId) {
   if (!estado.minhaConta || !conviteId || estado.abrindoSala) return;
   estado.abrindoSala = true;
   try {
+    const conv = socialCache.convitesSala.find((c) => c.convite_id === conviteId);
+    const podeEntrar = await confirmarSaidaPartidaAtualSeNecessario(conv ? conv.partida_id : null);
+    if (!podeEntrar) return;
+
     const resp = await banco.rpc('aceitar_convite_sala', {
       ...contaParams(),
       p_convite_id: conviteId

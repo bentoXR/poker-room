@@ -1,13 +1,13 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
 import { banco } from '../core/supabase.js?v=107';
 import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=107';
-import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=107';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida, esquecerSegredo } from '../core/storage.js?v=107';
 import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=107';
-import { desligarTempoReal } from '../core/realtime.js?v=107';
+import { desligarTempoReal } from '../core/realtime.js?v=119';
 import { tratarErroConta } from './auth.js?v=107';
 import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=109';
 import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=107';
-import { abrirMesa } from '../mesa/mesa.js?v=118';
+import { abrirMesa } from '../mesa/mesa.js?v=119';
 import { t, termo } from '../core/i18n.js?v=110';
 
 let hooksSalas = {
@@ -156,6 +156,45 @@ export function desenharSalas() {
   $id('lista-salas').innerHTML = html;
 }
 
+export async function confirmarSaidaPartidaAtualSeNecessario(destinoPartidaId = null) {
+  if (!estado.minhaConta) return true;
+  try {
+    const resp = await banco.rpc('obter_partida_ativa_conta', contaParams());
+    if (resp.error) {
+      tratarErroConta(resp.error);
+      return true;
+    }
+    const ativa = resp.data;
+    if (!ativa || !ativa.partida_id || (destinoPartidaId && ativa.partida_id === destinoPartidaId)) {
+      return true;
+    }
+
+    const detalhe = ativa.em_mao_ativa
+      ? ' (será aplicado Fold automático e as fichas já apostadas permanecerão no pote)'
+      : ' (suas fichas atuais ficarão guardadas)';
+    const ok = window.confirm(
+      `Você já está na partida "${ativa.nome}". Ao entrar em outra sala, você sairá automaticamente da partida atual${detalhe}. Deseja continuar?`
+    );
+    if (!ok) return false;
+
+    const rSair = await banco.rpc('sair_de_outras_salas', {
+      ...contaParams(),
+      p_exceto_partida: destinoPartidaId || null
+    });
+    if (rSair.error) {
+      if (!tratarErroConta(rSair.error)) aviso(rSair.error.message || 'Não foi possível sair da partida atual.');
+      return false;
+    }
+
+    esquecerSegredo(estado.minhaConta.id, ativa.partida_id);
+    esquecerPartida();
+    invalidarListaSalas();
+    return true;
+  } catch (erro) {
+    return true;
+  }
+}
+
 export async function abrirSala(id) {
   if (estado.abrindoSala || estado.criandoSala) return;
   estado.abrindoSala = true;
@@ -164,6 +203,8 @@ export async function abrirSala(id) {
 
   try {
     const sala = estado.salasAtuais.find((x) => x.id === id);
+    const podeEntrar = await confirmarSaidaPartidaAtualSeNecessario(id);
+    if (!podeEntrar) return;
 
     if (sala && !sala.sou_jogador && sala.tem_senha) {
       abrirSenhaSala(sala);
@@ -249,6 +290,11 @@ export async function criarSala() {
   }
 
   estado.criandoSala = true;
+  const podeEntrar = await confirmarSaidaPartidaAtualSeNecessario(null);
+  if (!podeEntrar) {
+    estado.criandoSala = false;
+    return;
+  }
   esquecerPartida();
   estado.partidaAtual = null;
   estado.meuJogadorId = null;
@@ -382,6 +428,11 @@ async function executarJogarAgora(rpcNome, btnId) {
   if (!estado.minhaConta || estado.abrindoSala || estado.criandoSala) return;
   limparErro('erro-jogar-agora');
   estado.abrindoSala = true;
+  const podeEntrar = await confirmarSaidaPartidaAtualSeNecessario(null);
+  if (!podeEntrar) {
+    estado.abrindoSala = false;
+    return;
+  }
   const b1 = $id('btn-ja-online');
   const b2 = $id('btn-ja-solo');
   if (b1) b1.disabled = true;

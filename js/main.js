@@ -11,7 +11,7 @@ import {
   alternarMenuTemaPerfil, fecharMenuTemaPerfil
 } from './core/tema.js?v=109';
 import { iniciarSom, alternarSom } from './core/som.js?v=107';
-import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=107';
+import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=119';
 import {
   escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma,
   alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil
@@ -29,7 +29,7 @@ import {
   registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador,
   abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo,
   fecharSenhaSala, confirmarSenhaSala
-} from './lobby/salas.js?v=118';
+} from './lobby/salas.js?v=119';
 import {
   iniciarSocial, pararSocial, atualizarPresencaSala, atualizarBannerConviteLobby,
   abrirAmigos, fecharAmigos, amigosAberto, escolherAbaAmigos, buscarAmigoExato,
@@ -39,7 +39,7 @@ import {
   abrirConvidarAmigos, fecharConvidarAmigos, convidarAmigosAberto,
   enviarConviteAmigo, aceitarConviteSala, recusarConviteSala,
   dispensarBannerConvite, entrarSalaDoAmigo, abrirDefinirSenhaConvidado
-} from './lobby/amigos.js?v=118';
+} from './lobby/amigos.js?v=119';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
@@ -52,14 +52,14 @@ import {
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
-} from './mesa/mesa.js?v=118';
+} from './mesa/mesa.js?v=119';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
 } from './mesa/apostas.js?v=107';
 import {
   abrirHistorico, abrirReais, abrirGuia, abrirDetalhesPotes, carregarValorReal, copiarAcertoMesa
-} from './mesa/extras.js?v=107';
+} from './mesa/extras.js?v=119';
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
   receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
@@ -85,11 +85,11 @@ import {
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline, comprarRebuyOnline, espectarOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=118';
+} from './modos/online/online.js?v=119';
 import {
   bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
   bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev, tickBlackjack, tratarTeclaBlackjack
-} from './modos/blackjack/blackjack.js?v=118';
+} from './modos/blackjack/blackjack.js?v=119';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {

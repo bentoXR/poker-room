@@ -100,12 +100,21 @@ export function atualizarReais(forcar) {
     : 'Stack inicial: ' + fmtNum(ini) + ' fichas'
   ) + (p.pote > 0 ? ' · Pote na mesa: ' + fmtNum(p.pote) : '');
 
-  const linhas = (estado.jogadoresAtuais || []).map((j) => {
+  const ativos = (estado.jogadoresAtuais || []).map((j) => {
     const entrada = semInicio ? ini : Number(j.total_comprado || ini);
     const atual = Number(j.saldo) || 0;
     const liq = atual - entrada;
-    return { j, nome: nomeDe(j.nome), entrada, atual, liq };
+    return { j, nome: nomeDe(j.nome), entrada, atual, liq, saiu: false };
   });
+
+  const saidos = ((estado.ultimoEstado && Array.isArray(estado.ultimoEstado.saidos)) ? estado.ultimoEstado.saidos : []).map((s) => {
+    const entrada = semInicio ? ini : Number(s.total_comprado || ini);
+    const atual = Number(s.saldo) || 0;
+    const liq = atual - entrada;
+    return { j: { id: null }, nome: nomeDe(s.nome) + ' (saiu)', entrada, atual, liq, saiu: true };
+  });
+
+  const linhas = ativos.concat(saidos);
 
   let html = linhas.map((l) => {
     const cls = l.liq > 0 ? 'pos' : (l.liq < 0 ? 'neg' : 'zero');
