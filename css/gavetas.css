@@ -441,6 +441,17 @@ button.perfil-select-btn:active:not(:disabled) { transform: scale(0.97); box-sha
   z-index: 30;
 }
 .perfil-select-menu[hidden] { display: none; }
+#menu-tema-perfil:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(112px, 1fr));
+  min-width: 244px;
+  gap: 4px;
+}
+#menu-tema-perfil button.tema-btn {
+  min-height: 34px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
 button.perfil-select-op,
 .perfil-select-menu button.tema-btn {
   width: 100%;
