@@ -2,7 +2,7 @@
 import { banco } from '../core/supabase.js?v=107';
 import { estado, contaParams } from '../core/estado.js?v=107';
 import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=107';
-import { $id, escapar, aviso, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { $id, escapar, aviso, fmtNum, mostrarErro, limparErro } from '../core/ui.js?v=107';
 import { tratarErroConta } from './auth.js?v=107';
 import { validarUrlAvatar, abrirPerfil, alternarAcordeaoSenha } from './perfil.js?v=109';
 import { pararSalas, abrirSala } from './salas.js?v=115';
@@ -96,6 +96,48 @@ function modoLegivel(modo) {
   if (modo === 'blackjack') return 'Blackjack';
   if (modo === 'presencial') return 'Presencial';
   return 'Poker Online';
+}
+
+function formatarTempoJogando(criadaEmIso) {
+  const ts = criadaEmIso ? Date.parse(criadaEmIso) : NaN;
+  if (!Number.isFinite(ts)) return '—';
+  const dias = Math.max(0, Math.floor((Date.now() - ts) / 86400000));
+  const semanas = Math.floor(dias / 7);
+  if (semanas < 1) return 'Menos de 1 semana';
+  if (semanas < 4) return semanas === 1 ? '1 semana' : `${semanas} semanas`;
+  const meses = Math.max(1, Math.floor(dias / 30));
+  if (meses < 12) return meses === 1 ? '1 mês' : `${meses} meses`;
+  const anos = Math.floor(meses / 12);
+  return anos === 1 ? '1 ano' : `${anos} anos`;
+}
+
+function gerarStatsBot(chave) {
+  let h = 2166136261;
+  const s = String(chave || 'bot');
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  let a = h >>> 0;
+  const rnd = () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const faixa = rnd();
+  let dias;
+  if (faixa < 0.3) {
+    dias = 7 + Math.floor(rnd() * 20); // 1 a 3 semanas
+  } else if (faixa < 0.78) {
+    dias = 32 + Math.floor(rnd() * 300); // 1 a 11 meses
+  } else {
+    dias = 370 + Math.floor(rnd() * 720); // 1 a 2 anos
+  }
+  const baseVitorias = Math.max(4, Math.floor(dias * (0.25 + rnd() * 0.55)));
+  const maosVencidas = Math.min(480, baseVitorias + Math.floor(rnd() * 25));
+  const criadaEm = new Date(Date.now() - dias * 86400000).toISOString();
+  return { maos_vencidas: maosVencidas, criada_em: criadaEm };
 }
 
 // ----- Presença e Realtime Social -----
@@ -705,11 +747,14 @@ export function abrirPerfilBot(botId, nome = '', avatarUrl = '') {
   const nomeSala = estado.partidaAtual
     ? (estado.partidaAtual.nome || (estado.partidaAtual.codigo ? 'Sala ' + estado.partidaAtual.codigo : ''))
     : '';
+  const stats = gerarStatsBot(nome || botId);
   perfilAlvoAtual = {
     eh_bot: true,
     bot_id: botId,
     nome: nome || 'Jogador',
     avatar_url: validarUrlAvatarOuBot(avatarUrl),
+    maos_vencidas: stats.maos_vencidas,
+    criada_em: stats.criada_em,
     online: true,
     status_presenca: 'em_partida',
     partida_atual: nomeSala ? { nome: nomeSala } : null
@@ -832,12 +877,26 @@ function renderizarPerfilPublico() {
     acoesHtml = `<div class="pp-acoes-pilha">${botoes.join('')}</div>`;
   }
 
+  const statsHtml = `
+    <div class="pp-stats">
+      <div class="pp-stat-card">
+        <span class="pp-stat-val">🏆 ${fmtNum(Number(p.maos_vencidas) || 0)}</span>
+        <span class="pp-stat-lbl">Mãos vencidas</span>
+      </div>
+      <div class="pp-stat-card">
+        <span class="pp-stat-val">📅 ${escapar(formatarTempoJogando(p.criada_em))}</span>
+        <span class="pp-stat-lbl">Joga há</span>
+      </div>
+    </div>
+  `;
+
   corpo.innerHTML = `
     <div class="pp-cabecalho">
       ${avatarHtml(p.nome, p.avatar_url, 'lg')}
       <strong class="pp-nome">${escapar(p.nome)}</strong>
       <span class="pp-status ${pres.classe}"><i class="status-dot ${pres.classe}"></i> ${escapar(pres.texto)}</span>
     </div>
+    ${statsHtml}
     <div class="pp-acoes">${acoesHtml}</div>
   `;
 }
