@@ -29,16 +29,17 @@ import {
   registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador,
   abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo,
   fecharSenhaSala, confirmarSenhaSala
-} from './lobby/salas.js?v=113';
+} from './lobby/salas.js?v=115';
 import {
   iniciarSocial, pararSocial, atualizarPresencaSala, atualizarBannerConviteLobby,
   abrirAmigos, fecharAmigos, amigosAberto, escolherAbaAmigos, buscarAmigoExato,
   enviarPedidoAmigo, responderPedidoAmigo, cancelarOuRemoverAmigo,
-  abrirPerfilJogador, fecharPerfilPublico, perfilPublicoAberto,
+  abrirPerfilJogador, abrirPerfilBot, enviarPedidoBot, cancelarPedidoBot,
+  fecharPerfilPublico, perfilPublicoAberto,
   abrirConvidarAmigos, fecharConvidarAmigos, convidarAmigosAberto,
   enviarConviteAmigo, aceitarConviteSala, recusarConviteSala,
   dispensarBannerConvite, entrarSalaDoAmigo, abrirDefinirSenhaConvidado
-} from './lobby/amigos.js?v=113';
+} from './lobby/amigos.js?v=115';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
@@ -51,7 +52,7 @@ import {
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
-} from './mesa/mesa.js?v=113';
+} from './mesa/mesa.js?v=115';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
@@ -84,11 +85,11 @@ import {
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline, comprarRebuyOnline, espectarOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=114';
+} from './modos/online/online.js?v=115';
 import {
   bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
   bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev, tickBlackjack, tratarTeclaBlackjack
-} from './modos/blackjack/blackjack.js?v=114';
+} from './modos/blackjack/blackjack.js?v=115';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {
@@ -208,7 +209,7 @@ Object.assign(window, {
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes,
   abrirAmigos, fecharAmigos, escolherAbaAmigos, buscarAmigoExato,
   enviarPedidoAmigo, responderPedidoAmigo, cancelarOuRemoverAmigo,
-  abrirPerfilJogador, fecharPerfilPublico,
+  abrirPerfilJogador, abrirPerfilBot, enviarPedidoBot, cancelarPedidoBot, fecharPerfilPublico,
   abrirConvidarAmigos, fecharConvidarAmigos, enviarConviteAmigo,
   aceitarConviteSala, recusarConviteSala, dispensarBannerConvite,
   entrarSalaDoAmigo, abrirDefinirSenhaConvidado,

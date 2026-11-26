@@ -829,6 +829,32 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   };
 }
 
+function aplicarAtributosPerfilAssento(el, { perfilContaId, ehBotClicavel, botId, nomeTxt, avatarUrl }) {
+  if (!el) return;
+  if (perfilContaId) {
+    delete el.dataset.botId;
+    delete el.dataset.botAvatar;
+    el.dataset.contaId = perfilContaId;
+    el.dataset.contaNome = nomeTxt;
+    el.title = 'Ver perfil de ' + nomeTxt;
+    el.setAttribute('onclick', 'event.stopPropagation(); abrirPerfilJogador(this.dataset.contaId, this.dataset.contaNome)');
+  } else if (ehBotClicavel) {
+    delete el.dataset.contaId;
+    el.dataset.botId = botId;
+    el.dataset.contaNome = nomeTxt;
+    el.dataset.botAvatar = avatarUrl || '';
+    el.title = 'Ver perfil de ' + nomeTxt;
+    el.setAttribute('onclick', 'event.stopPropagation(); abrirPerfilBot(this.dataset.botId, this.dataset.contaNome, this.dataset.botAvatar)');
+  } else {
+    delete el.dataset.contaId;
+    delete el.dataset.contaNome;
+    delete el.dataset.botId;
+    delete el.dataset.botAvatar;
+    el.removeAttribute('title');
+    el.removeAttribute('onclick');
+  }
+}
+
 function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
   jogadores = (jogadores || []).filter((j) => !j.espectando);
   let proximoId = null;
@@ -902,10 +928,11 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const premioVencedor = (modo && modo.premioVencedorAssento) ? modo.premioVencedorAssento(j, partida) : 0;
 
     const st = estadoAssentoJogador(j, partida, ehOnline);
+    const ehBotClicavel = (!souEu && !!j.eh_bot);
     const perfilContaId = (!souEu && !j.eh_bot && j.conta_id && !estado.modoDev) ? j.conta_id : '';
     let classes = 'lugar assento-redondo';
     if (souEu) classes += ' eu';
-    if (perfilContaId) classes += ' clicavel-perfil';
+    if (perfilContaId || ehBotClicavel) classes += ' clicavel-perfil';
     if (naVez) classes += ' vez';
     if (ehVencedor) classes += ' vencedor';
     if (j.esperando || (ehOnline && j.ausente)) classes += ' espera';
@@ -958,6 +985,9 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const saldoTxt = (ehDesktop || ehLandscapeMobile) ? fmtNum(j.saldo) : String(j.saldo);
     const apostaTxt = j.apostou > 0 ? ('+' + j.apostou) : '';
     const temTimer = !!(naVez && ehCardDock && Number(partida.tempo_turno) > 0);
+    const perfilChave = perfilContaId
+      ? ('c:' + perfilContaId)
+      : (ehBotClicavel ? ('b:' + j.id + ':' + (avatarUrl || '') + ':' + nomeTxt) : '');
 
     let cached = assentosDomCache.get(j.id);
     if (!cached || !cached.el || cached.el.parentNode !== listaEl) {
@@ -971,12 +1001,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       const tpl = document.createElement('div');
       tpl.className = classes;
       tpl.dataset.jogadorId = j.id;
-      if (perfilContaId) {
-        tpl.dataset.contaId = perfilContaId;
-        tpl.dataset.contaNome = nomeTxt;
-        tpl.title = 'Ver perfil de ' + nomeTxt;
-        tpl.setAttribute('onclick', 'event.stopPropagation(); abrirPerfilJogador(this.dataset.contaId, this.dataset.contaNome)');
-      }
+      aplicarAtributosPerfilAssento(tpl, { perfilContaId, ehBotClicavel, botId: j.id, nomeTxt, avatarUrl });
       tpl.setAttribute('style', estiloLugar);
       tpl.innerHTML = `
         ${badgePerfilHtml}
@@ -1000,7 +1025,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
         avatarUrl,
         badgeClasse,
         souEu,
-        perfilContaId,
+        perfilChave,
         ordem: j.ordem,
         coroaHtml,
         nomeTxt,
@@ -1031,19 +1056,9 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
         cached.estiloLugar = estiloLugar;
         cached.el.setAttribute('style', estiloLugar);
       }
-      if (cached.perfilContaId !== perfilContaId) {
-        cached.perfilContaId = perfilContaId;
-        if (perfilContaId) {
-          cached.el.dataset.contaId = perfilContaId;
-          cached.el.dataset.contaNome = nomeTxt;
-          cached.el.title = 'Ver perfil de ' + nomeTxt;
-          cached.el.setAttribute('onclick', 'event.stopPropagation(); abrirPerfilJogador(this.dataset.contaId, this.dataset.contaNome)');
-        } else {
-          delete cached.el.dataset.contaId;
-          delete cached.el.dataset.contaNome;
-          cached.el.removeAttribute('title');
-          cached.el.removeAttribute('onclick');
-        }
+      if (cached.perfilChave !== perfilChave) {
+        cached.perfilChave = perfilChave;
+        aplicarAtributosPerfilAssento(cached.el, { perfilContaId, ehBotClicavel, botId: j.id, nomeTxt, avatarUrl });
       }
       if (cached.avatarUrl !== avatarUrl || cached.souEu !== souEu) {
         cached.avatarUrl = avatarUrl;

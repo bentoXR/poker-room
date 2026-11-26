@@ -5,8 +5,8 @@ import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=107';
 import { $id, escapar, aviso, mostrarErro, limparErro } from '../core/ui.js?v=107';
 import { tratarErroConta } from './auth.js?v=107';
 import { validarUrlAvatar, abrirPerfil, alternarAcordeaoSenha } from './perfil.js?v=109';
-import { pararSalas, abrirSala } from './salas.js?v=113';
-import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=113';
+import { pararSalas, abrirSala } from './salas.js?v=115';
+import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=115';
 
 const socialCache = {
   carregado: false,
@@ -30,6 +30,14 @@ let perfilAlvoAtual = null;
 const convitesDispensados = new Set();
 const convitesVistos = new Set();
 const convidadosNaSessao = new Map(); // partidaId -> Set<contaId>
+const botsPedidoEnviado = new Set(); // botId -> pedido visual na sessão
+
+function validarUrlAvatarOuBot(url) {
+  const segura = validarUrlAvatar(url);
+  if (segura) return segura;
+  if (typeof url === 'string' && /^\.\/img\/icons-bots\/[^"'<>\\]+$/.test(url)) return url;
+  return null;
+}
 
 function registrarConviteEnviadoLocal(partidaId, contaId) {
   if (!partidaId || !contaId) return;
@@ -43,7 +51,7 @@ function jaConvidadoNestaSessao(partidaId, contaId) {
 }
 
 function avatarHtml(nome, avatarUrl, classeExtra = '') {
-  const url = validarUrlAvatar(avatarUrl);
+  const url = validarUrlAvatarOuBot(avatarUrl);
   if (url) {
     return `<span class="amigo-avatar com-foto ${classeExtra}"><img src="${url}" alt="" decoding="async"></span>`;
   }
@@ -168,6 +176,7 @@ export function pararSocial() {
   convitesDispensados.clear();
   convitesVistos.clear();
   convidadosNaSessao.clear();
+  botsPedidoEnviado.clear();
   atualizarBadgesSocial();
   atualizarBannerConviteLobby();
 }
@@ -691,6 +700,43 @@ export async function abrirPerfilJogador(contaId, nomeFallback = '') {
   await carregarPerfilPublico(contaId);
 }
 
+export function abrirPerfilBot(botId, nome = '', avatarUrl = '') {
+  if (!estado.minhaConta || !botId) return;
+  const nomeSala = estado.partidaAtual
+    ? (estado.partidaAtual.nome || (estado.partidaAtual.codigo ? 'Sala ' + estado.partidaAtual.codigo : ''))
+    : '';
+  perfilAlvoAtual = {
+    eh_bot: true,
+    bot_id: botId,
+    nome: nome || 'Jogador',
+    avatar_url: validarUrlAvatarOuBot(avatarUrl),
+    online: true,
+    status_presenca: 'em_partida',
+    partida_atual: nomeSala ? { nome: nomeSala } : null
+  };
+  renderizarPerfilPublico();
+  $id('fundo-perfil-publico').hidden = false;
+  $id('folha-perfil-publico').hidden = false;
+}
+
+export function enviarPedidoBot(botId) {
+  if (!botId) return;
+  botsPedidoEnviado.add(botId);
+  aviso('Pedido de amizade enviado!');
+  if (perfilPublicoAberto() && perfilAlvoAtual && perfilAlvoAtual.eh_bot && perfilAlvoAtual.bot_id === botId) {
+    renderizarPerfilPublico();
+  }
+}
+
+export function cancelarPedidoBot(botId) {
+  if (!botId) return;
+  botsPedidoEnviado.delete(botId);
+  aviso('Pedido cancelado.');
+  if (perfilPublicoAberto() && perfilAlvoAtual && perfilAlvoAtual.eh_bot && perfilAlvoAtual.bot_id === botId) {
+    renderizarPerfilPublico();
+  }
+}
+
 async function carregarPerfilPublico(contaId) {
   try {
     const resp = await banco.rpc('obter_perfil_publico', {
@@ -738,7 +784,18 @@ function renderizarPerfilPublico() {
   const euConvidado = !!(estado.minhaConta && estado.minhaConta.convidado);
 
   let acoesHtml = '';
-  if (p.convidado) {
+  if (p.eh_bot) {
+    if (euConvidado) {
+      acoesHtml = `
+        <div class="pp-aviso">Crie uma senha no seu perfil para adicionar amigos.</div>
+        <button type="button" onclick="abrirDefinirSenhaConvidado()">Definir senha no perfil</button>
+      `;
+    } else if (botsPedidoEnviado.has(p.bot_id)) {
+      acoesHtml = `<button type="button" class="secundario" data-bot-id="${escapar(p.bot_id)}" onclick="cancelarPedidoBot(this.dataset.botId)">Pedido enviado · Cancelar</button>`;
+    } else {
+      acoesHtml = `<button type="button" class="positivo" data-bot-id="${escapar(p.bot_id)}" onclick="enviarPedidoBot(this.dataset.botId)">+ Adicionar amigo</button>`;
+    }
+  } else if (p.convidado) {
     acoesHtml = '<div class="pp-aviso">Conta <strong>Convidado (Guest)</strong> — não aceita pedidos de amizade.</div>';
   } else if (euConvidado) {
     acoesHtml = `
