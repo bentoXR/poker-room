@@ -57,7 +57,7 @@
 
   <!-- Estilos organizados por responsabilidade -->
   <link rel="stylesheet" href="./css/base.css?v=106">
-  <link rel="stylesheet" href="./css/telas.css?v=127">
+  <link rel="stylesheet" href="./css/telas.css?v=129">
   <link rel="stylesheet" href="./css/mesa.css?v=105">
   <link rel="stylesheet" href="./css/gavetas.css?v=127">
   <link rel="stylesheet" href="./css/online.css?v=119">
@@ -66,7 +66,7 @@
   <link rel="stylesheet" href="./css/tema-cassino.css?v=105">
   <link rel="stylesheet" href="./css/tema-liberdade.css?v=105">
   <link rel="stylesheet" href="./css/tema-tropical.css?v=107">
-  <link rel="stylesheet" href="./css/tema-claro.css?v=127">
+  <link rel="stylesheet" href="./css/tema-claro.css?v=129">
   <link rel="stylesheet" href="./css/desktop.css?v=105">
   <link rel="stylesheet" href="./css/mobile-landscape.css?v=119">
   <link rel="stylesheet" href="./css/amigos.css?v=124">
@@ -103,6 +103,9 @@
   <!-- ===== TELA 1: LOGIN ===== -->
   <section id="tela-login" class="tela ativa">
     <div class="topo-tema-login">
+      <button type="button" id="btn-instalar-pwa-login" class="btn-instalar-pwa" onclick="instalarPwa()" hidden>
+        <span data-i18n="pwa.instalar">📲 Instalar app</span>
+      </button>
       <div class="tema-dropdown" id="tema-dropdown-login">
         <button type="button" class="tema-gatilho" id="btn-tema-login" onclick="alternarMenuTemaLogin()" aria-haspopup="listbox" aria-expanded="false" aria-controls="menu-tema-login" aria-label="Escolher cores do site">
           <span class="amostra amostra-preto" id="tema-login-amostra" aria-hidden="true"></span>
@@ -138,7 +141,12 @@
           <span class="n-emblema">♠</span><span class="n-emblema r">♥</span><span class="n-emblema">♣</span><span class="n-emblema r">♦</span>
         </div>
         <h1>Poker Room</h1>
-        <p data-i18n-html="login.slogan">Jogue com amigos <strong>online</strong> ou controle <strong>fichas e blinds</strong> na mesa presencial.</p>
+        <p data-i18n-html="login.slogan">Jogue <strong>Poker Online</strong>, <strong>Blackjack</strong> ou controle <strong>fichas e blinds</strong> na mesa presencial.</p>
+      </div>
+
+      <div id="banner-convite-login" class="banner-convite-login" hidden role="status">
+        <strong data-i18n="login.convite_titulo">🎟️ Você recebeu um convite para uma mesa</strong>
+        <span data-i18n="login.convite_desc">Entre na sua conta ou toque em Jogar como convidado para entrar direto na sala.</span>
       </div>
 
       <div class="cartao cartao-login">
@@ -971,6 +979,14 @@
         <button type="button" id="btn-perfil-espiar" class="btn-pref-toggle" onclick="alternarModoEspiar()" aria-pressed="false">Desativado</button>
       </div>
 
+      <div class="perfil-pref-linha" id="linha-instalar-pwa" hidden>
+        <div class="perfil-pref-txt">
+          <strong data-i18n="pwa.instalar_titulo">Instalar como aplicativo</strong>
+          <small data-i18n="pwa.instalar_desc">Adicione o Poker Room à sua tela inicial para abrir em tela cheia.</small>
+        </div>
+        <button type="button" class="btn-pref-toggle" onclick="instalarPwa()" data-i18n="pwa.instalar">📲 Instalar app</button>
+      </div>
+
       <div class="perfil-pref-linha">
         <div class="perfil-pref-txt">
           <strong data-i18n="legal.perfil_titulo">Sobre, Termos e Privacidade</strong>
@@ -1128,11 +1144,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=128"></script>
+<script type="module" src="./js/main.js?v=129"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=128').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=129').catch(() => {});
     });
   }
 </script>

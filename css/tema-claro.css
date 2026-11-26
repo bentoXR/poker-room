@@ -727,6 +727,12 @@
   background: #e2e8f0;
   color: #0f172a;
 }
+:root[data-tema="claro"] button.btn-instalar-pwa,
+:root[data-tema="claro"] .banner-convite-login {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #14532d;
+}
 :root[data-tema="claro"] .folha .info-dev small,
 :root[data-tema="claro"] .folha .perfil-pref-txt small,
 :root[data-tema="claro"] .folha .dica {

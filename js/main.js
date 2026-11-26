@@ -16,7 +16,7 @@ import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=11
 import {
   escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma,
   alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil, t
-} from './core/i18n.js?v=128';
+} from './core/i18n.js?v=129';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
@@ -129,6 +129,8 @@ registrarHooksAuth({
     limparDomMesa();
   },
   onPosLogin: () => {
+    const bannerConvite = $id('banner-convite-login');
+    if (bannerConvite) bannerConvite.hidden = true;
     iniciarSocial();
     if (estado.salaConviteId) {
       const idConvite = estado.salaConviteId;
@@ -159,6 +161,8 @@ async function iniciarApp() {
   }
   if (!estado.minhaConta) {
     mostrar('tela-login');
+    const bannerConvite = $id('banner-convite-login');
+    if (bannerConvite) bannerConvite.hidden = !estado.salaConviteId;
     if (estado.salaConviteId) aviso('Entre na sua conta para abrir a sala convidada.');
     return;
   }
@@ -239,8 +243,8 @@ function fecharLegal() {
 
 // ----- Ponte controlada para handlers declarados no HTML -----
 Object.assign(window, {
-  // Institucional / Legal
-  abrirLegal, escolherAbaLegal, fecharLegal, reportarBug,
+  // Institucional / Legal / PWA
+  abrirLegal, escolherAbaLegal, fecharLegal, reportarBug, instalarPwa,
   // Auth, perfil e lobby
   alternarSenha, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta,
   abrirPerfil, fecharPerfil, escolherAbaPerfil, alternarAcordeaoSenha, acionarEscolhaFoto, aoEscolherFotoPerfil,
@@ -534,7 +538,7 @@ function reportarBug() {
     '',
     '---',
     'Diagnóstico automático:',
-    `- Versão: v128`,
+    `- Versão: v129`,
     `- Tela: ${tela}`,
     `- Resolução: ${window.innerWidth}x${window.innerHeight}`,
     `- Navegador: ${navigator.userAgent}`,
@@ -557,5 +561,39 @@ window.addEventListener('unhandledrejection', (e) => {
   registrarErroDiagnostico('rejection', motivo);
   console.error('[PokerRoom] Promise rejeitada:', e.reason);
 });
+
+// ----- Instalação nativa do PWA (beforeinstallprompt) -----
+let eventoInstalarPwa = null;
+
+function atualizarBotoesInstalarPwa() {
+  const disp = Boolean(eventoInstalarPwa);
+  const btnLogin = $id('btn-instalar-pwa-login');
+  const linhaPerfil = $id('linha-instalar-pwa');
+  if (btnLogin) btnLogin.hidden = !disp;
+  if (linhaPerfil) linhaPerfil.hidden = !disp;
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  eventoInstalarPwa = e;
+  atualizarBotoesInstalarPwa();
+});
+
+window.addEventListener('appinstalled', () => {
+  eventoInstalarPwa = null;
+  atualizarBotoesInstalarPwa();
+});
+
+async function instalarPwa() {
+  if (!eventoInstalarPwa) return;
+  try {
+    eventoInstalarPwa.prompt();
+    const escolha = await eventoInstalarPwa.userChoice;
+    if (escolha && escolha.outcome === 'accepted') {
+      eventoInstalarPwa = null;
+    }
+  } catch (erro) {}
+  atualizarBotoesInstalarPwa();
+}
 
 iniciarApp();
