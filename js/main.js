@@ -29,7 +29,16 @@ import {
   registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador,
   abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo,
   fecharSenhaSala, confirmarSenhaSala
-} from './lobby/salas.js?v=107';
+} from './lobby/salas.js?v=113';
+import {
+  iniciarSocial, pararSocial, atualizarPresencaSala, atualizarBannerConviteLobby,
+  abrirAmigos, fecharAmigos, amigosAberto, escolherAbaAmigos, buscarAmigoExato,
+  enviarPedidoAmigo, responderPedidoAmigo, cancelarOuRemoverAmigo,
+  abrirPerfilJogador, fecharPerfilPublico, perfilPublicoAberto,
+  abrirConvidarAmigos, fecharConvidarAmigos, convidarAmigosAberto,
+  enviarConviteAmigo, aceitarConviteSala, recusarConviteSala,
+  dispensarBannerConvite, entrarSalaDoAmigo, abrirDefinirSenhaConvidado
+} from './lobby/amigos.js?v=113';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
@@ -42,7 +51,7 @@ import {
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
-} from './mesa/mesa.js?v=111';
+} from './mesa/mesa.js?v=113';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
@@ -53,7 +62,7 @@ import {
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
   receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
-} from './mesa/chat.js?v=107';
+} from './mesa/chat.js?v=112';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
@@ -95,12 +104,29 @@ try {
 
 // ----- Conexão entre módulos (sem ciclos) -----
 registrarHookSairSalas(pararSalas);
-registrarHooksSalas({ cancelarCriacaoDev, apagarSalaDev });
+registrarHooksSalas({
+  cancelarCriacaoDev,
+  apagarSalaDev,
+  onAbrirSalas: () => {
+    atualizarPresencaSala(null);
+    atualizarBannerConviteLobby(false);
+  }
+});
 registrarHooksAuth({
   abrirSalas,
   pararSalas,
-  onLogout: () => { cancelarCriacaoDev(); fecharPerfil(); limparCachePerfil(); limparDomMesa(); },
+  onLogout: () => {
+    pararSocial();
+    fecharAmigos();
+    fecharPerfilPublico();
+    fecharConvidarAmigos();
+    cancelarCriacaoDev();
+    fecharPerfil();
+    limparCachePerfil();
+    limparDomMesa();
+  },
   onPosLogin: () => {
+    iniciarSocial();
     if (estado.salaConviteId) {
       const idConvite = estado.salaConviteId;
       estado.salaConviteId = null;
@@ -108,7 +134,7 @@ registrarHooksAuth({
     }
   }
 });
-registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, cancelarCriacaoDev, autoSeguirVezDev });
+registrarHooksMesa({ abrirSalas, controlarDev, desenharPainelDev, apagarSalaDev, cancelarCriacaoDev, autoSeguirVezDev, onPresencaSala: atualizarPresencaSala });
 registrarTickOnline(tickOnline);
 registrarTickBlackjack(tickBlackjack);
 registrarHooksDev({
@@ -133,6 +159,8 @@ async function iniciarApp() {
     if (estado.salaConviteId) aviso('Entre na sua conta para abrir a sala convidada.');
     return;
   }
+
+  iniciarSocial();
 
   if (estado.salaConviteId) {
     const idConvite = estado.salaConviteId;
@@ -178,6 +206,12 @@ Object.assign(window, {
   alternarSenha, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta,
   abrirPerfil, fecharPerfil, escolherAbaPerfil, alternarAcordeaoSenha, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes,
+  abrirAmigos, fecharAmigos, escolherAbaAmigos, buscarAmigoExato,
+  enviarPedidoAmigo, responderPedidoAmigo, cancelarOuRemoverAmigo,
+  abrirPerfilJogador, fecharPerfilPublico,
+  abrirConvidarAmigos, fecharConvidarAmigos, enviarConviteAmigo,
+  aceitarConviteSala, recusarConviteSala, dispensarBannerConvite,
+  entrarSalaDoAmigo, abrirDefinirSenhaConvidado,
   escolherTema, alternarTema, alternarMenuTemaLogin, alternarMenuTemaPerfil, alternarSom,
   escolherIdioma, alternarMenuIdiomaPerfil, alternarTermosTraduzidos,
   abrirSalas, abrirCriar, criarSala, abrirSala, entrarComoJogador,
@@ -292,7 +326,10 @@ document.addEventListener('keydown', (e) => {
     }
     const popReac = $id('popover-reacoes');
     if (popReac && !popReac.hidden) { alternarReacoes(true); return; }
-    if (perfilAberto()) fecharPerfil();
+    if (perfilPublicoAberto()) fecharPerfilPublico();
+    else if (convidarAmigosAberto()) fecharConvidarAmigos();
+    else if (amigosAberto()) fecharAmigos();
+    else if (perfilAberto()) fecharPerfil();
     else if (algumaFolhaAberta()) fecharFolhas();
     else if (window.innerWidth >= 820 && estado.apostaAberta) alternarAposta();
     return;

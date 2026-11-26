@@ -7,12 +7,13 @@ import { desligarTempoReal } from '../core/realtime.js?v=107';
 import { tratarErroConta } from './auth.js?v=107';
 import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=109';
 import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=107';
-import { abrirMesa } from '../mesa/mesa.js?v=111';
+import { abrirMesa } from '../mesa/mesa.js?v=113';
 import { t, termo } from '../core/i18n.js?v=110';
 
 let hooksSalas = {
   cancelarCriacaoDev: () => {},
-  apagarSalaDev: () => Promise.resolve(false)
+  apagarSalaDev: () => Promise.resolve(false),
+  onAbrirSalas: () => {}
 };
 
 export function registrarHooksSalas(hooks) {
@@ -46,6 +47,7 @@ export function abrirSalas() {
   sincronizarMeuPerfil();
   limparErro('erro-salas');
   mostrar('tela-salas');
+  hooksSalas.onAbrirSalas();
   if (!estado.htmlSalas) {
     $id('lista-salas').innerHTML = '<div class="vazio"><p>' + t('salas.buscando') + '</p></div>';
   }

@@ -1,0 +1,389 @@
+/* =====================================================
+   SISTEMA DE AMIZADES, PERFIS PÚBLICOS E CONVITES
+   ===================================================== */
+
+/* Botão Amigos no topo do Lobby */
+button.btn-amigos-lobby {
+  position: relative;
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--linha);
+  color: var(--marfim);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: none;
+}
+button.btn-amigos-lobby:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+button.btn-amigos-lobby .ic {
+  width: 18px;
+  height: 18px;
+}
+
+.badge-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--vermelho, #d32f2f);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+.badge-social[hidden] { display: none; }
+
+/* Banner de convite em tempo real (apenas no Lobby) */
+.banner-convite-sala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--raio-md, 14px);
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.25), rgba(20, 48, 110, 0.35));
+  border: 1px solid var(--verde-borda, rgba(76, 175, 80, 0.6));
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.55);
+  animation: conviteEntra 0.22s ease-out;
+}
+.banner-convite-sala[hidden] { display: none; }
+@keyframes conviteEntra {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.banner-convite-esq {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+.banner-convite-txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.banner-convite-txt strong {
+  color: #fff;
+  font-size: 14.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.banner-convite-txt span {
+  color: var(--marfim-suave);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.banner-convite-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+button.banner-convite-fechar {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  margin: 0;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  color: var(--marfim-suave);
+  box-shadow: none;
+  font-size: 15px;
+}
+
+/* Avatares e bolinhas de presença */
+.amigo-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--feltro-700);
+  border: 1.5px solid var(--linha);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  overflow: hidden;
+}
+.amigo-avatar.sm { width: 34px; height: 34px; font-size: 14px; }
+.amigo-avatar.lg { width: 76px; height: 76px; font-size: 30px; border-width: 2.5px; }
+.amigo-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.social-av-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.status-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #7c8798;
+  border: 2px solid var(--cartao-bg, #111);
+}
+.social-av-wrap .status-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+}
+.status-dot.online { background: #2ecc71; }
+.status-dot.partida { background: #f1c40f; }
+.status-dot.offline { background: #7c8798; }
+
+/* Gaveta de Amigos */
+.folha-amigos .folha-corpo {
+  padding-top: 8px;
+}
+.amigos-abas {
+  margin-top: 6px;
+}
+button.amigos-aba {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.social-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.social-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--linha);
+}
+.social-item.clicavel,
+.social-item-esq.clicavel {
+  cursor: pointer;
+}
+.social-item.clicavel:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.social-item.destaque-convite {
+  background: rgba(46, 125, 50, 0.16);
+  border-color: var(--verde-borda, rgba(76, 175, 80, 0.5));
+}
+.social-item-esq {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.social-item-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.social-nome {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--marfim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.social-sub {
+  font-size: 12px;
+  color: var(--marfim-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.social-sub.online { color: #5ce092; }
+.social-sub.partida { color: #ffd54f; }
+.social-item-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+button.btn-sm {
+  width: auto;
+  min-height: 34px;
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  border-radius: 9px;
+}
+
+.social-secao-titulo {
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--marfim-suave);
+  margin: 12px 0 8px;
+}
+.social-secao-titulo:first-child { margin-top: 4px; }
+
+.social-tag-ok {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--marfim-suave);
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.social-vazio-card {
+  text-align: center;
+  padding: 24px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--linha);
+}
+.social-vazio-ico { font-size: 30px; margin-bottom: 8px; }
+.social-vazio-card strong { display: block; font-size: 15px; margin-bottom: 6px; }
+.social-vazio-card p { margin: 0 0 14px; font-size: 13.5px; color: var(--marfim-suave); line-height: 1.4; }
+.social-vazio-card button { width: auto; min-width: 180px; margin: 0 auto; }
+
+.social-carregando,
+.social-busca-vazia {
+  text-align: center;
+  padding: 18px 12px;
+  font-size: 13.5px;
+  color: var(--marfim-suave);
+}
+
+.social-busca-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.social-busca-form input {
+  flex: 1 1 auto;
+  min-height: 44px;
+  margin: 0;
+}
+.social-busca-form button {
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 16px;
+}
+
+/* Modal compacto de Perfil Público */
+.folha-perfil-publico {
+  max-width: 390px;
+}
+.pp-cabecalho {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 8px 0 16px;
+}
+.pp-nome {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--marfim);
+}
+.pp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--marfim-suave);
+}
+.pp-status .status-dot { border-color: transparent; width: 9px; height: 9px; }
+.pp-status.online { color: #5ce092; }
+.pp-status.partida { color: #ffd54f; }
+.pp-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pp-acoes-pilha {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pp-acoes-duplas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pp-aviso {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--linha);
+  font-size: 13px;
+  color: var(--marfim-suave);
+  text-align: center;
+}
+
+/* Jogador clicável na mesa */
+.lugar.clicavel-perfil {
+  cursor: pointer;
+}
+.lugar.clicavel-perfil:hover .l-avatar,
+.lugar.clicavel-perfil:hover .ficha {
+  box-shadow: 0 0 0 2px var(--acento, #ffd54f), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+.lugar.clicavel-perfil:hover .l-nome .texto {
+  text-decoration: underline;
+}
+
+/* Ajustes para Tema Claro */
+:root[data-tema="claro"] button.btn-amigos-lobby {
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--texto-escuro, #0f172a);
+}
+:root[data-tema="claro"] .banner-convite-sala {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.14), rgba(37, 99, 235, 0.12));
+}
+:root[data-tema="claro"] .banner-convite-txt strong,
+:root[data-tema="claro"] .pp-nome,
+:root[data-tema="claro"] .social-nome {
+  color: var(--texto-escuro, #0f172a);
+}
+:root[data-tema="claro"] .social-item {
+  background: rgba(15, 23, 42, 0.04);
+}
+:root[data-tema="claro"] .social-sub.online,
+:root[data-tema="claro"] .pp-status.online { color: #15803d; }
+:root[data-tema="claro"] .social-sub.partida,
+:root[data-tema="claro"] .pp-status.partida { color: #b45309; }
+:root[data-tema="claro"] .pp-status,
+:root[data-tema="claro"] .social-tag-ok,
+:root[data-tema="claro"] .pp-aviso {
+  background: rgba(15, 23, 42, 0.06);
+}

@@ -7,6 +7,11 @@ import { tocarSom } from '../core/som.js?v=107';
 import { executar } from './apostas.js?v=107';
 
 const JANELA_DIGITANDO_MS = 3400;
+const COOLDOWN_CHAT_MS = 1200;
+const JANELA_RAJADA_CHAT_MS = 10000;
+const MAX_RAJADA_CHAT = 5;
+const COOLDOWN_SOM_CHAT_MS = 1000;
+const COOLDOWN_PREVIEW_AUTOR_MS = 1200;
 
 const chat = {
   partidaId: null,
@@ -16,6 +21,11 @@ const chat = {
   enviando: false,
   sujo: false,
   ultimaReacaoEm: 0,
+  ultimoEnvioEm: 0,
+  enviosRecentes: [],
+  timerCooldown: null,
+  ultimoSomEm: 0,
+  ultimoPreviewPor: new Map(),
   abaAtual: 'chat',
   digitandoPor: new Map(),
   ultimoSinalDigitar: 0,
@@ -241,7 +251,7 @@ function lancarFlutuantePerfil({ ancoraEl, textoHtml, classeExtra, ariaLabel, on
   item.style.setProperty('--dur', duracaoMs + 'ms');
 
   camada.appendChild(item);
-  while (camada.children.length > 18) {
+  while (camada.children.length > 6) {
     camada.removeChild(camada.firstElementChild);
   }
 
@@ -649,6 +659,48 @@ export async function enviarVoto(voto) {
   if (ok) atualizarVotacaoUI();
 }
 
+function tocarSomChatSuave() {
+  const agora = Date.now();
+  if (agora - chat.ultimoSomEm < COOLDOWN_SOM_CHAT_MS) return;
+  chat.ultimoSomEm = agora;
+  tocarSom('clique');
+}
+
+function podeMostrarPreviewAutor(chave) {
+  if (!chave) return true;
+  const agora = Date.now();
+  const ant = chat.ultimoPreviewPor.get(chave) || 0;
+  if (agora - ant < COOLDOWN_PREVIEW_AUTOR_MS) return false;
+  chat.ultimoPreviewPor.set(chave, agora);
+  if (chat.ultimoPreviewPor.size > 32) {
+    for (const [k, ts] of chat.ultimoPreviewPor.entries()) {
+      if (agora - ts > COOLDOWN_PREVIEW_AUTOR_MS * 2) chat.ultimoPreviewPor.delete(k);
+    }
+  }
+  return true;
+}
+
+function definirControlesChatDesabilitados(desabilitado) {
+  const btn = $id('btn-enviar-chat');
+  if (btn) btn.disabled = Boolean(desabilitado);
+  document.querySelectorAll('#chat-atalhos .chat-chip').forEach((chip) => {
+    chip.disabled = Boolean(desabilitado);
+  });
+}
+
+function aplicarCooldownEnvio(ms) {
+  clearTimeout(chat.timerCooldown);
+  if (!(ms > 0)) {
+    definirControlesChatDesabilitados(false);
+    return;
+  }
+  definirControlesChatDesabilitados(true);
+  chat.timerCooldown = setTimeout(() => {
+    chat.timerCooldown = null;
+    if (!chat.enviando) definirControlesChatDesabilitados(false);
+  }, ms);
+}
+
 export function limparChatMesa() {
   chat.partidaId = null;
   chat.mensagens = [];
@@ -656,6 +708,13 @@ export function limparChatMesa() {
   chat.naoLidas = 0;
   chat.enviando = false;
   chat.sujo = false;
+  chat.ultimoEnvioEm = 0;
+  chat.enviosRecentes = [];
+  clearTimeout(chat.timerCooldown);
+  chat.timerCooldown = null;
+  definirControlesChatDesabilitados(false);
+  chat.ultimoSomEm = 0;
+  chat.ultimoPreviewPor.clear();
   chat.abaAtual = 'chat';
   chat.digitandoPor.clear();
   clearTimeout(chat.timerDigitando);
@@ -706,28 +765,33 @@ export async function iniciarChatMesa(partidaId) {
 export function receberMensagemChat(msg) {
   if (!msg || msg.id == null || !chat.partidaId) return;
   if (chat.ids.has(msg.id)) return;
-  chat.ids.add(msg.id);
+  const textoSeguro = String(msg.texto || '').slice(0, 240);
+  const msgSegura = textoSeguro === msg.texto ? msg : { ...msg, texto: textoSeguro };
+  chat.ids.add(msgSegura.id);
   const estourou = chat.mensagens.length >= 100;
-  chat.mensagens.push(msg);
+  chat.mensagens.push(msgSegura);
   if (chat.mensagens.length > 100) {
     const removida = chat.mensagens.shift();
     if (removida) chat.ids.delete(removida.id);
   }
 
-  if (msg.autor_id) {
-    chat.digitandoPor.delete(String(msg.autor_id));
+  if (msgSegura.autor_id) {
+    chat.digitandoPor.delete(String(msgSegura.autor_id));
     atualizarDigitandoUI();
   }
 
   const vendoChat = chatAberto() && chat.abaAtual === 'chat';
   if (!vendoChat) {
     chat.sujo = true;
-    if (!ehMinhaMensagem(msg)) {
+    if (!ehMinhaMensagem(msgSegura)) {
       chat.naoLidas += 1;
       atualizarBadge();
-      tocarSom('clique');
+      tocarSomChatSuave();
     }
-    if (!chatAberto()) mostrarPreviewChat(msg);
+    const chaveAutor = String(msgSegura.autor_id || msgSegura.autor_nome || '');
+    if (!chatAberto() && podeMostrarPreviewAutor(chaveAutor)) {
+      mostrarPreviewChat(msgSegura);
+    }
   } else {
     const lista = $id('chat-lista');
     if (lista) {
@@ -735,7 +799,7 @@ export function receberMensagemChat(msg) {
         desenharChat();
       } else {
         if (estourou && lista.firstElementChild) lista.firstElementChild.remove();
-        lista.insertAdjacentHTML('beforeend', htmlMensagemChat(msg));
+        lista.insertAdjacentHTML('beforeend', htmlMensagemChat(msgSegura));
         rolarFim();
       }
     }
@@ -771,12 +835,27 @@ export function abrirChat(abaInicial) {
 
 async function enviarTextoChat(texto) {
   if (chat.enviando || !estado.partidaAtual) return false;
-  const limpo = String(texto || '').trim();
+  const limpo = String(texto || '').trim().slice(0, 240);
   if (!limpo) return false;
 
-  const btn = $id('btn-enviar-chat');
+  const agora = Date.now();
+  const faltaCooldown = COOLDOWN_CHAT_MS - (agora - chat.ultimoEnvioEm);
+  if (faltaCooldown > 0) {
+    aplicarCooldownEnvio(faltaCooldown);
+    aviso('Calma! Aguarde um instante antes de enviar outra mensagem.');
+    return false;
+  }
+
+  chat.enviosRecentes = chat.enviosRecentes.filter((ts) => agora - ts < JANELA_RAJADA_CHAT_MS);
+  if (chat.enviosRecentes.length >= MAX_RAJADA_CHAT) {
+    const faltaRajada = Math.max(COOLDOWN_CHAT_MS, JANELA_RAJADA_CHAT_MS - (agora - chat.enviosRecentes[0]));
+    aplicarCooldownEnvio(Math.min(faltaRajada, 3000));
+    aviso('Muitas mensagens seguidas. Aguarde alguns segundos.');
+    return false;
+  }
+
   chat.enviando = true;
-  if (btn) btn.disabled = true;
+  definirControlesChatDesabilitados(true);
 
   let resp;
   try {
@@ -793,12 +872,17 @@ async function enviarTextoChat(texto) {
   }
 
   chat.enviando = false;
-  if (btn) btn.disabled = false;
 
   if (resp.error) {
+    definirControlesChatDesabilitados(false);
     aviso(resp.error.message || 'Não foi possível enviar a mensagem.');
     return false;
   }
+
+  const enviadoEm = Date.now();
+  chat.ultimoEnvioEm = enviadoEm;
+  chat.enviosRecentes.push(enviadoEm);
+  aplicarCooldownEnvio(COOLDOWN_CHAT_MS);
 
   publicarDigitando({
     partida_id: estado.partidaAtual.id,
@@ -864,10 +948,13 @@ export function receberReacao(payload) {
   if (!payload || !payload.texto) return;
   if (payload.partida_id && estado.partidaAtual && payload.partida_id !== estado.partidaAtual.id) return;
 
-  mostrarPreviewReacao(payload);
-
   const jid = payload.jogador_id;
-  if (!jid || jid !== estado.meuJogadorId) tocarSom('clique');
+  const chaveAutor = String(jid || payload.autor_nome || '');
+  if (jid === estado.meuJogadorId || podeMostrarPreviewAutor(chaveAutor)) {
+    mostrarPreviewReacao(payload);
+  }
+
+  if (!jid || jid !== estado.meuJogadorId) tocarSomChatSuave();
 }
 
 export function enviarReacao(texto) {

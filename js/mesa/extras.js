@@ -4,7 +4,7 @@ import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=107
 import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=107';
 import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=107';
 import { htmlCartaMini } from '../modos/online/cartas.js?v=107';
-import { abrirChat } from './chat.js?v=107';
+import { abrirChat } from './chat.js?v=112';
 
 // ----- Histórico -----
 export function abrirHistorico() {

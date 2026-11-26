@@ -11,7 +11,7 @@ import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesP
 import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=107';
 import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=109';
 import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=107';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=107';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=112';
 import { t, termo } from '../core/i18n.js?v=110';
 
 const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
@@ -86,7 +86,8 @@ let hooksApp = {
   desenharPainelDev: () => {},
   apagarSalaDev: () => {},
   cancelarCriacaoDev: () => {},
-  autoSeguirVezDev: () => {}
+  autoSeguirVezDev: () => {},
+  onPresencaSala: () => {}
 };
 
 export function registrarHooksMesa(hooks) {
@@ -164,6 +165,7 @@ export async function abrirMesa(partida, estadoInicial) {
   }
 
   mostrar('tela-mesa');
+  hooksApp.onPresencaSala(partida.dev ? null : partida.id);
   iniciarChatMesa(partida.id);
   ligarTempoReal({
     onEstado: receberEstado,
@@ -900,8 +902,10 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const premioVencedor = (modo && modo.premioVencedorAssento) ? modo.premioVencedorAssento(j, partida) : 0;
 
     const st = estadoAssentoJogador(j, partida, ehOnline);
+    const perfilContaId = (!souEu && !j.eh_bot && j.conta_id && !estado.modoDev) ? j.conta_id : '';
     let classes = 'lugar assento-redondo';
     if (souEu) classes += ' eu';
+    if (perfilContaId) classes += ' clicavel-perfil';
     if (naVez) classes += ' vez';
     if (ehVencedor) classes += ' vencedor';
     if (j.esperando || (ehOnline && j.ausente)) classes += ' espera';
@@ -967,6 +971,12 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       const tpl = document.createElement('div');
       tpl.className = classes;
       tpl.dataset.jogadorId = j.id;
+      if (perfilContaId) {
+        tpl.dataset.contaId = perfilContaId;
+        tpl.dataset.contaNome = nomeTxt;
+        tpl.title = 'Ver perfil de ' + nomeTxt;
+        tpl.setAttribute('onclick', 'event.stopPropagation(); abrirPerfilJogador(this.dataset.contaId, this.dataset.contaNome)');
+      }
       tpl.setAttribute('style', estiloLugar);
       tpl.innerHTML = `
         ${badgePerfilHtml}
@@ -990,6 +1000,7 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
         avatarUrl,
         badgeClasse,
         souEu,
+        perfilContaId,
         ordem: j.ordem,
         coroaHtml,
         nomeTxt,
@@ -1019,6 +1030,20 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
       if (cached.estiloLugar !== estiloLugar) {
         cached.estiloLugar = estiloLugar;
         cached.el.setAttribute('style', estiloLugar);
+      }
+      if (cached.perfilContaId !== perfilContaId) {
+        cached.perfilContaId = perfilContaId;
+        if (perfilContaId) {
+          cached.el.dataset.contaId = perfilContaId;
+          cached.el.dataset.contaNome = nomeTxt;
+          cached.el.title = 'Ver perfil de ' + nomeTxt;
+          cached.el.setAttribute('onclick', 'event.stopPropagation(); abrirPerfilJogador(this.dataset.contaId, this.dataset.contaNome)');
+        } else {
+          delete cached.el.dataset.contaId;
+          delete cached.el.dataset.contaNome;
+          cached.el.removeAttribute('title');
+          cached.el.removeAttribute('onclick');
+        }
       }
       if (cached.avatarUrl !== avatarUrl || cached.souEu !== souEu) {
         cached.avatarUrl = avatarUrl;
@@ -1372,6 +1397,7 @@ export function voltarParaSalas() {
   limparCachesMesa();
   esquecerPartida();
   estado.modoDev = false;
+  hooksApp.onPresencaSala(null);
   hooksApp.abrirSalas();
   if (eraDev || lerDevSala()) hooksApp.apagarSalaDev();
 }
