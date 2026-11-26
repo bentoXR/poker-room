@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = new Set([
   "https://bentoxr.github.io",
@@ -107,23 +108,14 @@ Deno.serve(async (req: Request) => {
     : { p_nome: payload.p_nome ?? null };
 
   try {
-    const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/${rpc}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": serviceRoleKey,
-        "Authorization": `Bearer ${serviceRoleKey}`,
-      },
-      body: JSON.stringify(rpcBody),
+    const admin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
     });
-    const text = await rpcRes.text();
-    return new Response(text, {
-      status: rpcRes.status,
-      headers: {
-        ...corsHeaders(origin),
-        "Content-Type": "application/json",
-      },
-    });
+    const { data, error } = await admin.rpc(rpc, rpcBody);
+    if (error) {
+      return jsonResponse({ message: error.message || "Erro ao criar conta." }, 400, origin);
+    }
+    return jsonResponse(data, 200, origin);
   } catch {
     return jsonResponse({ message: "Não consegui falar com o servidor. Confira a internet." }, 502, origin);
   }
