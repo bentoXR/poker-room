@@ -31,7 +31,7 @@ let timerBuscaAmigo = null;
 let perfilAlvoAtual = null;
 const convitesDispensados = new Set();
 const convitesVistos = new Set();
-const convidadosNaSessao = new Map(); // partidaId -> Set<contaId>
+const convidadosNaSessao = new Map(); // partidaId -> Map<contaId, expiraEmMs>
 const botsPedidoEnviado = new Set(); // botId -> pedido visual na sessão
 
 function validarUrlAvatarOuBot(url) {
@@ -41,15 +41,28 @@ function validarUrlAvatarOuBot(url) {
   return null;
 }
 
-function registrarConviteEnviadoLocal(partidaId, contaId) {
+function registrarConviteEnviadoLocal(partidaId, contaId, duracaoMs = 5000) {
   if (!partidaId || !contaId) return;
-  if (!convidadosNaSessao.has(partidaId)) convidadosNaSessao.set(partidaId, new Set());
-  convidadosNaSessao.get(partidaId).add(contaId);
+  if (!convidadosNaSessao.has(partidaId)) convidadosNaSessao.set(partidaId, new Map());
+  convidadosNaSessao.get(partidaId).set(contaId, Date.now() + duracaoMs);
+  setTimeout(() => {
+    if (convidarAmigosAberto()) renderizarConvidarAmigos();
+    if (perfilPublicoAberto() && perfilAlvoAtual && perfilAlvoAtual.conta_id === contaId) {
+      renderizarPerfilPublico();
+    }
+  }, duracaoMs + 60);
 }
 
 function jaConvidadoNestaSessao(partidaId, contaId) {
-  const s = convidadosNaSessao.get(partidaId);
-  return !!(s && s.has(contaId));
+  const m = convidadosNaSessao.get(partidaId);
+  if (!m) return false;
+  const expira = m.get(contaId);
+  if (!expira) return false;
+  if (Date.now() >= expira) {
+    m.delete(contaId);
+    return false;
+  }
+  return true;
 }
 
 function avatarHtml(nome, avatarUrl, classeExtra = '') {

@@ -40,7 +40,7 @@ import {
   abrirConvidarAmigos, fecharConvidarAmigos, convidarAmigosAberto,
   enviarConviteAmigo, aceitarConviteSala, recusarConviteSala,
   dispensarBannerConvite, entrarSalaDoAmigo, abrirDefinirSenhaConvidado
-} from './lobby/amigos.js?v=126';
+} from './lobby/amigos.js?v=136';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
@@ -538,7 +538,7 @@ function reportarBug() {
     '',
     '---',
     'Diagnóstico automático:',
-    `- Versão: v135`,
+    `- Versão: v136`,
     `- Tela: ${tela}`,
     `- Resolução: ${window.innerWidth}x${window.innerHeight}`,
     `- Navegador: ${navigator.userAgent}`,
