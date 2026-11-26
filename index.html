@@ -530,7 +530,6 @@
         <div class="menu-online-grade">
           <button type="button" class="secundario menu-tile" onclick="fecharFolhas(); abrirPerfil()" data-i18n="menu.perfil">👤 Perfil e tema</button>
           <button type="button" id="menu-btn-som" class="secundario menu-tile" onclick="alternarSom()" aria-pressed="true" data-i18n="menu.som_on">🔊 Som: Ligado</button>
-          <button type="button" id="menu-btn-convidar-amigos" class="secundario menu-tile" onclick="fecharFolhas(); abrirConvidarAmigos()">👥 Convidar amigos</button>
           <button type="button" id="menu-btn-ausente" class="secundario menu-tile" onclick="fecharFolhas(); alternarAusenteOnline()" data-i18n="menu.ausente" hidden>⏸ Ficar ausente</button>
           <button type="button" class="secundario menu-tile" onclick="abrirGuia()" data-i18n="menu.guia">♠ Guia de mãos</button>
           <button type="button" id="menu-btn-reais" class="secundario menu-tile" onclick="abrirReais()" data-i18n="menu.reais" hidden>🏆 Placar (R$)</button>
@@ -1042,11 +1041,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=117"></script>
+<script type="module" src="./js/main.js?v=118"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=117').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=118').catch(() => {});
     });
   }
 </script>

@@ -101,6 +101,20 @@ registrarHooksApostas({
   restaurarTela
 });
 
+function estaEmMaoAtivaOnline(partida, eu) {
+  return !!(
+    partida &&
+    partida.modo === 'online' &&
+    partida.iniciada &&
+    !partida.aguardando_proxima_mao &&
+    eu &&
+    !eu.desistiu &&
+    !eu.esperando &&
+    !eu.ausente &&
+    eu.tem_cartas
+  );
+}
+
 export async function abrirMesa(partida, estadoInicial) {
   if (!partida || !partida.id) return;
   if (estado.modoDev && !ehContaDev()) {
@@ -480,9 +494,13 @@ export function desenharMesa(dados) {
     const podeAusente = partida.modo === 'online' && !!eu && eu.saldo > 0 && !eu.espectando && !estado.modoDev;
     btnAusenteTopo.hidden = !podeAusente;
     if (podeAusente) {
+      const bloqueadoNaMao = !eu.ausente && estaEmMaoAtivaOnline(partida, eu);
+      btnAusenteTopo.disabled = bloqueadoNaMao;
       btnAusenteTopo.textContent = eu.ausente ? '▶' : '⏸';
       btnAusenteTopo.dataset.label = eu.ausente ? 'Voltar' : 'Ausente';
-      btnAusenteTopo.title = eu.ausente ? 'Voltar ao jogo' : 'Ficar ausente';
+      btnAusenteTopo.title = bloqueadoNaMao
+        ? 'Disponível após o fim da mão ou ao dar Fold'
+        : (eu.ausente ? 'Voltar ao jogo' : 'Ficar ausente');
       btnAusenteTopo.setAttribute('aria-label', btnAusenteTopo.title);
       btnAusenteTopo.classList.toggle('ouro', !!eu.ausente);
     }
@@ -1274,9 +1292,6 @@ function preencherMenuOnline() {
   if (p.pausada) info.push('⏸ PAUSADA');
   $id('menu-online-info').textContent = info.join(' · ');
 
-  const btnConvidar = $id('menu-btn-convidar-amigos');
-  if (btnConvidar) btnConvidar.hidden = !!estado.modoDev;
-
   const btnReais = $id('menu-btn-reais');
   if (btnReais) {
     const temReal = Number(valorPorMil(p.id)) > 0;
@@ -1289,7 +1304,10 @@ function preencherMenuOnline() {
     const podeAusente = p.modo === 'online' && !!eu && eu.saldo > 0 && !eu.espectando;
     btnAusente.hidden = !podeAusente;
     if (podeAusente) {
+      const bloqueadoNaMao = !eu.ausente && estaEmMaoAtivaOnline(p, eu);
+      btnAusente.disabled = bloqueadoNaMao;
       btnAusente.textContent = eu.ausente ? '▶ Voltar ao jogo' : '⏸ Ficar ausente';
+      btnAusente.title = bloqueadoNaMao ? 'Disponível após o fim da mão ou ao dar Fold' : '';
     }
   }
 
