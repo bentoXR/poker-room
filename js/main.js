@@ -16,11 +16,11 @@ import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=11
 import {
   escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma,
   alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil, t
-} from './core/i18n.js?v=132';
+} from './core/i18n.js?v=133';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
-} from './lobby/auth.js?v=132';
+} from './lobby/auth.js?v=133';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil,
@@ -538,7 +538,7 @@ function reportarBug() {
     '',
     '---',
     'Diagnóstico automático:',
-    `- Versão: v132`,
+    `- Versão: v133`,
     `- Tela: ${tela}`,
     `- Resolução: ${window.innerWidth}x${window.innerHeight}`,
     `- Navegador: ${navigator.userAgent}`,

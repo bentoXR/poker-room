@@ -57,7 +57,7 @@
 
   <!-- Estilos organizados por responsabilidade -->
   <link rel="stylesheet" href="./css/base.css?v=106">
-  <link rel="stylesheet" href="./css/telas.css?v=132">
+  <link rel="stylesheet" href="./css/telas.css?v=133">
   <link rel="stylesheet" href="./css/mesa.css?v=105">
   <link rel="stylesheet" href="./css/gavetas.css?v=127">
   <link rel="stylesheet" href="./css/online.css?v=119">
@@ -152,12 +152,6 @@
       </div>
 
       <div class="cartao cartao-login">
-        <div id="hero-convidado-login" class="hero-convidado-login">
-          <button type="button" id="botao-convidado" class="cta-convidado-topo" onclick="entrarComoConvidado()" data-i18n="login.btn_convidado">🃏 JOGAR AGORA (sem login)</button>
-          <p class="convidado-sub" data-i18n="login.convidado_sub">Entre na hora como convidado — sem precisar de senha.</p>
-          <div class="login-divisor"><span data-i18n="login.ou_conta">ou acesse sua conta</span></div>
-        </div>
-
         <div class="auth-abas" role="tablist" aria-label="Entrar ou criar conta">
           <button type="button" class="auth-aba sel" data-auth="entrar" role="tab" aria-selected="true" onclick="escolherModoLogin('entrar')" data-i18n="app.entrar">Entrar</button>
           <button type="button" class="auth-aba" data-auth="criar" role="tab" aria-selected="false" onclick="escolherModoLogin('criar')" data-i18n="app.criar_conta">Criar conta</button>
@@ -187,7 +181,8 @@
         </div>
 
         <div id="turnstile-box" class="turnstile-box"></div>
-        <button id="botao-login" onclick="enviarAuth()">Entrar</button>
+        <button id="botao-login" class="secundario" onclick="enviarAuth()">Entrar</button>
+        <button type="button" id="botao-convidado" onclick="entrarComoConvidado()" data-i18n="login.btn_convidado">👤 Jogar como convidado (Guest)</button>
         <p id="dica-login" class="dica">Use o mesmo <strong>nome</strong> e <strong>senha</strong> sempre que voltar. No modo <strong>Convidado</strong>, se perder os cookies/cache você não conseguirá voltar às salas com as mesmas fichas.</p>
         <div id="erro-login" class="erro" role="alert"></div>
       </div>
@@ -1153,11 +1148,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=132"></script>
+<script type="module" src="./js/main.js?v=133"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=132').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=133').catch(() => {});
     });
   }
 </script>

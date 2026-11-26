@@ -43,6 +43,7 @@ function renderizarTurnstile(action) {
       sitekey: TURNSTILE_SITEKEY,
       action: alvoAction,
       theme: temaTurnstileAtual(),
+      appearance: 'interaction-only',
       callback: (tok) => { turnstileToken = tok || ''; },
       'expired-callback': () => { turnstileToken = ''; },
       'error-callback': () => { turnstileToken = ''; }
@@ -121,15 +122,18 @@ export function escolherModoLogin(modo) {
   if (campoSenha) campoSenha.placeholder = t(ehCriar ? 'login.ph_senha_criar' : 'login.ph_senha_entrar');
 
   const btn = $id('botao-login');
-  if (btn) btn.textContent = t(ehCriar ? 'login.btn_criar' : 'login.btn_entrar');
+  if (btn) {
+    btn.textContent = t(ehCriar ? 'login.btn_criar' : 'login.btn_entrar');
+    btn.classList.toggle('secundario', !ehCriar);
+  }
 
   const dica = $id('dica-login');
   if (dica) {
     dica.innerHTML = t(ehCriar ? 'login.dica_criar' : 'login.dica_entrar');
   }
 
-  const heroGuest = $id('hero-convidado-login');
-  if (heroGuest) heroGuest.hidden = ehCriar;
+  const btnGuest = $id('botao-convidado');
+  if (btnGuest) btnGuest.hidden = ehCriar;
 
   renderizarTurnstile(ehCriar ? 'signup' : 'guest');
 }

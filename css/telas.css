@@ -1724,8 +1724,7 @@ button.legal-aba.sel {
 .turnstile-box {
   display: flex;
   justify-content: center;
-  min-height: 66px;
-  margin: 10px 0 4px;
+  margin: 0;
 }
 a.btn-suporte-legal {
   display: inline-flex;
