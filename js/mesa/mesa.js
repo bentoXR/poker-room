@@ -471,10 +471,22 @@ export function desenharMesa(dados) {
   if (modo && modo.desenharFaixa) modo.desenharFaixa(partida, jogadores, ctxModo);
   if (modo && modo.desenharCriador) modo.desenharCriador(partida, jogadores, ctxModo);
 
-  // ----- Botões globais do topo (DEV / Reais / Convidar) -----
+  // ----- Botões globais do topo (DEV / Reais / Convidar / Ausente) -----
   $id('btn-dev').hidden = !estado.modoDev;
   const btnConvidar = $id('btn-convidar');
   if (btnConvidar) btnConvidar.hidden = !!estado.modoDev;
+  const btnAusenteTopo = $id('btn-ausente-mesa');
+  if (btnAusenteTopo) {
+    const podeAusente = partida.modo === 'online' && !!eu && eu.saldo > 0 && !eu.espectando && !estado.modoDev;
+    btnAusenteTopo.hidden = !podeAusente;
+    if (podeAusente) {
+      btnAusenteTopo.textContent = eu.ausente ? '▶' : '⏸';
+      btnAusenteTopo.dataset.label = eu.ausente ? 'Voltar' : 'Ausente';
+      btnAusenteTopo.title = eu.ausente ? 'Voltar ao jogo' : 'Ficar ausente';
+      btnAusenteTopo.setAttribute('aria-label', btnAusenteTopo.title);
+      btnAusenteTopo.classList.toggle('ouro', !!eu.ausente);
+    }
+  }
   const btnProx = $id('btn-dev-prox');
   btnProx.hidden = !estado.modoDev;
   if (estado.modoDev) {
@@ -1262,7 +1274,7 @@ function preencherMenuOnline() {
   if (p.pausada) info.push('⏸ PAUSADA');
   $id('menu-online-info').textContent = info.join(' · ');
 
-  const btnConvidar = $id('menu-btn-convidar');
+  const btnConvidar = $id('menu-btn-convidar-amigos');
   if (btnConvidar) btnConvidar.hidden = !!estado.modoDev;
 
   const btnReais = $id('menu-btn-reais');

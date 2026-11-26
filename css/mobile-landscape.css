@@ -690,12 +690,13 @@
     display: inline-flex !important;
   }
   #tela-mesa.modo-online #btn-dev:not([hidden]),
-  #tela-mesa.modo-online #btn-reais:not([hidden]) {
+  #tela-mesa.modo-online #btn-reais:not([hidden]),
+  #tela-mesa.modo-online #btn-convidar:not([hidden]) {
     display: inline-flex !important;
   }
   #tela-mesa.modo-online #btn-voltar-mesa,
   #tela-mesa.modo-online #btn-sair-mesa,
-  #tela-mesa.modo-online #btn-convidar,
+  #tela-mesa.modo-online #btn-ausente-mesa,
   #tela-mesa.modo-online .barra-info {
     display: none !important;
   }
