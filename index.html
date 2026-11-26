@@ -33,7 +33,7 @@
   <link rel="stylesheet" href="./css/tema-claro.css?v=108">
   <link rel="stylesheet" href="./css/desktop.css?v=105">
   <link rel="stylesheet" href="./css/mobile-landscape.css?v=119">
-  <link rel="stylesheet" href="./css/amigos.css?v=116">
+  <link rel="stylesheet" href="./css/amigos.css?v=120">
 
   <!-- Biblioteca oficial do Supabase -->
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -968,6 +968,22 @@
   <div class="folha-corpo" id="perfil-publico-corpo"></div>
 </div>
 
+<!-- ===== OVERLAY: DIÁLOGO DE CONFIRMAÇÃO DO SITE ===== -->
+<div id="fundo-confirmar" class="fundo-folha fundo-confirmar" hidden></div>
+<div id="folha-confirmar" class="folha folha-perfil folha-confirmar" hidden role="alertdialog" aria-modal="true" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-mensagem">
+  <div class="folha-topo">
+    <div class="folha-titulo" id="confirmar-titulo">Confirmar</div>
+    <button type="button" class="fechar" id="btn-confirmar-fechar" aria-label="Fechar">✕</button>
+  </div>
+  <div class="folha-corpo">
+    <p id="confirmar-mensagem" class="confirmar-mensagem"></p>
+  </div>
+  <div class="folha-rodape confirmar-acoes">
+    <button type="button" id="btn-confirmar-cancelar" class="secundario">Cancelar</button>
+    <button type="button" id="btn-confirmar-ok">Confirmar</button>
+  </div>
+</div>
+
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <!-- ===== BARRA DE AÇÕES (só aparece para jogadores, com a partida iniciada) ===== -->
@@ -1039,11 +1055,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=119"></script>
+<script type="module" src="./js/main.js?v=120"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=119').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=120').catch(() => {});
     });
   }
 </script>

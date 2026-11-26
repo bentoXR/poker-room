@@ -4,8 +4,9 @@ import { estado, ehContaDev } from './core/estado.js?v=107';
 import { lerNome, lerPartidaSalva, esquecerPartida, lerDevSala, esquecerDevSala } from './core/storage.js?v=107';
 import {
   $id, TELAS_INTERNAS, mostrar, prepararCampoSenha, alternarSenha,
-  algumaFolhaAberta, fecharFolhas, registrarHookSairSalas
-} from './core/ui.js?v=107';
+  algumaFolhaAberta, fecharFolhas, registrarHookSairSalas,
+  confirmarDialogoAberto, fecharConfirmarDialogo
+} from './core/ui.js?v=120';
 import {
   iniciarTema, escolherTema, alternarTema, alternarMenuTemaLogin, fecharMenuTemaLogin,
   alternarMenuTemaPerfil, fecharMenuTemaPerfil
@@ -19,7 +20,7 @@ import {
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
-} from './lobby/auth.js?v=107';
+} from './lobby/auth.js?v=120';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil,
@@ -29,7 +30,7 @@ import {
   registrarHooksSalas, atualizarVisibilidadeDev, abrirSalas, pararSalas, carregarSalas, desenharSalas, abrirSala, abrirCriar, criarSala, entrarComoJogador,
   abrirJogarAgora, fecharJogarAgora, jogarAgoraOnline, jogarAgoraSolo,
   fecharSenhaSala, confirmarSenhaSala
-} from './lobby/salas.js?v=119';
+} from './lobby/salas.js?v=120';
 import {
   iniciarSocial, pararSocial, atualizarPresencaSala, atualizarBannerConviteLobby,
   abrirAmigos, fecharAmigos, amigosAberto, escolherAbaAmigos, buscarAmigoExato,
@@ -39,7 +40,7 @@ import {
   abrirConvidarAmigos, fecharConvidarAmigos, convidarAmigosAberto,
   enviarConviteAmigo, aceitarConviteSala, recusarConviteSala,
   dispensarBannerConvite, entrarSalaDoAmigo, abrirDefinirSenhaConvidado
-} from './lobby/amigos.js?v=119';
+} from './lobby/amigos.js?v=120';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
@@ -52,7 +53,7 @@ import {
 import {
   abrirMesa, buscarMesa, receberEstado, desenharMesa, iniciarRelogio, recalcularLayoutMesa,
   abrirMenuOnline, sairDaMesa, voltarParaSalas, encerrarSala, copiarConviteSala, registrarHooksMesa, registrarTickOnline, registrarTickBlackjack, limparDomMesa
-} from './mesa/mesa.js?v=119';
+} from './mesa/mesa.js?v=120';
 import {
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta
@@ -70,26 +71,26 @@ import {
   abrirCriador, aoDigitarSmallMesa, aoEditarBigMesa, salvarBlinds, abrirRodada,
   moverJogador, iniciarPartida, iniciarOuProximaMao, pagarBlind, usarStackFichas,
   adicionarFichas, removerJogador, resetarPartida, subirNivel
-} from './modos/presencial/acoes.js?v=107';
+} from './modos/presencial/acoes.js?v=120';
 import {
   abrirDistribuicao, fecharDistribuicao, alternarGanhador, alternarVencedorPote,
   alternarModoManualDist, aoEditarPremioManual, confirmarDistribuicao
-} from './modos/presencial/distribuir.js?v=107';
+} from './modos/presencial/distribuir.js?v=120';
 import {
   registrarHooksDev, cancelarCriacaoDev, abrirSalaDev, criarSalaDev, controlarDev, trocarJogadorDev,
   proximoJogadorDev, autoSeguirVezDev, abrirPainelDev, desenharPainelDev, adicionarJogadorDev,
   devAcao, apagarSalaDev, excluirSalaDev
-} from './modos/presencial/dev.js?v=107';
+} from './modos/presencial/dev.js?v=120';
 import {
   virarMinhaCarta, abrirMinhasCartas, alternarModoEspiar, ehModoEspiarSegurar,
   confirmarMao, alternarAutoPronto, alternarAusenteOnline, chamarRabbitHunt,
   mostrarCartasOnline, revancheOnline, comprarRebuyOnline, espectarOnline,
   confirmarTodosDev, tickOnline, resetarOnlineUI, trocarJogadorOnlineUI
-} from './modos/online/online.js?v=119';
+} from './modos/online/online.js?v=120';
 import {
   bjSomarFicha, bjLimparAposta, bjRepetirAposta, bjDobrarAposta, bjAllInAposta,
   bjConfirmarAposta, bjAgir, bjNovaRodada, bjRevanche, bjConfirmarTodosDev, tickBlackjack, tratarTeclaBlackjack
-} from './modos/blackjack/blackjack.js?v=119';
+} from './modos/blackjack/blackjack.js?v=120';
 
 // Lê eventual link direto de convite (?sala=<uuid>) sem sujar a barra de endereço
 try {
@@ -316,6 +317,7 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    if (confirmarDialogoAberto()) { fecharConfirmarDialogo(false); return; }
     const menuTema = $id('menu-tema-login');
     if (menuTema && !menuTema.hidden) { fecharMenuTemaLogin(); return; }
     const menuIdiomaPerfil = $id('menu-idioma-perfil');

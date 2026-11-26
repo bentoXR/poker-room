@@ -2,7 +2,7 @@
 // 100% reutilizável nos modos Presencial e Online
 import { banco } from '../core/supabase.js?v=107';
 import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=107';
-import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=120';
 import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=107';
 import { t, termo } from '../core/i18n.js?v=110';
 

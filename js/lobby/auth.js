@@ -2,7 +2,7 @@
 import { banco } from '../core/supabase.js?v=107';
 import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=107';
 import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=107';
-import { $id, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { $id, aviso, mostrar, mostrarErro, limparErro, confirmarDialogo } from '../core/ui.js?v=120';
 import { desligarTempoReal } from '../core/realtime.js?v=119';
 import { limparTodosModos } from '../mesa/modos.js?v=107';
 import { t } from '../core/i18n.js?v=110';
@@ -190,11 +190,14 @@ export async function entrarComoConvidado() {
   hooksAuth.onPosLogin();
 }
 
-export function sairDaConta() {
+export async function sairDaConta() {
   if (estado.minhaConta && estado.minhaConta.convidado) {
-    const ok = window.confirm(
-      'Você está em uma conta Convidado (sem senha). Se sair agora, não poderá entrar nela novamente nem recuperar as fichas salvas nas salas. Deseja sair mesmo assim?'
-    );
+    const ok = await confirmarDialogo({
+      titulo: 'Sair da conta Convidado?',
+      mensagem: 'Você está em uma conta Convidado (sem senha). Se sair agora, não poderá entrar nela novamente nem recuperar as fichas salvas nas salas. Deseja sair mesmo assim?',
+      textoConfirmar: 'Sair mesmo assim',
+      perigo: true
+    });
     if (!ok) return;
   }
   encerrarSessaoLocal();

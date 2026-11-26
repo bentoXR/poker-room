@@ -150,3 +150,60 @@ export function novoUuid() {
   const h = Array.prototype.map.call(b, (x) => ('0' + x.toString(16)).slice(-2)).join('');
   return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
 }
+
+// ----- Diálogo de confirmação estilizado do site -----
+let resolverConfirmacao = null;
+
+export function confirmarDialogoAberto() {
+  const f = $id('folha-confirmar');
+  return !!(f && !f.hidden);
+}
+
+export function fecharConfirmarDialogo(resultado = false) {
+  const f = $id('folha-confirmar');
+  const bg = $id('fundo-confirmar');
+  if (f) f.hidden = true;
+  if (bg) bg.hidden = true;
+  if (resolverConfirmacao) {
+    const fn = resolverConfirmacao;
+    resolverConfirmacao = null;
+    fn(!!resultado);
+  }
+}
+
+export function confirmarDialogo(opcoesOuMensagem) {
+  const opts = typeof opcoesOuMensagem === 'string'
+    ? { mensagem: opcoesOuMensagem }
+    : (opcoesOuMensagem || {});
+
+  const f = $id('folha-confirmar');
+  const bg = $id('fundo-confirmar');
+  if (!f || !bg) return Promise.resolve(window.confirm(opts.mensagem || 'Confirmar?'));
+
+  if (resolverConfirmacao) fecharConfirmarDialogo(false);
+
+  const tituloEl = $id('confirmar-titulo');
+  const msgEl = $id('confirmar-mensagem');
+  const btnOk = $id('btn-confirmar-ok');
+  const btnCanc = $id('btn-confirmar-cancelar');
+  const btnFechar = $id('btn-confirmar-fechar');
+
+  if (tituloEl) tituloEl.textContent = opts.titulo || 'Confirmar';
+  if (msgEl) msgEl.textContent = opts.mensagem || '';
+  if (btnCanc) btnCanc.textContent = opts.textoCancelar || 'Cancelar';
+  if (btnOk) {
+    btnOk.textContent = opts.textoConfirmar || 'Confirmar';
+    btnOk.className = opts.perigo ? 'perigo' : '';
+  }
+
+  return new Promise((resolve) => {
+    resolverConfirmacao = resolve;
+    if (btnOk) btnOk.onclick = () => fecharConfirmarDialogo(true);
+    if (btnCanc) btnCanc.onclick = () => fecharConfirmarDialogo(false);
+    if (btnFechar) btnFechar.onclick = () => fecharConfirmarDialogo(false);
+    bg.onclick = () => fecharConfirmarDialogo(false);
+    bg.hidden = false;
+    f.hidden = false;
+    if (btnOk) setTimeout(() => { try { btnOk.focus(); } catch (e) {} }, 20);
+  });
+}

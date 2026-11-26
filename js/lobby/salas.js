@@ -2,12 +2,12 @@
 import { banco } from '../core/supabase.js?v=107';
 import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=107';
 import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida, esquecerSegredo } from '../core/storage.js?v=107';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, confirmarDialogo } from '../core/ui.js?v=120';
 import { desligarTempoReal } from '../core/realtime.js?v=119';
-import { tratarErroConta } from './auth.js?v=107';
+import { tratarErroConta } from './auth.js?v=120';
 import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=109';
 import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=107';
-import { abrirMesa } from '../mesa/mesa.js?v=119';
+import { abrirMesa } from '../mesa/mesa.js?v=120';
 import { t, termo } from '../core/i18n.js?v=110';
 
 let hooksSalas = {
@@ -172,9 +172,12 @@ export async function confirmarSaidaPartidaAtualSeNecessario(destinoPartidaId = 
     const detalhe = ativa.em_mao_ativa
       ? ' (será aplicado Fold automático e as fichas já apostadas permanecerão no pote)'
       : ' (suas fichas atuais ficarão guardadas)';
-    const ok = window.confirm(
-      `Você já está na partida "${ativa.nome}". Ao entrar em outra sala, você sairá automaticamente da partida atual${detalhe}. Deseja continuar?`
-    );
+    const ok = await confirmarDialogo({
+      titulo: 'Trocar de partida?',
+      mensagem: `Você já está na partida "${ativa.nome}". Ao entrar em outra sala, você sairá automaticamente da partida atual${detalhe}. Deseja continuar?`,
+      textoConfirmar: 'Sair e entrar',
+      perigo: !!ativa.em_mao_ativa
+    });
     if (!ok) return false;
 
     const rSair = await banco.rpc('sair_de_outras_salas', {

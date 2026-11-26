@@ -3,11 +3,11 @@
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
 import { banco } from '../../core/supabase.js?v=107';
 import { estado, nomeDe } from '../../core/estado.js?v=107';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=107';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=120';
 import { lerDevSala } from '../../core/storage.js?v=107';
 import { registrarModo } from '../../mesa/modos.js?v=107';
 import { executar } from '../../mesa/apostas.js?v=107';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=119';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=120';
 import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=107';
 import { avaliarMaoLocal, calcularEquities } from './maos.js?v=107';
 import { tocarSom } from '../../core/som.js?v=107';

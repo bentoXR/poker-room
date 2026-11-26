@@ -2,8 +2,8 @@
 import { banco } from '../core/supabase.js?v=107';
 import { estado, contaParams } from '../core/estado.js?v=107';
 import { guardarConta, lembrarNome } from '../core/storage.js?v=107';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=107';
-import { tratarErroConta } from './auth.js?v=107';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=120';
+import { tratarErroConta } from './auth.js?v=120';
 import { lerTemaSalvo, escolherTema, fecharMenuTemaPerfil } from '../core/tema.js?v=109';
 import { fecharMenuIdiomaPerfil } from '../core/i18n.js?v=110';
 

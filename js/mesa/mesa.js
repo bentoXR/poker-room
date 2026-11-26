@@ -3,7 +3,7 @@
 import { banco } from '../core/supabase.js?v=107';
 import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=107';
 import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=107';
-import { $id, escapar, aviso, fmtNum, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=107';
+import { $id, escapar, aviso, fmtNum, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas, confirmarDialogo } from '../core/ui.js?v=120';
 import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=107';
 import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=119';
 import { obterModo, limparTodosModos } from './modos.js?v=107';
@@ -1365,7 +1365,13 @@ export async function sairDaMesa() {
   const msg = emMao
     ? 'Você está no meio de uma mão. Se sair agora, sua mão será considerada Fold e as fichas já apostadas permanecerão no pote. Deseja sair mesmo assim?'
     : 'Sair da mesa? Suas fichas ficam guardadas e você volta com elas se entrar de novo.';
-  if (!confirm(msg)) return;
+  const ok = await confirmarDialogo({
+    titulo: emMao ? 'Abandonar mão?' : 'Sair da mesa?',
+    mensagem: msg,
+    textoConfirmar: 'Sair da mesa',
+    perigo: emMao
+  });
+  if (!ok) return;
 
   estado.ocupado = true;
   saindoVoluntariamente = true;

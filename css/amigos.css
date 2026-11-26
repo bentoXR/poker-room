@@ -417,3 +417,29 @@ button.btn-sm {
 :root[data-tema="claro"] .pp-stat-val {
   color: var(--texto-escuro, #0f172a);
 }
+
+/* Diálogo de confirmação estilizado do site (substitui confirm() do navegador) */
+.fundo-confirmar {
+  z-index: 1200;
+}
+.folha-confirmar {
+  z-index: 1201;
+  max-width: 390px;
+}
+.confirmar-mensagem {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  line-height: 1.48;
+  color: var(--marfim);
+}
+.confirmar-acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.confirmar-acoes button {
+  margin: 0;
+}
+:root[data-tema="claro"] .confirmar-mensagem {
+  color: var(--texto-escuro, #0f172a);
+}

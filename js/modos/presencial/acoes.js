@@ -1,6 +1,6 @@
 // Modo Presencial (baralho físico): ações do criador, blinds, abertura de rodadas e registro do modo
 import { estado, QUALQUER_UM_ABRE_RODADA, nomeDe, credC, passoSala } from '../../core/estado.js?v=107';
-import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid } from '../../core/ui.js?v=107';
+import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid, confirmarDialogo } from '../../core/ui.js?v=120';
 import { executar, modoEnviando } from '../../mesa/apostas.js?v=107';
 import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=107';
 import { registrarModo } from '../../mesa/modos.js?v=107';
@@ -86,7 +86,7 @@ export function usarStackFichas() {
   if (estado.partidaAtual) $id('campo-fichas-valor').value = estado.partidaAtual.saldo_inicial;
 }
 
-export function adicionarFichas() {
+export async function adicionarFichas() {
   if (!estado.partidaAtual) return;
   const alvoId = $id('sel-fichas-jogador').value;
   const valor = parseInt($id('campo-fichas-valor').value);
@@ -98,8 +98,13 @@ export function adicionarFichas() {
     mostrarErro('erro-criador', 'Nesta sala as fichas devem ser múltiplas de ' + fmtNum(passo) + '.');
     return;
   }
-  if (!confirm('Adicionar ' + fmtNum(valor) + ' fichas a ' + nomeDe(alvo.nome)
-    + '?\nSaldo: ' + fmtNum(alvo.saldo) + ' → ' + fmtNum(alvo.saldo + valor))) return;
+  const okConf = await confirmarDialogo({
+    titulo: 'Adicionar fichas?',
+    mensagem: 'Adicionar ' + fmtNum(valor) + ' fichas a ' + nomeDe(alvo.nome)
+      + '? Saldo: ' + fmtNum(alvo.saldo) + ' → ' + fmtNum(alvo.saldo + valor),
+    textoConfirmar: 'Adicionar'
+  });
+  if (!okConf) return;
 
   const chave = alvoId + ':' + valor;
   if (!estado.opFichas || estado.opFichasChave !== chave) {
@@ -123,10 +128,16 @@ export function adicionarFichas() {
   });
 }
 
-export function removerJogador(idDoJogador) {
+export async function removerJogador(idDoJogador) {
   const alvo = estado.jogadoresAtuais.find((j) => j.id === idDoJogador);
   const nome = alvo ? alvo.nome : 'este jogador';
-  if (!confirm('Remover ' + nome + ' da sala? As fichas dele ficam guardadas e ele volta com elas se entrar de novo.')) return;
+  const ok = await confirmarDialogo({
+    titulo: 'Remover jogador?',
+    mensagem: 'Remover ' + nome + ' da sala? As fichas dele ficam guardadas e ele volta com elas se entrar de novo.',
+    textoConfirmar: 'Remover',
+    perigo: true
+  });
+  if (!ok) return;
   return executar('remover_jogador', {
     p_jogador: credC().id,
     p_segredo: credC().segredo,

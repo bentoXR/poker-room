@@ -59,6 +59,7 @@ DECLARE
   v_vencedor  public.jogadores;
   v_prox_id   uuid;
   v_humanos   int;
+  v_fold_ok   boolean := false;
 BEGIN
   SELECT * INTO v_p FROM public.partidas WHERE id = p_partida_id FOR UPDATE;
   IF NOT FOUND THEN RETURN; END IF;
@@ -66,7 +67,8 @@ BEGIN
   SELECT * INTO v_j FROM public.jogadores WHERE id = p_jogador_id AND partida_id = p_partida_id;
   IF NOT FOUND THEN RETURN; END IF;
 
-  IF v_p.modo = 'online'
+  IF NOT v_p.solo_bots
+     AND v_p.modo = 'online'
      AND v_p.iniciada
      AND NOT v_p.aguardando_proxima_mao
      AND NOT v_j.desistiu
@@ -75,9 +77,16 @@ BEGIN
 
     SELECT s.segredo INTO v_seg FROM public.segredos s WHERE s.jogador_id = v_j.id;
 
-    IF v_p.vez_jogador_id = v_j.id AND v_seg IS NOT NULL THEN
-      PERFORM public.jogar(v_j.id, v_seg, 'desistir', 0);
-    ELSE
+    IF v_p.vez_jogador_id = v_j.id AND coalesce(v_p.fase_blind, 0) = 0 AND v_seg IS NOT NULL THEN
+      BEGIN
+        PERFORM public.jogar(v_j.id, v_seg, 'desistir', 0);
+        v_fold_ok := true;
+      EXCEPTION WHEN OTHERS THEN
+        v_fold_ok := false;
+      END;
+    END IF;
+
+    IF NOT v_fold_ok THEN
       UPDATE public.jogadores SET desistiu = true WHERE id = v_j.id;
 
       SELECT count(*) INTO v_ativos

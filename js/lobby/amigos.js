@@ -2,11 +2,11 @@
 import { banco } from '../core/supabase.js?v=107';
 import { estado, contaParams } from '../core/estado.js?v=107';
 import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=107';
-import { $id, escapar, aviso, fmtNum, mostrarErro, limparErro } from '../core/ui.js?v=107';
-import { tratarErroConta } from './auth.js?v=107';
+import { $id, escapar, aviso, fmtNum, mostrarErro, limparErro, confirmarDialogo } from '../core/ui.js?v=120';
+import { tratarErroConta } from './auth.js?v=120';
 import { validarUrlAvatar, abrirPerfil, alternarAcordeaoSenha } from './perfil.js?v=109';
-import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=119';
-import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=119';
+import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=120';
+import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=120';
 
 const socialCache = {
   carregado: false,
@@ -687,7 +687,15 @@ export async function responderPedidoAmigo(amizadeId, aceitar) {
 
 export async function cancelarOuRemoverAmigo(alvoContaId, confirmar = true) {
   if (!estado.minhaConta || !alvoContaId) return;
-  if (confirmar && !window.confirm('Remover este jogador da sua lista de amigos?')) return;
+  if (confirmar) {
+    const ok = await confirmarDialogo({
+      titulo: 'Remover amigo?',
+      mensagem: 'Remover este jogador da sua lista de amigos?',
+      textoConfirmar: 'Remover',
+      perigo: true
+    });
+    if (!ok) return;
+  }
   try {
     const resp = await banco.rpc('cancelar_ou_remover_amizade', {
       ...contaParams(),
