@@ -1729,9 +1729,8 @@ registrarModo('online', {
 
     const btnSair = $id('btn-sair-mesa');
     btnSair.hidden = !eu || estado.modoDev;
-    const emMaoAtiva = partida.iniciada && !partida.aguardando_proxima_mao && eu && !eu.desistiu && eu.saldo > 0;
-    btnSair.disabled = !!emMaoAtiva;
-    btnSair.title = emMaoAtiva ? 'Aguarde o fim da mão ou desista para sair' : 'Sair da mesa';
+    btnSair.disabled = false;
+    btnSair.title = 'Sair da mesa';
   },
 
   aoNovaMao() {

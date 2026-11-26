@@ -60,12 +60,67 @@ DECLARE
   v_prox_id   uuid;
   v_humanos   int;
   v_fold_ok   boolean := false;
+  v_blind_ok  boolean := false;
+  v_blind_val int := 0;
 BEGIN
   SELECT * INTO v_p FROM public.partidas WHERE id = p_partida_id FOR UPDATE;
   IF NOT FOUND THEN RETURN; END IF;
 
   SELECT * INTO v_j FROM public.jogadores WHERE id = p_jogador_id AND partida_id = p_partida_id;
   IF NOT FOUND THEN RETURN; END IF;
+
+  SELECT s.segredo INTO v_seg FROM public.segredos s WHERE s.jogador_id = v_j.id;
+
+  -- Se sair antes de pagar o blind obrigatório (SB ou BB), desconta o blind mesmo assim
+  IF v_p.modo = 'online'
+     AND v_p.iniciada
+     AND NOT v_p.aguardando_proxima_mao
+     AND coalesce(v_p.fase_blind, 0) > 0
+     AND NOT v_j.desistiu
+     AND NOT v_j.esperando
+     AND v_j.saldo > 0
+     AND (
+       (v_p.fase_blind = 1 AND v_p.sb_jogador_id = v_j.id AND v_j.apostou = 0)
+       OR (v_p.fase_blind IN (1, 2) AND v_p.bb_jogador_id = v_j.id AND v_j.apostou = 0)
+     ) THEN
+
+    IF v_p.vez_jogador_id = v_j.id AND v_seg IS NOT NULL THEN
+      BEGIN
+        PERFORM public.pagar_blind(v_j.id, v_seg);
+        v_blind_ok := true;
+      EXCEPTION WHEN OTHERS THEN
+        v_blind_ok := false;
+      END;
+    END IF;
+
+    IF NOT v_blind_ok THEN
+      v_blind_val := LEAST(
+        v_j.saldo,
+        CASE WHEN v_p.sb_jogador_id = v_j.id THEN v_p.small_blind ELSE v_p.big_blind END
+      );
+      IF v_blind_val > 0 THEN
+        UPDATE public.jogadores
+        SET saldo = saldo - v_blind_val,
+            apostou = apostou + v_blind_val,
+            total_mao = total_mao + v_blind_val
+        WHERE id = v_j.id;
+
+        UPDATE public.partidas
+        SET pote = pote + v_blind_val,
+            aposta_atual = GREATEST(aposta_atual, v_blind_val)
+        WHERE id = v_p.id;
+
+        PERFORM public.registrar(
+          v_p.id,
+          v_j.nome || ' pagou ' || CASE WHEN v_p.sb_jogador_id = v_j.id THEN 'SB' ELSE 'BB' END
+            || ' obrigatório ao sair (' || v_blind_val || ')'
+        );
+      END IF;
+    END IF;
+
+    SELECT * INTO v_p FROM public.partidas WHERE id = p_partida_id;
+    SELECT * INTO v_j FROM public.jogadores WHERE id = p_jogador_id;
+  END IF;
 
   IF NOT v_p.solo_bots
      AND v_p.modo = 'online'
@@ -74,8 +129,6 @@ BEGIN
      AND NOT v_j.desistiu
      AND NOT v_j.esperando
      AND v_j.tem_cartas THEN
-
-    SELECT s.segredo INTO v_seg FROM public.segredos s WHERE s.jogador_id = v_j.id;
 
     IF v_p.vez_jogador_id = v_j.id AND coalesce(v_p.fase_blind, 0) = 0 AND v_seg IS NOT NULL THEN
       BEGIN
