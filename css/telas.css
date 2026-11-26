@@ -1668,6 +1668,12 @@ button.legal-aba.sel {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+.turnstile-box {
+  display: flex;
+  justify-content: center;
+  min-height: 66px;
+  margin: 10px 0 4px;
+}
 a.btn-suporte-legal {
   display: inline-flex;
   align-items: center;

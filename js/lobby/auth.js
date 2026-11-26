@@ -1,11 +1,85 @@
 // Autenticação de conta (nome único, senha protegida, criação com confirmação e sessão)
-import { banco } from '../core/supabase.js?v=107';
+import { banco, SUPABASE_URL, SUPABASE_KEY } from '../core/supabase.js?v=107';
 import { estado, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=107';
 import { guardarConta, esquecerConta, esquecerPartida, esquecerDevSala, lembrarNome, lerNome } from '../core/storage.js?v=107';
 import { $id, aviso, mostrar, mostrarErro, limparErro, confirmarDialogo } from '../core/ui.js?v=120';
 import { desligarTempoReal } from '../core/realtime.js?v=119';
 import { limparTodosModos } from '../mesa/modos.js?v=107';
 import { t } from '../core/i18n.js?v=110';
+
+const TURNSTILE_SITEKEY = '0x4AAAAAAGTtapFQALjkyBX8';
+let turnstileWidgetId = null;
+let turnstileToken = '';
+let turnstileActionAtual = 'guest';
+
+function temaTurnstileAtual() {
+  const tAtual = document.documentElement.getAttribute('data-tema');
+  return tAtual === 'claro' ? 'light' : 'dark';
+}
+
+function resetarTurnstile() {
+  turnstileToken = '';
+  try {
+    if (window.turnstile && turnstileWidgetId !== null) {
+      window.turnstile.reset(turnstileWidgetId);
+    }
+  } catch (erro) {}
+}
+
+function renderizarTurnstile(action) {
+  const alvoAction = action === 'signup' ? 'signup' : 'guest';
+  turnstileActionAtual = alvoAction;
+  const box = $id('turnstile-box');
+  if (!box || !window.turnstile) return;
+
+  if (turnstileWidgetId !== null) {
+    try { window.turnstile.remove(turnstileWidgetId); } catch (erro) {}
+    turnstileWidgetId = null;
+    turnstileToken = '';
+  }
+
+  try {
+    turnstileWidgetId = window.turnstile.render(box, {
+      sitekey: TURNSTILE_SITEKEY,
+      action: alvoAction,
+      theme: temaTurnstileAtual(),
+      callback: (tok) => { turnstileToken = tok || ''; },
+      'expired-callback': () => { turnstileToken = ''; },
+      'error-callback': () => { turnstileToken = ''; }
+    });
+  } catch (erro) {
+    turnstileWidgetId = null;
+  }
+}
+
+export function aoCarregarTurnstile() {
+  renderizarTurnstile(modoLoginAtual === 'criar' ? 'signup' : 'guest');
+}
+window.aoCarregarTurnstile = aoCarregarTurnstile;
+
+async function chamarTurnstileAuth(rpc, payload) {
+  const token = turnstileToken;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/turnstile-auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY
+      },
+      body: JSON.stringify(Object.assign({ rpc, turnstile_token: token }, payload || {}))
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { error: { message: data.message || data.error || 'Falha na verificação de segurança.' } };
+    }
+    return { data };
+  } catch (erro) {
+    return { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
+  } finally {
+    resetarTurnstile();
+  }
+}
 
 let modoLoginAtual = 'entrar';
 let hooksAuth = {
@@ -53,6 +127,11 @@ export function escolherModoLogin(modo) {
   if (dica) {
     dica.innerHTML = t(ehCriar ? 'login.dica_criar' : 'login.dica_entrar');
   }
+
+  const btnGuest = $id('botao-convidado');
+  if (btnGuest) btnGuest.hidden = ehCriar;
+
+  renderizarTurnstile(ehCriar ? 'signup' : 'guest');
 }
 
 export function tratarErroConta(erro) {
@@ -94,6 +173,11 @@ async function entrarNaConta(funcao) {
     return;
   }
 
+  if (ehCriar && !turnstileToken) {
+    mostrarErro('erro-login', 'Confirme a verificação de segurança antes de criar a conta.');
+    return;
+  }
+
   const botao = $id('botao-login');
   const textoOriginal = botao ? botao.textContent : '';
   if (botao) {
@@ -103,7 +187,9 @@ async function entrarNaConta(funcao) {
 
   let resp;
   try {
-    resp = await banco.rpc(funcao, { p_nome: nome, p_senha: senha });
+    resp = ehCriar
+      ? await chamarTurnstileAuth('criar_conta', { p_nome: nome, p_senha: senha })
+      : await banco.rpc(funcao, { p_nome: nome, p_senha: senha });
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
@@ -142,6 +228,10 @@ export function criarConta() { return entrarNaConta('criar_conta'); }
 
 export async function entrarComoConvidado() {
   limparErro('erro-login');
+  if (!turnstileToken) {
+    mostrarErro('erro-login', 'Confirme a verificação de segurança antes de entrar como convidado.');
+    return;
+  }
   const campoNome = $id('campo-login-nome');
   const nomeDigitado = campoNome ? (campoNome.value || '').trim().replace(/\s+/g, ' ').slice(0, 10) : '';
 
@@ -156,7 +246,7 @@ export async function entrarComoConvidado() {
 
   let resp;
   try {
-    resp = await banco.rpc('criar_conta_convidado', { p_nome: nomeDigitado.length >= 2 ? nomeDigitado : null });
+    resp = await chamarTurnstileAuth('criar_conta_convidado', { p_nome: nomeDigitado.length >= 2 ? nomeDigitado : null });
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
