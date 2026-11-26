@@ -1,10 +1,10 @@
 // Controles de aposta (slider, atalhos de pote, passo R$, envio de ações via RPC)
 // 100% reutilizável nos modos Presencial e Online
-import { banco } from '../core/supabase.js?v=105';
-import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=105';
-import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=105';
-import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=105';
-import { t, termo } from '../core/i18n.js?v=105';
+import { banco } from '../core/supabase.js?v=107';
+import { estado, passoSala, nomeDe, valorPorMil } from '../core/estado.js?v=107';
+import { $id, aviso, fmtNum, fmtReais, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { tocarSom, marcarAcaoLocal } from '../core/som.js?v=107';
+import { t, termo } from '../core/i18n.js?v=110';
 
 let hooksMesa = {
   publicarEstado: () => {},
@@ -34,8 +34,13 @@ export async function executar(funcao, parametros, idDoErro, aoEnviar) {
       hooksMesa.restaurarTela();
     } else {
       deuCerto = true;
-      if (resp.data && resp.data.partida) hooksMesa.publicarEstado(resp.data);
-      else await hooksMesa.buscarMesa(false);
+      if (resp.data && resp.data.sem_mudanca) {
+        // Nenhuma alteração no servidor (ex.: bot/timeout já processado por outro cliente)
+      } else if (resp.data && resp.data.partida) {
+        hooksMesa.publicarEstado(resp.data);
+      } else {
+        await hooksMesa.buscarMesa(false);
+      }
     }
   } catch (erro) {
     mostrarErro(idDoErro, 'Não consegui falar com o servidor. Confira a internet.');
@@ -382,14 +387,21 @@ export function desenharBarraAcoes({ partida, jogadores, eu, minhaVez, emJogo, f
       const b2Rot = falta > 0
         ? (termo('call') + ' ' + valorPagarPre + (valorPagarPre >= eu.saldo ? ' (' + termo('allin') + ')' : ''))
         : (termo('check') + ' auto');
-      preEl.innerHTML =
+      const htmlPre =
         '<div class="pre-acao-dica">' + t('mesa.pre_acao_dica') + '</div>'
         + '<button type="button" class="pre-btn perigo' + (sel === 'check_fold' ? ' sel' : '') + '" onclick="alternarPreAcao(\'check_fold\')" aria-pressed="' + (sel === 'check_fold') + '">' + b1Rot + '</button>'
         + '<button type="button" class="pre-btn positivo' + (sel === b2Tipo ? ' sel' : '') + '" onclick="alternarPreAcao(\'' + b2Tipo + '\')" aria-pressed="' + (sel === b2Tipo) + '">' + b2Rot + '</button>';
+      if (htmlPre !== estado.htmlPreAcaoVisto) {
+        estado.htmlPreAcaoVisto = htmlPre;
+        preEl.innerHTML = htmlPre;
+      }
       preEl.hidden = false;
     } else {
       preEl.hidden = true;
-      preEl.innerHTML = '';
+      if (estado.htmlPreAcaoVisto !== '') {
+        estado.htmlPreAcaoVisto = '';
+        preEl.innerHTML = '';
+      }
     }
   }
 

@@ -1,0 +1,853 @@
+/* =====================================================================
+   TEMA 6: CLARO  (data-tema="claro")
+   Porcelana suave e branco puro com feltro esmeralda, sombras leves
+   e alto contraste em todas as telas, cartões, modais e controles.
+   ===================================================================== */
+
+:root[data-tema="claro"] {
+  --feltro-950: #e2e8f0;
+  --feltro-900: #eef2f7;
+  --feltro-800: #f8fafc;
+  --feltro-700: #e6ecf5;
+  --feltro-600: #cbd5e1;
+  --linha: rgba(15, 23, 42, 0.12);
+
+  --marfim: #0f172a;
+  --estrela: #0f172a;
+  --marfim-suave: #475569;
+  --texto-escuro: #ffffff;
+
+  --ouro: #c81e3a;
+  --ouro-escuro: #9f1239;
+  --ouro-suave: rgba(200, 30, 58, 0.12);
+  --ouro-borda: rgba(200, 30, 58, 0.38);
+
+  --vermelho: #dc2626;
+  --verde: #15803d;
+  --verde-escuro: #166534;
+  --verde-suave: #dcfce7;
+  --verde-borda: rgba(21, 128, 61, 0.38);
+  --verde-texto: #14532d;
+
+  --acento: #1d4ed8;
+  --acento-suave: rgba(29, 78, 216, 0.10);
+  --luz-cor: #2563eb;
+  --luz-sombra: rgba(37, 99, 235, 0.35);
+
+  --bg-topo: rgba(255, 255, 255, 0.92);
+  --faixa-topo: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 50%, #cbd5e1 100%);
+
+  --feltro-mesa: #1b6e44;
+  --feltro-mesa-borda: #124c2e;
+  --feltro-trilha: rgba(255, 255, 255, 0.42);
+  --borda-mesa: #d8dfe9;
+  --borda-interna: #aeb9ca;
+  --borda-aro: rgba(15, 23, 42, 0.18);
+
+  --pote-bg: #ffffff;
+  --pote-bg-2: #eef2f7;
+  --assento-bg: #ffffff;
+  --assento-bg-2: #f4f7fb;
+  --assento-eu-bg: #ffffff;
+  --assento-eu-bg-2: #eef2f7;
+  --vez-bg: #0f172a;
+  --vez-bg-2: #1e293b;
+  --vez-tag-bg: #c81e3a;
+
+  --dock-bg: #ffffff;
+  --dock-bg-2: #f4f7fb;
+  --faixa-bg: #ffffff;
+  --faixa-bg-2: #f4f7fb;
+  --faixa-borda: rgba(15, 23, 42, 0.14);
+
+  --cartao-bg: #ffffff;
+  --cartao-bg-pc: #ffffff;
+  --cartao-borda: rgba(15, 23, 42, 0.10);
+
+  --verso-bg: #1e293b;
+  --verso-simbolo: "♠";
+  --marca-selo: "♠   ♥   ♣   ♦";
+  --mesa-orn-esq: "♠  ♣";
+  --mesa-orn-dir: "♥  ♦";
+  --mesa-orn-cor: rgba(255, 255, 255, 0.45);
+}
+
+/* Fundo da página */
+:root[data-tema="claro"] body,
+:root[data-tema="claro"] body:not(.na-mesa),
+:root[data-tema="claro"] body.na-mesa,
+:root[data-tema="claro"] body.na-mesa.modo-online {
+  background-color: #eef2f7;
+  background-image: linear-gradient(180deg, #f2f5fa 0%, #e3e9f2 100%);
+  color: #0f172a;
+}
+
+/* =====================================================================
+   1. LOGIN & SELETOR DE TEMA
+   ===================================================================== */
+
+:root[data-tema="claro"] .seletor-tema {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.10);
+}
+:root[data-tema="claro"] button.tema-gatilho {
+  background: rgba(255, 255, 255, 0.82);
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.10);
+}
+:root[data-tema="claro"] button.tema-gatilho:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(15, 23, 42, 0.24);
+}
+:root[data-tema="claro"] .tema-menu {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  box-shadow: 0 14px 32px -10px rgba(15, 23, 42, 0.22);
+}
+:root[data-tema="claro"] button.tema-btn {
+  background: transparent;
+  color: #334155;
+  border-color: transparent;
+}
+:root[data-tema="claro"] button.tema-btn:hover:not(:disabled):not(.sel) {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.07);
+}
+:root[data-tema="claro"] button.tema-btn.sel {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 4px 10px -4px rgba(15, 23, 42, 0.4);
+}
+:root[data-tema="claro"] .amostra {
+  border-color: rgba(15, 23, 42, 0.24);
+}
+
+:root[data-tema="claro"] .auth-abas {
+  background: #e8eef6;
+  border-color: rgba(15, 23, 42, 0.10);
+}
+:root[data-tema="claro"] button.auth-aba {
+  background: transparent;
+  color: #475569;
+}
+:root[data-tema="claro"] button.auth-aba:hover:not(:disabled):not(.sel) {
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.auth-aba.sel {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.10), inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+:root[data-tema="claro"] .cartao-cabecalho strong,
+:root[data-tema="claro"] .marca h1,
+:root[data-tema="claro"] .marca p strong {
+  color: #0f172a;
+}
+
+:root[data-tema="claro"] .cartao,
+:root[data-tema="claro"] #tela-login .cartao,
+:root[data-tema="claro"] #tela-criar .cartao,
+:root[data-tema="claro"] #tela-dev .cartao,
+:root[data-tema="claro"] #tela-escolha .cartao {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.10);
+  box-shadow: 0 18px 40px -16px rgba(15, 23, 42, 0.14), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+}
+
+/* =====================================================================
+   2. INPUTS, PLACEHOLDERS, ERROS E BOTÕES GLOBAIS
+   ===================================================================== */
+
+:root[data-tema="claro"] input,
+:root[data-tema="claro"] select,
+:root[data-tema="claro"] textarea {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+:root[data-tema="claro"] #tela-criar .nome-sala-linha input {
+  color: #0f172a;
+}
+:root[data-tema="claro"] input::placeholder,
+:root[data-tema="claro"] textarea::placeholder {
+  color: #94a3b8;
+}
+:root[data-tema="claro"] input:focus,
+:root[data-tema="claro"] select:focus,
+:root[data-tema="claro"] textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+:root[data-tema="claro"] .erro {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+:root[data-tema="claro"] button.voltar:hover:not(:disabled),
+:root[data-tema="claro"] button.olho:hover:not(:disabled),
+:root[data-tema="claro"] button.sair-conta:hover:not(:disabled),
+:root[data-tema="claro"] button.fantasma:hover:not(:disabled) {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.07);
+}
+:root[data-tema="claro"] button.contorno-perigo {
+  background: transparent;
+  color: #b91c1c;
+  box-shadow: inset 0 0 0 1.5px rgba(200, 30, 58, 0.45);
+}
+:root[data-tema="claro"] button.contorno-perigo:hover:not(:disabled) {
+  background: #fef2f2;
+}
+:root[data-tema="claro"] button.neutro {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.perigo {
+  background: #fff1f2;
+  color: #be123c;
+  box-shadow: inset 0 0 0 1.5px #fda4af, 0 3px 0 #fecdd3;
+}
+:root[data-tema="claro"] button.secundario {
+  background: #e9eef5;
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] button.secundario:hover:not(:disabled) {
+  background: #dce4f0;
+}
+
+/* =====================================================================
+   3. LOBBY / SALAS / CRIAR SALA / CONVITE
+   ===================================================================== */
+
+:root[data-tema="claro"] h1,
+:root[data-tema="claro"] h2,
+:root[data-tema="claro"] h3,
+:root[data-tema="claro"] .cabecalho-conta .ola strong,
+:root[data-tema="claro"] .subtitulo-tela strong,
+:root[data-tema="claro"] .vazio strong,
+:root[data-tema="claro"] .vazio p b,
+:root[data-tema="claro"] .secao-titulo,
+:root[data-tema="claro"] .etiqueta-sala,
+:root[data-tema="claro"] .dica strong,
+:root[data-tema="claro"] .profund span,
+:root[data-tema="claro"] .profund small b,
+:root[data-tema="claro"] .grande-sala,
+:root[data-tema="claro"] .convite-fichas strong,
+:root[data-tema="claro"] .sala-nome,
+:root[data-tema="claro"] button.sala .sala-nome,
+:root[data-tema="claro"] .folha-titulo,
+:root[data-tema="claro"] .barra-titulo {
+  color: #0f172a;
+}
+
+:root[data-tema="claro"] button.sair-conta,
+:root[data-tema="claro"] button.perfil-atalho,
+:root[data-tema="claro"] button.atalho {
+  background: #e9eef5;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] button.sair-conta:hover:not(:disabled),
+:root[data-tema="claro"] button.perfil-atalho:hover:not(:disabled),
+:root[data-tema="claro"] button.atalho:hover:not(:disabled) {
+  background: #dce4f0;
+  color: #0f172a;
+}
+:root[data-tema="claro"] .avatar-conta {
+  color: #ffffff;
+}
+
+:root[data-tema="claro"] button.sala,
+:root[data-tema="claro"] .sala {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.10);
+  box-shadow: 0 8px 22px -10px rgba(15, 23, 42, 0.14), 0 2px 5px -2px rgba(15, 23, 42, 0.06);
+}
+:root[data-tema="claro"] button.sala:hover:not(:disabled) {
+  border-color: #94a3b8;
+  box-shadow: 0 12px 26px -10px rgba(15, 23, 42, 0.18);
+}
+
+:root[data-tema="claro"] .meta-chip,
+:root[data-tema="claro"] .mesa-meta .tag,
+:root[data-tema="claro"] .mesa-ultima {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+:root[data-tema="claro"] .meta-chip b {
+  color: #0f172a;
+}
+:root[data-tema="claro"] .meta-chip.vivo {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+:root[data-tema="claro"] .tag.modo-blackjack {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+:root[data-tema="claro"] .op-chip,
+:root[data-tema="claro"] button.stack,
+:root[data-tema="claro"] button.modo-btn,
+:root[data-tema="claro"] button.cfg-tile,
+:root[data-tema="claro"] button.pill-real {
+  background: #eef2f7;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] button.stack small,
+:root[data-tema="claro"] button.modo-btn small {
+  color: #475569;
+}
+:root[data-tema="claro"] button.stack:not(.sel) small strong,
+:root[data-tema="claro"] button.modo-btn:not(.sel) small strong {
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.cfg-tile .cfg-val-linha b {
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.cfg-tile .cfg-rotulo,
+:root[data-tema="claro"] button.cfg-tile .cfg-seta,
+:root[data-tema="claro"] .secao-rotulo-simples {
+  color: #475569;
+}
+:root[data-tema="claro"] button.cfg-tile.ativo {
+  background: #dcfce7;
+  box-shadow: inset 0 0 0 1.5px #15803d;
+}
+:root[data-tema="claro"] button.cfg-tile.ativo .cfg-val-linha b,
+:root[data-tema="claro"] button.cfg-tile.ativo .cfg-seta {
+  color: #14532d;
+}
+:root[data-tema="claro"] .op-chip.sel,
+:root[data-tema="claro"] button.stack.sel,
+:root[data-tema="claro"] button.modo-btn.sel,
+:root[data-tema="claro"] button.pill-real.sel {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 3px 0 #334155;
+}
+:root[data-tema="claro"] button.stack.sel small,
+:root[data-tema="claro"] button.stack.sel small strong,
+:root[data-tema="claro"] button.modo-btn.sel small,
+:root[data-tema="claro"] button.modo-btn.sel small strong {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* =====================================================================
+   4. MESA (TOPO, STATUS, ASSENTOS, POTE, ANÚNCIOS, DOCK E BLACKJACK)
+   ===================================================================== */
+
+:root[data-tema="claro"] .topo,
+:root[data-tema="claro"] .mesa-topo,
+:root[data-tema="claro"] .mesa-topo button,
+:root[data-tema="claro"] .barra-info,
+:root[data-tema="claro"] .barra-info #mesa-relogio:not(:empty),
+:root[data-tema="claro"] .barra-info #mesa-blinds,
+:root[data-tema="claro"] .potes-resumo .pote-mini b {
+  color: #0f172a;
+}
+
+:root[data-tema="claro"] .topo button.icone-btn,
+:root[data-tema="claro"] #tela-mesa button.icone-btn {
+  background: #e9eef5;
+  color: #1e293b;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 2px 6px -2px rgba(15, 23, 42, 0.10);
+}
+:root[data-tema="claro"] .topo button.icone-btn:hover:not(:disabled),
+:root[data-tema="claro"] #tela-mesa button.icone-btn:hover:not(:disabled),
+:root[data-tema="claro"] #tela-mesa.modo-online button.icone-btn:hover:not(:disabled) {
+  background: #dce4f0;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.24);
+}
+:root[data-tema="claro"] .topo button.icone-btn.ouro,
+:root[data-tema="claro"] #tela-mesa button.icone-btn.ouro {
+  background: var(--ouro);
+  color: #ffffff;
+  border-color: var(--ouro-escuro);
+}
+
+:root[data-tema="claro"] .status:not(.minha-vez) {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.dev-prox {
+  background: #e2e8f0;
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1.5px rgba(15, 23, 42, 0.22);
+}
+:root[data-tema="claro"] .faixa-fase button {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Assentos e dock inferior */
+:root[data-tema="claro"] .lugar:not(.vez) {
+  border-color: rgba(15, 23, 42, 0.16);
+  box-shadow: 0 8px 20px -8px rgba(15, 23, 42, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+:root[data-tema="claro"] .lugar:not(.vez),
+:root[data-tema="claro"] .lugar:not(.vez) .l-nome,
+:root[data-tema="claro"] .lugar:not(.vez) .l-nome .texto,
+:root[data-tema="claro"] .lugar:not(.vez) .l-saldo,
+:root[data-tema="claro"] .lugar:not(.vez) .l-fichas,
+:root[data-tema="claro"] .lugar:not(.vez) .l-voce,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez),
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .mp-nome,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .mp-saldo,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .mp-info {
+  color: #0f172a;
+}
+
+:root[data-tema="claro"] .lugar.vez,
+:root[data-tema="claro"] .lugar.vez .l-nome,
+:root[data-tema="claro"] .lugar.vez .l-nome .texto,
+:root[data-tema="claro"] .lugar.vez .l-saldo,
+:root[data-tema="claro"] .lugar.vez .l-fichas,
+:root[data-tema="claro"] .lugar.vez .l-voce,
+:root[data-tema="claro"] .lugar.vez .l-nome .coroa,
+:root[data-tema="claro"] .meu-perfil-dock.vez,
+:root[data-tema="claro"] .meu-perfil-dock.vez .mp-nome,
+:root[data-tema="claro"] .meu-perfil-dock.vez .mp-saldo {
+  color: #ffffff;
+}
+:root[data-tema="claro"] .lugar.vez .tag.vez,
+:root[data-tema="claro"] .meu-perfil-dock.vez .tag.vez {
+  background: #c81e3a;
+  color: #ffffff;
+}
+:root[data-tema="claro"] .lugar.vez .l-aposta,
+:root[data-tema="claro"] .meu-perfil-dock.vez .l-aposta {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+/* Badges nos assentos e dock */
+:root[data-tema="claro"] .lugar:not(.vez) .tag,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .tag {
+  background: rgba(15, 23, 42, 0.08);
+  color: #334155;
+}
+:root[data-tema="claro"] .lugar:not(.vez) .tag.blind,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .tag.blind {
+  color: #0f172a;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.35);
+}
+:root[data-tema="claro"] .lugar:not(.vez) .tag.fora,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .tag.fora {
+  background: #fee2e2;
+  color: #991b1b;
+}
+:root[data-tema="claro"] .lugar:not(.vez) .tag.sb,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .tag.sb {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+:root[data-tema="claro"] .lugar:not(.vez) .tag.bb,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .tag.bb {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+:root[data-tema="claro"] .lugar:not(.vez) .tag.d,
+:root[data-tema="claro"] .meu-perfil-dock:not(.vez) .tag.d {
+  background: #e2e8f0;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.25);
+}
+:root[data-tema="claro"] .lugar.vez .tag.sb,
+:root[data-tema="claro"] .meu-perfil-dock.vez .tag.sb {
+  background: rgba(59, 130, 246, 0.28);
+  color: #bfdbfe;
+  border-color: rgba(147, 197, 253, 0.55);
+}
+:root[data-tema="claro"] .lugar.vez .tag.bb,
+:root[data-tema="claro"] .meu-perfil-dock.vez .tag.bb {
+  background: rgba(245, 158, 11, 0.28);
+  color: #fef08a;
+  border-color: rgba(252, 211, 77, 0.55);
+}
+:root[data-tema="claro"] .lugar.vez .tag.d,
+:root[data-tema="claro"] .meu-perfil-dock.vez .tag.d {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Pote no centro da mesa */
+:root[data-tema="claro"] .pote-ficha {
+  border-color: rgba(15, 23, 42, 0.22);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.20);
+}
+:root[data-tema="claro"] .pote-rotulo {
+  color: #475569;
+}
+:root[data-tema="claro"] .pote-valor {
+  color: #0f172a;
+}
+:root[data-tema="claro"] .potes-resumo {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+/* Textos sobre o feltro verde */
+:root[data-tema="claro"] .mesa-feltro .tag,
+:root[data-tema="claro"] .mesa-feltro .pote-aposta,
+:root[data-tema="claro"] .mesa-feltro .board-vazio,
+:root[data-tema="claro"] .mesa-feltro .board-rotulo {
+  color: rgba(255, 255, 255, 0.94);
+}
+:root[data-tema="claro"] .mesa-feltro .tag {
+  background: rgba(0, 0, 0, 0.44);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Anúncios de rua e showdown */
+:root[data-tema="claro"] .anuncio-mesa.rua {
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+}
+:root[data-tema="claro"] .anuncio-mesa.rua .anuncio-titulo {
+  color: #0f172a;
+}
+:root[data-tema="claro"] .anuncio-mesa.rua .anuncio-sub {
+  color: #475569;
+}
+:root[data-tema="claro"] .anuncio-mesa.showdown {
+  background: #0f172a;
+  border-color: #f59e0b;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35);
+}
+:root[data-tema="claro"] .anuncio-mesa.showdown .anuncio-titulo {
+  color: #ffffff;
+}
+:root[data-tema="claro"] .anuncio-mesa.showdown .anuncio-sub {
+  color: #e2e8f0;
+}
+:root[data-tema="claro"] .anuncio-vez .anuncio-titulo {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+/* Barra de ações, pré-ações e assistente */
+:root[data-tema="claro"] .barra-acoes,
+:root[data-tema="claro"] #barra-acoes.modo-online {
+  background: linear-gradient(180deg, #ffffff, #f4f7fb);
+  border-top: 1px solid rgba(15, 23, 42, 0.14);
+  box-shadow: 0 -8px 26px -6px rgba(15, 23, 42, 0.14);
+}
+:root[data-tema="claro"] .barra-acoes.minha-vez,
+:root[data-tema="claro"] #barra-acoes.modo-online.minha-vez {
+  border-top-color: var(--ouro);
+  border-color: rgba(200, 30, 58, 0.45);
+}
+:root[data-tema="claro"] .barra-acoes .grade-simples button#btn-check,
+:root[data-tema="claro"] .barra-acoes .grade-simples button#btn-pagar {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 3px 0 #334155;
+}
+:root[data-tema="claro"] .barra-acoes .grade-simples.modo-aposta #btn-aumentar,
+:root[data-tema="claro"] .barra-acoes button#btn-aumentar.aberto {
+  background: #e2e8f0;
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.16);
+}
+:root[data-tema="claro"] .barra-acoes .presets button {
+  background: #e9eef5;
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] .barra-acoes .presets button.allin {
+  background: #fff1f2;
+  color: #b91c1c;
+  box-shadow: inset 0 0 0 2px #c81e3a;
+}
+:root[data-tema="claro"] .barra-pre-acao button.pre-btn {
+  background: #e9eef5;
+  color: #0f172a;
+  border: 1.5px solid rgba(15, 23, 42, 0.18);
+}
+:root[data-tema="claro"] .barra-pre-acao button.pre-btn.perigo.sel {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+:root[data-tema="claro"] .barra-pre-acao button.pre-btn.positivo.sel {
+  background: #15803d;
+  color: #ffffff;
+  border-color: #15803d;
+}
+:root[data-tema="claro"] .pre-acao-dica,
+:root[data-tema="claro"] .barra-online-espera .espera-status {
+  color: #475569;
+}
+:root[data-tema="claro"] .barra-online-espera .espera-status strong {
+  color: #0f172a;
+}
+
+:root[data-tema="claro"] button.mp-mostrar-btn {
+  background: #e9eef5;
+  border-color: rgba(15, 23, 42, 0.20);
+  color: #0f172a;
+}
+:root[data-tema="claro"] .minha-mao-linha .btn-luz {
+  background: #e2e8f0;
+  color: #475569;
+}
+:root[data-tema="claro"] .minha-mao-linha .btn-luz.on {
+  background: #dbeafe;
+  color: #1d4ed8;
+  box-shadow: inset 0 0 0 1.5px #3b82f6;
+}
+:root[data-tema="claro"] .minha-mao-nome {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+:root[data-tema="claro"] .mm-ico {
+  color: #15803d;
+}
+:root[data-tema="claro"] .mm-txt b {
+  color: #14532d;
+}
+:root[data-tema="claro"] .mm-txt small {
+  color: #166534;
+}
+:root[data-tema="claro"] .minha-mao-dica {
+  background: #dcfce7;
+  border: 1px solid rgba(21, 128, 61, 0.28);
+  color: #14532d;
+}
+
+/* Faixa de resultado online e ações pós-mão */
+:root[data-tema="claro"] .faixa-online-res,
+:root[data-tema="claro"] .faixa-online-res .res-nome {
+  color: #0f172a;
+}
+:root[data-tema="claro"] .faixa-online-res .res-valor {
+  color: #b45309;
+}
+:root[data-tema="claro"] .faixa-online-res .res-mao {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+:root[data-tema="claro"] .faixa-online-acoes button.pill-toggle {
+  background: #e2e8f0;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+:root[data-tema="claro"] .faixa-online-acoes button.pill-toggle.ativo {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+:root[data-tema="claro"] .faixa-online-acoes button.btn-rabbit {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #f59e0b;
+}
+:root[data-tema="claro"] .bj-aviso-fora {
+  color: #334155;
+}
+
+/* =====================================================================
+   5. GAVETAS E MODAIS (.folha, PERFIL, GUIA, CHAT, VOTAÇÕES, POTES, PLACAR)
+   ===================================================================== */
+
+:root[data-tema="claro"] .folha {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 -12px 36px -8px rgba(15, 23, 42, 0.18);
+}
+:root[data-tema="claro"] #fundo-perfil .folha {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.25);
+}
+:root[data-tema="claro"] button.fechar {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.fechar:hover:not(:disabled) {
+  background: #cbd5e1;
+}
+
+:root[data-tema="claro"] .folha .pote-card-titulo,
+:root[data-tema="claro"] .folha .pote-card-valor,
+:root[data-tema="claro"] .folha .dist-resumo-chip b,
+:root[data-tema="claro"] .folha .perfil-foto-info strong,
+:root[data-tema="claro"] .folha .perfil-pref-txt strong,
+:root[data-tema="claro"] .folha .perfil-secao-titulo,
+:root[data-tema="claro"] .folha .info-dev,
+:root[data-tema="claro"] .folha .acerto-item strong,
+:root[data-tema="claro"] .folha .chat-msg,
+:root[data-tema="claro"] .folha .hist-linha {
+  color: #0f172a;
+}
+:root[data-tema="claro"] .folha .info-dev small,
+:root[data-tema="claro"] .folha .perfil-pref-txt small,
+:root[data-tema="claro"] .folha .dica {
+  color: #475569;
+}
+:root[data-tema="claro"] .linha-dev,
+:root[data-tema="claro"] .hist-linha {
+  border-color: rgba(15, 23, 42, 0.10);
+}
+
+/* Guia de mãos */
+:root[data-tema="claro"] .carta-mini {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] .carta-mini.verm {
+  color: #dc2626;
+}
+
+/* Potes e distribuição */
+:root[data-tema="claro"] .pote-resumo {
+  background: #e9eef5;
+  color: #0f172a;
+}
+:root[data-tema="claro"] .pote-badge {
+  background: #e2e8f0;
+  color: #334155;
+}
+:root[data-tema="claro"] .pote-badge.pendente {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+:root[data-tema="claro"] .pote-jog-item {
+  background: #eef2f7;
+}
+:root[data-tema="claro"] .pote-jogadores-lista .tag {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Perfil */
+:root[data-tema="claro"] .perfil-abas {
+  background: #e2e8f0;
+  border-color: rgba(15, 23, 42, 0.10);
+}
+:root[data-tema="claro"] button.perfil-aba {
+  background: transparent;
+  color: #475569;
+}
+:root[data-tema="claro"] button.perfil-aba.ativa {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.10), inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+:root[data-tema="claro"] button.perfil-select-btn {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.14);
+}
+:root[data-tema="claro"] button.perfil-select-btn:hover:not(:disabled) {
+  background: #cbd5e1;
+}
+:root[data-tema="claro"] .perfil-select-menu {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(15, 23, 42, 0.14);
+  box-shadow: 0 14px 32px -10px rgba(15, 23, 42, 0.22);
+}
+:root[data-tema="claro"] button.perfil-select-op {
+  color: #334155;
+}
+:root[data-tema="claro"] button.perfil-select-op:hover:not(:disabled):not(.sel) {
+  background: rgba(15, 23, 42, 0.07);
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.perfil-select-op.sel {
+  background: #0f172a;
+  color: #ffffff;
+}
+:root[data-tema="claro"] .perfil-acordeao {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] button.perfil-acordeao-btn {
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.perfil-acordeao-btn:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.04);
+}
+:root[data-tema="claro"] button.btn-pref-toggle:not(.ativo) {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* Chat e Votações */
+:root[data-tema="claro"] .chat-aba {
+  background: #e2e8f0;
+  color: #334155;
+}
+:root[data-tema="claro"] .chat-aba.ativa {
+  background: #0f172a;
+  color: #ffffff;
+}
+:root[data-tema="claro"] .badge-aba-voto {
+  background: rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+}
+:root[data-tema="claro"] .votacao-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+:root[data-tema="claro"] .votacao-tempo {
+  background: #e2e8f0;
+  color: #334155;
+}
+:root[data-tema="claro"] .votacao-barra {
+  background: #e2e8f0;
+}
+:root[data-tema="claro"] button.votacao-card-btn.ativo {
+  background: #dcfce7;
+  border-color: #15803d;
+  color: #166534;
+}
+:root[data-tema="claro"] .chat-atalho {
+  background: #e9eef5;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+:root[data-tema="claro"] .chat-balao {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.10);
+}
+:root[data-tema="claro"] button.chat-preview-item {
+  background: #ffffff;
+  box-shadow: 0 8px 22px -8px rgba(15, 23, 42, 0.18);
+}
+:root[data-tema="claro"] button.chat-preview-item.voto {
+  background: #fffbeb;
+}
+
+/* Placar */
+:root[data-tema="claro"] .placar-saldo.pos {
+  color: #15803d;
+}
+:root[data-tema="claro"] .placar-saldo.neg {
+  color: #dc2626;
+}

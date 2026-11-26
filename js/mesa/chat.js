@@ -1,10 +1,10 @@
 // Chat da mesa (Supabase + Realtime), indicador de digitação, atalhos rápidos e votação por maioria (sem anfitrião)
-import { banco } from '../core/supabase.js?v=105';
-import { estado, nomeDe } from '../core/estado.js?v=105';
-import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=105';
-import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=105';
-import { tocarSom } from '../core/som.js?v=105';
-import { executar } from './apostas.js?v=105';
+import { banco } from '../core/supabase.js?v=107';
+import { estado, nomeDe } from '../core/estado.js?v=107';
+import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=107';
+import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=107';
+import { tocarSom } from '../core/som.js?v=107';
+import { executar } from './apostas.js?v=107';
 
 const JANELA_DIGITANDO_MS = 3400;
 
@@ -14,6 +14,7 @@ const chat = {
   ids: new Set(),
   naoLidas: 0,
   enviando: false,
+  sujo: false,
   ultimaReacaoEm: 0,
   abaAtual: 'chat',
   digitandoPor: new Map(),
@@ -120,11 +121,13 @@ function meuNomeAutor() {
   return 'Jogador';
 }
 
+const FMT_HORA = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
 function formatarHora(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return FMT_HORA.format(d);
 }
 
 function ehMinhaMensagem(msg) {
@@ -139,7 +142,28 @@ function rolarFim() {
   if (lista) lista.scrollTop = lista.scrollHeight;
 }
 
+function htmlMensagemChat(m) {
+  const minha = ehMinhaMensagem(m);
+  const autor = escapar(nomeDe(m.autor_nome || 'Jogador'));
+  const texto = escapar(m.texto || '');
+  const hora = formatarHora(m.criado_em);
+  return (
+    '<div class="chat-msg' + (minha ? ' eu' : '') + '">' +
+      '<div class="chat-cab">' +
+        '<strong class="chat-autor">' + autor + '</strong>' +
+        (hora ? '<span class="chat-hora">' + hora + '</span>' : '') +
+      '</div>' +
+      '<div class="chat-txt">' + texto + '</div>' +
+    '</div>'
+  );
+}
+
 function desenharChat() {
+  if (!chatAberto() || chat.abaAtual !== 'chat') {
+    chat.sujo = true;
+    return;
+  }
+  chat.sujo = false;
   const lista = $id('chat-lista');
   if (!lista) return;
 
@@ -149,21 +173,7 @@ function desenharChat() {
     return;
   }
 
-  lista.innerHTML = chat.mensagens.map((m) => {
-    const minha = ehMinhaMensagem(m);
-    const autor = escapar(nomeDe(m.autor_nome || 'Jogador'));
-    const texto = escapar(m.texto || '');
-    const hora = formatarHora(m.criado_em);
-    return (
-      '<div class="chat-msg' + (minha ? ' eu' : '') + '">' +
-        '<div class="chat-cab">' +
-          '<strong class="chat-autor">' + autor + '</strong>' +
-          (hora ? '<span class="chat-hora">' + hora + '</span>' : '') +
-        '</div>' +
-        '<div class="chat-txt">' + texto + '</div>' +
-      '</div>'
-    );
-  }).join('');
+  lista.innerHTML = chat.mensagens.map(htmlMensagemChat).join('');
 
   rolarFim();
 }
@@ -443,6 +453,7 @@ export function escolherAbaChat(aba) {
   if (alvo === 'chat') {
     chat.naoLidas = 0;
     atualizarBadge();
+    if (chat.sujo) desenharChat();
     requestAnimationFrame(rolarFim);
   } else if (alvo === 'votacao') {
     desenharPainelVotacao();
@@ -644,6 +655,7 @@ export function limparChatMesa() {
   chat.ids.clear();
   chat.naoLidas = 0;
   chat.enviando = false;
+  chat.sujo = false;
   chat.abaAtual = 'chat';
   chat.digitandoPor.clear();
   clearTimeout(chat.timerDigitando);
@@ -695,6 +707,7 @@ export function receberMensagemChat(msg) {
   if (!msg || msg.id == null || !chat.partidaId) return;
   if (chat.ids.has(msg.id)) return;
   chat.ids.add(msg.id);
+  const estourou = chat.mensagens.length >= 100;
   chat.mensagens.push(msg);
   if (chat.mensagens.length > 100) {
     const removida = chat.mensagens.shift();
@@ -706,16 +719,26 @@ export function receberMensagemChat(msg) {
     atualizarDigitandoUI();
   }
 
-  desenharChat();
-
   const vendoChat = chatAberto() && chat.abaAtual === 'chat';
   if (!vendoChat) {
+    chat.sujo = true;
     if (!ehMinhaMensagem(msg)) {
       chat.naoLidas += 1;
       atualizarBadge();
       tocarSom('clique');
     }
     if (!chatAberto()) mostrarPreviewChat(msg);
+  } else {
+    const lista = $id('chat-lista');
+    if (lista) {
+      if (chat.mensagens.length === 1 || lista.querySelector('.chat-vazio')) {
+        desenharChat();
+      } else {
+        if (estourou && lista.firstElementChild) lista.firstElementChild.remove();
+        lista.insertAdjacentHTML('beforeend', htmlMensagemChat(msg));
+        rolarFim();
+      }
+    }
   }
 }
 

@@ -85,9 +85,15 @@ function carregarBuffer(nome) {
 }
 
 function precarregarTodos() {
-  if (precarregando) return;
+  if (precarregando || !ativo) return;
   precarregando = true;
-  Object.keys(ARQUIVOS_MP3).forEach((nome) => { carregarBuffer(nome); });
+  const agendar = window.requestIdleCallback
+    ? (fn) => window.requestIdleCallback(fn, { timeout: 1500 })
+    : (fn) => setTimeout(fn, 150);
+  const nomes = Object.keys(ARQUIVOS_MP3);
+  nomes.forEach((nome, idx) => {
+    agendar(() => { setTimeout(() => { if (ativo) carregarBuffer(nome); }, idx * 90); });
+  });
 }
 
 // Desbloqueia Web Audio no primeiro gesto do usuário (exigência do Safari/iOS e Chrome Mobile)
@@ -108,7 +114,7 @@ function desbloquearAudio() {
       src.connect(audioCtx.destination);
       src.start(0);
     } catch (erro) {}
-    precarregarTodos();
+    if (ativo) precarregarTodos();
   }
 }
 
@@ -307,16 +313,22 @@ function synthClique(audioCtx, t0) {
   osc.stop(t0 + 0.035);
 }
 
+let noiseDesistirBuf = null;
+let noiseDesistirCtx = null;
+
 // 7) desistir: swoosh rápido descendente + duas notas graves suaves caindo (bem diferente de dar carta)
 function synthDesistir(audioCtx, t0) {
-  // Ruído filtrado simulando jogar as cartas no monte
-  const tam = Math.floor(audioCtx.sampleRate * 0.16);
-  const buf = audioCtx.createBuffer(1, tam, audioCtx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < tam; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / tam);
+  // Ruído filtrado simulando jogar as cartas no monte (buffer reutilizado por AudioContext)
+  if (!noiseDesistirBuf || noiseDesistirCtx !== audioCtx) {
+    noiseDesistirCtx = audioCtx;
+    const tam = Math.floor(audioCtx.sampleRate * 0.16);
+    noiseDesistirBuf = audioCtx.createBuffer(1, tam, audioCtx.sampleRate);
+    const data = noiseDesistirBuf.getChannelData(0);
+    for (let i = 0; i < tam; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / tam);
+  }
 
   const noise = audioCtx.createBufferSource();
-  noise.buffer = buf;
+  noise.buffer = noiseDesistirBuf;
   const filtro = audioCtx.createBiquadFilter();
   filtro.type = 'bandpass';
   filtro.Q.setValueAtTime(1.4, t0);
@@ -428,7 +440,10 @@ export function alternarSom() {
   ativo = !ativo;
   try { localStorage.setItem(CHAVE_SOM, ativo ? '1' : '0'); } catch (erro) {}
   atualizarBotoesSom();
-  if (ativo) tocarSom('clique');
+  if (ativo) {
+    precarregarTodos();
+    tocarSom('clique');
+  }
 }
 
 export function iniciarSom() {

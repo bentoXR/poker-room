@@ -20,22 +20,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos organizados por responsabilidade -->
-  <link rel="stylesheet" href="./css/base.css?v=105">
-  <link rel="stylesheet" href="./css/telas.css?v=105">
+  <link rel="stylesheet" href="./css/base.css?v=106">
+  <link rel="stylesheet" href="./css/telas.css?v=106">
   <link rel="stylesheet" href="./css/mesa.css?v=105">
-  <link rel="stylesheet" href="./css/gavetas.css?v=105">
+  <link rel="stylesheet" href="./css/gavetas.css?v=106">
   <link rel="stylesheet" href="./css/online.css?v=105">
   <link rel="stylesheet" href="./css/blackjack.css?v=105">
   <link rel="stylesheet" href="./css/tema-sinuca.css?v=105">
   <link rel="stylesheet" href="./css/tema-cassino.css?v=105">
   <link rel="stylesheet" href="./css/tema-liberdade.css?v=105">
-  <link rel="stylesheet" href="./css/tema-tropical.css?v=105">
-  <link rel="stylesheet" href="./css/tema-branco.css?v=105">
+  <link rel="stylesheet" href="./css/tema-tropical.css?v=107">
+  <link rel="stylesheet" href="./css/tema-claro.css?v=108">
   <link rel="stylesheet" href="./css/desktop.css?v=105">
-  <link rel="stylesheet" href="./css/mobile-landscape.css?v=105">
+  <link rel="stylesheet" href="./css/mobile-landscape.css?v=106">
 
   <!-- Biblioteca oficial do Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <!-- Sprite dos naipes (formas clássicas e bem distintas; cor vermelha ou preta pelo CSS) -->
@@ -51,10 +51,11 @@
   // Aplica tema salvo (padrão: Preto / 'preto') e evita "piscar" ao recarregar
   try {
     var temaSalvo = localStorage.getItem('poker-tema');
-    var temaAtivo = (temaSalvo === 'classico' || temaSalvo === 'cassino' || temaSalvo === 'liberdade' || temaSalvo === 'tropical') ? temaSalvo : 'preto';
+    if (temaSalvo === 'branco') temaSalvo = 'claro';
+    var temaAtivo = (temaSalvo === 'claro' || temaSalvo === 'classico' || temaSalvo === 'cassino' || temaSalvo === 'liberdade' || temaSalvo === 'tropical') ? temaSalvo : 'preto';
     document.documentElement.setAttribute('data-tema', temaAtivo);
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', temaAtivo === 'classico' ? '#140c08' : temaAtivo === 'cassino' ? '#2e040c' : temaAtivo === 'liberdade' ? '#0a3161' : temaAtivo === 'tropical' ? '#04384f' : '#0b0c0e');
+    if (m) m.setAttribute('content', temaAtivo === 'claro' ? '#eef2f7' : temaAtivo === 'classico' ? '#140c08' : temaAtivo === 'cassino' ? '#2e040c' : temaAtivo === 'liberdade' ? '#0a3161' : temaAtivo === 'tropical' ? '#04384f' : '#0b0c0e');
     if (localStorage.getItem('poker-conta')) {
       document.documentElement.classList.add('restaurando');
     }
@@ -65,25 +66,32 @@
   <!-- ===== TELA 1: LOGIN ===== -->
   <section id="tela-login" class="tela ativa">
     <div class="topo-tema-login">
-      <div class="seletor-tema" role="group" aria-label="Escolher cores do site">
-        <button type="button" class="tema-btn sel" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="true">
-          <span class="amostra amostra-preto" aria-hidden="true"></span><span data-i18n="perfil.tema_preto">Preto</span>
+      <div class="tema-dropdown" id="tema-dropdown-login">
+        <button type="button" class="tema-gatilho" id="btn-tema-login" onclick="alternarMenuTemaLogin()" aria-haspopup="listbox" aria-expanded="false" aria-controls="menu-tema-login" aria-label="Escolher cores do site">
+          <span class="amostra amostra-preto" id="tema-login-amostra" aria-hidden="true"></span>
+          <span class="tema-gatilho-nome" id="tema-login-nome" data-i18n="perfil.tema_preto">Preto</span>
+          <span class="tema-seta" aria-hidden="true">▾</span>
         </button>
-        <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-          <span class="amostra amostra-classico" aria-hidden="true"></span><span data-i18n="perfil.tema_classico">Sinuca</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="cassino" onclick="escolherTema('cassino')" aria-pressed="false">
-          <span class="amostra amostra-cassino" aria-hidden="true"></span><span data-i18n="perfil.tema_cassino">Cassino</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="liberdade" onclick="escolherTema('liberdade')" aria-pressed="false">
-          <span class="amostra amostra-liberdade" aria-hidden="true"></span><span data-i18n="perfil.tema_liberdade">USA</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="tropical" onclick="escolherTema('tropical')" aria-pressed="false">
-          <span class="amostra amostra-tropical" aria-hidden="true"></span><span data-i18n="perfil.tema_tropical">Tropical</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="branco" onclick="escolherTema('branco')" aria-pressed="false">
-          <span class="amostra amostra-branco" aria-hidden="true"></span><span data-i18n="perfil.tema_branco">Branco</span>
-        </button>
+        <div class="tema-menu" id="menu-tema-login" role="listbox" aria-label="Escolher cores do site" hidden>
+          <button type="button" class="tema-btn sel" data-tema="preto" role="option" aria-selected="true" onclick="escolherTema('preto')" aria-pressed="true">
+            <span class="amostra amostra-preto" aria-hidden="true"></span><span data-i18n="perfil.tema_preto">Preto</span>
+          </button>
+          <button type="button" class="tema-btn" data-tema="classico" role="option" aria-selected="false" onclick="escolherTema('classico')" aria-pressed="false">
+            <span class="amostra amostra-classico" aria-hidden="true"></span><span data-i18n="perfil.tema_classico">Sinuca</span>
+          </button>
+          <button type="button" class="tema-btn" data-tema="cassino" role="option" aria-selected="false" onclick="escolherTema('cassino')" aria-pressed="false">
+            <span class="amostra amostra-cassino" aria-hidden="true"></span><span data-i18n="perfil.tema_cassino">Cassino</span>
+          </button>
+          <button type="button" class="tema-btn" data-tema="liberdade" role="option" aria-selected="false" onclick="escolherTema('liberdade')" aria-pressed="false">
+            <span class="amostra amostra-liberdade" aria-hidden="true"></span><span data-i18n="perfil.tema_liberdade">USA</span>
+          </button>
+          <button type="button" class="tema-btn" data-tema="tropical" role="option" aria-selected="false" onclick="escolherTema('tropical')" aria-pressed="false">
+            <span class="amostra amostra-tropical" aria-hidden="true"></span><span data-i18n="perfil.tema_tropical">Tropical</span>
+          </button>
+          <button type="button" class="tema-btn" data-tema="claro" role="option" aria-selected="false" onclick="escolherTema('claro')" aria-pressed="false">
+            <span class="amostra amostra-claro" aria-hidden="true"></span><span data-i18n="perfil.tema_claro">Claro</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -769,38 +777,131 @@
     <div class="folha-titulo" data-i18n="perfil.titulo">Meu perfil</div>
     <button class="fechar" onclick="fecharPerfil()" aria-label="Fechar">✕</button>
   </div>
+  <div class="perfil-abas" role="tablist" aria-label="Seções do perfil">
+    <button type="button" class="perfil-aba ativa" data-perfil-aba="conta" role="tab" aria-selected="true" onclick="escolherAbaPerfil('conta')" data-i18n="perfil.aba_conta">Perfil</button>
+    <button type="button" class="perfil-aba" data-perfil-aba="prefs" role="tab" aria-selected="false" onclick="escolherAbaPerfil('prefs')" data-i18n="perfil.aba_prefs">Preferências</button>
+  </div>
   <div class="folha-corpo">
-    <div class="perfil-foto-bloco">
-      <div class="avatar-conta perfil-avatar-grande" id="perfil-avatar-preview" aria-hidden="true">P</div>
-      <div class="perfil-foto-info">
-        <strong data-i18n="perfil.foto_titulo">Foto de perfil</strong>
-        <span data-i18n="perfil.foto_desc">Aparece no seu assento durante as partidas</span>
-        <div class="perfil-foto-acoes">
-          <button type="button" id="btn-escolher-foto" class="positivo" onclick="acionarEscolhaFoto()" data-i18n="perfil.escolher_foto">Escolher foto</button>
-          <button type="button" id="btn-remover-foto" class="contorno-perigo" onclick="removerFotoPerfil()" data-i18n="app.remover" hidden>Remover</button>
+    <div id="perfil-painel-conta" class="perfil-painel" role="tabpanel">
+      <div class="perfil-foto-bloco">
+        <div class="avatar-conta perfil-avatar-grande" id="perfil-avatar-preview" aria-hidden="true">P</div>
+        <div class="perfil-foto-info">
+          <strong data-i18n="perfil.foto_titulo">Foto de perfil</strong>
+          <span data-i18n="perfil.foto_desc">Aparece no seu assento durante as partidas</span>
+          <div class="perfil-foto-acoes">
+            <button type="button" id="btn-escolher-foto" class="positivo" onclick="acionarEscolhaFoto()" data-i18n="perfil.escolher_foto">Escolher foto</button>
+            <button type="button" id="btn-remover-foto" class="contorno-perigo" onclick="removerFotoPerfil()" data-i18n="app.remover" hidden>Remover</button>
+          </div>
+          <input id="input-foto-perfil" type="file" accept="image/*" hidden onchange="aoEscolherFotoPerfil(this)">
         </div>
-        <input id="input-foto-perfil" type="file" accept="image/*" hidden onchange="aoEscolherFotoPerfil(this)">
+      </div>
+
+      <div class="perfil-grupo">
+        <label for="campo-perfil-nome" data-i18n="perfil.nome_unico">Nome único da conta (até 10 caracteres)</label>
+        <div class="perfil-nome-linha">
+          <input id="campo-perfil-nome" type="text" maxlength="10" placeholder="Seu nome (máx. 10)" data-i18n-ph="perfil.ph_nome"
+                 autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false">
+          <button type="button" id="btn-salvar-nome" class="secundario" onclick="salvarNomePerfil()" data-i18n="app.salvar">Salvar</button>
+        </div>
+        <div id="erro-perfil" class="erro" role="alert"></div>
+      </div>
+
+      <div class="perfil-grupo">
+        <div class="perfil-secao-titulo" data-i18n="perfil.seguranca">Segurança da conta</div>
+        <p id="dica-perfil-convidado" class="dica" style="margin:0 0 8px" data-i18n="perfil.dica_convidado" hidden>Conta Convidado (salva apenas nos cookies/cache deste navegador). Defina uma senha abaixo se quiser salvar sua conta permanentemente.</p>
+
+        <div class="perfil-acordeao" id="bloco-acordeao-senha">
+          <button type="button" class="perfil-acordeao-btn" id="btn-abrir-senha" onclick="alternarAcordeaoSenha()" aria-expanded="false" aria-controls="corpo-acordeao-senha">
+            <span class="perfil-pref-txt">
+              <strong data-i18n="perfil.alterar_senha">Alterar senha</strong>
+              <small data-i18n="perfil.senha_desc">Atualize sua senha de acesso</small>
+            </span>
+            <span class="perfil-seta" aria-hidden="true">▾</span>
+          </button>
+          <div id="corpo-acordeao-senha" class="perfil-acordeao-corpo" hidden>
+            <div id="bloco-senha-atual">
+              <label for="campo-senha-atual" data-i18n="perfil.senha_atual">Senha atual</label>
+              <div class="campo-senha">
+                <input id="campo-senha-atual" class="senha" type="text" placeholder="Digite sua senha atual" data-i18n-ph="perfil.ph_senha_atual" maxlength="30"
+                       autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+                <button type="button" class="olho" onclick="alternarSenha('campo-senha-atual', this)" data-i18n="app.mostrar">Mostrar</button>
+              </div>
+            </div>
+            <label for="campo-senha-nova" data-i18n="perfil.nova_senha">Nova senha</label>
+            <div class="campo-senha">
+              <input id="campo-senha-nova" class="senha" type="text" placeholder="Mínimo 6 caracteres" data-i18n-ph="perfil.ph_nova_senha" maxlength="30"
+                     autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+              <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova', this)" data-i18n="app.mostrar">Mostrar</button>
+            </div>
+            <label for="campo-senha-nova-conf" data-i18n="perfil.conf_nova_senha">Confirmar nova senha</label>
+            <div class="campo-senha">
+              <input id="campo-senha-nova-conf" class="senha" type="text" placeholder="Repita a nova senha" data-i18n-ph="perfil.ph_conf_nova_senha" maxlength="30"
+                     autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+              <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova-conf', this)" data-i18n="app.mostrar">Mostrar</button>
+            </div>
+            <button type="button" id="btn-alterar-senha" class="secundario" onclick="alterarSenhaPerfil()" data-i18n="perfil.alterar_senha">Alterar senha</button>
+            <div id="erro-senha-perfil" class="erro" role="alert"></div>
+          </div>
+        </div>
+
+        <div class="perfil-acoes-conta">
+          <button type="button" id="btn-encerrar-sessoes" class="contorno-perigo" onclick="encerrarOutrasSessoes()" data-i18n="perfil.sair_outros">Sair de outros aparelhos</button>
+          <button type="button" class="contorno-perigo" onclick="fecharPerfil(); sairDaConta()" data-i18n="app.sair">Sair</button>
+        </div>
       </div>
     </div>
 
-    <div class="perfil-secao">
-      <label for="campo-perfil-nome" data-i18n="perfil.nome_unico">Nome único da conta (até 10 caracteres)</label>
-      <div class="perfil-nome-linha">
-        <input id="campo-perfil-nome" type="text" maxlength="10" placeholder="Seu nome (máx. 10)" data-i18n-ph="perfil.ph_nome"
-               autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false">
-        <button type="button" id="btn-salvar-nome" class="secundario" onclick="salvarNomePerfil()" data-i18n="app.salvar">Salvar</button>
+    <div id="perfil-painel-prefs" class="perfil-painel" role="tabpanel" hidden>
+      <div class="perfil-pref-linha">
+        <div class="perfil-pref-txt">
+          <strong data-i18n="perfil.idioma">Idioma</strong>
+        </div>
+        <div class="perfil-dropdown" id="idioma-dropdown-perfil">
+          <button type="button" class="perfil-select-btn" id="btn-idioma-perfil" onclick="alternarMenuIdiomaPerfil()" aria-haspopup="listbox" aria-expanded="false" aria-controls="menu-idioma-perfil">
+            <span id="idioma-perfil-atual">🇧🇷 Português BR</span>
+            <span class="perfil-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-select-menu" id="menu-idioma-perfil" role="listbox" aria-label="Idioma" hidden>
+            <button type="button" class="perfil-select-op idioma-btn sel" data-lang="pt" role="option" aria-selected="true" onclick="escolherIdioma('pt')" aria-pressed="true">🇧🇷 Português BR</button>
+            <button type="button" class="perfil-select-op idioma-btn" data-lang="es" role="option" aria-selected="false" onclick="escolherIdioma('es')" aria-pressed="false">🇪🇸 Español</button>
+            <button type="button" class="perfil-select-op idioma-btn" data-lang="en" role="option" aria-selected="false" onclick="escolherIdioma('en')" aria-pressed="false">🇺🇸 English</button>
+          </div>
+        </div>
       </div>
-      <div id="erro-perfil" class="erro" role="alert"></div>
-    </div>
 
-    <div class="perfil-secao">
-      <div class="perfil-secao-titulo" data-i18n="perfil.prefs">Preferências da mesa</div>
-      <label data-i18n="perfil.idioma">Idioma</label>
-      <div class="opcoes-chips" id="seletor-idioma" role="group" aria-label="Idioma">
-        <button type="button" class="op-chip idioma-btn sel" data-lang="pt" onclick="escolherIdioma('pt')" aria-pressed="true">🇧🇷 Português BR</button>
-        <button type="button" class="op-chip idioma-btn" data-lang="es" onclick="escolherIdioma('es')" aria-pressed="false">🇪🇸 Español</button>
-        <button type="button" class="op-chip idioma-btn" data-lang="en" onclick="escolherIdioma('en')" aria-pressed="false">🇺🇸 English</button>
+      <div class="perfil-pref-linha">
+        <div class="perfil-pref-txt">
+          <strong data-i18n="perfil.tema">Tema visual</strong>
+        </div>
+        <div class="perfil-dropdown" id="tema-dropdown-perfil">
+          <button type="button" class="perfil-select-btn" id="btn-tema-perfil" onclick="alternarMenuTemaPerfil()" aria-haspopup="listbox" aria-expanded="false" aria-controls="menu-tema-perfil">
+            <span class="amostra amostra-preto" id="tema-perfil-amostra" aria-hidden="true"></span>
+            <span id="tema-perfil-nome" data-i18n="perfil.tema_preto">Preto</span>
+            <span class="perfil-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-select-menu" id="menu-tema-perfil" role="listbox" aria-label="Escolher tema visual" hidden>
+            <button type="button" class="tema-btn sel" data-tema="preto" role="option" aria-selected="true" onclick="escolherTema('preto')" aria-pressed="true">
+              <span class="amostra amostra-preto" aria-hidden="true"></span><span data-i18n="perfil.tema_preto">Preto</span>
+            </button>
+            <button type="button" class="tema-btn" data-tema="classico" role="option" aria-selected="false" onclick="escolherTema('classico')" aria-pressed="false">
+              <span class="amostra amostra-classico" aria-hidden="true"></span><span data-i18n="perfil.tema_classico">Sinuca</span>
+            </button>
+            <button type="button" class="tema-btn" data-tema="cassino" role="option" aria-selected="false" onclick="escolherTema('cassino')" aria-pressed="false">
+              <span class="amostra amostra-cassino" aria-hidden="true"></span><span data-i18n="perfil.tema_cassino">Cassino</span>
+            </button>
+            <button type="button" class="tema-btn" data-tema="liberdade" role="option" aria-selected="false" onclick="escolherTema('liberdade')" aria-pressed="false">
+              <span class="amostra amostra-liberdade" aria-hidden="true"></span><span data-i18n="perfil.tema_liberdade">USA</span>
+            </button>
+            <button type="button" class="tema-btn" data-tema="tropical" role="option" aria-selected="false" onclick="escolherTema('tropical')" aria-pressed="false">
+              <span class="amostra amostra-tropical" aria-hidden="true"></span><span data-i18n="perfil.tema_tropical">Tropical</span>
+            </button>
+            <button type="button" class="tema-btn" data-tema="claro" role="option" aria-selected="false" onclick="escolherTema('claro')" aria-pressed="false">
+              <span class="amostra amostra-claro" aria-hidden="true"></span><span data-i18n="perfil.tema_claro">Claro</span>
+            </button>
+          </div>
+        </div>
       </div>
+
       <div class="perfil-pref-linha" id="linha-termos-traduzidos">
         <div class="perfil-pref-txt">
           <strong data-i18n="perfil.termos_titulo">Traduzir termos do poker</strong>
@@ -808,27 +909,7 @@
         </div>
         <button type="button" id="btn-perfil-termos" class="btn-pref-toggle" onclick="alternarTermosTraduzidos()" aria-pressed="false">Desativado</button>
       </div>
-      <label data-i18n="perfil.tema">Tema visual</label>
-      <div class="seletor-tema perfil-temas" role="group" aria-label="Escolher tema visual">
-        <button type="button" class="tema-btn sel" data-tema="preto" onclick="escolherTema('preto')" aria-pressed="true">
-          <span class="amostra amostra-preto" aria-hidden="true"></span><span data-i18n="perfil.tema_preto">Preto</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="classico" onclick="escolherTema('classico')" aria-pressed="false">
-          <span class="amostra amostra-classico" aria-hidden="true"></span><span data-i18n="perfil.tema_classico">Sinuca</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="cassino" onclick="escolherTema('cassino')" aria-pressed="false">
-          <span class="amostra amostra-cassino" aria-hidden="true"></span><span data-i18n="perfil.tema_cassino">Cassino</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="liberdade" onclick="escolherTema('liberdade')" aria-pressed="false">
-          <span class="amostra amostra-liberdade" aria-hidden="true"></span><span data-i18n="perfil.tema_liberdade">USA</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="tropical" onclick="escolherTema('tropical')" aria-pressed="false">
-          <span class="amostra amostra-tropical" aria-hidden="true"></span><span data-i18n="perfil.tema_tropical">Tropical</span>
-        </button>
-        <button type="button" class="tema-btn" data-tema="branco" onclick="escolherTema('branco')" aria-pressed="false">
-          <span class="amostra amostra-branco" aria-hidden="true"></span><span data-i18n="perfil.tema_branco">Branco</span>
-        </button>
-      </div>
+
       <div class="perfil-pref-linha">
         <div class="perfil-pref-txt">
           <strong data-i18n="perfil.espiar_titulo">Segurar para espiar cartas</strong>
@@ -836,35 +917,6 @@
         </div>
         <button type="button" id="btn-perfil-espiar" class="btn-pref-toggle" onclick="alternarModoEspiar()" aria-pressed="false">Desativado</button>
       </div>
-    </div>
-
-    <div class="perfil-secao">
-      <div class="perfil-secao-titulo" data-i18n="perfil.seguranca">Segurança da conta</div>
-      <p id="dica-perfil-convidado" class="dica" style="margin:0 0 8px" data-i18n="perfil.dica_convidado" hidden>Conta Convidado (salva apenas nos cookies/cache deste navegador). Defina uma senha abaixo se quiser salvar sua conta permanentemente.</p>
-      <div id="bloco-senha-atual">
-        <label for="campo-senha-atual" data-i18n="perfil.senha_atual">Senha atual</label>
-        <div class="campo-senha">
-          <input id="campo-senha-atual" class="senha" type="text" placeholder="Digite sua senha atual" data-i18n-ph="perfil.ph_senha_atual" maxlength="30"
-                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-          <button type="button" class="olho" onclick="alternarSenha('campo-senha-atual', this)" data-i18n="app.mostrar">Mostrar</button>
-        </div>
-      </div>
-      <label for="campo-senha-nova" data-i18n="perfil.nova_senha">Nova senha</label>
-      <div class="campo-senha">
-        <input id="campo-senha-nova" class="senha" type="text" placeholder="Mínimo 6 caracteres" data-i18n-ph="perfil.ph_nova_senha" maxlength="30"
-               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova', this)" data-i18n="app.mostrar">Mostrar</button>
-      </div>
-      <label for="campo-senha-nova-conf" data-i18n="perfil.conf_nova_senha">Confirmar nova senha</label>
-      <div class="campo-senha">
-        <input id="campo-senha-nova-conf" class="senha" type="text" placeholder="Repita a nova senha" data-i18n-ph="perfil.ph_conf_nova_senha" maxlength="30"
-               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <button type="button" class="olho" onclick="alternarSenha('campo-senha-nova-conf', this)" data-i18n="app.mostrar">Mostrar</button>
-      </div>
-      <button type="button" id="btn-alterar-senha" class="secundario" onclick="alterarSenhaPerfil()" data-i18n="perfil.alterar_senha">Alterar senha</button>
-      <button type="button" id="btn-encerrar-sessoes" class="contorno-perigo" onclick="encerrarOutrasSessoes()" data-i18n="perfil.sair_outros">Sair de outros aparelhos</button>
-      <button type="button" class="contorno-perigo" onclick="fecharPerfil(); sairDaConta()" data-i18n="app.sair" style="margin-top:8px">Sair</button>
-      <div id="erro-senha-perfil" class="erro" role="alert"></div>
     </div>
   </div>
 </div>
@@ -940,11 +992,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=105"></script>
+<script type="module" src="./js/main.js?v=111"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=105').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=111').catch(() => {});
     });
   }
 </script>

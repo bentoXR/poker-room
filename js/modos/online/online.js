@@ -1,17 +1,17 @@
 // Modo Online (baralho virtual): cartas privadas com flip 3D, board animado, timer e confirmação 30s.
 // Também cuida do "ritmo" da mesa (avisos de Flop/Turn/River/Showdown em câmera lenta)
 // e do assistente de mão (luzinha nas cartas que formam a sua jogada).
-import { banco } from '../../core/supabase.js?v=105';
-import { estado, nomeDe } from '../../core/estado.js?v=105';
-import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=105';
-import { lerDevSala } from '../../core/storage.js?v=105';
-import { registrarModo } from '../../mesa/modos.js?v=105';
-import { executar } from '../../mesa/apostas.js?v=105';
-import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=105';
-import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=105';
-import { avaliarMaoLocal, calcularEquities } from './maos.js?v=105';
-import { tocarSom } from '../../core/som.js?v=105';
-import { t, obterIdioma } from '../../core/i18n.js?v=105';
+import { banco } from '../../core/supabase.js?v=107';
+import { estado, nomeDe } from '../../core/estado.js?v=107';
+import { $id, escapar, aviso, fecharFolhas, limparErro } from '../../core/ui.js?v=107';
+import { lerDevSala } from '../../core/storage.js?v=107';
+import { registrarModo } from '../../mesa/modos.js?v=107';
+import { executar } from '../../mesa/apostas.js?v=107';
+import { recalcularLayoutMesa } from '../../mesa/mesa.js?v=111';
+import { parseCarta, htmlCarta, htmlCartaMini, htmlVersoMini, textoCarta } from './cartas.js?v=107';
+import { avaliarMaoLocal, calcularEquities } from './maos.js?v=107';
+import { tocarSom } from '../../core/som.js?v=107';
+import { t, obterIdioma } from '../../core/i18n.js?v=110';
 
 // Tempos (ms) do "ritmo lento" das etapas da mão
 const T = {
@@ -73,6 +73,16 @@ const onlineUI = {
   ultimaTxt: null,
   ultimoSegUrgente: null,
   campeaoSomChave: null,
+  luzesChave: '',
+  vezDesdeRaw: null,
+  vezDesdeMs: 0,
+  proxMaoRaw: null,
+  proxMaoMs: 0,
+  ultimoTurnoSeg: '',
+  ultimoBarraAssentoPct: '',
+  ultimoTimerFillPct: '',
+  ultimoTimerHidden: null,
+  ultimoContagemSeg: '',
   embaralhandoAte: 0,
   timersDeal: [],
   timerAnuncio: null,
@@ -139,6 +149,12 @@ export function trocarJogadorOnlineUI() {
   onlineUI.faixaChave = '';
   onlineUI.eraMinhaVez = false;
   onlineUI.ultimoSegUrgente = null;
+  onlineUI.luzesChave = '';
+  onlineUI.ultimoTurnoSeg = '';
+  onlineUI.ultimoBarraAssentoPct = '';
+  onlineUI.ultimoTimerFillPct = '';
+  onlineUI.ultimoTimerHidden = null;
+  onlineUI.ultimoContagemSeg = '';
   const wrap = $id('minha-mao-wrap');
   if (wrap) { wrap.innerHTML = ''; wrap.hidden = true; }
   const timerWrap = $id('timer-turno-wrap');
@@ -176,6 +192,16 @@ export function resetarOnlineUI() {
   onlineUI.ultimaTxt = null;
   onlineUI.ultimoSegUrgente = null;
   onlineUI.campeaoSomChave = null;
+  onlineUI.luzesChave = '';
+  onlineUI.vezDesdeRaw = null;
+  onlineUI.vezDesdeMs = 0;
+  onlineUI.proxMaoRaw = null;
+  onlineUI.proxMaoMs = 0;
+  onlineUI.ultimoTurnoSeg = '';
+  onlineUI.ultimoBarraAssentoPct = '';
+  onlineUI.ultimoTimerFillPct = '';
+  onlineUI.ultimoTimerHidden = null;
+  onlineUI.ultimoContagemSeg = '';
   const mesaWrap = document.querySelector('#tela-mesa .mesa-wrap');
   if (mesaWrap) {
     mesaWrap.querySelectorAll('.baralho-embaralhar, .carta-voo-deal, .ficha-voo').forEach((n) => n.remove());
@@ -293,15 +319,20 @@ function animarEmbaralhar() {
     const intervalo = alvos.length >= 7 ? 95 : 120;
     const duracaoVoo = 640;
 
-    for (let rodada = 0; rodada < 2; rodada++) {
-      alvos.forEach((alvo, idxAlvo) => {
-        const aRect = alvo.getBoundingClientRect();
-        const ehAssento = alvo.classList.contains('lugar');
-        const destX = (aRect.left - wRect.left) + (ehAssento ? aRect.width - 14 : aRect.width / 2);
-        const destY = (aRect.top - wRect.top) + (ehAssento ? 6 : aRect.height / 2);
-        const dx = destX - ox;
-        const dy = destY - oy;
+    // Lê todas as geometrias em lote antes de inserir nós no DOM (zero reflow intercalado)
+    const destinos = alvos.map((alvo) => {
+      const aRect = alvo.getBoundingClientRect();
+      const ehAssento = alvo.classList.contains('lugar');
+      const destX = (aRect.left - wRect.left) + (ehAssento ? aRect.width - 14 : aRect.width / 2);
+      const destY = (aRect.top - wRect.top) + (ehAssento ? 6 : aRect.height / 2);
+      return { alvo, ehAssento, dx: destX - ox, dy: destY - oy };
+    });
 
+    const frag = document.createDocumentFragment();
+    const pendentesAnim = [];
+
+    for (let rodada = 0; rodada < 2; rodada++) {
+      destinos.forEach(({ alvo, ehAssento, dx, dy }, idxAlvo) => {
         const atraso = passo * intervalo;
         passo++;
 
@@ -309,29 +340,14 @@ function animarEmbaralhar() {
         card.className = 'carta verso carta-voo-deal';
         card.style.left = ox + 'px';
         card.style.top = oy + 'px';
-        wrap.appendChild(card);
+        frag.appendChild(card);
 
         const curvaX = dx * 0.52 + (idxAlvo % 2 === 0 ? -16 : 16);
         const curvaY = dy * 0.48 - 28;
         const giroMeio = (idxAlvo % 2 === 0 ? -95 : 95) + (rodada * 25);
         const giroFim = rodada === 0 ? -8 : 8;
 
-        if (card.animate) {
-          const anim = card.animate([
-            { transform: 'translate(-50%, -50%) scale(0.95) rotate(0deg)', opacity: 0 },
-            { transform: 'translate(-50%, -50%) scale(1) rotate(' + (giroMeio * 0.25) + 'deg)', opacity: 1, offset: 0.12 },
-            { transform: 'translate(calc(-50% + ' + curvaX + 'px), calc(-50% + ' + curvaY + 'px)) scale(0.88) rotate(' + giroMeio + 'deg)', opacity: 1, offset: 0.56 },
-            { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0.52) rotate(' + giroFim + 'deg)', opacity: 0.1 }
-          ], {
-            duration: duracaoVoo,
-            delay: atraso,
-            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-            fill: 'forwards'
-          });
-          anim.onfinish = () => card.remove();
-        } else {
-          setTimeout(() => card.remove(), atraso + duracaoVoo + 50);
-        }
+        pendentesAnim.push({ card, atraso, curvaX, curvaY, dx, dy, giroMeio, giroFim });
 
         if (ehAssento && rodada === 1) {
           const tChegada = setTimeout(() => {
@@ -345,6 +361,26 @@ function animarEmbaralhar() {
         }
       });
     }
+
+    wrap.appendChild(frag);
+    pendentesAnim.forEach(({ card, atraso, curvaX, curvaY, dx, dy, giroMeio, giroFim }) => {
+      if (card.animate) {
+        const anim = card.animate([
+          { transform: 'translate(-50%, -50%) scale(0.95) rotate(0deg)', opacity: 0 },
+          { transform: 'translate(-50%, -50%) scale(1) rotate(' + (giroMeio * 0.25) + 'deg)', opacity: 1, offset: 0.12 },
+          { transform: 'translate(calc(-50% + ' + curvaX + 'px), calc(-50% + ' + curvaY + 'px)) scale(0.88) rotate(' + giroMeio + 'deg)', opacity: 1, offset: 0.56 },
+          { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0.52) rotate(' + giroFim + 'deg)', opacity: 0.1 }
+        ], {
+          duration: duracaoVoo,
+          delay: atraso,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          fill: 'forwards'
+        });
+        anim.onfinish = () => card.remove();
+      } else {
+        setTimeout(() => card.remove(), atraso + duracaoVoo + 50);
+      }
+    });
   }, 1880);
   onlineUI.timersDeal.push(tDeal);
 
@@ -387,23 +423,34 @@ function animarPoteParaVencedor(partida) {
     tocarSom('ganhar-pote');
 
     const totalFichas = Math.max(6, destinos.length * 4);
-    for (let i = 0; i < totalFichas; i++) {
-      const alvo = destinos[i % destinos.length];
+    const destCoords = destinos.map((alvo) => {
       const aRect = alvo.getBoundingClientRect();
-      const dx = (aRect.left - wRect.left) + aRect.width / 2 - ox;
-      const dy = (aRect.top - wRect.top) + aRect.height / 2 - oy;
+      return {
+        dx: (aRect.left - wRect.left) + aRect.width / 2 - ox,
+        dy: (aRect.top - wRect.top) + aRect.height / 2 - oy
+      };
+    });
+
+    const frag = document.createDocumentFragment();
+    const chipsAnim = [];
+    for (let i = 0; i < totalFichas; i++) {
+      const { dx, dy } = destCoords[i % destCoords.length];
 
       const chip = document.createElement('span');
       chip.className = 'ficha-voo';
       chip.style.left = ox + 'px';
       chip.style.top = oy + 'px';
-      wrap.appendChild(chip);
+      frag.appendChild(chip);
 
       const espalhoX = ((i % 3) - 1) * 10;
       const espalhoY = (Math.floor(i / 3) - 1) * 8;
       const curvaX = dx * 0.45 + espalhoX * 1.6;
       const curvaY = dy * 0.45 - 26 + espalhoY;
 
+      chipsAnim.push({ chip, i, espalhoX, espalhoY, curvaX, curvaY, dx, dy });
+    }
+    wrap.appendChild(frag);
+    chipsAnim.forEach(({ chip, i, espalhoX, espalhoY, curvaX, curvaY, dx, dy }) => {
       if (chip.animate) {
         const anim = chip.animate([
           { transform: 'translate(-50%, -50%) scale(0.7)', opacity: 0 },
@@ -420,7 +467,7 @@ function animarPoteParaVencedor(partida) {
       } else {
         setTimeout(() => chip.remove(), 900);
       }
-    }
+    });
 
     destinos.forEach((alvo) => {
       setTimeout(() => {
@@ -547,8 +594,8 @@ function proximaEtapa() {
     desenharBoardInterno(estado.partidaAtual);
     if (onlineUI.allInRunout) {
       atualizarEquitiesCena(estado.partidaAtual);
-      recalcularLayoutMesa();
     }
+    recalcularLayoutMesa();
     cena.timer = setTimeout(proximaEtapa, etapa.ate === 3 ? T.aposFlop : T.aposCarta);
   }, T.antesCarta);
 }
@@ -611,6 +658,7 @@ function desenharBoardInterno(partida) {
     }
     const slotsEl = boardEl.querySelector('.slots');
     slotsEl.innerHTML = html;
+    onlineUI.luzesChave = '';
 
     slotsEl.querySelectorAll('.carta-board:not(.ja)').forEach((cardEl) => {
       const inner = cardEl.querySelector('.carta');
@@ -651,6 +699,34 @@ function faseExibida(partida) {
 function atualizarLuzes() {
   const wrap = $id('minha-mao-wrap');
   const boardEl = $id('board');
+  const p = estado.partidaAtual;
+  const eu = (p && p.modo === 'online' && onlineUI.minhasCartas)
+    ? ((estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId) || null)
+    : null;
+  const todas = (p && Array.isArray(p.board)) ? p.board : [];
+  const boardCount = onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length);
+  const abertas = todas.slice(0, boardCount);
+  const olhando = !!(onlineUI.viradas[0] || onlineUI.viradas[1]);
+  const emMao = !!(p && p.iniciada && !p.aguardando_proxima_mao && !onlineUI.segurando);
+  const eqRunout = (onlineUI.allInRunout && onlineUI.segurando && eu && onlineUI.equities[eu.id] != null)
+    ? onlineUI.equities[eu.id]
+    : '';
+  const chave = (!p || p.modo !== 'online' || !onlineUI.minhasCartas)
+    ? 'off'
+    : [
+        eu ? eu.id : '',
+        eu ? (eu.tem_cartas ? '1' : '0') : '0',
+        eu ? (eu.desistiu ? '1' : '0') : '0',
+        olhando ? '1' : '0',
+        emMao ? '1' : '0',
+        eqRunout,
+        onlineUI.minhasCartas.join(','),
+        abertas.join(',')
+      ].join('|');
+
+  if (chave === onlineUI.luzesChave) return;
+  onlineUI.luzesChave = chave;
+
   if (wrap) wrap.querySelectorAll('.carta-3d').forEach((b) => b.classList.remove('luz'));
   if (boardEl) boardEl.querySelectorAll('.carta-board').forEach((el) => el.classList.remove('luz', 'apagada'));
   const nomeEl = $id('minha-mao-nome');
@@ -661,11 +737,9 @@ function atualizarLuzes() {
     if (wrap) wrap.classList.remove('com-nome');
   };
 
-  const p = estado.partidaAtual;
   if (!p || p.modo !== 'online' || !onlineUI.minhasCartas) { esconderNome(); return; }
-  const eu = (estado.jogadoresAtuais || []).find((j) => j.id === estado.meuJogadorId);
-  if (onlineUI.allInRunout && onlineUI.segurando && eu && onlineUI.equities[eu.id] != null) {
-    const eq = onlineUI.equities[eu.id];
+  if (eqRunout !== '') {
+    const eq = eqRunout;
     if (mpDica) {
       mpDica.innerHTML = '<span class="mp-dica-pill eq' + (eq >= 50 ? ' fav' : '') + '">All-in: ' + eq + '%</span>';
       mpDica.hidden = false;
@@ -677,12 +751,8 @@ function atualizarLuzes() {
     if (wrap) wrap.classList.add('com-nome');
     return;
   }
-  const olhando = !!(onlineUI.viradas[0] || onlineUI.viradas[1]);
-  const emMao = p.iniciada && !p.aguardando_proxima_mao && !onlineUI.segurando;
   if (!olhando || !emMao || !eu || !eu.tem_cartas || eu.desistiu) { esconderNome(); return; }
 
-  const todas = Array.isArray(p.board) ? p.board : [];
-  const abertas = todas.slice(0, onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length));
   const av = avaliarMaoLocal(onlineUI.minhasCartas.concat(abertas));
   if (!av) { esconderNome(); return; }
 
@@ -937,6 +1007,7 @@ function desenharMinhaMao(partida, eu) {
     + '<div class="minha-mao-dica">' + dica + '</div>'
     + revelarHtml;
   wrap.hidden = false;
+  onlineUI.luzesChave = '';
   if (segurarModo) {
     garantirListenersHold();
     const areaCartas = wrap.querySelector('.minha-mao-cartas');
@@ -991,6 +1062,11 @@ export function alternarAusenteOnline() {
   limparAutoPronto();
   tocarSom('clique');
   const irAusente = !eu.ausente;
+  if (!irAusente) {
+    clearTimeout(onlineUI.timerBotConf);
+    onlineUI.timerBotConf = null;
+    onlineUI.chaveBotConf = '';
+  }
   return executar('alternar_ausente', {
     p_jogador: estado.meuJogadorId,
     p_segredo: estado.meuSegredo,
@@ -1080,6 +1156,13 @@ async function dispararAvancoTempo(partidaId) {
   }
 }
 
+function atrasoEscalonadoHumano(jogadores, passoMs) {
+  if (estado.modoDev || !estado.meuJogadorId) return 0;
+  const humanos = (jogadores || []).filter((j) => !j.eh_bot && !j.espectando && !j.ausente);
+  const idx = humanos.findIndex((j) => j.id === estado.meuJogadorId);
+  return idx > 0 ? idx * passoMs : 0;
+}
+
 function agendarBotOnline(p, jogadores) {
   if (!p || p.modo !== 'online' || p.encerrada || p.pausada) return;
 
@@ -1099,9 +1182,10 @@ function agendarBotOnline(p, jogadores) {
         onlineUI.chaveBot = chave;
         clearTimeout(onlineUI.timerBot);
         const decisaoPesada = Number(p.aposta_atual) > Number(daVez.apostou || 0) || Number(p.fase) >= 2;
-        const atraso = p.fase_blind > 0
+        const baseAtraso = p.fase_blind > 0
           ? (600 + Math.random() * 400)
           : (decisaoPesada ? (1600 + Math.random() * 1200) : (1200 + Math.random() * 900));
+        const atraso = baseAtraso + atrasoEscalonadoHumano(jogadores, 700);
         onlineUI.timerBot = setTimeout(async () => {
           const pAt = estado.partidaAtual;
           if (!pAt || pAt.id !== p.id || pAt.pausada || pAt.encerrada || pAt.vez_jogador_id !== daVez.id) return;
@@ -1129,10 +1213,15 @@ function agendarBotOnline(p, jogadores) {
     const temBotPendente = jogadores.some((j) => j.eh_bot && j.saldo > 0 && !j.ausente && !j.confirmado);
     const temHumanoPendente = jogadores.some((j) => !j.eh_bot && !j.espectando && j.saldo > 0 && !j.ausente && !j.confirmado);
     if (temBotPendente && (!temHumanoPendente || !!p.proxima_mao_em)) {
+      const temHumanoAtivo = jogadores.some((j) => !j.eh_bot && !j.espectando && !j.ausente && j.saldo > 0);
       const chaveConf = p.id + ':' + p.mao + ':' + (p.iniciada ? '1' : '0') + ':' + (p.aguardando_proxima_mao ? '1' : '0') + ':' + p.versao;
       if (chaveConf !== onlineUI.chaveBotConf && !onlineUI.botConfOcupado) {
         onlineUI.chaveBotConf = chaveConf;
         clearTimeout(onlineUI.timerBotConf);
+        const atrasoBase = (p.iniciada && p.aguardando_proxima_mao && !temHumanoAtivo)
+          ? (5500 + Math.random() * 1000)
+          : (650 + Math.random() * 300);
+        const atrasoConf = atrasoBase + atrasoEscalonadoHumano(jogadores, 700);
         onlineUI.timerBotConf = setTimeout(async () => {
           const pAt = estado.partidaAtual;
           if (!pAt || pAt.id !== p.id || pAt.pausada || pAt.encerrada) return;
@@ -1148,10 +1237,28 @@ function agendarBotOnline(p, jogadores) {
             onlineUI.botConfOcupado = false;
             if (!ok) onlineUI.chaveBotConf = '';
           }
-        }, 650 + Math.random() * 300);
+        }, atrasoConf);
       }
     }
   }
+}
+
+function obterVezDesdeMs(raw) {
+  if (!raw) return 0;
+  if (onlineUI.vezDesdeRaw !== raw) {
+    onlineUI.vezDesdeRaw = raw;
+    onlineUI.vezDesdeMs = Date.parse(raw) || 0;
+  }
+  return onlineUI.vezDesdeMs;
+}
+
+function obterProxMaoMs(raw) {
+  if (!raw) return 0;
+  if (onlineUI.proxMaoRaw !== raw) {
+    onlineUI.proxMaoRaw = raw;
+    onlineUI.proxMaoMs = Date.parse(raw) || 0;
+  }
+  return onlineUI.proxMaoMs;
 }
 
 // Atualização a cada segundo (chamada pelo tick() de mesa.js)
@@ -1159,12 +1266,14 @@ export function tickOnline() {
   const p = estado.partidaAtual;
   if (!p || p.modo !== 'online' || p.encerrada) return;
 
-  agendarBotOnline(p, estado.jogadoresAtuais || []);
+  const jogadores = estado.jogadoresAtuais || [];
+  agendarBotOnline(p, jogadores);
 
   const agora = Date.now() + estado.relogio.offset;
+  const atrasoTimeout = atrasoEscalonadoHumano(jogadores, 600);
 
   // 0) Votação expirada: limpa no servidor mesmo com mesa pausada
-  if (p.votacao && p.votacao.expira_em && agora >= Date.parse(p.votacao.expira_em) + 600) {
+  if (p.votacao && p.votacao.expira_em && agora >= Date.parse(p.votacao.expira_em) + 600 + atrasoTimeout) {
     dispararAvancoTempo(p.id);
   }
 
@@ -1176,26 +1285,32 @@ export function tickOnline() {
 
   if (emTurno && limitado) {
     const totalMs = Math.max(15, Number(p.tempo_turno) || 30) * 1000;
-    const decorrido = Math.max(0, agora - Date.parse(p.vez_desde));
+    const vezMs = obterVezDesdeMs(p.vez_desde);
+    const decorrido = Math.max(0, agora - vezMs);
     const restanteMs = Math.max(0, totalMs - decorrido);
     const restanteSeg = Math.ceil(restanteMs / 1000);
-    const pct = Math.max(0, Math.min(100, (restanteMs / totalMs) * 100));
+    const pctStr = Math.max(0, Math.min(100, (restanteMs / totalMs) * 100)).toFixed(1) + '%';
+    const segTxt = restanteSeg + 's';
+    const ehAlerta = restanteSeg <= 12 && restanteSeg > 7;
+    const ehUrgente = restanteSeg <= 7;
 
     const elTurno = $id('tempo-turno');
-    if (elTurno) {
-      elTurno.textContent = restanteSeg + 's';
+    if (elTurno && onlineUI.ultimoTurnoSeg !== segTxt) {
+      onlineUI.ultimoTurnoSeg = segTxt;
+      elTurno.textContent = segTxt;
       const tagVez = elTurno.closest('.tag.vez');
-      if (tagVez) tagVez.classList.toggle('urgente', restanteSeg <= 7);
+      if (tagVez) tagVez.classList.toggle('urgente', ehUrgente);
     }
     const barraAssento = document.querySelector('.lugar.vez .l-timer i');
-    if (barraAssento) {
-      barraAssento.style.width = pct.toFixed(1) + '%';
-      barraAssento.classList.toggle('alerta', restanteSeg <= 12 && restanteSeg > 7);
-      barraAssento.classList.toggle('urgente', restanteSeg <= 7);
+    if (barraAssento && onlineUI.ultimoBarraAssentoPct !== pctStr) {
+      onlineUI.ultimoBarraAssentoPct = pctStr;
+      barraAssento.style.width = pctStr;
+      barraAssento.classList.toggle('alerta', ehAlerta);
+      barraAssento.classList.toggle('urgente', ehUrgente);
     }
 
     const minhaVez = p.vez_jogador_id === estado.meuJogadorId;
-    if (minhaVez && restanteSeg <= 7 && restanteSeg > 0) {
+    if (minhaVez && ehUrgente && restanteSeg > 0) {
       if (onlineUI.ultimoSegUrgente !== restanteSeg) {
         onlineUI.ultimoSegUrgente = restanteSeg;
         tocarSom('tempo-urgente');
@@ -1204,33 +1319,49 @@ export function tickOnline() {
       onlineUI.ultimoSegUrgente = null;
     }
     if (timerWrap && timerFill) {
-      timerWrap.hidden = !minhaVez;
-      if (minhaVez) {
-        timerFill.style.width = pct.toFixed(1) + '%';
-        timerFill.classList.toggle('alerta', restanteSeg <= 12 && restanteSeg > 7);
-        timerFill.classList.toggle('urgente', restanteSeg <= 7);
+      if (onlineUI.ultimoTimerHidden !== !minhaVez) {
+        onlineUI.ultimoTimerHidden = !minhaVez;
+        timerWrap.hidden = !minhaVez;
+      }
+      if (minhaVez && onlineUI.ultimoTimerFillPct !== pctStr) {
+        onlineUI.ultimoTimerFillPct = pctStr;
+        timerFill.style.width = pctStr;
+        timerFill.classList.toggle('alerta', ehAlerta);
+        timerFill.classList.toggle('urgente', ehUrgente);
       }
     }
 
-    if (restanteMs <= 0 && (decorrido - totalMs) >= 350) {
+    if (restanteMs <= 0 && (decorrido - totalMs) >= (350 + atrasoTimeout)) {
       dispararAvancoTempo(p.id);
     }
   } else {
     onlineUI.ultimoSegUrgente = null;
-    if (timerWrap) timerWrap.hidden = true;
+    onlineUI.ultimoTurnoSeg = '';
+    onlineUI.ultimoBarraAssentoPct = '';
+    onlineUI.ultimoTimerFillPct = '';
+    if (timerWrap && onlineUI.ultimoTimerHidden !== true) {
+      onlineUI.ultimoTimerHidden = true;
+      timerWrap.hidden = true;
+    }
   }
 
   // 2) Contagem regressiva de 30s entre mãos (ou início da 1ª mão)
   const emEspera = !p.pausada && (!p.iniciada || p.aguardando_proxima_mao) && !!p.proxima_mao_em;
   if (emEspera) {
-    const restanteMs = Math.max(0, Date.parse(p.proxima_mao_em) - agora);
-    const seg = Math.ceil(restanteMs / 1000);
-    document.querySelectorAll('[data-contagem-online]').forEach((el) => {
-      el.textContent = seg + 's';
-    });
-    if (restanteMs <= 0 && (agora - Date.parse(p.proxima_mao_em)) >= 350) {
+    const proxMs = obterProxMaoMs(p.proxima_mao_em);
+    const restanteMs = Math.max(0, proxMs - agora);
+    const segTxt = Math.ceil(restanteMs / 1000) + 's';
+    if (onlineUI.ultimoContagemSeg !== segTxt) {
+      onlineUI.ultimoContagemSeg = segTxt;
+      document.querySelectorAll('[data-contagem-online]').forEach((el) => {
+        el.textContent = segTxt;
+      });
+    }
+    if (restanteMs <= 0 && (agora - proxMs) >= (350 + atrasoTimeout)) {
       dispararAvancoTempo(p.id);
     }
+  } else {
+    onlineUI.ultimoContagemSeg = '';
   }
 }
 
@@ -1275,6 +1406,22 @@ registrarModo('online', {
   visaoCongelada() {
     if (!onlineUI.segurando) return null;
     return onlineUI.congelado || { jogadores: null, pote: null };
+  },
+
+  filtrarHistorico(partida, linhas) {
+    if (!Array.isArray(linhas) || !partida) return linhas;
+    const todas = Array.isArray(partida.board) ? partida.board : [];
+    const mostradas = onlineUI.boardMostrado < 0 ? todas.length : Math.min(onlineUI.boardMostrado, todas.length);
+    if (mostradas >= todas.length) return linhas;
+    const maoAtual = Number(partida.mao);
+    return linhas.filter((l) => {
+      if (!l || Number(l.mao) !== maoAtual) return true;
+      const txt = String(l.texto || '').trim();
+      if (mostradas < 3 && /^Flop\b/i.test(txt)) return false;
+      if (mostradas < 4 && /^Turn\b/i.test(txt)) return false;
+      if (mostradas < 5 && /^River\b/i.test(txt)) return false;
+      return true;
+    });
   },
 
   faseExibida,
@@ -1347,6 +1494,17 @@ registrarModo('online', {
     if (!faixa) return;
 
     const emEspera = !partida.iniciada || partida.aguardando_proxima_mao;
+    if (!emEspera && !onlineUI.segurando && eu && eu.aguardando_vaga_bot) {
+      const chaveVaga = 'AGUARDANDO_VAGA_BOT|' + obterIdioma();
+      if (onlineUI.faixaChave !== chaveVaga || faixa.hidden) {
+        onlineUI.faixaChave = chaveVaga;
+        faixa.classList.remove('campeao');
+        faixa.innerHTML = '<div class="faixa-online-res">' + t('online.aguardando_vaga_bot') + '</div>';
+        faixa.hidden = false;
+      }
+      if (esperaDock) { esperaDock.hidden = true; esperaDock.innerHTML = ''; }
+      return;
+    }
     if (!emEspera || onlineUI.segurando) {
       faixa.hidden = true;
       faixa.innerHTML = '';
@@ -1580,7 +1738,6 @@ registrarModo('online', {
     avisarMinhaVez(partida, eu);
     destacarUltimaJogada();
     animarPoteParaVencedor(partida);
-    tickOnline();
   },
 
   aoSairDaMesa() {

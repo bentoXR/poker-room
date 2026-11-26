@@ -1,10 +1,11 @@
 // Gestão de perfil do usuário: foto de perfil (compressão local), nome único, troca de senha e cache de avatares na mesa
-import { banco } from '../core/supabase.js?v=105';
-import { estado, contaParams } from '../core/estado.js?v=105';
-import { guardarConta, lembrarNome } from '../core/storage.js?v=105';
-import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=105';
-import { tratarErroConta } from './auth.js?v=105';
-import { lerTemaSalvo, escolherTema } from '../core/tema.js?v=105';
+import { banco } from '../core/supabase.js?v=107';
+import { estado, contaParams } from '../core/estado.js?v=107';
+import { guardarConta, lembrarNome } from '../core/storage.js?v=107';
+import { $id, aviso, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { tratarErroConta } from './auth.js?v=107';
+import { lerTemaSalvo, escolherTema, fecharMenuTemaPerfil } from '../core/tema.js?v=109';
+import { fecharMenuIdiomaPerfil } from '../core/i18n.js?v=110';
 
 // Cache em memória de avatares: conta_id -> { versao, url }
 const avataresCache = new Map();
@@ -77,7 +78,7 @@ function obterAvatarBot(partidaId, jogadorId) {
   let url = null;
   if (rngBot() < 0.62 && botAvataresCursor < botAvataresPool.length) {
     const arquivo = botAvataresPool[botAvataresCursor++];
-    url = './img/icons-bots/' + encodeURIComponent(arquivo);
+    url = './img/icons-bots/' + encodeURIComponent(arquivo) + '?v=107';
   }
   botAvataresMapa.set(jogadorId, url);
   return url;
@@ -168,6 +169,7 @@ export function renderizarAvatarElemento(el, nome, avatarUrl) {
     const img = document.createElement('img');
     img.src = url;
     img.alt = nome || 'Foto de perfil';
+    img.decoding = 'async';
     img.className = 'avatar-img';
     el.appendChild(img);
     el.classList.add('com-foto');
@@ -219,10 +221,53 @@ export function perfilAberto() {
   return !!(f && !f.hidden);
 }
 
-export function abrirPerfil() {
+export function fecharMenusPerfil() {
+  fecharMenuIdiomaPerfil();
+  fecharMenuTemaPerfil();
+}
+
+export function escolherAbaPerfil(aba) {
+  const destino = aba === 'prefs' ? 'prefs' : 'conta';
+  fecharMenusPerfil();
+
+  document.querySelectorAll('.perfil-aba[data-perfil-aba]').forEach((btn) => {
+    const sel = btn.dataset.perfilAba === destino;
+    btn.classList.toggle('ativa', sel);
+    btn.setAttribute('aria-selected', sel ? 'true' : 'false');
+  });
+
+  const painelConta = $id('perfil-painel-conta');
+  const painelPrefs = $id('perfil-painel-prefs');
+  if (painelConta) painelConta.hidden = destino !== 'conta';
+  if (painelPrefs) painelPrefs.hidden = destino !== 'prefs';
+}
+
+export function fecharAcordeaoSenha() {
+  const corpo = $id('corpo-acordeao-senha');
+  const bloco = $id('bloco-acordeao-senha');
+  const btn = $id('btn-abrir-senha');
+  if (corpo) corpo.hidden = true;
+  if (bloco) bloco.classList.remove('aberto');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+export function alternarAcordeaoSenha(forcarFechar) {
+  const corpo = $id('corpo-acordeao-senha');
+  const bloco = $id('bloco-acordeao-senha');
+  const btn = $id('btn-abrir-senha');
+  if (!corpo) return;
+  const abrir = forcarFechar === true ? false : corpo.hidden;
+  corpo.hidden = !abrir;
+  if (bloco) bloco.classList.toggle('aberto', abrir);
+  if (btn) btn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+}
+
+export function abrirPerfil(aba = 'conta') {
   if (!estado.minhaConta) return;
   limparErro('erro-perfil');
   limparErro('erro-senha-perfil');
+  escolherAbaPerfil(aba);
+  fecharAcordeaoSenha();
 
   const nome = estado.minhaConta.nome || '';
   const avatar = validarUrlAvatar(estado.minhaConta.avatar_url);
@@ -259,6 +304,7 @@ export function abrirPerfil() {
 }
 
 export function fecharPerfil() {
+  fecharMenusPerfil();
   const f = $id('folha-perfil');
   const bg = $id('fundo-perfil');
   if (f) f.hidden = true;
@@ -461,6 +507,7 @@ export async function alterarSenhaPerfil() {
       if (blocoSenhaAtual) blocoSenhaAtual.hidden = false;
       const dicaConvidado = $id('dica-perfil-convidado');
       if (dicaConvidado) dicaConvidado.hidden = true;
+      fecharAcordeaoSenha();
       aviso(ehConvidado ? 'Senha criada! Sua conta agora é permanente.' : 'Senha alterada! Outras sessões foram desconectadas.');
     }
   } catch (erro) {

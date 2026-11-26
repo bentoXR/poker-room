@@ -1,6 +1,6 @@
 // Avaliador local de mãos de poker: serve só de ASSISTENTE visual (luzinha + nome da mão).
 // O resultado oficial do showdown continua sendo decidido pelo servidor (avaliar_mao_online).
-import { parseCarta, NOMES_NAIPE } from './cartas.js?v=105';
+import { parseCarta, NOMES_NAIPE } from './cartas.js?v=107';
 
 const SING = { 14: 'Ás', 13: 'Rei', 12: 'Dama', 11: 'Valete', 10: '10', 9: '9', 8: '8', 7: '7', 6: '6', 5: '5', 4: '4', 3: '3', 2: '2' };
 const PLUR = { 14: 'Ases', 13: 'Reis', 12: 'Damas', 11: 'Valetes', 10: '10s', 9: '9s', 8: '8s', 7: '7s', 6: '6s', 5: '5s', 4: '4s', 3: '3s', 2: '2s' };
@@ -169,11 +169,16 @@ const NAIPE_IDX = { s: 0, h: 1, d: 2, c: 3 };
 const RC = new Int32Array(13);
 const SC = new Int32Array(4);
 const SM = new Int32Array(4);
+const CARDS7 = new Int32Array(7);
+const CARD_INT_CACHE = Object.create(null);
 
 function cardInt(raw) {
+  if (!raw) return -1;
+  if (CARD_INT_CACHE[raw] !== undefined) return CARD_INT_CACHE[raw];
   const c = parseCarta(raw);
-  if (!c) return -1;
-  return (c.v - 2) * 4 + (NAIPE_IDX[c.n] ?? 0);
+  const val = c ? ((c.v - 2) * 4 + (NAIPE_IDX[c.n] ?? 0)) : -1;
+  CARD_INT_CACHE[raw] = val;
+  return val;
 }
 
 function maiorSeq(mask) {
@@ -202,10 +207,11 @@ function pontuar7(a, b, c, d, e, f, g) {
   RC.fill(0);
   SC.fill(0);
   SM.fill(0);
+  CARDS7[0] = a; CARDS7[1] = b; CARDS7[2] = c; CARDS7[3] = d;
+  CARDS7[4] = e; CARDS7[5] = f; CARDS7[6] = g;
   let mask = 0;
-  const arr = [a, b, c, d, e, f, g];
   for (let i = 0; i < 7; i++) {
-    const x = arr[i];
+    const x = CARDS7[i];
     const r = x >> 2;
     const s = x & 3;
     RC[r]++;

@@ -80,11 +80,42 @@ export function termosTraduzidosAtivo() {
   return idiomaAtual !== 'en' && termosTraduzidos;
 }
 
+export function fecharMenuIdiomaPerfil() {
+  if (typeof document === 'undefined') return;
+  const menu = document.getElementById('menu-idioma-perfil');
+  const dropdown = document.getElementById('idioma-dropdown-perfil');
+  const btn = document.getElementById('btn-idioma-perfil');
+  if (menu) menu.hidden = true;
+  if (dropdown) dropdown.classList.remove('aberto');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+export function alternarMenuIdiomaPerfil(forcarFechar) {
+  if (typeof document === 'undefined') return;
+  const menu = document.getElementById('menu-idioma-perfil');
+  const dropdown = document.getElementById('idioma-dropdown-perfil');
+  const btn = document.getElementById('btn-idioma-perfil');
+  if (!menu) return;
+  const abrir = forcarFechar === true ? false : menu.hidden;
+  if (abrir) {
+    const menuTema = document.getElementById('menu-tema-perfil');
+    const dropdownTema = document.getElementById('tema-dropdown-perfil');
+    const btnTema = document.getElementById('btn-tema-perfil');
+    if (menuTema) menuTema.hidden = true;
+    if (dropdownTema) dropdownTema.classList.remove('aberto');
+    if (btnTema) btnTema.setAttribute('aria-expanded', 'false');
+  }
+  menu.hidden = !abrir;
+  if (dropdown) dropdown.classList.toggle('aberto', abrir);
+  if (btn) btn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+}
+
 export function escolherIdioma(lang) {
   if (lang !== 'pt' && lang !== 'es' && lang !== 'en') return;
   idiomaAtual = lang;
   try { localStorage.setItem(CHAVE_IDIOMA, lang); } catch (e) {}
   aplicarIdiomaDOM();
+  fecharMenuIdiomaPerfil();
   if (hookAoMudar) hookAoMudar();
 }
 
@@ -212,6 +243,8 @@ const DICIONARIO = {
     'dev.qtd': 'Quantidade de jogadores',
     'dev.criar': 'Criar sala DEV',
     'perfil.titulo': 'Meu perfil',
+    'perfil.aba_conta': 'Perfil',
+    'perfil.aba_prefs': 'Preferências',
     'perfil.foto_titulo': 'Foto de perfil',
     'perfil.foto_desc': 'Aparece no seu assento durante as partidas',
     'perfil.escolher_foto': 'Escolher foto',
@@ -227,7 +260,7 @@ const DICIONARIO = {
     'perfil.tema_cassino': 'Cassino',
     'perfil.tema_liberdade': 'USA',
     'perfil.tema_tropical': 'Tropical',
-    'perfil.tema_branco': 'Branco',
+    'perfil.tema_claro': 'Claro',
     'perfil.espiar_titulo': 'Segurar para espiar cartas',
     'perfil.espiar_desc': 'Quando ativo, suas cartas só aparecem enquanto você segura o dedo (ou Espaço no PC)',
     'perfil.seguranca': 'Segurança da conta',
@@ -238,6 +271,7 @@ const DICIONARIO = {
     'perfil.conf_nova_senha': 'Confirmar nova senha',
     'perfil.ph_conf_nova_senha': 'Repita a nova senha',
     'perfil.alterar_senha': 'Alterar senha',
+    'perfil.senha_desc': 'Atualize sua senha de acesso',
     'perfil.sair_outros': 'Sair de outros aparelhos',
     'estado.ativado': 'Ativado',
     'estado.desativado': 'Desativado',
@@ -307,6 +341,7 @@ const DICIONARIO = {
     'online.prontos_em': '<strong>{c} de {e} prontos</strong> · inicia em <strong data-contagem-online>{s}s</strong>',
     'online.prontos_precisa': '<strong>{c} de {e} prontos</strong> · precisa de <strong>2 jogadores</strong> para começar',
     'online.aguardando_el': 'aguardando…',
+    'online.aguardando_vaga_bot': 'Um bot sairá da partida ao final da mão para sua entrada.',
     'online.entrar_proxima': 'Entrar na próxima mão',
     'online.estou_pronto': 'Estou pronto',
     'online.todos_prontos': 'Todos prontos',
@@ -483,6 +518,8 @@ const DICIONARIO = {
     'dev.qtd': 'Cantidad de jugadores',
     'dev.criar': 'Crear sala DEV',
     'perfil.titulo': 'Mi perfil',
+    'perfil.aba_conta': 'Perfil',
+    'perfil.aba_prefs': 'Preferencias',
     'perfil.foto_titulo': 'Foto de perfil',
     'perfil.foto_desc': 'Aparece en tu asiento durante las partidas',
     'perfil.escolher_foto': 'Elegir foto',
@@ -498,7 +535,7 @@ const DICIONARIO = {
     'perfil.tema_cassino': 'Casino',
     'perfil.tema_liberdade': 'USA',
     'perfil.tema_tropical': 'Tropical',
-    'perfil.tema_branco': 'Blanco',
+    'perfil.tema_claro': 'Claro',
     'perfil.espiar_titulo': 'Mantener para ver cartas',
     'perfil.espiar_desc': 'Cuando está activo, tus cartas solo se ven mientras mantienes pulsado (o Espacio en PC)',
     'perfil.seguranca': 'Seguridad de la cuenta',
@@ -509,6 +546,7 @@ const DICIONARIO = {
     'perfil.conf_nova_senha': 'Confirmar nueva contraseña',
     'perfil.ph_conf_nova_senha': 'Repite la nueva contraseña',
     'perfil.alterar_senha': 'Cambiar contraseña',
+    'perfil.senha_desc': 'Actualiza tu contraseña de acceso',
     'perfil.sair_outros': 'Cerrar sesión en otros dispositivos',
     'estado.ativado': 'Activado',
     'estado.desativado': 'Desactivado',
@@ -578,6 +616,7 @@ const DICIONARIO = {
     'online.prontos_em': '<strong>{c} de {e} listos</strong> · inicia en <strong data-contagem-online>{s}s</strong>',
     'online.prontos_precisa': '<strong>{c} de {e} listos</strong> · se necesitan <strong>2 jugadores</strong> para empezar',
     'online.aguardando_el': 'esperando…',
+    'online.aguardando_vaga_bot': 'Un bot saldrá de la partida al final de la mano para tu entrada.',
     'online.entrar_proxima': 'Jugar próxima mano',
     'online.estou_pronto': 'Estoy listo',
     'online.todos_prontos': 'Todos listos',
@@ -754,6 +793,8 @@ const DICIONARIO = {
     'dev.qtd': 'Number of players',
     'dev.criar': 'Create DEV room',
     'perfil.titulo': 'My profile',
+    'perfil.aba_conta': 'Profile',
+    'perfil.aba_prefs': 'Preferences',
     'perfil.foto_titulo': 'Profile photo',
     'perfil.foto_desc': 'Shown on your seat at the table',
     'perfil.escolher_foto': 'Choose photo',
@@ -769,7 +810,7 @@ const DICIONARIO = {
     'perfil.tema_cassino': 'Casino',
     'perfil.tema_liberdade': 'USA',
     'perfil.tema_tropical': 'Tropical',
-    'perfil.tema_branco': 'White',
+    'perfil.tema_claro': 'Light',
     'perfil.espiar_titulo': 'Hold to peek cards',
     'perfil.espiar_desc': 'When enabled, your hole cards show only while holding (or Spacebar on PC)',
     'perfil.seguranca': 'Account security',
@@ -780,6 +821,7 @@ const DICIONARIO = {
     'perfil.conf_nova_senha': 'Confirm new password',
     'perfil.ph_conf_nova_senha': 'Repeat new password',
     'perfil.alterar_senha': 'Change password',
+    'perfil.senha_desc': 'Update your account password',
     'perfil.sair_outros': 'Sign out other devices',
     'estado.ativado': 'Enabled',
     'estado.desativado': 'Disabled',
@@ -849,6 +891,7 @@ const DICIONARIO = {
     'online.prontos_em': '<strong>{c} of {e} ready</strong> · starts in <strong data-contagem-online>{s}s</strong>',
     'online.prontos_precisa': '<strong>{c} of {e} ready</strong> · needs <strong>2 players</strong> to start',
     'online.aguardando_el': 'waiting…',
+    'online.aguardando_vaga_bot': 'A bot will leave the table at the end of this hand so you can join.',
     'online.entrar_proxima': 'Join next hand',
     'online.estou_pronto': "I'm ready",
     'online.todos_prontos': 'All ready',
@@ -945,9 +988,11 @@ export function t(chave, vars) {
   const dict = DICIONARIO[idiomaAtual] || DICIONARIO.pt;
   let txt = dict[chave] || DICIONARIO.pt[chave] || chave;
   if (vars) {
-    Object.keys(vars).forEach((k) => {
-      txt = txt.replace(new RegExp('\\{' + k + '\\}', 'g'), String(vars[k]));
-    });
+    for (const k in vars) {
+      if (Object.prototype.hasOwnProperty.call(vars, k)) {
+        txt = txt.split('{' + k + '}').join(String(vars[k]));
+      }
+    }
   }
   return txt;
 }
@@ -977,7 +1022,16 @@ export function aplicarIdiomaDOM() {
     const sel = b.dataset.lang === idiomaAtual;
     b.classList.toggle('sel', sel);
     b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+    if (b.getAttribute('role') === 'option') {
+      b.setAttribute('aria-selected', sel ? 'true' : 'false');
+    }
   });
+
+  const idiomaAtualEl = document.getElementById('idioma-perfil-atual');
+  const idiomaOpcaoSel = document.querySelector('.idioma-btn.sel');
+  if (idiomaAtualEl && idiomaOpcaoSel) {
+    idiomaAtualEl.textContent = idiomaOpcaoSel.textContent;
+  }
 
   const linhaTermos = document.getElementById('linha-termos-traduzidos');
   if (linhaTermos) linhaTermos.hidden = (idiomaAtual === 'en');

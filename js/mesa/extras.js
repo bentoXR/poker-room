@@ -1,10 +1,10 @@
 // Recursos compartilhados da mesa: histórico, conversão em R$, guia de mãos e detalhes dos potes
-import { banco } from '../core/supabase.js?v=105';
-import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=105';
-import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=105';
-import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=105';
-import { htmlCartaMini } from '../modos/online/cartas.js?v=105';
-import { abrirChat } from './chat.js?v=105';
+import { banco } from '../core/supabase.js?v=107';
+import { estado, nomeDe, marcarReal, valorPorMil } from '../core/estado.js?v=107';
+import { $id, escapar, fmtNum, fmtReais, abrirFolha } from '../core/ui.js?v=107';
+import { nomePote, potesVisiveisNaMesa } from '../core/potes.js?v=107';
+import { htmlCartaMini } from '../modos/online/cartas.js?v=107';
+import { abrirChat } from './chat.js?v=107';
 
 // ----- Histórico -----
 export function abrirHistorico() {
@@ -36,6 +36,12 @@ export async function carregarValorReal() {
   if (!estado.partidaAtual) return;
   const id = estado.partidaAtual.id;
   if (valorPorMil(id)) return;
+  if (Object.prototype.hasOwnProperty.call(estado.partidaAtual, 'valor_real_mil')) {
+    const vLocal = Number(estado.partidaAtual.valor_real_mil);
+    if (vLocal > 0) marcarReal(id, vLocal);
+    atualizarReais(false);
+    return;
+  }
   try {
     const resp = await banco.rpc('valor_real_sala', { p_partida: id });
     estado.erroReal = resp && resp.error ? resp.error.message : '';

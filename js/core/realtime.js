@@ -1,8 +1,8 @@
 // Sincronização em tempo real (Broadcast + Postgres Changes + fallback + heartbeat)
 // Compartilhada por todos os modos de jogo
-import { banco } from './supabase.js?v=105';
-import { estado } from './estado.js?v=105';
-import { lerDevSala } from './storage.js?v=105';
+import { banco } from './supabase.js?v=107';
+import { estado } from './estado.js?v=107';
+import { lerDevSala } from './storage.js?v=107';
 
 let canal = null;
 let temporizadorReserva = null;
@@ -59,7 +59,7 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReac
     .on('broadcast', { event: 'estado' }, (msg) => {
       if (!ativo()) return;
       const v = msg && msg.payload ? Number(msg.payload.versao) : NaN;
-      if (!(v <= estado.ultimaVersao)) onBuscar(false);
+      if (!(v <= estado.ultimaVersao)) onBuscar(false, v);
     })
     .on('broadcast', { event: 'chat' }, (msg) => {
       if (!ativo()) return;
@@ -79,7 +79,7 @@ export function ligarTempoReal({ onEstado, onBuscar, onConectado, onChat, onReac
         if (!ativo()) return;
         if (p.eventType === 'DELETE') { onBuscar(true); return; }
         const v = p.new ? Number(p.new.versao) : NaN;
-        if (!(v <= estado.ultimaVersao)) onBuscar(false);
+        if (!(v <= estado.ultimaVersao)) onBuscar(false, v);
       })
     .subscribe((status) => {
       if (!ativo()) return;
@@ -130,7 +130,9 @@ export function ligarSinal() {
   desligarSinal();
   if (!estado.meuJogadorId) return;
   enviarSinal();
-  temporizadorSinal = setInterval(enviarSinal, 30000);
+  temporizadorSinal = setInterval(() => {
+    if (!document.hidden) enviarSinal();
+  }, 45000);
 }
 
 export function desligarSinal() {

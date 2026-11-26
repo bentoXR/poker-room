@@ -1,5 +1,5 @@
 // Estado compartilhado da aplicação (conta, sala ativa, mesa, caches de renderização e modo)
-import { lerContaSalva, lerDevSala } from './storage.js?v=105';
+import { lerContaSalva, lerDevSala } from './storage.js?v=107';
 
 export const QUALQUER_UM_ABRE_RODADA = false;
 export const CONTA_DEV_ID = 'ee2c172a-6865-4d19-b5eb-edbcf81c8790';
@@ -30,6 +30,7 @@ export const estado = {
 
   // Sincronização e ações
   ultimaVersao: -1,
+  versaoSolicitada: -1,
   promessaBusca: null,
   buscaSuja: false,
   forcarBusca: false,
@@ -42,6 +43,8 @@ export const estado = {
   htmlOrdemVisto: null,
   htmlSelFichasVisto: null,
   htmlDevVisto: null,
+  htmlPreAcaoVisto: null,
+  htmlDockVisto: null,
 
   // Estado interativo da mesa
   eraMinhaVez: false,
@@ -127,7 +130,10 @@ export function limparCachesMesa() {
   estado.htmlOrdemVisto = null;
   estado.htmlSelFichasVisto = null;
   estado.htmlDevVisto = null;
+  estado.htmlPreAcaoVisto = null;
+  estado.htmlDockVisto = null;
   estado.ultimaVersao = -1;
+  estado.versaoSolicitada = -1;
 }
 
 export function invalidarListaSalas() {

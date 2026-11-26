@@ -1,18 +1,18 @@
 // Ciclo de vida e renderização compartilhada da mesa (elipse 360°, pote, potes laterais, cronômetros)
 // Delega detalhes específicos de cada modo ('presencial' / futuro 'online') via modos.js
-import { banco } from '../core/supabase.js?v=105';
-import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=105';
-import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=105';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=105';
-import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=105';
-import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=105';
-import { obterModo, limparTodosModos } from './modos.js?v=105';
-import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=105';
-import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=105';
-import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=105';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=105';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=105';
-import { t, termo } from '../core/i18n.js?v=105';
+import { banco } from '../core/supabase.js?v=107';
+import { estado, ICONE_COROA, nomeDe, contaParams, ehContaDev, marcarReal, valorPorMil, limparCachesMesa, invalidarListaSalas } from '../core/estado.js?v=107';
+import { lerMeuJogador, guardarPartidaAtual, esquecerPartida, esquecerSegredo, lerDevSala, salvarDevSala, esquecerDevSala } from '../core/storage.js?v=107';
+import { $id, escapar, aviso, fmtNum, mostrar, mostrarErro, limparErro, abrirFolha, fecharFolhas } from '../core/ui.js?v=107';
+import { nomePoteCurto, potesVisiveisNaMesa } from '../core/potes.js?v=107';
+import { ligarTempoReal, desligarTempoReal, publicarBroadcast, canalAtivo } from '../core/realtime.js?v=107';
+import { obterModo, limparTodosModos } from './modos.js?v=107';
+import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=107';
+import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=107';
+import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=109';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=107';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=107';
+import { t, termo } from '../core/i18n.js?v=110';
 
 const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
 
@@ -26,6 +26,13 @@ const somMesa = {
 
 let versaoAbertura = 0;
 let saindoVoluntariamente = false;
+const assentosDomCache = new Map();
+let dockDomCache = null;
+
+function limparDomCachesLocais() {
+  assentosDomCache.clear();
+  dockDomCache = null;
+}
 
 function resetarSomMesa() {
   somMesa.partidaId = null;
@@ -35,6 +42,7 @@ function resetarSomMesa() {
 }
 
 export function limparDomMesa() {
+  limparDomCachesLocais();
   ['lista-jogadores', 'hist-lista', 'lista-ordem', 'sel-fichas-jogador', 'lista-dev'].forEach((id) => {
     const el = $id(id);
     if (el) el.innerHTML = '';
@@ -167,10 +175,24 @@ export async function abrirMesa(partida, estadoInicial) {
   });
 }
 
-export function buscarMesa(forcar) {
+export function buscarMesa(forcar, versaoHint) {
   if (!estado.partidaAtual) return Promise.resolve();
+  const vHint = Number(versaoHint);
   if (forcar) estado.forcarBusca = true;
-  if (estado.promessaBusca) { estado.buscaSuja = true; return estado.promessaBusca; }
+  if (estado.promessaBusca) {
+    if (!forcar && Number.isFinite(vHint) && vHint <= estado.versaoSolicitada) {
+      return estado.promessaBusca;
+    }
+    if (Number.isFinite(vHint) && vHint > estado.versaoSolicitada) {
+      estado.versaoSolicitada = vHint;
+    }
+    estado.buscaSuja = true;
+    return estado.promessaBusca;
+  }
+
+  if (Number.isFinite(vHint) && vHint > estado.versaoSolicitada) {
+    estado.versaoSolicitada = vHint;
+  }
 
   const minhaAbertura = versaoAbertura;
   const promessa = (async () => {
@@ -179,18 +201,29 @@ export function buscarMesa(forcar) {
         estado.buscaSuja = false;
         const usarForcar = estado.forcarBusca;
         estado.forcarBusca = false;
+        const versaoAlvo = estado.versaoSolicitada;
         if (minhaAbertura !== versaoAbertura) break;
         const id = estado.partidaAtual && estado.partidaAtual.id;
         if (!id) break;
 
         let resp;
         try {
-          resp = await banco.rpc('estado_mesa', { p_partida: id });
+          const usarCondicional = !usarForcar
+            && estado.ultimaVersao >= 0
+            && !(Number.isFinite(versaoAlvo) && versaoAlvo > estado.ultimaVersao);
+          resp = usarCondicional
+            ? await banco.rpc('estado_mesa_se_mudou', { p_partida: id, p_versao: estado.ultimaVersao })
+            : await banco.rpc('estado_mesa', { p_partida: id });
         } catch (erro) {
           break;
         }
         if (resp.error) break;
         if (minhaAbertura !== versaoAbertura || !estado.partidaAtual || estado.partidaAtual.id !== id) break;
+
+        if (resp.data && resp.data.sem_mudanca) {
+          if (resp.data.agora) estado.relogio.offset = Date.parse(resp.data.agora) - Date.now();
+          continue;
+        }
 
         receberEstado(resp.data, usarForcar);
       } while (estado.buscaSuja && minhaAbertura === versaoAbertura);
@@ -212,6 +245,7 @@ export function receberEstado(novoEstado, forcar) {
   if (novoEstado.partida.id !== estado.partidaAtual.id) return;
 
   const versao = Number(novoEstado.partida.versao) || 0;
+  if (versao > estado.versaoSolicitada) estado.versaoSolicitada = versao;
   if (!forcar && versao <= estado.ultimaVersao) return;
   estado.ultimaVersao = versao;
   desenharMesa(novoEstado);
@@ -421,12 +455,12 @@ export function desenharMesa(dados) {
   estado.relogio.offset = dados.agora ? Date.parse(dados.agora) - Date.now() : 0;
   estado.relogio.ini = partida.iniciada && partida.iniciada_em ? Date.parse(partida.iniciada_em) : null;
   estado.relogio.vez = vezAtivaId && partida.vez_desde ? Date.parse(partida.vez_desde) : null;
-  tick();
   if (congelado) {
     const ult = $id('mesa-ultima');
     if (ult) ult.textContent = 'All-in! Acompanhando as cartas…';
   } else {
-    desenharHistorico(dados.historico);
+    const histVis = (modo && modo.filtrarHistorico) ? modo.filtrarHistorico(partida, dados.historico) : dados.historico;
+    desenharHistorico(histVis);
   }
 
   // ----- Faixa de fase e painel do criador (delegados ao modo) -----
@@ -466,6 +500,7 @@ export function desenharMesa(dados) {
   }
   atualizarVotacaoUI();
   if (modo && modo.aoAtualizarMesa) modo.aoAtualizarMesa(partida, jogadores, ctxModo);
+  tick();
 }
 
 function calcularTextoStatus({ partida, jogadores, eu, jogadorDaVez, minhaVez }) {
@@ -627,7 +662,10 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   if (!dock) return;
   if (!eu || (partida.modo !== 'online' && partida.modo !== 'blackjack')) {
     dock.hidden = true;
-    dock.innerHTML = '';
+    if (dockDomCache) {
+      dock.innerHTML = '';
+      dockDomCache = null;
+    }
     return;
   }
 
@@ -647,10 +685,9 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   const corFicha = 'c' + (((Number(eu.ordem) || 1) - 1) % 8 + 1);
   const posBorda = classePosicaoBorda(eu, partida);
   const avatarUrl = obterAvatarJogador(eu, partida.id);
-  const attrsReacoes = ' role="button" tabindex="0" title="Reações rápidas" aria-label="Enviar reação rápida" aria-expanded="false" onclick="event.stopPropagation(); alternarReacoes(false, this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}"';
-  const badgePerfilHtml = avatarUrl
-    ? '<div class="l-avatar meu-avatar-reacoes ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '><img src="' + avatarUrl + '" alt=""></div>'
-    : '<div class="ficha meu-avatar-reacoes ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '>' + eu.ordem + '</div>';
+  const nomeTxt = nomeDe(eu.nome);
+  const saldoTxt = fmtNum(eu.saldo);
+  const apostaTxt = eu.apostou > 0 ? ('+' + eu.apostou) : '';
 
   const tags = montarTagsAssento({
     j: eu,
@@ -663,6 +700,93 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
     st
   });
 
+  if (dockDomCache && dockDomCache.id === eu.id && dock.firstElementChild && dock.firstElementChild.classList.contains('mp-esq')) {
+    const c = dockDomCache;
+    if (c.classes !== classes) {
+      c.classes = classes;
+      dock.className = classes;
+    }
+    const badgeClasse = (avatarUrl ? 'l-avatar ' : 'ficha ') + 'meu-avatar-reacoes ' + corFicha + ' ' + posBorda;
+    if (c.avatarUrl !== avatarUrl) {
+      c.avatarUrl = avatarUrl;
+      c.badgeClasse = badgeClasse;
+      const novoBadge = document.createElement('div');
+      novoBadge.className = badgeClasse;
+      novoBadge.setAttribute('role', 'button');
+      novoBadge.setAttribute('tabindex', '0');
+      novoBadge.title = 'Reações rápidas';
+      novoBadge.setAttribute('aria-label', 'Enviar reação rápida');
+      novoBadge.setAttribute('aria-expanded', 'false');
+      novoBadge.setAttribute('onclick', 'event.stopPropagation(); alternarReacoes(false, this)');
+      novoBadge.setAttribute('onkeydown', "if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}");
+      if (avatarUrl) {
+        novoBadge.innerHTML = '<img src="' + avatarUrl + '" alt="" decoding="async">';
+      } else {
+        novoBadge.textContent = String(eu.ordem);
+        c.ordem = eu.ordem;
+      }
+      c.esq.replaceChild(novoBadge, c.badgeEl);
+      c.badgeEl = novoBadge;
+    } else {
+      if (c.badgeClasse !== badgeClasse) {
+        c.badgeClasse = badgeClasse;
+        c.badgeEl.className = badgeClasse;
+      }
+      if (!avatarUrl && c.ordem !== eu.ordem) {
+        c.ordem = eu.ordem;
+        c.badgeEl.textContent = String(eu.ordem);
+      }
+    }
+
+    if (c.nomeTxt !== nomeTxt) {
+      c.nomeTxt = nomeTxt;
+      c.nomeEl.textContent = nomeTxt;
+    }
+
+    if (c.tags !== tags) {
+      c.tags = tags;
+      if (tags) {
+        if (!c.tagsEl) {
+          c.tagsEl = document.createElement('div');
+          c.tagsEl.className = 'l-tags mp-tags';
+          c.esq.appendChild(c.tagsEl);
+        }
+        c.tagsEl.innerHTML = tags;
+      } else if (c.tagsEl) {
+        c.tagsEl.remove();
+        c.tagsEl = null;
+      }
+    }
+
+    if (c.saldoTxt !== saldoTxt) {
+      c.saldoTxt = saldoTxt;
+      c.saldoEl.textContent = saldoTxt;
+    }
+
+    if (c.apostaTxt !== apostaTxt) {
+      c.apostaTxt = apostaTxt;
+      if (apostaTxt) {
+        if (!c.apostaEl) {
+          c.apostaEl = document.createElement('span');
+          c.apostaEl.className = 'l-aposta';
+          c.dir.appendChild(c.apostaEl);
+        }
+        c.apostaEl.textContent = apostaTxt;
+      } else if (c.apostaEl) {
+        c.apostaEl.remove();
+        c.apostaEl = null;
+      }
+    }
+
+    dock.hidden = false;
+    return;
+  }
+
+  const attrsReacoes = ' role="button" tabindex="0" title="Reações rápidas" aria-label="Enviar reação rápida" aria-expanded="false" onclick="event.stopPropagation(); alternarReacoes(false, this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}"';
+  const badgePerfilHtml = avatarUrl
+    ? '<div class="l-avatar meu-avatar-reacoes ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '><img src="' + avatarUrl + '" alt="" decoding="async"></div>'
+    : '<div class="ficha meu-avatar-reacoes ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '>' + eu.ordem + '</div>';
+
   dock.className = classes;
   dock.dataset.jogadorId = eu.id;
   const dicaAtual = $id('mp-dica') ? $id('mp-dica').innerHTML : '';
@@ -670,16 +794,37 @@ function desenharMeuPerfilDock({ partida, eu, vezAtivaId, proximoId, emEsperaOnl
   dock.innerHTML = `
     <div class="mp-esq">
       ${badgePerfilHtml}
-      <span class="mp-nome">${escapar(nomeDe(eu.nome))}</span>
+      <span class="mp-nome">${escapar(nomeTxt)}</span>
       ${tags ? '<div class="l-tags mp-tags">' + tags + '</div>' : ''}
     </div>
     <div id="mp-dica" class="mp-dica"${dicaOculta ? ' hidden' : ''}>${dicaAtual}</div>
     <div class="mp-dir">
-      <span class="mp-saldo">${Number(eu.saldo).toLocaleString('pt-BR')}</span>
-      ${eu.apostou > 0 ? '<span class="l-aposta">+' + eu.apostou + '</span>' : ''}
+      <span class="mp-saldo">${saldoTxt}</span>
+      ${apostaTxt ? '<span class="l-aposta">' + apostaTxt + '</span>' : ''}
     </div>
   `;
   dock.hidden = false;
+
+  const esq = dock.querySelector('.mp-esq');
+  const dir = dock.querySelector('.mp-dir');
+  dockDomCache = {
+    id: eu.id,
+    classes,
+    avatarUrl,
+    badgeClasse: (avatarUrl ? 'l-avatar ' : 'ficha ') + 'meu-avatar-reacoes ' + corFicha + ' ' + posBorda,
+    ordem: eu.ordem,
+    nomeTxt,
+    tags,
+    saldoTxt,
+    apostaTxt,
+    esq,
+    dir,
+    badgeEl: esq ? esq.firstElementChild : null,
+    nomeEl: esq ? esq.querySelector('.mp-nome') : null,
+    tagsEl: esq ? esq.querySelector('.mp-tags') : null,
+    saldoEl: dir ? dir.querySelector('.mp-saldo') : null,
+    apostaEl: dir ? dir.querySelector('.l-aposta') : null
+  };
 }
 
 function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
@@ -743,7 +888,12 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     ? (nMesa >= 7 ? '15.2vw' : nMesa >= 5 ? '16.5vw' : '18vw')
     : (ehDesktop ? '18vw' : (nMesa >= 7 ? '24vw' : nMesa >= 5 ? '27vw' : '29vw'));
 
-  const htmlLista = listaMesa.map((j, idxLista) => {
+  const listaEl = $id('lista-jogadores');
+  const idsAtivos = new Set();
+  const nosOrdenados = [];
+
+  listaMesa.forEach((j, idxLista) => {
+    idsAtivos.add(j.id);
     const souEu = (j.id === estado.meuJogadorId);
     const naVez = !!vezAtivaId && j.id === vezAtivaId;
     const ehVencedor = !!(modo && modo.ehVencedorAssento && modo.ehVencedorAssento(j, partida));
@@ -796,37 +946,202 @@ function desenharAssentos({ partida, jogadores, vezAtivaId, modo, congelado }) {
     const coroaHtml = (!ehCardDock && j.criador) ? ICONE_COROA : '';
     const posBorda = classePosicaoBorda(j, partida);
     const avatarUrl = obterAvatarJogador(j, partida.id);
-    const attrsReacoes = souEu
-      ? ' role="button" tabindex="0" title="Reações rápidas" aria-label="Enviar reação rápida" aria-expanded="false" onclick="event.stopPropagation(); alternarReacoes(false, this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}"'
-      : '';
     const clsReacoes = souEu ? ' meu-avatar-reacoes' : '';
-    const badgePerfilHtml = avatarUrl
-      ? '<div class="l-avatar' + clsReacoes + ' ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '><img src="' + avatarUrl + '" alt=""></div>'
-      : '<div class="ficha' + clsReacoes + ' ' + corFicha + ' ' + posBorda + '"' + attrsReacoes + '>' + j.ordem + '</div>';
-    return `
-      <div class="${classes}" data-jogador-id="${j.id}" style="${estiloLugar}">
+    const badgeClasse = (avatarUrl ? 'l-avatar' : 'ficha') + clsReacoes + ' ' + corFicha + ' ' + posBorda;
+    const nomeTxt = nomeDe(j.nome);
+    const saldoLongo = String(j.saldo).length >= 5;
+    const saldoClasse = 'l-saldo' + (saldoLongo ? ' longo' : '');
+    const saldoTxt = (ehDesktop || ehLandscapeMobile) ? fmtNum(j.saldo) : String(j.saldo);
+    const apostaTxt = j.apostou > 0 ? ('+' + j.apostou) : '';
+    const temTimer = !!(naVez && ehCardDock && Number(partida.tempo_turno) > 0);
+
+    let cached = assentosDomCache.get(j.id);
+    if (!cached || !cached.el || cached.el.parentNode !== listaEl) {
+      const attrsReacoes = souEu
+        ? ' role="button" tabindex="0" title="Reações rápidas" aria-label="Enviar reação rápida" aria-expanded="false" onclick="event.stopPropagation(); alternarReacoes(false, this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}"'
+        : '';
+      const badgePerfilHtml = avatarUrl
+        ? '<div class="' + badgeClasse + '"' + attrsReacoes + '><img src="' + avatarUrl + '" alt="" decoding="async"></div>'
+        : '<div class="' + badgeClasse + '"' + attrsReacoes + '>' + j.ordem + '</div>';
+
+      const tpl = document.createElement('div');
+      tpl.className = classes;
+      tpl.dataset.jogadorId = j.id;
+      tpl.setAttribute('style', estiloLugar);
+      tpl.innerHTML = `
         ${badgePerfilHtml}
         <div class="l-corpo">
-          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeDe(j.nome))}</span>${souEu ? '<span class="l-voce">' + t('mesa.voce') + '</span>' : ''}</div>
+          <div class="l-nome">${coroaHtml}<span class="texto">${escapar(nomeTxt)}</span>${souEu ? '<span class="l-voce">' + t('mesa.voce') + '</span>' : ''}</div>
           <div class="l-meio">
-            <div class="l-saldo${String(j.saldo).length >= 5 ? ' longo' : ''}">${(ehDesktop || ehLandscapeMobile) ? Number(j.saldo).toLocaleString('pt-BR') : j.saldo}</div>
-            ${j.apostou > 0 ? '<div class="l-aposta">+' + j.apostou + '</div>' : ''}
+            <div class="${saldoClasse}">${saldoTxt}</div>
+            ${apostaTxt ? '<div class="l-aposta">' + apostaTxt + '</div>' : ''}
           </div>
           ${tags ? '<div class="l-tags">' + tags + '</div>' : ''}
         </div>
-        ${cartasHtml}
-        ${(naVez && ehCardDock && Number(partida.tempo_turno) > 0) ? '<div class="l-timer"><i></i></div>' : ''}
-      </div>
-    `;
-  }).join('');
+        <div class="l-extras-slot" style="display:contents">${cartasHtml}</div>
+        ${temTimer ? '<div class="l-timer"><i></i></div>' : ''}
+      `;
+      const corpoEl = tpl.querySelector('.l-corpo');
+      const meioEl = corpoEl.querySelector('.l-meio');
+      cached = {
+        el: tpl,
+        classes,
+        estiloLugar,
+        avatarUrl,
+        badgeClasse,
+        souEu,
+        ordem: j.ordem,
+        coroaHtml,
+        nomeTxt,
+        voceTxt: souEu ? t('mesa.voce') : '',
+        saldoClasse,
+        saldoTxt,
+        apostaTxt,
+        tags,
+        cartasHtml,
+        temTimer,
+        badgeEl: tpl.firstElementChild,
+        corpoEl,
+        nomeEl: corpoEl.querySelector('.l-nome'),
+        meioEl,
+        saldoEl: meioEl.querySelector('.l-saldo'),
+        apostaEl: meioEl.querySelector('.l-aposta'),
+        tagsEl: corpoEl.querySelector('.l-tags'),
+        extrasSlot: tpl.querySelector('.l-extras-slot'),
+        timerEl: tpl.querySelector('.l-timer')
+      };
+      assentosDomCache.set(j.id, cached);
+    } else {
+      if (cached.classes !== classes) {
+        cached.classes = classes;
+        cached.el.className = classes;
+      }
+      if (cached.estiloLugar !== estiloLugar) {
+        cached.estiloLugar = estiloLugar;
+        cached.el.setAttribute('style', estiloLugar);
+      }
+      if (cached.avatarUrl !== avatarUrl || cached.souEu !== souEu) {
+        cached.avatarUrl = avatarUrl;
+        cached.souEu = souEu;
+        cached.badgeClasse = badgeClasse;
+        const novoBadge = document.createElement('div');
+        novoBadge.className = badgeClasse;
+        if (souEu) {
+          novoBadge.setAttribute('role', 'button');
+          novoBadge.setAttribute('tabindex', '0');
+          novoBadge.title = 'Reações rápidas';
+          novoBadge.setAttribute('aria-label', 'Enviar reação rápida');
+          novoBadge.setAttribute('aria-expanded', 'false');
+          novoBadge.setAttribute('onclick', 'event.stopPropagation(); alternarReacoes(false, this)');
+          novoBadge.setAttribute('onkeydown', "if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();alternarReacoes(false,this)}");
+        }
+        if (avatarUrl) {
+          novoBadge.innerHTML = '<img src="' + avatarUrl + '" alt="" decoding="async">';
+        } else {
+          novoBadge.textContent = String(j.ordem);
+          cached.ordem = j.ordem;
+        }
+        cached.el.replaceChild(novoBadge, cached.badgeEl);
+        cached.badgeEl = novoBadge;
+      } else {
+        if (cached.badgeClasse !== badgeClasse) {
+          cached.badgeClasse = badgeClasse;
+          cached.badgeEl.className = badgeClasse;
+        }
+        if (!avatarUrl && cached.ordem !== j.ordem) {
+          cached.ordem = j.ordem;
+          cached.badgeEl.textContent = String(j.ordem);
+        }
+      }
+
+      const voceTxt = souEu ? t('mesa.voce') : '';
+      if (cached.coroaHtml !== coroaHtml || cached.nomeTxt !== nomeTxt || cached.voceTxt !== voceTxt) {
+        cached.coroaHtml = coroaHtml;
+        cached.nomeTxt = nomeTxt;
+        cached.voceTxt = voceTxt;
+        cached.nomeEl.innerHTML = coroaHtml + '<span class="texto">' + escapar(nomeTxt) + '</span>' + (souEu ? '<span class="l-voce">' + voceTxt + '</span>' : '');
+      }
+
+      if (cached.saldoClasse !== saldoClasse) {
+        cached.saldoClasse = saldoClasse;
+        cached.saldoEl.className = saldoClasse;
+      }
+      if (cached.saldoTxt !== saldoTxt) {
+        cached.saldoTxt = saldoTxt;
+        cached.saldoEl.textContent = saldoTxt;
+      }
+
+      if (cached.apostaTxt !== apostaTxt) {
+        cached.apostaTxt = apostaTxt;
+        if (apostaTxt) {
+          if (!cached.apostaEl) {
+            cached.apostaEl = document.createElement('div');
+            cached.apostaEl.className = 'l-aposta';
+            cached.meioEl.appendChild(cached.apostaEl);
+          }
+          cached.apostaEl.textContent = apostaTxt;
+        } else if (cached.apostaEl) {
+          cached.apostaEl.remove();
+          cached.apostaEl = null;
+        }
+      }
+
+      if (cached.tags !== tags) {
+        cached.tags = tags;
+        if (tags) {
+          if (!cached.tagsEl) {
+            cached.tagsEl = document.createElement('div');
+            cached.tagsEl.className = 'l-tags';
+            cached.corpoEl.appendChild(cached.tagsEl);
+          }
+          cached.tagsEl.innerHTML = tags;
+        } else if (cached.tagsEl) {
+          cached.tagsEl.remove();
+          cached.tagsEl = null;
+        }
+      }
+
+      if (cached.cartasHtml !== cartasHtml) {
+        cached.cartasHtml = cartasHtml;
+        cached.extrasSlot.innerHTML = cartasHtml;
+      }
+
+      if (cached.temTimer !== temTimer) {
+        cached.temTimer = temTimer;
+        if (temTimer) {
+          const timerEl = document.createElement('div');
+          timerEl.className = 'l-timer';
+          timerEl.innerHTML = '<i></i>';
+          cached.el.appendChild(timerEl);
+          cached.timerEl = timerEl;
+        } else if (cached.timerEl) {
+          cached.timerEl.remove();
+          cached.timerEl = null;
+        }
+      }
+    }
+
+    nosOrdenados.push(cached.el);
+  });
+
+  for (const [id, cached] of assentosDomCache.entries()) {
+    if (!idsAtivos.has(id)) {
+      if (cached.el && cached.el.parentNode === listaEl) cached.el.remove();
+      assentosDomCache.delete(id);
+    }
+  }
+
+  for (let i = 0; i < nosOrdenados.length; i++) {
+    const desejado = nosOrdenados[i];
+    const atual = listaEl.children[i];
+    if (atual !== desejado) {
+      listaEl.insertBefore(desejado, atual || null);
+    }
+  }
 
   $id('tela-mesa').classList.toggle('muitos', nJ > 5);
   $id('tela-mesa').classList.toggle('cheia', nJ >= 7);
   $id('tela-mesa').classList.toggle('poucos-op', heroNoDock && nMesa <= 3);
-  if (htmlLista !== estado.htmlJogadoresVisto) {
-    estado.htmlJogadoresVisto = htmlLista;
-    $id('lista-jogadores').innerHTML = htmlLista;
-  }
 }
 
 // ----- Menu compacto e resumo do topo (Mobile Online / Blackjack) -----
@@ -844,7 +1159,8 @@ function atualizarResumoTopoOnline() {
     const agora = Date.now() + estado.relogio.offset;
     partes.push(formatarTempo(agora - estado.relogio.ini));
   }
-  el.textContent = partes.join(' · ');
+  const txtNovo = partes.join(' · ');
+  if (el.textContent !== txtNovo) el.textContent = txtNovo;
 }
 
 export function copiarConviteSala() {
@@ -918,7 +1234,7 @@ function preencherMenuOnline() {
 
   const btnAusente = $id('menu-btn-ausente');
   if (btnAusente) {
-    const podeAusente = p.modo === 'online' && !!eu && eu.saldo > 0;
+    const podeAusente = p.modo === 'online' && !!eu && eu.saldo > 0 && !eu.espectando;
     btnAusente.hidden = !podeAusente;
     if (podeAusente) {
       btnAusente.textContent = eu.ausente ? '▶ Voltar ao jogo' : '⏸ Ficar ausente';
@@ -964,9 +1280,13 @@ let hookTickBlackjack = null;
 export function registrarTickBlackjack(fn) { hookTickBlackjack = fn; }
 
 export function tick() {
+  if (document.hidden || !estado.partidaAtual) return;
   const agora = Date.now() + estado.relogio.offset;
   const geral = $id('mesa-relogio');
-  if (geral) geral.textContent = estado.relogio.ini ? 'Mesa ' + formatarTempo(agora - estado.relogio.ini) : '';
+  if (geral) {
+    const txtGeral = estado.relogio.ini ? 'Mesa ' + formatarTempo(agora - estado.relogio.ini) : '';
+    if (geral.textContent !== txtGeral) geral.textContent = txtGeral;
+  }
   if (estado.partidaAtual && estado.partidaAtual.modo === 'online') {
     atualizarResumoTopoOnline();
     if (estado.partidaAtual.votacao) atualizarContagemVotacao();
@@ -979,7 +1299,10 @@ export function tick() {
     return;
   }
   const turno = $id('tempo-turno');
-  if (turno) turno.textContent = estado.relogio.vez ? formatarTempo(agora - estado.relogio.vez) : 'VEZ';
+  if (turno) {
+    const txtTurno = estado.relogio.vez ? formatarTempo(agora - estado.relogio.vez) : 'VEZ';
+    if (turno.textContent !== txtTurno) turno.textContent = txtTurno;
+  }
 }
 
 export function recalcularLayoutMesa() {
@@ -1045,6 +1368,7 @@ export function voltarParaSalas() {
   estado.promessaBusca = null;
   estado.buscaSuja = false;
   estado.forcarBusca = false;
+  estado.versaoSolicitada = -1;
   limparCachesMesa();
   esquecerPartida();
   estado.modoDev = false;

@@ -1,5 +1,5 @@
 // Utilitários de interface: navegação entre telas, gavetas (.folha), toast, erros, formatação
-import { estado } from './estado.js?v=105';
+import { estado } from './estado.js?v=107';
 
 export const $id = (id) => document.getElementById(id);
 
@@ -62,10 +62,9 @@ export function limparErro(idDaCaixa) {
   $id(idDaCaixa).classList.remove('visivel');
 }
 
+const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export function escapar(texto) {
-  const div = document.createElement('div');
-  div.textContent = texto;
-  return div.innerHTML;
+  return String(texto == null ? '' : texto).replace(/[&<>"']/g, (ch) => ESC_MAP[ch]);
 }
 
 let temporizadorAviso = null;
@@ -77,17 +76,20 @@ export function aviso(texto) {
   temporizadorAviso = setTimeout(() => el.classList.remove('visivel'), 2200);
 }
 
+const FMT_NUM = new Intl.NumberFormat('pt-BR');
+const FMT_REAIS = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 4
+});
+
 export function fmtNum(n) {
-  return Number(n).toLocaleString('pt-BR');
+  return FMT_NUM.format(Number(n));
 }
 
 export function fmtReais(v) {
-  return v.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 4
-  });
+  return FMT_REAIS.format(Number(v));
 }
 
 // Senha mascarada por CSS (evita prompt de salvar senha do navegador)

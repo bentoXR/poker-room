@@ -1,14 +1,14 @@
 // Modo Blackjack: multiplayer 1-6 jogadores contra a Banca automática (1 baralho 52 cartas, S17, 3:2)
 // Reutiliza animações (riffle shuffle, cartas voando, fichas voando, anúncios) e sons reais de som.js
-import { banco } from '../../core/supabase.js?v=105';
-import { estado, nomeDe } from '../../core/estado.js?v=105';
-import { lerDevSala } from '../../core/storage.js?v=105';
-import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=105';
-import { registrarModo } from '../../mesa/modos.js?v=105';
-import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=105';
-import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=105';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=105';
-import { t } from '../../core/i18n.js?v=105';
+import { banco } from '../../core/supabase.js?v=107';
+import { estado, nomeDe } from '../../core/estado.js?v=107';
+import { lerDevSala } from '../../core/storage.js?v=107';
+import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=107';
+import { registrarModo } from '../../mesa/modos.js?v=107';
+import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=111';
+import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=107';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=107';
+import { t } from '../../core/i18n.js?v=110';
 
 const bjUI = {
   partidaId: null,
@@ -23,6 +23,11 @@ const bjUI = {
   dealerQtdVisto: 0,
   heroQtdVisto: [],
   ultimoBoardKey: null,
+  htmlMaoVisto: '',
+  htmlBarraVisto: '',
+  ultimoTimerPct: '',
+  ultimoTimerHidden: null,
+  ultimoTimerCritico: null,
   dealAnimadoChave: '',
   resultadoAnunciadoChave: '',
   timers: [],
@@ -114,13 +119,21 @@ function animarDealBlackjack() {
       : $id('meu-perfil-dock');
     if (meuAlvo && !meuAlvo.hidden) alvos.push(meuAlvo);
 
+    const coords = alvos.map((alvo) => {
+      const aRect = alvo.getBoundingClientRect();
+      return {
+        ok: aRect.width > 0,
+        dx: (aRect.left - wRect.left) + aRect.width / 2 - ox,
+        dy: (aRect.top - wRect.top) + aRect.height / 2 - oy
+      };
+    });
+
+    const frag = document.createDocumentFragment();
+    const anims = [];
     let passo = 0;
     for (let r = 0; r < 2; r++) {
-      alvos.forEach((alvo, idx) => {
-        const aRect = alvo.getBoundingClientRect();
-        if (!(aRect.width > 0)) return;
-        const dx = (aRect.left - wRect.left) + aRect.width / 2 - ox;
-        const dy = (aRect.top - wRect.top) + aRect.height / 2 - oy;
+      coords.forEach(({ ok, dx, dy }, idx) => {
+        if (!ok) return;
         const atraso = passo * 85;
         passo++;
 
@@ -128,28 +141,32 @@ function animarDealBlackjack() {
         card.className = 'carta verso carta-voo-deal';
         card.style.left = ox + 'px';
         card.style.top = oy + 'px';
-        wrap.appendChild(card);
+        frag.appendChild(card);
 
         tocarSom('carta-dar', atraso);
-        if (card.animate) {
-          const curvaX = dx * 0.5 + (idx % 2 === 0 ? -14 : 14);
-          const curvaY = dy * 0.48 - 22;
-          const anim = card.animate([
-            { transform: 'translate(-50%, -50%) scale(0.95) rotate(0deg)', opacity: 0 },
-            { transform: 'translate(calc(-50% + ' + curvaX + 'px), calc(-50% + ' + curvaY + 'px)) scale(0.85) rotate(75deg)', opacity: 1, offset: 0.5 },
-            { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0.55) rotate(' + (r === 0 ? -6 : 6) + 'deg)', opacity: 0.08 }
-          ], {
-            duration: 520,
-            delay: atraso,
-            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-            fill: 'forwards'
-          });
-          anim.onfinish = () => card.remove();
-        } else {
-          agendarBJ(() => card.remove(), atraso + 560);
-        }
+        anims.push({ card, r, idx, dx, dy, atraso });
       });
     }
+    wrap.appendChild(frag);
+    anims.forEach(({ card, r, idx, dx, dy, atraso }) => {
+      if (card.animate) {
+        const curvaX = dx * 0.5 + (idx % 2 === 0 ? -14 : 14);
+        const curvaY = dy * 0.48 - 22;
+        const anim = card.animate([
+          { transform: 'translate(-50%, -50%) scale(0.95) rotate(0deg)', opacity: 0 },
+          { transform: 'translate(calc(-50% + ' + curvaX + 'px), calc(-50% + ' + curvaY + 'px)) scale(0.85) rotate(75deg)', opacity: 1, offset: 0.5 },
+          { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0.55) rotate(' + (r === 0 ? -6 : 6) + 'deg)', opacity: 0.08 }
+        ], {
+          duration: 520,
+          delay: atraso,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          fill: 'forwards'
+        });
+        anim.onfinish = () => card.remove();
+      } else {
+        agendarBJ(() => card.remove(), atraso + 560);
+      }
+    });
     agendarBJ(() => { if (deck.parentNode) deck.remove(); }, passo * 85 + 600);
   }, 550);
 }
@@ -583,7 +600,10 @@ function desenharMinhaMao(bj, eu, minhaVez) {
 
   if (!eu || lista.length === 0) {
     wrap.hidden = true;
-    wrap.innerHTML = '';
+    if (bjUI.htmlMaoVisto !== '') {
+      bjUI.htmlMaoVisto = '';
+      wrap.innerHTML = '';
+    }
     bjUI.heroQtdVisto = [];
     return;
   }
@@ -619,7 +639,11 @@ function desenharMinhaMao(bj, eu, minhaVez) {
   }).join('');
 
   bjUI.heroQtdVisto = novasQtds;
-  wrap.innerHTML = '<div class="bj-mao-hero' + (ehSplit ? ' split' : '') + '">' + htmlMaos + '</div>';
+  const htmlWrap = '<div class="bj-mao-hero' + (ehSplit ? ' split' : '') + '">' + htmlMaos + '</div>';
+  if (htmlWrap !== bjUI.htmlMaoVisto) {
+    bjUI.htmlMaoVisto = htmlWrap;
+    wrap.innerHTML = htmlWrap;
+  }
   wrap.hidden = false;
 }
 
@@ -722,11 +746,15 @@ function desenharBarraBlackjack(partida, jogadores, ctx) {
 }
 
 export function tickBlackjack() {
+  if (document.hidden) return;
   const partida = estado.partidaAtual;
   const wrap = $id('timer-turno-wrap');
   const fill = $id('timer-turno-fill');
   if (!partida || partida.modo !== 'blackjack' || !wrap || !fill) {
-    if (wrap) wrap.hidden = true;
+    if (wrap && bjUI.ultimoTimerHidden !== true) {
+      bjUI.ultimoTimerHidden = true;
+      wrap.hidden = true;
+    }
     return;
   }
   const bj = obterBjEstado(partida);
@@ -749,17 +777,32 @@ export function tickBlackjack() {
   }
 
   if (!fimMs || !inicioMs || tempo <= 0) {
-    wrap.hidden = true;
+    if (bjUI.ultimoTimerHidden !== true) {
+      bjUI.ultimoTimerHidden = true;
+      wrap.hidden = true;
+    }
     bjUI.ultimoSegUrgente = null;
+    bjUI.ultimoTimerPct = '';
     return;
   }
 
   const rest = Math.max(0, fimMs - agoraSrv);
-  const pct = Math.max(0, Math.min(100, (rest / (tempo * 1000)) * 100));
+  const pctStr = Math.max(0, Math.min(100, (rest / (tempo * 1000)) * 100)).toFixed(1) + '%';
   const seg = Math.ceil(rest / 1000);
-  wrap.hidden = false;
-  fill.style.width = pct.toFixed(1) + '%';
-  fill.classList.toggle('critico', rest <= 6000);
+  const critico = rest <= 6000;
+
+  if (bjUI.ultimoTimerHidden !== false) {
+    bjUI.ultimoTimerHidden = false;
+    wrap.hidden = false;
+  }
+  if (bjUI.ultimoTimerPct !== pctStr) {
+    bjUI.ultimoTimerPct = pctStr;
+    fill.style.width = pctStr;
+  }
+  if (bjUI.ultimoTimerCritico !== critico) {
+    bjUI.ultimoTimerCritico = critico;
+    fill.classList.toggle('critico', critico);
+  }
 
   if (minhaVez && seg > 0 && seg <= 5 && bjUI.ultimoSegUrgente !== seg) {
     bjUI.ultimoSegUrgente = seg;
@@ -769,10 +812,15 @@ export function tickBlackjack() {
   }
 
   if (rest <= 0 && bjUI.ultimoTimeoutChave !== chave) {
-    bjUI.ultimoTimeoutChave = chave;
-    banco.rpc('bj_avancar_tempo', { p_partida: partida.id }).then((r) => {
-      if (r && r.data && r.data.partida) publicarEstado(r.data);
-    }).catch(() => {});
+    const humanos = (estado.jogadoresAtuais || []).filter((j) => !j.eh_bot && !j.espectando && !j.ausente);
+    const idxH = estado.modoDev ? 0 : humanos.findIndex((j) => j.id === estado.meuJogadorId);
+    const atrasoBj = idxH > 0 ? idxH * 600 : 0;
+    if ((agoraSrv - fimMs) >= atrasoBj) {
+      bjUI.ultimoTimeoutChave = chave;
+      banco.rpc('bj_avancar_tempo', { p_partida: partida.id }).then((r) => {
+        if (r && r.data && !r.data.sem_mudanca && r.data.partida) publicarEstado(r.data);
+      }).catch(() => {});
+    }
   }
 }
 
@@ -790,6 +838,11 @@ export function resetarBlackjackUI() {
   bjUI.dealerQtdVisto = 0;
   bjUI.heroQtdVisto = [];
   bjUI.ultimoBoardKey = null;
+  bjUI.htmlMaoVisto = '';
+  bjUI.htmlBarraVisto = '';
+  bjUI.ultimoTimerPct = '';
+  bjUI.ultimoTimerHidden = null;
+  bjUI.ultimoTimerCritico = null;
   bjUI.dealAnimadoChave = '';
   bjUI.resultadoAnunciadoChave = '';
   const barra = $id('barra-blackjack');

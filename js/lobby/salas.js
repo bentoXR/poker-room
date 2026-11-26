@@ -1,14 +1,14 @@
 // Lista de salas, criação de sala e entrada na mesa (compartilhado entre modos)
-import { banco } from '../core/supabase.js?v=105';
-import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=105';
-import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=105';
-import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=105';
-import { desligarTempoReal } from '../core/realtime.js?v=105';
-import { tratarErroConta } from './auth.js?v=105';
-import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=105';
-import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=105';
-import { abrirMesa } from '../mesa/mesa.js?v=105';
-import { t, termo } from '../core/i18n.js?v=105';
+import { banco } from '../core/supabase.js?v=107';
+import { estado, ICONE_COROA, contaParams, ehContaDev, invalidarListaSalas } from '../core/estado.js?v=107';
+import { guardarMeuJogador, lerDevSala, esquecerDevSala, esquecerPartida } from '../core/storage.js?v=107';
+import { $id, escapar, aviso, mostrar, mostrarErro, limparErro } from '../core/ui.js?v=107';
+import { desligarTempoReal } from '../core/realtime.js?v=107';
+import { tratarErroConta } from './auth.js?v=107';
+import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=109';
+import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=107';
+import { abrirMesa } from '../mesa/mesa.js?v=111';
+import { t, termo } from '../core/i18n.js?v=110';
 
 let hooksSalas = {
   cancelarCriacaoDev: () => {},
@@ -31,6 +31,13 @@ function limparContextoDev() {
   esquecerDevSala();
 }
 
+let carregandoSalas = false;
+
+export function iniciarPollSalas() {
+  pararSalas();
+  estado.temporizadorSalas = setInterval(carregarSalas, 6000);
+}
+
 export function abrirSalas() {
   pararSalas();
   hooksSalas.cancelarCriacaoDev();
@@ -43,7 +50,7 @@ export function abrirSalas() {
     $id('lista-salas').innerHTML = '<div class="vazio"><p>' + t('salas.buscando') + '</p></div>';
   }
   carregarSalas();
-  estado.temporizadorSalas = setInterval(carregarSalas, 4000);
+  iniciarPollSalas();
 }
 
 export function pararSalas() {
@@ -54,7 +61,8 @@ export function pararSalas() {
 }
 
 export async function carregarSalas() {
-  if (!estado.minhaConta || document.hidden) return;
+  if (!estado.minhaConta || document.hidden || carregandoSalas) return;
+  carregandoSalas = true;
   const minha = ++estado.versaoSalas;
 
   let resp;
@@ -62,6 +70,8 @@ export async function carregarSalas() {
     resp = await banco.rpc('listar_salas', contaParams());
   } catch (erro) {
     resp = { error: { message: 'sem conexão' } };
+  } finally {
+    carregandoSalas = false;
   }
 
   if (minha !== estado.versaoSalas || !$id('tela-salas').classList.contains('ativa')) return;
@@ -163,7 +173,7 @@ export async function abrirSala(id) {
       const entrou = await conectarNaSala({ id: sala.id, modo: sala.modo, dev: false }, 'erro-salas');
       if (!entrou && $id('tela-salas').classList.contains('ativa')) {
         carregarSalas();
-        estado.temporizadorSalas = setInterval(carregarSalas, 4000);
+        iniciarPollSalas();
       }
       return;
     }
@@ -182,7 +192,7 @@ export async function abrirSala(id) {
     const entrou = await conectarNaSala(resp.data, 'erro-salas');
     if (!entrou && $id('tela-salas').classList.contains('ativa')) {
       carregarSalas();
-      estado.temporizadorSalas = setInterval(carregarSalas, 4000);
+      iniciarPollSalas();
     }
   } finally {
     estado.abrindoSala = false;
@@ -456,7 +466,7 @@ export async function confirmarSenhaSala() {
       fecharSenhaSala();
     } else if ($id('tela-salas').classList.contains('ativa')) {
       carregarSalas();
-      estado.temporizadorSalas = setInterval(carregarSalas, 4000);
+      iniciarPollSalas();
     }
   } finally {
     estado.abrindoSala = false;

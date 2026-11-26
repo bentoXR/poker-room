@@ -479,7 +479,7 @@ button.tema-btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none
 .amostra-azul { background: linear-gradient(135deg, #1d4ed8 0 40%, #ffffff 40% 58%, #d92638 58% 100%); }
 .amostra-classico { background: linear-gradient(135deg, #1d7a4e 0 46%, #6b3416 46% 100%); }
 .amostra-preto { background: linear-gradient(135deg, #16181f 0 50%, #e3243b 50% 100%); }
-.amostra-branco { background: linear-gradient(135deg, #ffffff 0 50%, #111827 50% 100%); }
+.amostra-claro { background: linear-gradient(135deg, #ffffff 0 48%, #cbd5e1 48% 53%, #1b6e44 53% 100%); }
 .amostra-dupla {
   width: 18px;
   height: 18px;
@@ -493,8 +493,9 @@ button.tema-btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none
 :root[data-tema="liberdade"] .amostra-dupla {
   background: linear-gradient(135deg, #0a3161 0 34%, #ffffff 34% 52%, #b31942 52% 78%, #c9a24b 78% 100%);
 }
-:root[data-tema="branco"] .amostra-dupla {
-  background: linear-gradient(135deg, #ffffff 0 50%, #111827 50% 100%);
+:root[data-tema="claro"] .amostra-dupla {
+  border-color: rgba(15, 23, 42, 0.25);
+  background: linear-gradient(135deg, #ffffff 0 48%, #cbd5e1 48% 53%, #1b6e44 53% 100%);
 }
 
 /* ----- Botões ----- */

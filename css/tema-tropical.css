@@ -120,6 +120,9 @@
   border-left-color: #ffd166;
 }
 :root[data-tema="tropical"] .seletor-tema,
+:root[data-tema="tropical"] button.tema-gatilho,
+:root[data-tema="tropical"] .tema-menu,
+:root[data-tema="tropical"] .perfil-select-menu,
 :root[data-tema="tropical"] button.perfil-atalho,
 :root[data-tema="tropical"] #tela-mesa .topo {
   background: rgba(3, 34, 48, 0.72) !important;
