@@ -15,8 +15,8 @@ import { iniciarSom, alternarSom } from './core/som.js?v=123';
 import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=119';
 import {
   escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma,
-  alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil
-} from './core/i18n.js?v=110';
+  alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil, t
+} from './core/i18n.js?v=127';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
@@ -63,8 +63,9 @@ import {
 } from './mesa/extras.js?v=123';
 import {
   abrirChat, enviarChat, alternarReacoes, enviarReacao, receberMensagemChat, receberReacao,
-  receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto
-} from './mesa/chat.js?v=123';
+  receberDigitando, escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto,
+  alternarSilenciarChat, limparSilenciadosChat
+} from './mesa/chat.js?v=127';
 
 // Modos registrados: Presencial (baralho físico) e Online (baralho virtual)
 import {
@@ -202,8 +203,44 @@ async function iniciarApp() {
   await abrirMesa(resp.data.partida, resp.data);
 }
 
+// ----- Modal institucional (Sobre, Termos de Uso, Privacidade) -----
+let abaLegalAtual = 'sobre';
+
+function legalAberto() {
+  const f = $id('folha-legal');
+  return Boolean(f && !f.hidden);
+}
+
+function escolherAbaLegal(aba) {
+  abaLegalAtual = (aba === 'termos' || aba === 'privacidade') ? aba : 'sobre';
+  document.querySelectorAll('.legal-aba[data-legal-aba]').forEach((b) => {
+    const sel = b.dataset.legalAba === abaLegalAtual;
+    b.classList.toggle('sel', sel);
+    b.setAttribute('aria-selected', sel ? 'true' : 'false');
+  });
+  const corpo = $id('legal-corpo');
+  if (corpo) corpo.innerHTML = t('legal.' + abaLegalAtual + '_html');
+}
+
+function abrirLegal(aba) {
+  escolherAbaLegal(aba || 'sobre');
+  const fundo = $id('fundo-legal');
+  const folha = $id('folha-legal');
+  if (fundo) fundo.hidden = false;
+  if (folha) folha.hidden = false;
+}
+
+function fecharLegal() {
+  const fundo = $id('fundo-legal');
+  const folha = $id('folha-legal');
+  if (fundo) fundo.hidden = true;
+  if (folha) folha.hidden = true;
+}
+
 // ----- Ponte controlada para handlers declarados no HTML -----
 Object.assign(window, {
+  // Institucional / Legal
+  abrirLegal, escolherAbaLegal, fecharLegal,
   // Auth, perfil e lobby
   alternarSenha, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta,
   abrirPerfil, fecharPerfil, escolherAbaPerfil, alternarAcordeaoSenha, acionarEscolhaFoto, aoEscolherFotoPerfil,
@@ -230,6 +267,7 @@ Object.assign(window, {
   voltarParaSalas, sairDaMesa, encerrarSala, copiarConviteSala, abrirMenuOnline,
   abrirHistorico, abrirChat, enviarChat, alternarReacoes, enviarReacao,
   escolherAbaChat, aoDigitarChat, enviarAtalhoChat, iniciarVotacao, enviarVoto,
+  alternarSilenciarChat, limparSilenciadosChat,
   abrirReais, copiarAcertoMesa, abrirGuia, abrirDetalhesPotes, fecharFolhas,
   agir, apostar, alternarAposta, ajustarAposta, apostaPote, apostaBB, apostaAllIn,
   alternarPreAcao, aoMoverSlider, aoDigitarAposta,
@@ -329,7 +367,8 @@ document.addEventListener('keydown', (e) => {
     }
     const popReac = $id('popover-reacoes');
     if (popReac && !popReac.hidden) { alternarReacoes(true); return; }
-    if (perfilPublicoAberto()) fecharPerfilPublico();
+    if (legalAberto()) fecharLegal();
+    else if (perfilPublicoAberto()) fecharPerfilPublico();
     else if (convidarAmigosAberto()) fecharConvidarAmigos();
     else if (amigosAberto()) fecharAmigos();
     else if (perfilAberto()) fecharPerfil();
@@ -468,6 +507,14 @@ window.addEventListener('popstate', () => {
   const ativa = document.querySelector('.tela.ativa');
   const id = ativa ? ativa.id : '';
   if (TELAS_INTERNAS.indexOf(id) >= 0) voltarParaSalas();
+});
+
+// ----- Diagnóstico global de erros (pronto para integrar Sentry no futuro) -----
+window.addEventListener('error', (e) => {
+  console.error('[PokerRoom] Erro não tratado:', e.message || e.error, e.filename ? (e.filename + ':' + e.lineno) : '');
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[PokerRoom] Promise rejeitada:', e.reason);
 });
 
 iniciarApp();

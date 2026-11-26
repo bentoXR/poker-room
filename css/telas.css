@@ -1518,3 +1518,96 @@ button.pill-real.sel {
   font-weight: 400;
   margin-top: 2px;
 }
+
+/* ----- Rodapé institucional e modal legal ----- */
+.rodape-legal {
+  margin-top: 18px;
+  padding: 8px 12px 4px;
+  text-align: center;
+  color: var(--marfim-suave);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.rodape-selo {
+  margin: 0 0 6px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+.rodape-links {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+button.rodape-link {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--marfim);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.82;
+}
+button.rodape-link:hover:not(:disabled) {
+  opacity: 1;
+  background: transparent;
+}
+.legal-abas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid var(--linha);
+}
+button.legal-aba {
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
+  color: var(--marfim-suave);
+  box-shadow: none;
+}
+button.legal-aba.sel {
+  background: var(--verde-suave);
+  border-color: var(--verde-borda);
+  color: var(--marfim);
+}
+.legal-conteudo {
+  padding: 16px 18px 22px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--marfim-suave);
+}
+.legal-conteudo h3 {
+  margin: 14px 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--marfim);
+}
+.legal-conteudo h3:first-child {
+  margin-top: 0;
+}
+.legal-conteudo p {
+  margin: 0 0 10px;
+}
+.legal-conteudo strong {
+  color: var(--marfim);
+}
+.legal-conteudo code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 12.5px;
+}

@@ -942,6 +942,55 @@ button.chat-chip {
   color: var(--marfim-suave);
   font-variant-numeric: tabular-nums;
 }
+.chat-cab-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+button.chat-btn-mute {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 1px 4px;
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--marfim-suave);
+  box-shadow: none;
+  opacity: 0.55;
+}
+button.chat-btn-mute:hover:not(:disabled) {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+.chat-silenciados-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--linha);
+  font-size: 12.5px;
+  color: var(--marfim-suave);
+}
+button.chat-btn-desmutar {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--linha);
+  color: var(--marfim);
+  box-shadow: none;
+}
 .chat-txt {
   font-size: 15px;
   line-height: 1.35;

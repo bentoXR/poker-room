@@ -703,6 +703,30 @@
 :root[data-tema="claro"] .folha .hist-linha {
   color: #0f172a;
 }
+:root[data-tema="claro"] .folha .legal-conteudo h3,
+:root[data-tema="claro"] .folha .legal-conteudo strong {
+  color: #0f172a;
+}
+:root[data-tema="claro"] .rodape-legal,
+:root[data-tema="claro"] .folha .legal-conteudo {
+  color: #475569;
+}
+:root[data-tema="claro"] button.rodape-link {
+  color: #0f172a;
+}
+:root[data-tema="claro"] button.legal-aba {
+  background: #e2e8f0;
+  color: #475569;
+}
+:root[data-tema="claro"] button.legal-aba.sel {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+:root[data-tema="claro"] .folha .legal-conteudo code {
+  background: #e2e8f0;
+  color: #0f172a;
+}
 :root[data-tema="claro"] .folha .info-dev small,
 :root[data-tema="claro"] .folha .perfil-pref-txt small,
 :root[data-tema="claro"] .folha .dica {

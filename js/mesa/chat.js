@@ -12,6 +12,66 @@ const JANELA_RAJADA_CHAT_MS = 10000;
 const MAX_RAJADA_CHAT = 5;
 const COOLDOWN_SOM_CHAT_MS = 1000;
 const COOLDOWN_PREVIEW_AUTOR_MS = 1200;
+const CHAVE_SILENCIADOS = 'poker-chat-silenciados';
+const MAX_SILENCIADOS = 50;
+
+function lerSilenciados() {
+  try {
+    const raw = localStorage.getItem(CHAVE_SILENCIADOS);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? new Set(arr.map(String).slice(0, MAX_SILENCIADOS)) : new Set();
+  } catch (erro) {
+    return new Set();
+  }
+}
+
+function salvarSilenciados(set) {
+  try {
+    localStorage.setItem(CHAVE_SILENCIADOS, JSON.stringify(Array.from(set).slice(-MAX_SILENCIADOS)));
+  } catch (erro) {}
+}
+
+const silenciadosSet = lerSilenciados();
+
+function estaSilenciado(autorId) {
+  return Boolean(autorId && silenciadosSet.has(String(autorId)));
+}
+
+function autorReacaoSilenciado(payload) {
+  const jid = payload && payload.jogador_id ? String(payload.jogador_id) : '';
+  if (jid && silenciadosSet.has(jid)) return true;
+  if (jid && Array.isArray(estado.jogadoresAtuais)) {
+    const j = estado.jogadoresAtuais.find((x) => String(x.id) === jid);
+    if (j && j.conta_id && silenciadosSet.has(String(j.conta_id))) return true;
+  }
+  return false;
+}
+
+export function alternarSilenciarChat(autorId, autorNome) {
+  if (!autorId) return;
+  const chave = String(autorId);
+  if (silenciadosSet.has(chave)) {
+    silenciadosSet.delete(chave);
+    aviso((autorNome || 'Jogador') + ' desmutado no chat.');
+  } else {
+    if (silenciadosSet.size >= MAX_SILENCIADOS) {
+      const primeiro = silenciadosSet.values().next().value;
+      if (primeiro !== undefined) silenciadosSet.delete(primeiro);
+    }
+    silenciadosSet.add(chave);
+    aviso((autorNome || 'Jogador') + ' silenciado no chat.');
+  }
+  salvarSilenciados(silenciadosSet);
+  desenharChat();
+}
+
+export function limparSilenciadosChat() {
+  if (!silenciadosSet.size) return;
+  silenciadosSet.clear();
+  salvarSilenciados(silenciadosSet);
+  aviso('Jogadores desmutados no chat.');
+  desenharChat();
+}
 
 const chat = {
   partidaId: null,
@@ -154,16 +214,34 @@ function rolarFim() {
 
 function htmlMensagemChat(m) {
   const minha = ehMinhaMensagem(m);
-  const autor = escapar(nomeDe(m.autor_nome || 'Jogador'));
+  const autorBruto = nomeDe(m.autor_nome || 'Jogador');
+  const autor = escapar(autorBruto);
   const texto = escapar(m.texto || '');
   const hora = formatarHora(m.criado_em);
+  const btnMute = (!minha && m.autor_id)
+    ? '<button type="button" class="chat-btn-mute" onclick="alternarSilenciarChat(\'' + escapar(String(m.autor_id)) + '\',\'' + escapar(autorBruto.replace(/['\\]/g, '')) + '\')" title="Silenciar jogador" aria-label="Silenciar jogador">🔇</button>'
+    : '';
   return (
     '<div class="chat-msg' + (minha ? ' eu' : '') + '">' +
       '<div class="chat-cab">' +
         '<strong class="chat-autor">' + autor + '</strong>' +
-        (hora ? '<span class="chat-hora">' + hora + '</span>' : '') +
+        '<span class="chat-cab-meta">' +
+          (hora ? '<span class="chat-hora">' + hora + '</span>' : '') +
+          btnMute +
+        '</span>' +
       '</div>' +
       '<div class="chat-txt">' + texto + '</div>' +
+    '</div>'
+  );
+}
+
+function htmlBarraSilenciados() {
+  if (!silenciadosSet.size) return '';
+  const n = silenciadosSet.size;
+  return (
+    '<div class="chat-silenciados-bar">' +
+      '<span>🔇 ' + n + (n === 1 ? ' jogador silenciado' : ' jogadores silenciados') + '</span>' +
+      '<button type="button" class="chat-btn-desmutar" onclick="limparSilenciadosChat()">Desmutar todos</button>' +
     '</div>'
   );
 }
@@ -177,13 +255,16 @@ function desenharChat() {
   const lista = $id('chat-lista');
   if (!lista) return;
 
-  if (!chat.mensagens.length) {
-    lista.innerHTML =
+  const visiveis = chat.mensagens.filter((m) => ehMinhaMensagem(m) || !estaSilenciado(m.autor_id));
+  const barraMute = htmlBarraSilenciados();
+
+  if (!visiveis.length) {
+    lista.innerHTML = barraMute +
       '<div class="chat-vazio">Nenhuma mensagem ainda. Mande um oi ou use um atalho abaixo!</div>';
     return;
   }
 
-  lista.innerHTML = chat.mensagens.map(htmlMensagemChat).join('');
+  lista.innerHTML = barraMute + visiveis.map(htmlMensagemChat).join('');
 
   rolarFim();
 }
@@ -775,10 +856,14 @@ export function receberMensagemChat(msg) {
     if (removida) chat.ids.delete(removida.id);
   }
 
-  if (msgSegura.autor_id) {
+  const silenciado = !ehMinhaMensagem(msgSegura) && estaSilenciado(msgSegura.autor_id);
+
+  if (msgSegura.autor_id && !silenciado) {
     chat.digitandoPor.delete(String(msgSegura.autor_id));
     atualizarDigitandoUI();
   }
+
+  if (silenciado) return;
 
   const vendoChat = chatAberto() && chat.abaAtual === 'chat';
   if (!vendoChat) {
@@ -949,6 +1034,7 @@ export function receberReacao(payload) {
   if (payload.partida_id && estado.partidaAtual && payload.partida_id !== estado.partidaAtual.id) return;
 
   const jid = payload.jogador_id;
+  if (jid !== estado.meuJogadorId && autorReacaoSilenciado(payload)) return;
   const chaveAutor = String(jid || payload.autor_nome || '');
   if (jid === estado.meuJogadorId || podeMostrarPreviewAutor(chaveAutor)) {
     mostrarPreviewReacao(payload);

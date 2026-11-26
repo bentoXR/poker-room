@@ -7,8 +7,44 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Poker Room">
-  <title>Poker Room</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=105">
+  <title>Poker Room — Poker Texas Hold'em &amp; Blackjack Online Grátis</title>
+  <meta name="description" content="Jogue Poker Texas Hold'em online com baralho virtual, Blackjack ou controle fichas e blinds na mesa presencial. 100% gratuito, fichas fictícias, direto no navegador.">
+  <link rel="canonical" href="https://bentoxr.github.io/poker-room/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Poker Room">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="Poker Room — Poker Texas Hold'em &amp; Blackjack Online Grátis">
+  <meta property="og:description" content="Jogue Poker Texas Hold'em online com baralho virtual, Blackjack ou controle fichas e blinds na mesa presencial. 100% gratuito, fichas fictícias.">
+  <meta property="og:url" content="https://bentoxr.github.io/poker-room/">
+  <meta property="og:image" content="https://bentoxr.github.io/poker-room/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Poker Room — Poker Texas Hold'em e Blackjack online grátis">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Poker Room — Poker Texas Hold'em &amp; Blackjack Online Grátis">
+  <meta name="twitter:description" content="Jogue Poker Texas Hold'em online com baralho virtual, Blackjack ou controle fichas e blinds na mesa presencial. 100% gratuito, fichas fictícias.">
+  <meta name="twitter:image" content="https://bentoxr.github.io/poker-room/img/og-cover.png">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Poker Room",
+      "url": "https://bentoxr.github.io/poker-room/",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Web",
+      "description": "Jogue Poker Texas Hold'em online com baralho virtual, Blackjack ou controle fichas e blinds na mesa presencial. 100% gratuito, fichas fictícias.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      }
+    }
+  </script>
+
+  <link rel="manifest" href="./manifest.webmanifest?v=127">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1">
   <link rel="apple-touch-icon" href="./img/icon-192.png">
 
@@ -21,16 +57,16 @@
 
   <!-- Estilos organizados por responsabilidade -->
   <link rel="stylesheet" href="./css/base.css?v=106">
-  <link rel="stylesheet" href="./css/telas.css?v=106">
+  <link rel="stylesheet" href="./css/telas.css?v=127">
   <link rel="stylesheet" href="./css/mesa.css?v=105">
-  <link rel="stylesheet" href="./css/gavetas.css?v=122">
+  <link rel="stylesheet" href="./css/gavetas.css?v=127">
   <link rel="stylesheet" href="./css/online.css?v=119">
   <link rel="stylesheet" href="./css/blackjack.css?v=105">
   <link rel="stylesheet" href="./css/tema-sinuca.css?v=105">
   <link rel="stylesheet" href="./css/tema-cassino.css?v=105">
   <link rel="stylesheet" href="./css/tema-liberdade.css?v=105">
   <link rel="stylesheet" href="./css/tema-tropical.css?v=107">
-  <link rel="stylesheet" href="./css/tema-claro.css?v=108">
+  <link rel="stylesheet" href="./css/tema-claro.css?v=127">
   <link rel="stylesheet" href="./css/desktop.css?v=105">
   <link rel="stylesheet" href="./css/mobile-landscape.css?v=119">
   <link rel="stylesheet" href="./css/amigos.css?v=124">
@@ -140,6 +176,17 @@
         <div id="erro-login" class="erro" role="alert"></div>
       </div>
     </div>
+
+    <footer class="rodape-legal">
+      <p class="rodape-selo" data-i18n="legal.selo">100% gratuito · Fichas fictícias · Sem dinheiro real</p>
+      <nav class="rodape-links" aria-label="Informações legais">
+        <button type="button" class="rodape-link" onclick="abrirLegal('sobre')" data-i18n="legal.sobre">Sobre</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="rodape-link" onclick="abrirLegal('termos')" data-i18n="legal.termos">Termos de Uso</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="rodape-link" onclick="abrirLegal('privacidade')" data-i18n="legal.privacidade">Privacidade</button>
+      </nav>
+    </footer>
   </section>
 
   <!-- ===== TELA 2: SALAS ===== -->
@@ -923,6 +970,14 @@
         </div>
         <button type="button" id="btn-perfil-espiar" class="btn-pref-toggle" onclick="alternarModoEspiar()" aria-pressed="false">Desativado</button>
       </div>
+
+      <div class="perfil-pref-linha">
+        <div class="perfil-pref-txt">
+          <strong data-i18n="legal.perfil_titulo">Sobre, Termos e Privacidade</strong>
+          <small data-i18n="legal.selo">100% gratuito · Fichas fictícias · Sem dinheiro real</small>
+        </div>
+        <button type="button" class="btn-pref-toggle" onclick="abrirLegal('termos')" data-i18n="legal.ver">Ver</button>
+      </div>
     </div>
   </div>
 </div>
@@ -966,6 +1021,21 @@
     <button type="button" class="fechar" onclick="fecharPerfilPublico()" aria-label="Fechar">✕</button>
   </div>
   <div class="folha-corpo" id="perfil-publico-corpo"></div>
+</div>
+
+<!-- ===== OVERLAY: SOBRE, TERMOS E PRIVACIDADE ===== -->
+<div id="fundo-legal" class="fundo-folha" onclick="fecharLegal()" hidden></div>
+<div id="folha-legal" class="folha folha-perfil folha-modal-pc folha-legal" hidden role="dialog" aria-modal="true" aria-labelledby="legal-titulo">
+  <div class="folha-topo">
+    <div class="folha-titulo" id="legal-titulo" data-i18n="legal.titulo">Informações do Poker Room</div>
+    <button type="button" class="fechar" onclick="fecharLegal()" aria-label="Fechar">✕</button>
+  </div>
+  <div class="legal-abas" role="tablist" aria-label="Seções legais">
+    <button type="button" class="legal-aba sel" data-legal-aba="sobre" role="tab" aria-selected="true" onclick="escolherAbaLegal('sobre')" data-i18n="legal.sobre">Sobre</button>
+    <button type="button" class="legal-aba" data-legal-aba="termos" role="tab" aria-selected="false" onclick="escolherAbaLegal('termos')" data-i18n="legal.termos">Termos de Uso</button>
+    <button type="button" class="legal-aba" data-legal-aba="privacidade" role="tab" aria-selected="false" onclick="escolherAbaLegal('privacidade')" data-i18n="legal.privacidade">Privacidade</button>
+  </div>
+  <div class="folha-corpo legal-conteudo" id="legal-corpo"></div>
 </div>
 
 <!-- ===== OVERLAY: DIÁLOGO DE CONFIRMAÇÃO DO SITE ===== -->
@@ -1055,11 +1125,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=126"></script>
+<script type="module" src="./js/main.js?v=127"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=126').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=127').catch(() => {});
     });
   }
 </script>

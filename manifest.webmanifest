@@ -1,7 +1,7 @@
 {
   "name": "Poker Room",
   "short_name": "Poker Room",
-  "description": "Poker Texas Hold'em com amigos — presencial ou online",
+  "description": "Poker Texas Hold'em e Blackjack — online ou na mesa presencial, 100% gratuito com fichas fictícias",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
