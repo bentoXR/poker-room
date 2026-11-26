@@ -33,14 +33,14 @@ import {
 } from './lobby/salas.js?v=125';
 import {
   iniciarSocial, pararSocial, atualizarPresencaSala, atualizarBannerConviteLobby,
-  abrirAmigos, fecharAmigos, amigosAberto, escolherAbaAmigos, buscarAmigoExato,
+  abrirAmigos, fecharAmigos, amigosAberto, escolherAbaAmigos, aoDigitarBuscaAmigo, buscarAmigoExato,
   enviarPedidoAmigo, responderPedidoAmigo, cancelarOuRemoverAmigo,
   abrirPerfilJogador, abrirPerfilBot, enviarPedidoBot, cancelarPedidoBot,
   fecharPerfilPublico, perfilPublicoAberto,
   abrirConvidarAmigos, fecharConvidarAmigos, convidarAmigosAberto,
   enviarConviteAmigo, aceitarConviteSala, recusarConviteSala,
   dispensarBannerConvite, entrarSalaDoAmigo, abrirDefinirSenhaConvidado
-} from './lobby/amigos.js?v=125';
+} from './lobby/amigos.js?v=126';
 import {
   escolherStack, escolherStackDev, alternarReal, definirReais,
   aoEditarConfig, aoEditarConfigDev, atualizarProfundidade, iniciarConfigSala,
@@ -208,7 +208,7 @@ Object.assign(window, {
   alternarSenha, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta,
   abrirPerfil, fecharPerfil, escolherAbaPerfil, alternarAcordeaoSenha, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes,
-  abrirAmigos, fecharAmigos, escolherAbaAmigos, buscarAmigoExato,
+  abrirAmigos, fecharAmigos, escolherAbaAmigos, aoDigitarBuscaAmigo, buscarAmigoExato,
   enviarPedidoAmigo, responderPedidoAmigo, cancelarOuRemoverAmigo,
   abrirPerfilJogador, abrirPerfilBot, enviarPedidoBot, cancelarPedidoBot, fecharPerfilPublico,
   abrirConvidarAmigos, fecharConvidarAmigos, enviarConviteAmigo,

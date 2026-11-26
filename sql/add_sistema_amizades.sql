@@ -839,3 +839,82 @@ END;
 $function$;
 
 GRANT EXECUTE ON FUNCTION public.recusar_convite_sala(uuid, uuid, uuid) TO anon, authenticated;
+
+-- 15. RPC: buscar_contas_parecidas (busca flexível por substring)
+CREATE OR REPLACE FUNCTION public.buscar_contas_parecidas(
+  p_conta uuid,
+  p_token uuid,
+  p_termo text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public', 'pg_temp'
+AS $function$
+DECLARE
+  v_eu   public.contas;
+  v_norm text := lower(regexp_replace(trim(coalesce(p_termo, '')), '\s+', ' ', 'g'));
+  v_esc  text;
+BEGIN
+  PERFORM public.conferir_conta(p_conta, p_token);
+
+  SELECT * INTO v_eu FROM public.contas WHERE id = p_conta;
+  IF v_eu.convidado THEN
+    RAISE EXCEPTION 'Crie uma senha no seu perfil para adicionar amigos.';
+  END IF;
+
+  IF length(v_norm) < 1 THEN
+    RETURN '[]'::jsonb;
+  END IF;
+
+  v_esc := replace(replace(replace(v_norm, '\', '\\'), '%', '\%'), '_', '\_');
+
+  RETURN (
+    SELECT coalesce(
+      jsonb_agg(
+        to_jsonb(r)
+        ORDER BY r.prioridade ASC, r.online DESC, r.nome ASC
+      ),
+      '[]'::jsonb
+    )
+    FROM (
+      SELECT
+        c.id AS conta_id,
+        c.nome,
+        c.avatar_url,
+        c.avatar_versao,
+        (c.ultimo_acesso > now() - interval '75 seconds') AS online,
+        CASE
+          WHEN c.ultimo_acesso > now() - interval '75 seconds' AND c.partida_atual_id IS NOT NULL THEN 'em_partida'
+          WHEN c.ultimo_acesso > now() - interval '75 seconds' THEN 'online'
+          ELSE 'offline'
+        END AS status_presenca,
+        c.ultimo_acesso,
+        CASE
+          WHEN a.id IS NULL THEN 'nenhum'
+          WHEN a.status = 'aceita' THEN 'amigos'
+          WHEN a.solicitante_id = p_conta THEN 'enviado'
+          ELSE 'recebido'
+        END AS relacao,
+        a.id AS amizade_id,
+        CASE
+          WHEN lower(regexp_replace(trim(c.nome), '\s+', ' ', 'g')) = v_norm THEN 0
+          WHEN lower(regexp_replace(trim(c.nome), '\s+', ' ', 'g')) LIKE v_esc || '%' ESCAPE '\' THEN 1
+          ELSE 2
+        END AS prioridade
+      FROM public.contas c
+      LEFT JOIN public.amizades a
+        ON a.conta_menor = LEAST(p_conta, c.id)
+       AND a.conta_maior = GREATEST(p_conta, c.id)
+       AND a.ativa
+      WHERE c.id <> p_conta
+        AND NOT c.convidado
+        AND lower(regexp_replace(trim(c.nome), '\s+', ' ', 'g')) LIKE '%' || v_esc || '%' ESCAPE '\'
+      ORDER BY prioridade ASC, online DESC, c.nome ASC
+      LIMIT 15
+    ) r
+  );
+END;
+$function$;
+
+GRANT EXECUTE ON FUNCTION public.buscar_contas_parecidas(uuid, uuid, text) TO anon, authenticated;

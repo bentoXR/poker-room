@@ -26,7 +26,8 @@ let sincronizandoSocial = false;
 let abaAmigosAtual = 'amigos';
 let sugestoesCache = null;
 let carregandoSugestoes = false;
-let resultadoBusca = undefined; // undefined = sem busca ainda, null = não encontrado, obj = encontrado
+let resultadoBusca = null; // null = sem busca ainda, { termo, lista } = resultado
+let timerBuscaAmigo = null;
 let perfilAlvoAtual = null;
 const convitesDispensados = new Set();
 const convitesVistos = new Set();
@@ -217,7 +218,8 @@ export function pararSocial() {
   socialCache.pedidosEnviados = [];
   socialCache.convitesSala = [];
   sugestoesCache = null;
-  resultadoBusca = undefined;
+  resultadoBusca = null;
+  if (timerBuscaAmigo) { clearTimeout(timerBuscaAmigo); timerBuscaAmigo = null; }
   perfilAlvoAtual = null;
   convitesDispensados.clear();
   convitesVistos.clear();
@@ -503,42 +505,7 @@ function renderizarGavetaAmigos() {
     return;
   }
 
-  // Aba adicionar: busca pelo nome exato + sugestões de partidas recentes
-  let buscaHtml = '';
-  if (resultadoBusca === null) {
-    buscaHtml = '<div class="social-busca-vazia">Nenhuma conta permanente encontrada com esse nome exato.</div>';
-  } else if (resultadoBusca && resultadoBusca.conta_id) {
-    const r = resultadoBusca;
-    const pres = formatarPresenca(r);
-    let acaoBtn = '';
-    if (r.relacao === 'amigos') {
-      acaoBtn = '<span class="social-tag-ok">Amigos ✓</span>';
-    } else if (r.relacao === 'enviado') {
-      acaoBtn = `<button type="button" class="secundario btn-sm" data-conta-id="${r.conta_id}" onclick="cancelarOuRemoverAmigo(this.dataset.contaId, false)">Enviado · Cancelar</button>`;
-    } else if (r.relacao === 'recebido') {
-      acaoBtn = `<button type="button" class="positivo btn-sm" data-amizade-id="${r.amizade_id}" onclick="responderPedidoAmigo(this.dataset.amizadeId, true)">Aceitar</button>`;
-    } else {
-      acaoBtn = `<button type="button" class="positivo btn-sm" data-conta-id="${r.conta_id}" onclick="enviarPedidoAmigo(this.dataset.contaId)">+ Adicionar</button>`;
-    }
-    buscaHtml = `
-      <div class="social-lista" style="margin-top:10px">
-        <div class="social-item">
-          <div class="social-item-esq clicavel" data-conta-id="${r.conta_id}" onclick="abrirPerfilJogador(this.dataset.contaId)">
-            <div class="social-av-wrap">
-              ${avatarHtml(r.nome, r.avatar_url)}
-              <span class="status-dot ${pres.classe}"></span>
-            </div>
-            <div class="social-item-info">
-              <strong class="social-nome">${escapar(r.nome)}</strong>
-              <span class="social-sub ${pres.classe}">${escapar(pres.texto)}</span>
-            </div>
-          </div>
-          <div class="social-item-acoes">${acaoBtn}</div>
-        </div>
-      </div>
-    `;
-  }
-
+  // Aba adicionar: busca por nomes parecidos + sugestões de partidas recentes
   let sugHtml = '';
   if (carregandoSugestoes) {
     sugHtml = '<div class="social-carregando">Buscando jogadores recentes...</div>';
@@ -569,44 +536,108 @@ function renderizarGavetaAmigos() {
 
   const valorInput = ($id('campo-busca-amigo') ? $id('campo-busca-amigo').value : '');
   corpo.innerHTML = `
-    <form class="social-busca-form" onsubmit="event.preventDefault(); buscarAmigoExato();">
-      <input id="campo-busca-amigo" type="text" maxlength="20" placeholder="Nome exato do jogador" value="${escapar(valorInput)}" autocomplete="off" autocapitalize="words" spellcheck="false">
+    <form class="social-busca-form" onsubmit="event.preventDefault(); buscarAmigoExato(false);">
+      <input id="campo-busca-amigo" type="text" maxlength="20" placeholder="Digite o nome do jogador..." value="${escapar(valorInput)}" autocomplete="off" autocapitalize="words" spellcheck="false" oninput="aoDigitarBuscaAmigo()">
       <button type="submit" id="btn-buscar-amigo">Buscar</button>
     </form>
-    <p class="dica" style="margin:6px 0 0">Digite o apelido exato da conta (contas Convidado não aparecem na busca).</p>
+    <p class="dica" style="margin:6px 0 0">Digite parte do apelido para encontrar jogadores (contas Convidado não aparecem).</p>
     <div id="erro-busca-amigo" class="erro" role="alert"></div>
-    ${buscaHtml}
+    <div id="resultado-busca-amigos"></div>
     <div class="social-secao-titulo" style="margin-top:16px">Jogaram com você recentemente</div>
     ${sugHtml}
   `;
+  renderizarResultadosBusca();
 }
 
-export async function buscarAmigoExato() {
+function renderizarResultadosBusca() {
+  const box = $id('resultado-busca-amigos');
+  if (!box) return;
+  if (!resultadoBusca) {
+    box.innerHTML = '';
+    return;
+  }
+  const lista = Array.isArray(resultadoBusca.lista) ? resultadoBusca.lista : [];
+  if (!lista.length) {
+    box.innerHTML = '<div class="social-busca-vazia">Nenhum jogador encontrado com esse nome.</div>';
+    return;
+  }
+  box.innerHTML = '<div class="social-lista" style="margin-top:10px">' + lista.map((r) => {
+    const pres = formatarPresenca(r);
+    let acaoBtn = '';
+    if (r.relacao === 'amigos') {
+      acaoBtn = '<span class="social-tag-ok">Amigos ✓</span>';
+    } else if (r.relacao === 'enviado') {
+      acaoBtn = `<button type="button" class="secundario btn-sm" data-conta-id="${r.conta_id}" onclick="cancelarOuRemoverAmigo(this.dataset.contaId, false)">Enviado · Cancelar</button>`;
+    } else if (r.relacao === 'recebido') {
+      acaoBtn = `<button type="button" class="positivo btn-sm" data-amizade-id="${r.amizade_id}" onclick="responderPedidoAmigo(this.dataset.amizadeId, true)">Aceitar</button>`;
+    } else {
+      acaoBtn = `<button type="button" class="positivo btn-sm" data-conta-id="${r.conta_id}" onclick="enviarPedidoAmigo(this.dataset.contaId)">+ Adicionar</button>`;
+    }
+    return `
+      <div class="social-item">
+        <div class="social-item-esq clicavel" data-conta-id="${r.conta_id}" onclick="abrirPerfilJogador(this.dataset.contaId)">
+          <div class="social-av-wrap">
+            ${avatarHtml(r.nome, r.avatar_url)}
+            <span class="status-dot ${pres.classe}"></span>
+          </div>
+          <div class="social-item-info">
+            <strong class="social-nome">${escapar(r.nome)}</strong>
+            <span class="social-sub ${pres.classe}">${escapar(pres.texto)}</span>
+          </div>
+        </div>
+        <div class="social-item-acoes">${acaoBtn}</div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+export function aoDigitarBuscaAmigo() {
+  if (timerBuscaAmigo) clearTimeout(timerBuscaAmigo);
+  const campo = $id('campo-busca-amigo');
+  const termo = (campo ? campo.value : '').trim().replace(/\s+/g, ' ');
+  if (!termo) {
+    resultadoBusca = null;
+    limparErro('erro-busca-amigo');
+    renderizarResultadosBusca();
+    return;
+  }
+  if (termo.length < 2) return;
+  timerBuscaAmigo = setTimeout(() => {
+    buscarAmigoExato(true);
+  }, 300);
+}
+
+export async function buscarAmigoExato(silencioso = false) {
   if (!estado.minhaConta) return;
   limparErro('erro-busca-amigo');
   const campo = $id('campo-busca-amigo');
-  const nome = (campo ? campo.value : '').trim().replace(/\s+/g, ' ');
-  if (nome.length < 2) {
-    mostrarErro('erro-busca-amigo', 'Digite o nome completo do jogador.');
+  const termo = (campo ? campo.value : '').trim().replace(/\s+/g, ' ');
+  if (termo.length < 1) {
+    if (!silencioso) mostrarErro('erro-busca-amigo', 'Digite pelo menos 1 letra para buscar.');
     return;
   }
 
   const btn = $id('btn-buscar-amigo');
-  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  if (!silencioso && btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
-    const resp = await banco.rpc('buscar_conta_exata', {
+    const resp = await banco.rpc('buscar_contas_parecidas', {
       ...contaParams(),
-      p_nome: nome
+      p_termo: termo
     });
     if (resp.error) {
       if (tratarErroConta(resp.error)) { fecharAmigos(); return; }
-      mostrarErro('erro-busca-amigo', resp.error.message || 'Erro ao buscar jogador.');
+      if (!silencioso) mostrarErro('erro-busca-amigo', resp.error.message || 'Erro ao buscar jogador.');
       return;
     }
-    resultadoBusca = resp.data || null;
-    renderizarGavetaAmigos();
+    const campoAtual = ($id('campo-busca-amigo') ? $id('campo-busca-amigo').value : '').trim().replace(/\s+/g, ' ');
+    if (silencioso && campoAtual !== termo) return;
+    resultadoBusca = {
+      termo,
+      lista: Array.isArray(resp.data) ? resp.data : []
+    };
+    renderizarResultadosBusca();
   } catch (e) {
-    mostrarErro('erro-busca-amigo', 'Sem conexão. Tente novamente.');
+    if (!silencioso) mostrarErro('erro-busca-amigo', 'Sem conexão. Tente novamente.');
   } finally {
     const b = $id('btn-buscar-amigo');
     if (b) { b.disabled = false; b.textContent = 'Buscar'; }
@@ -652,9 +683,13 @@ export async function enviarPedidoAmigo(alvoContaId) {
     if (Array.isArray(sugestoesCache)) {
       sugestoesCache = sugestoesCache.filter((s) => s.conta_id !== alvoContaId);
     }
-    if (resultadoBusca && resultadoBusca.conta_id === alvoContaId) {
-      resultadoBusca.relacao = auto ? 'amigos' : 'enviado';
-      resultadoBusca.amizade_id = resp.data?.amizade_id || null;
+    if (resultadoBusca && Array.isArray(resultadoBusca.lista)) {
+      const item = resultadoBusca.lista.find((x) => x.conta_id === alvoContaId);
+      if (item) {
+        item.relacao = auto ? 'amigos' : 'enviado';
+        item.amizade_id = resp.data?.amizade_id || null;
+        renderizarResultadosBusca();
+      }
     }
     await sincronizarSocial(false);
     if (perfilPublicoAberto() && perfilAlvoAtual && perfilAlvoAtual.conta_id === alvoContaId) {
@@ -716,9 +751,13 @@ export async function cancelarOuRemoverAmigo(alvoContaId, confirmar = true) {
     aviso(confirmar ? 'Amigo removido.' : 'Pedido cancelado.');
     notificarContaSocial(alvoContaId, 'amizade_removida');
     sugestoesCache = null;
-    if (resultadoBusca && resultadoBusca.conta_id === alvoContaId) {
-      resultadoBusca.relacao = 'nenhum';
-      resultadoBusca.amizade_id = null;
+    if (resultadoBusca && Array.isArray(resultadoBusca.lista)) {
+      const item = resultadoBusca.lista.find((x) => x.conta_id === alvoContaId);
+      if (item) {
+        item.relacao = 'nenhum';
+        item.amizade_id = null;
+        renderizarResultadosBusca();
+      }
     }
     await sincronizarSocial(false);
     if (perfilPublicoAberto() && perfilAlvoAtual && perfilAlvoAtual.conta_id === alvoContaId) {
