@@ -128,8 +128,8 @@ export function escolherModoLogin(modo) {
     dica.innerHTML = t(ehCriar ? 'login.dica_criar' : 'login.dica_entrar');
   }
 
-  const btnGuest = $id('botao-convidado');
-  if (btnGuest) btnGuest.hidden = ehCriar;
+  const heroGuest = $id('hero-convidado-login');
+  if (heroGuest) heroGuest.hidden = ehCriar;
 
   renderizarTurnstile(ehCriar ? 'signup' : 'guest');
 }

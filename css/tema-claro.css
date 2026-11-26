@@ -741,6 +741,10 @@
 :root[data-tema="claro"] .legal-conteudo a {
   color: #15803d;
 }
+:root[data-tema="claro"] .convidado-sub,
+:root[data-tema="claro"] .login-divisor {
+  color: #475569;
+}
 :root[data-tema="claro"] .folha .info-dev small,
 :root[data-tema="claro"] .folha .perfil-pref-txt small,
 :root[data-tema="claro"] .folha .dica {
