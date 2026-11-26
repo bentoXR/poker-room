@@ -16,7 +16,7 @@ import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=11
 import {
   escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma,
   alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil, t
-} from './core/i18n.js?v=127';
+} from './core/i18n.js?v=128';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
@@ -240,7 +240,7 @@ function fecharLegal() {
 // ----- Ponte controlada para handlers declarados no HTML -----
 Object.assign(window, {
   // Institucional / Legal
-  abrirLegal, escolherAbaLegal, fecharLegal,
+  abrirLegal, escolherAbaLegal, fecharLegal, reportarBug,
   // Auth, perfil e lobby
   alternarSenha, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta,
   abrirPerfil, fecharPerfil, escolherAbaPerfil, alternarAcordeaoSenha, acionarEscolhaFoto, aoEscolherFotoPerfil,
@@ -509,11 +509,52 @@ window.addEventListener('popstate', () => {
   if (TELAS_INTERNAS.indexOf(id) >= 0) voltarParaSalas();
 });
 
-// ----- Diagnóstico global de erros (pronto para integrar Sentry no futuro) -----
+// ----- Diagnóstico global de erros e reporte de bug -----
+const ultimosErros = [];
+
+function registrarErroDiagnostico(tipo, detalhe) {
+  const msg = String(detalhe || '').slice(0, 220);
+  if (!msg) return;
+  ultimosErros.push({
+    hora: new Date().toISOString(),
+    tipo,
+    msg
+  });
+  if (ultimosErros.length > 15) ultimosErros.shift();
+}
+
+function reportarBug() {
+  const ativa = document.querySelector('.tela.ativa');
+  const tela = ativa ? ativa.id : 'desconhecida';
+  const errosTxt = ultimosErros.length
+    ? ultimosErros.map((er) => `- [${er.hora}] (${er.tipo}) ${er.msg}`).join('\n')
+    : '- Nenhum erro JS capturado nesta sessão.';
+  const corpo = [
+    'Descreva o que aconteceu:',
+    '',
+    '---',
+    'Diagnóstico automático:',
+    `- Versão: v128`,
+    `- Tela: ${tela}`,
+    `- Resolução: ${window.innerWidth}x${window.innerHeight}`,
+    `- Navegador: ${navigator.userAgent}`,
+    '',
+    'Últimos erros capturados:',
+    errosTxt
+  ].join('\n');
+  const url = 'https://github.com/bentoXR/poker-room/issues/new?title=' +
+    encodeURIComponent('[Bug] ') + '&body=' + encodeURIComponent(corpo);
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 window.addEventListener('error', (e) => {
+  const loc = e.filename ? (' (' + e.filename.split('/').pop() + ':' + e.lineno + ')') : '';
+  registrarErroDiagnostico('error', (e.message || String(e.error || 'Erro')) + loc);
   console.error('[PokerRoom] Erro não tratado:', e.message || e.error, e.filename ? (e.filename + ':' + e.lineno) : '');
 });
 window.addEventListener('unhandledrejection', (e) => {
+  const motivo = e.reason && e.reason.message ? e.reason.message : String(e.reason || 'Promise rejeitada');
+  registrarErroDiagnostico('rejection', motivo);
   console.error('[PokerRoom] Promise rejeitada:', e.reason);
 });
 

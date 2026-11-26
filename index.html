@@ -1036,6 +1036,9 @@
     <button type="button" class="legal-aba" data-legal-aba="privacidade" role="tab" aria-selected="false" onclick="escolherAbaLegal('privacidade')" data-i18n="legal.privacidade">Privacidade</button>
   </div>
   <div class="folha-corpo legal-conteudo" id="legal-corpo"></div>
+  <div class="folha-rodape">
+    <button type="button" class="secundario" onclick="reportarBug()" data-i18n="legal.reportar_bug">🐞 Reportar problema</button>
+  </div>
 </div>
 
 <!-- ===== OVERLAY: DIÁLOGO DE CONFIRMAÇÃO DO SITE ===== -->
@@ -1125,13 +1128,14 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=127"></script>
+<script type="module" src="./js/main.js?v=128"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=127').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=128').catch(() => {});
     });
   }
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6750d317246d4ee29471092800333be5"}'></script>
 </body>
 </html>
