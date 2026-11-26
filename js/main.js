@@ -20,7 +20,7 @@ import {
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
-} from './lobby/auth.js?v=134';
+} from './lobby/auth.js?v=135';
 import {
   abrirPerfil, fecharPerfil, perfilAberto, acionarEscolhaFoto, aoEscolherFotoPerfil,
   removerFotoPerfil, salvarNomePerfil, alterarSenhaPerfil, encerrarOutrasSessoes, limparCachePerfil,
@@ -538,7 +538,7 @@ function reportarBug() {
     '',
     '---',
     'Diagnóstico automático:',
-    `- Versão: v134`,
+    `- Versão: v135`,
     `- Tela: ${tela}`,
     `- Resolução: ${window.innerWidth}x${window.innerHeight}`,
     `- Navegador: ${navigator.userAgent}`,

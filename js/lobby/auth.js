@@ -114,6 +114,9 @@ async function chamarTurnstileAuth(rpc, payload) {
       body: JSON.stringify(Object.assign({ rpc, turnstile_token: token }, payload || {}))
     });
     const data = await res.json().catch(() => ({}));
+    if (res.status === 503) {
+      return await banco.rpc(rpc, payload || {});
+    }
     if (!res.ok) {
       return { error: { message: data.message || data.error || 'Falha na verificação de segurança.' } };
     }
