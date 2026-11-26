@@ -1,5 +1,6 @@
 // Utilitários de interface: navegação entre telas, gavetas (.folha), toast, erros, formatação
 import { estado } from './estado.js?v=107';
+import { tocarSom } from './som.js?v=123';
 
 export const $id = (id) => document.getElementById(id);
 
@@ -55,6 +56,7 @@ export function mostrarErro(idDaCaixa, texto) {
   const caixa = $id(idDaCaixa);
   caixa.textContent = texto;
   caixa.classList.add('visivel');
+  tocarSom('erro');
   if (!caixa.getClientRects().length) aviso(texto);
 }
 

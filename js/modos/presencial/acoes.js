@@ -2,7 +2,7 @@
 import { estado, QUALQUER_UM_ABRE_RODADA, nomeDe, credC, passoSala } from '../../core/estado.js?v=107';
 import { $id, escapar, fmtNum, aviso, mostrarErro, limparErro, abrirFolha, fecharFolhas, atualizarFundo, novoUuid, confirmarDialogo } from '../../core/ui.js?v=120';
 import { executar, modoEnviando } from '../../mesa/apostas.js?v=107';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=107';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=123';
 import { registrarModo } from '../../mesa/modos.js?v=107';
 import { fecharDistribuicao } from './distribuir.js?v=107';
 

@@ -6,7 +6,9 @@ const CHAVE_SOM = 'poker-som';
 // Mapeamento dos arquivos reais na pasta sons/
 const ARQUIVOS_MP3 = {
   'carta-dar':    { url: './sons/card-slide-1.mp3',   vol: 0.62, jitter: 0.04 },
+  'carta-dar-2':  { url: './sons/card-slide-6.mp3',   vol: 0.62, jitter: 0.04 },
   'carta-virar':  { url: './sons/card-shove-1.mp3',   vol: 0.65, jitter: 0.03 },
+  'entrar-sala':  { url: './sons/card-fan-1.mp3',     vol: 0.55, jitter: 0.02 },
   'embaralhar':   { url: './sons/oxidvideos-shuffling-deck-of-cards-522518.mp3', vol: 0.65, jitter: 0 },
   'ficha':        { url: './sons/chip-lay-1.mp3',     vol: 0.68, jitter: 0.05 },
   'allin':        { url: './sons/chips-stack-4.mp3',  vol: 0.82, jitter: 0 },
@@ -22,9 +24,22 @@ const carregando = new Map();
 let ativo = true;
 let ultimaAcaoLocalEm = 0;
 let ultimoCliqueEm = 0;
+let ultimoSliderEm = 0;
 
 // Botões que já têm som próprio (evita misturar o clique tátil com o som da jogada)
 const SELETOR_SEM_CLIQUE = '#btn-desistir, #btn-check, #btn-pagar, #btn-confirmar-aposta, #btn-apostar, #btn-blind, #btn-som-mesa, #menu-btn-som, .carta-3d';
+
+function escolherSomBotao(el) {
+  if (!el || el.matches(SELETOR_SEM_CLIQUE)) return null;
+  if (el.matches('.fechar, .voltar, #btn-voltar-mesa, #btn-confirmar-cancelar, .banner-convite-fechar')) return 'ui-fechar';
+  if (el.matches('.perigo, .contorno-perigo, #btn-sair-mesa, #menu-btn-sair')) return 'ui-perigo';
+  if (el.matches('.presets button, .passo, #btn-aumentar, .bj-ficha, .stack')) return 'ui-ficha';
+  if (el.matches('.auth-aba, .perfil-aba, .amigos-aba, .chat-aba, .modo-btn, .cfg-tile')) return 'ui-tab';
+  if (el.matches('.btn-pref-toggle, .tema-btn, .idioma-btn, .pill-toggle, .pill-real, .reacoes-emojis button, .reacoes-frases button, .chat-chip')) return 'ui-toggle';
+  if (el.matches('.positivo, .cta-jogar-agora, #botao-login, #botao-criar, #btn-confirmar-ok, #botao-jogar, #btn-ja-online, #btn-ja-solo')) return 'ui-cta';
+  if (el.matches('.icone-btn, .perfil-atalho, .btn-amigos-lobby, .sala, .perfil-select-btn, .tema-gatilho, .menu-tile, .social-item.clicavel, .lugar.clicavel-perfil')) return 'ui-menu';
+  return 'clique';
+}
 
 function lerPreferenciaSom() {
   try { return localStorage.getItem(CHAVE_SOM) !== '0'; } catch (erro) { return true; }
@@ -364,14 +379,291 @@ function synthDesistir(audioCtx, t0) {
   });
 }
 
+// 8) ui-cta: pop quente e ascendente para ações principais (Entrar, Jogar Agora, Confirmar)
+function synthUiCta(audioCtx, t0) {
+  [
+    { dt: 0,     fIni: 500, fFim: 620, dur: 0.045, gain: 0.085 },
+    { dt: 0.028, fIni: 660, fFim: 760, dur: 0.055, gain: 0.08 }
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(n.fIni, t);
+    osc.frequency.exponentialRampToValueAtTime(n.fFim, t + n.dur);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(n.gain, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + n.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + n.dur + 0.01);
+  });
+}
+
+// 9) ui-tab: tick mecânico nítido e curto para abas e seletores
+function synthUiTab(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(1080, t0);
+  osc.frequency.exponentialRampToValueAtTime(760, t0 + 0.022);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.075, t0 + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.024);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.03);
+}
+
+// 10) ui-fechar: pop suave descendente para fechar/voltar/cancelar
+function synthUiFechar(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(560, t0);
+  osc.frequency.exponentialRampToValueAtTime(340, t0 + 0.042);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.07, t0 + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.044);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.05);
+}
+
+// 11) ui-perigo: pulso grave firme para sair/remover/excluir
+function synthUiPerigo(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(230, t0);
+  osc.frequency.exponentialRampToValueAtTime(150, t0 + 0.06);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.11, t0 + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.062);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.07);
+}
+
+// 12) ui-ficha: clique cerâmico de ficha de poker (atalhos de aposta, +/-, stack)
+function synthUiFicha(audioCtx, t0) {
+  [
+    { freq: 2150, gain: 0.055, dur: 0.022 },
+    { freq: 3350, gain: 0.032, dur: 0.016 }
+  ].forEach((h) => {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(h.freq, t0);
+    osc.frequency.exponentialRampToValueAtTime(h.freq * 0.88, t0 + h.dur);
+    g.gain.setValueAtTime(0.0008, t0);
+    g.gain.linearRampToValueAtTime(h.gain, t0 + 0.0015);
+    g.gain.exponentialRampToValueAtTime(0.0008, t0 + h.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0 + h.dur + 0.008);
+  });
+}
+
+// 13) ui-menu: pop aveludado amadeirado para cards, salas, ícones de topo e perfis
+function synthUiMenu(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(620, t0);
+  osc.frequency.exponentialRampToValueAtTime(490, t0 + 0.034);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.08, t0 + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.036);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.042);
+}
+
+// 14) ui-toggle: bloop cristalino ascendente para toggles, temas, idiomas e reações
+function synthUiToggle(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(780, t0);
+  osc.frequency.exponentialRampToValueAtTime(1060, t0 + 0.036);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.07, t0 + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.038);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.045);
+}
+
+// 15) slider-tick: micro-catraca sutil ao arrastar o slider de aposta
+function synthSliderTick(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1450, t0);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.04, t0 + 0.0015);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.014);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.02);
+}
+
+// 16) chat-msg: pop bolha suave para mensagens de chat
+function synthChatMsg(audioCtx, t0) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(540, t0);
+  osc.frequency.exponentialRampToValueAtTime(720, t0 + 0.055);
+  g.gain.setValueAtTime(0.0008, t0);
+  g.gain.linearRampToValueAtTime(0.09, t0 + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.065);
+  osc.connect(g);
+  g.connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.075);
+}
+
+// 17) reacao: sparkle curto divertido para reações rápidas
+function synthReacao(audioCtx, t0) {
+  [
+    { dt: 0,     freq: 740,  dur: 0.06, gain: 0.075 },
+    { dt: 0.045, freq: 988,  dur: 0.07, gain: 0.08 },
+    { dt: 0.09,  freq: 1175, dur: 0.09, gain: 0.07 }
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(n.freq, t);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(n.gain, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + n.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + n.dur + 0.01);
+  });
+}
+
+// 18) convite-social: chime convidativo de 3 notas (E5 - G5 - B5)
+function synthConviteSocial(audioCtx, t0) {
+  [
+    { dt: 0,    freq: 659.25, dur: 0.16, gain: 0.11 },
+    { dt: 0.09, freq: 783.99, dur: 0.18, gain: 0.11 },
+    { dt: 0.18, freq: 987.77, dur: 0.28, gain: 0.12 }
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(n.freq, t);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(n.gain, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + n.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + n.dur + 0.02);
+  });
+}
+
+// 19) notificacao: ping suave (G5 -> C6) para pedidos de amizade
+function synthNotificacao(audioCtx, t0) {
+  [
+    { dt: 0,    freq: 783.99, dur: 0.14, gain: 0.10 },
+    { dt: 0.08, freq: 1046.5, dur: 0.22, gain: 0.11 }
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(n.freq, t);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(n.gain, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + n.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + n.dur + 0.02);
+  });
+}
+
+// 20) sucesso: acorde leve ascendente (C5 - E5 - G5)
+function synthSucesso(audioCtx, t0) {
+  [
+    { dt: 0,    freq: 523.25, dur: 0.14, gain: 0.09 },
+    { dt: 0.06, freq: 659.25, dur: 0.16, gain: 0.095 },
+    { dt: 0.12, freq: 783.99, dur: 0.24, gain: 0.10 }
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(n.freq, t);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(n.gain, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + n.dur);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + n.dur + 0.02);
+  });
+}
+
+// 21) erro: dois pulsos graves curtos
+function synthErro(audioCtx, t0) {
+  [
+    { dt: 0,     freq: 210 },
+    { dt: 0.095, freq: 165 }
+  ].forEach((n) => {
+    const t = t0 + n.dt;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(n.freq, t);
+    osc.frequency.exponentialRampToValueAtTime(n.freq * 0.85, t + 0.075);
+    g.gain.setValueAtTime(0.0008, t);
+    g.gain.linearRampToValueAtTime(0.11, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.08);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.09);
+  });
+}
+
 const SINTETIZADORES = {
-  'check':         synthCheck,
-  'desistir':      synthDesistir,
-  'sua-vez':       synthSuaVez,
-  'showdown':      synthShowdown,
-  'tempo-urgente': synthTempoUrgente,
-  'campeao':       synthCampeao,
-  'clique':        synthClique
+  'check':          synthCheck,
+  'desistir':       synthDesistir,
+  'sua-vez':        synthSuaVez,
+  'showdown':       synthShowdown,
+  'tempo-urgente':  synthTempoUrgente,
+  'campeao':        synthCampeao,
+  'clique':         synthClique,
+  'ui-cta':         synthUiCta,
+  'ui-tab':         synthUiTab,
+  'ui-fechar':      synthUiFechar,
+  'ui-perigo':      synthUiPerigo,
+  'ui-ficha':       synthUiFicha,
+  'ui-menu':        synthUiMenu,
+  'ui-toggle':      synthUiToggle,
+  'slider-tick':    synthSliderTick,
+  'chat-msg':       synthChatMsg,
+  'reacao':         synthReacao,
+  'convite-social': synthConviteSocial,
+  'notificacao':    synthNotificacao,
+  'sucesso':        synthSucesso,
+  'erro':           synthErro
 };
 
 // =====================================================
@@ -392,10 +684,17 @@ export function foiAcaoLocalRecente() {
 
 export function tocarSom(nome, atrasoMs) {
   if (!ativo) return;
-  if (nome === 'clique') {
+  if (nome === 'carta-dar' && Math.random() < 0.5) {
+    nome = 'carta-dar-2';
+  }
+  if (nome === 'clique' || nome.startsWith('ui-')) {
     const agora = Date.now();
     if (agora - ultimoCliqueEm < 60) return;
     ultimoCliqueEm = agora;
+  } else if (nome === 'slider-tick') {
+    const agora = Date.now();
+    if (agora - ultimoSliderEm < 48) return;
+    ultimoSliderEm = agora;
   }
   const audioCtx = garantirContexto();
   if (!audioCtx) return;
@@ -442,7 +741,7 @@ export function alternarSom() {
   atualizarBotoesSom();
   if (ativo) {
     precarregarTodos();
-    tocarSom('clique');
+    tocarSom('sucesso');
   }
 }
 
@@ -457,10 +756,21 @@ export function iniciarSom() {
     document.addEventListener(ev, aoPrimeiroGesto, { passive: true, once: true });
   });
 
-  // Feedback tátil sutil em todos os botões da interface (exceto os que já têm som próprio)
+  // Feedback tátil diferenciado em todos os botões e cards clicáveis da interface
   document.addEventListener('click', (e) => {
-    const btn = e.target && e.target.closest ? e.target.closest('button:not(:disabled)') : null;
-    if (!btn || btn.matches(SELETOR_SEM_CLIQUE)) return;
-    tocarSom('clique');
+    const btn = e.target && e.target.closest
+      ? e.target.closest('button:not(:disabled), .social-item.clicavel, .lugar.clicavel-perfil')
+      : null;
+    if (!btn) return;
+    const som = escolherSomBotao(btn);
+    if (som) tocarSom(som);
+  }, { passive: true });
+
+  // Catraca sutil ao arrastar sliders de aposta
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el && el.tagName === 'INPUT' && el.type === 'range') {
+      tocarSom('slider-tick');
+    }
   }, { passive: true });
 }

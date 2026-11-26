@@ -5,8 +5,9 @@ import { guardarMeuJogador, esquecerDevSala } from '../core/storage.js?v=107';
 import { $id, escapar, aviso, fmtNum, mostrarErro, limparErro, confirmarDialogo } from '../core/ui.js?v=120';
 import { tratarErroConta } from './auth.js?v=120';
 import { validarUrlAvatar, abrirPerfil, alternarAcordeaoSenha } from './perfil.js?v=109';
-import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=120';
-import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=120';
+import { pararSalas, abrirSala, confirmarSaidaPartidaAtualSeNecessario } from './salas.js?v=123';
+import { abrirMesa, copiarConviteSala } from '../mesa/mesa.js?v=123';
+import { tocarSom } from '../core/som.js?v=123';
 
 const socialCache = {
   carregado: false,
@@ -185,7 +186,10 @@ export function iniciarSocial() {
     try {
       canalSocial = banco
         .channel('social-' + estado.minhaConta.id)
-        .on('broadcast', { event: 'social' }, () => {
+        .on('broadcast', { event: 'social' }, (msg) => {
+          const tipo = msg && msg.payload && msg.payload.tipo;
+          if (tipo === 'pedido_amizade') tocarSom('notificacao');
+          else if (tipo === 'amizade_aceita') tocarSom('sucesso');
           sincronizarSocial(true);
         })
         .subscribe();
@@ -302,6 +306,7 @@ export function atualizarBannerConviteLobby(tocarAviso = false) {
   `;
   banner.hidden = false;
   if (tocarAviso) {
+    tocarSom('convite-social');
     aviso(`${convite.remetente_nome} convidou você para jogar!`);
   }
 }
@@ -641,6 +646,7 @@ export async function enviarPedidoAmigo(alvoContaId) {
       return;
     }
     const auto = !!(resp.data && resp.data.auto_aceita);
+    if (auto) tocarSom('sucesso');
     aviso(auto ? 'Pedido aceito! Vocês agora são amigos.' : 'Pedido de amizade enviado!');
     notificarContaSocial(alvoContaId, auto ? 'amizade_aceita' : 'pedido_amizade');
     if (Array.isArray(sugestoesCache)) {
@@ -673,6 +679,7 @@ export async function responderPedidoAmigo(amizadeId, aceitar) {
       return;
     }
     const outroId = resp.data && resp.data.outro_conta_id;
+    if (aceitar) tocarSom('sucesso');
     aviso(aceitar ? 'Amizade aceita!' : 'Pedido recusado.');
     if (outroId) notificarContaSocial(outroId, aceitar ? 'amizade_aceita' : 'pedido_recusado');
     sugestoesCache = null;

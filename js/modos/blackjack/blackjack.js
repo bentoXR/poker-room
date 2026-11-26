@@ -5,9 +5,9 @@ import { estado, nomeDe } from '../../core/estado.js?v=107';
 import { lerDevSala } from '../../core/storage.js?v=107';
 import { $id, escapar, mostrarErro, limparErro } from '../../core/ui.js?v=120';
 import { registrarModo } from '../../mesa/modos.js?v=107';
-import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=120';
+import { publicarEstado, buscarMesa } from '../../mesa/mesa.js?v=123';
 import { htmlCarta, htmlCartaMini } from '../online/cartas.js?v=107';
-import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=107';
+import { tocarSom, marcarAcaoLocal } from '../../core/som.js?v=123';
 import { t } from '../../core/i18n.js?v=110';
 
 const bjUI = {

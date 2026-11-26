@@ -10,8 +10,8 @@ import { obterModo, limparTodosModos } from './modos.js?v=107';
 import { desenharHistorico, carregarValorReal, atualizarReais, desenharDetalhesPotes } from './extras.js?v=119';
 import { executar, desenharBarraAcoes, registrarHooksApostas } from './apostas.js?v=107';
 import { obterAvatarJogador, sincronizarAvataresMesa } from '../lobby/perfil.js?v=109';
-import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=107';
-import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=112';
+import { tocarSom, foiAcaoLocalRecente } from '../core/som.js?v=123';
+import { iniciarChatMesa, limparChatMesa, receberMensagemChat, receberReacao, receberDigitando, atualizarVotacaoUI, atualizarContagemVotacao } from './chat.js?v=123';
 import { t, termo } from '../core/i18n.js?v=110';
 
 const CHAVES_FASE = ['preflop', 'flop', 'turn', 'river', 'showdown'];
@@ -179,6 +179,7 @@ export async function abrirMesa(partida, estadoInicial) {
   }
 
   mostrar('tela-mesa');
+  tocarSom('entrar-sala');
   hooksApp.onPresencaSala(partida.dev ? null : partida.id);
   iniciarChatMesa(partida.id);
   ligarTempoReal({

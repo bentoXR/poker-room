@@ -3,7 +3,7 @@ import { banco } from '../core/supabase.js?v=107';
 import { estado, nomeDe } from '../core/estado.js?v=107';
 import { $id, escapar, aviso, abrirFolha, limparErro } from '../core/ui.js?v=120';
 import { publicarChat, publicarReacao, publicarDigitando } from '../core/realtime.js?v=119';
-import { tocarSom } from '../core/som.js?v=107';
+import { tocarSom } from '../core/som.js?v=123';
 import { executar } from './apostas.js?v=107';
 
 const JANELA_DIGITANDO_MS = 3400;
@@ -663,7 +663,7 @@ function tocarSomChatSuave() {
   const agora = Date.now();
   if (agora - chat.ultimoSomEm < COOLDOWN_SOM_CHAT_MS) return;
   chat.ultimoSomEm = agora;
-  tocarSom('clique');
+  tocarSom('chat-msg');
 }
 
 function podeMostrarPreviewAutor(chave) {
@@ -954,7 +954,7 @@ export function receberReacao(payload) {
     mostrarPreviewReacao(payload);
   }
 
-  if (!jid || jid !== estado.meuJogadorId) tocarSomChatSuave();
+  if (!jid || jid !== estado.meuJogadorId) tocarSom('reacao');
 }
 
 export function enviarReacao(texto) {

@@ -7,7 +7,7 @@ import { desligarTempoReal } from '../core/realtime.js?v=119';
 import { tratarErroConta } from './auth.js?v=120';
 import { atualizarCabecalhoPerfil, sincronizarMeuPerfil } from './perfil.js?v=109';
 import { registrarRealCriacao, obterConfigOnline, aplicarPadraoCriarSala } from './config-sala.js?v=107';
-import { abrirMesa } from '../mesa/mesa.js?v=120';
+import { abrirMesa } from '../mesa/mesa.js?v=123';
 import { t, termo } from '../core/i18n.js?v=110';
 
 let hooksSalas = {
