@@ -11,6 +11,7 @@ const TURNSTILE_SITEKEY = '0x4AAAAAAGTtapFQALjkyBX8';
 let turnstileWidgetId = null;
 let turnstileToken = '';
 let turnstileActionAtual = 'guest';
+let timerEsperaTurnstile = null;
 
 function temaTurnstileAtual() {
   const tAtual = document.documentElement.getAttribute('data-tema');
@@ -30,7 +31,22 @@ function renderizarTurnstile(action) {
   const alvoAction = action === 'signup' ? 'signup' : 'guest';
   turnstileActionAtual = alvoAction;
   const box = $id('turnstile-box');
-  if (!box || !window.turnstile) return;
+  if (!box) return;
+
+  if (!window.turnstile) {
+    if (!timerEsperaTurnstile) {
+      let tentativas = 0;
+      timerEsperaTurnstile = setInterval(() => {
+        tentativas += 1;
+        if (window.turnstile || tentativas >= 60) {
+          clearInterval(timerEsperaTurnstile);
+          timerEsperaTurnstile = null;
+          if (window.turnstile) renderizarTurnstile(turnstileActionAtual);
+        }
+      }, 150);
+    }
+    return;
+  }
 
   if (turnstileWidgetId !== null) {
     try { window.turnstile.remove(turnstileWidgetId); } catch (erro) {}
@@ -51,6 +67,33 @@ function renderizarTurnstile(action) {
   } catch (erro) {
     turnstileWidgetId = null;
   }
+}
+
+async function obterTokenTurnstile(action, timeoutMs = 5000) {
+  if (turnstileActionAtual !== action || turnstileWidgetId === null) {
+    renderizarTurnstile(action);
+  }
+  const lerResp = () => {
+    if (turnstileToken) return turnstileToken;
+    try {
+      if (window.turnstile && turnstileWidgetId !== null && window.turnstile.getResponse) {
+        const r = window.turnstile.getResponse(turnstileWidgetId);
+        if (r) { turnstileToken = r; return r; }
+      }
+    } catch (erro) {}
+    return '';
+  };
+
+  let tok = lerResp();
+  if (tok) return tok;
+
+  const fim = Date.now() + timeoutMs;
+  while (Date.now() < fim) {
+    await new Promise((r) => setTimeout(r, 120));
+    tok = lerResp();
+    if (tok) return tok;
+  }
+  return '';
 }
 
 export function aoCarregarTurnstile() {
@@ -177,11 +220,6 @@ async function entrarNaConta(funcao) {
     return;
   }
 
-  if (ehCriar && !turnstileToken) {
-    mostrarErro('erro-login', 'Confirme a verificação de segurança antes de criar a conta.');
-    return;
-  }
-
   const botao = $id('botao-login');
   const textoOriginal = botao ? botao.textContent : '';
   if (botao) {
@@ -191,9 +229,16 @@ async function entrarNaConta(funcao) {
 
   let resp;
   try {
-    resp = ehCriar
-      ? await chamarTurnstileAuth('criar_conta', { p_nome: nome, p_senha: senha })
-      : await banco.rpc(funcao, { p_nome: nome, p_senha: senha });
+    if (ehCriar) {
+      const tok = await obterTokenTurnstile('signup');
+      if (!tok) {
+        resp = { error: { message: 'Confirme a verificação de segurança (desative bloqueadores se necessário) e tente novamente.' } };
+      } else {
+        resp = await chamarTurnstileAuth('criar_conta', { p_nome: nome, p_senha: senha });
+      }
+    } else {
+      resp = await banco.rpc(funcao, { p_nome: nome, p_senha: senha });
+    }
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
@@ -232,10 +277,6 @@ export function criarConta() { return entrarNaConta('criar_conta'); }
 
 export async function entrarComoConvidado() {
   limparErro('erro-login');
-  if (!turnstileToken) {
-    mostrarErro('erro-login', 'Confirme a verificação de segurança antes de entrar como convidado.');
-    return;
-  }
   const campoNome = $id('campo-login-nome');
   const nomeDigitado = campoNome ? (campoNome.value || '').trim().replace(/\s+/g, ' ').slice(0, 10) : '';
 
@@ -250,7 +291,12 @@ export async function entrarComoConvidado() {
 
   let resp;
   try {
-    resp = await chamarTurnstileAuth('criar_conta_convidado', { p_nome: nomeDigitado.length >= 2 ? nomeDigitado : null });
+    const tok = await obterTokenTurnstile('guest');
+    if (!tok) {
+      resp = { error: { message: 'Confirme a verificação de segurança (desative bloqueadores se necessário) e tente novamente.' } };
+    } else {
+      resp = await chamarTurnstileAuth('criar_conta_convidado', { p_nome: nomeDigitado.length >= 2 ? nomeDigitado : null });
+    }
   } catch (erro) {
     resp = { error: { message: 'Não consegui falar com o servidor. Confira a internet.' } };
   }
