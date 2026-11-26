@@ -1658,3 +1658,30 @@ button.legal-aba.sel {
   background: rgba(255, 255, 255, 0.1);
   font-size: 12.5px;
 }
+.legal-conteudo a {
+  color: var(--acento);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal-rodape-acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+a.btn-suporte-legal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--linha);
+  color: var(--marfim);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+a.btn-suporte-legal:hover {
+  background: rgba(255, 255, 255, 0.14);
+}

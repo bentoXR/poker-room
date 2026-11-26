@@ -16,7 +16,7 @@ import { canalAtivo, ligarTempoReal, enviarSinal } from './core/realtime.js?v=11
 import {
   escolherIdioma, alternarTermosTraduzidos, aplicarIdiomaDOM, registrarHookIdioma,
   alternarMenuIdiomaPerfil, fecharMenuIdiomaPerfil, t
-} from './core/i18n.js?v=129';
+} from './core/i18n.js?v=130';
 
 import {
   registrarHooksAuth, escolherModoLogin, enviarAuth, fazerLogin, criarConta, entrarComoConvidado, sairDaConta
@@ -538,7 +538,7 @@ function reportarBug() {
     '',
     '---',
     'Diagnóstico automático:',
-    `- Versão: v129`,
+    `- Versão: v130`,
     `- Tela: ${tela}`,
     `- Resolução: ${window.innerWidth}x${window.innerHeight}`,
     `- Navegador: ${navigator.userAgent}`,

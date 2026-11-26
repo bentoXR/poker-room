@@ -57,7 +57,7 @@
 
   <!-- Estilos organizados por responsabilidade -->
   <link rel="stylesheet" href="./css/base.css?v=106">
-  <link rel="stylesheet" href="./css/telas.css?v=129">
+  <link rel="stylesheet" href="./css/telas.css?v=130">
   <link rel="stylesheet" href="./css/mesa.css?v=105">
   <link rel="stylesheet" href="./css/gavetas.css?v=127">
   <link rel="stylesheet" href="./css/online.css?v=119">
@@ -66,7 +66,7 @@
   <link rel="stylesheet" href="./css/tema-cassino.css?v=105">
   <link rel="stylesheet" href="./css/tema-liberdade.css?v=105">
   <link rel="stylesheet" href="./css/tema-tropical.css?v=107">
-  <link rel="stylesheet" href="./css/tema-claro.css?v=129">
+  <link rel="stylesheet" href="./css/tema-claro.css?v=130">
   <link rel="stylesheet" href="./css/desktop.css?v=105">
   <link rel="stylesheet" href="./css/mobile-landscape.css?v=119">
   <link rel="stylesheet" href="./css/amigos.css?v=124">
@@ -1052,7 +1052,8 @@
     <button type="button" class="legal-aba" data-legal-aba="privacidade" role="tab" aria-selected="false" onclick="escolherAbaLegal('privacidade')" data-i18n="legal.privacidade">Privacidade</button>
   </div>
   <div class="folha-corpo legal-conteudo" id="legal-corpo"></div>
-  <div class="folha-rodape">
+  <div class="folha-rodape legal-rodape-acoes">
+    <a class="btn-suporte-legal" href="mailto:bentolino04@gmail.com?subject=Poker%20Room%20-%20Suporte" data-i18n="legal.suporte">✉️ Suporte</a>
     <button type="button" class="secundario" onclick="reportarBug()" data-i18n="legal.reportar_bug">🐞 Reportar problema</button>
   </div>
 </div>
@@ -1144,11 +1145,11 @@
   </div>
 </div>
 
-<script type="module" src="./js/main.js?v=129"></script>
+<script type="module" src="./js/main.js?v=130"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=129').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=130').catch(() => {});
     });
   }
 </script>
